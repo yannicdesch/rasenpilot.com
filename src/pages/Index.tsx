@@ -1,4 +1,3 @@
-
 import React from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import WeatherWidget from '@/components/WeatherWidget';
@@ -8,34 +7,34 @@ import ContentCard from '@/components/ContentCard';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
-// Mock content for featured articles
+// Updated mock content for featured articles in German
 const featuredContent = [
   {
     id: 1,
-    title: "Complete Guide to Spring Lawn Preparation",
-    excerpt: "Get your lawn ready for the growing season with these essential spring preparation steps that ensure a lush, healthy yard all summer long.",
+    title: "Vollständige Anleitung zur Rasenvorbereitung im Frühling",
+    excerpt: "Bereiten Sie Ihren Rasen für die Wachstumsperiode vor mit diesen wesentlichen Frühlingsvorbereitung-Schritten, die einen üppigen, gesunden Rasen den ganzen Sommer über sicherstellen.",
     image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
-    category: "Seasonal Guide",
+    category: "Jahreszeiten-Anleitung",
     readTime: 8,
-    tags: ["spring prep", "fertilizer", "weed control"]
+    tags: ["Frühlingsvorbereitung", "Dünger", "Unkrautkontrolle"]
   },
   {
     id: 2,
-    title: "How to Identify and Treat Common Lawn Pests",
-    excerpt: "Learn to spot the signs of pest damage and apply effective treatments to protect your lawn from common invaders like grubs and chinch bugs.",
+    title: "Wie man häufige Rasenschädlinge identifiziert und behandelt",
+    excerpt: "Lernen Sie, Anzeichen von Schädlingsschäden zu erkennen und effektive Behandlungen anzuwenden, um Ihren Rasen vor häufigen Eindringlingen wie Engerlingen und Wanzen zu schützen.",
     image: "https://images.unsplash.com/photo-1518495973542-4542c06a5843",
-    category: "Pest Control",
+    category: "Schädlingskontrolle",
     readTime: 6,
-    tags: ["pests", "treatment", "lawn health"]
+    tags: ["Schädlinge", "Behandlung", "Rasengesundheit"]
   },
   {
     id: 3,
-    title: "Water-Saving Strategies for Summer Lawns",
-    excerpt: "Maintain a green lawn even during hot, dry months with smart irrigation practices that conserve water while keeping your grass healthy.",
+    title: "Wassersparende Strategien für Sommerra sen",
+    excerpt: "Erhalten Sie einen grünen Rasen auch während heißer, trockener Monate mit intelligenten Bewässerungspraktiken, die Wasser sparen und gleichzeitig Ihren Rasen gesund halten.",
     image: "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3",
-    category: "Water Management",
+    category: "Wassermanagement",
     readTime: 5,
-    tags: ["drought tips", "watering", "summer"]
+    tags: ["Dürretipps", "Bewässerung", "Sommer"]
   },
 ];
 
@@ -51,10 +50,10 @@ const Index = () => {
             <div className="flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="md:w-1/2">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-lawn-green-dark mb-4">
-                  Your Personal Lawn Care Assistant
+                  Ihr persönlicher Rasen-Assistent
                 </h1>
                 <p className="text-lg text-gray-700 mb-8">
-                  Get seasonal tips, track maintenance tasks, and access expert advice for a perfect lawn all year round.
+                  Erhalten Sie Jahreszeiten-Tipps, verfolgen Sie Wartungsaufgaben und greifen Sie auf Expertenratschläge für einen perfekten Rasen das ganze Jahr über zu.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button
@@ -62,7 +61,7 @@ const Index = () => {
                     size="lg"
                     asChild
                   >
-                    <Link to="/dashboard">View Dashboard</Link>
+                    <Link to="/dashboard">Dashboard anzeigen</Link>
                   </Button>
                   <Button
                     variant="outline"
@@ -70,14 +69,14 @@ const Index = () => {
                     size="lg"
                     asChild
                   >
-                    <Link to="/content">Browse Guides</Link>
+                    <Link to="/content">Anleitungen durchsuchen</Link>
                   </Button>
                 </div>
               </div>
               <div className="md:w-1/2 mt-8 md:mt-0">
                 <img
                   src="https://images.unsplash.com/photo-1501854140801-50d01698950b"
-                  alt="Lush green lawn"
+                  alt="Üppiger grüner Rasen"
                   className="rounded-lg shadow-lg w-full h-auto object-cover"
                 />
               </div>
@@ -90,7 +89,7 @@ const Index = () => {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                <h2 className="text-2xl font-bold mb-6">Your Lawn Today</h2>
+                <h2 className="text-2xl font-bold mb-6">Ihr Rasen heute</h2>
                 <WeatherWidget />
                 <div className="mt-8">
                   <SeasonalTips />
@@ -107,9 +106,9 @@ const Index = () => {
         <section className="py-12 bg-lawn-earth-light/30">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Featured Guides</h2>
+              <h2 className="text-2xl font-bold">Empfohlene Anleitungen</h2>
               <Button variant="link" className="text-lawn-green" asChild>
-                <Link to="/content">View All</Link>
+                <Link to="/content">Alle anzeigen</Link>
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -121,30 +120,10 @@ const Index = () => {
         </section>
       </main>
       
-      {/* Simple Footer */}
-      <footer className="bg-white py-8 border-t border-gray-200">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <div className="flex items-center">
-                <div className="h-8 w-8 bg-lawn-green rounded-full flex items-center justify-center mr-2">
-                  <span className="text-white font-bold">L</span>
-                </div>
-                <span className="text-xl font-bold text-lawn-green-dark">LawnRadar</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">Your personal lawn care assistant</p>
-            </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-2">
-              <Link to="/dashboard" className="text-gray-600 hover:text-lawn-green-dark">Dashboard</Link>
-              <Link to="/content" className="text-gray-600 hover:text-lawn-green-dark">Content Library</Link>
-              <Link to="/season-guide" className="text-gray-600 hover:text-lawn-green-dark">Season Guide</Link>
-              <a href="#" className="text-gray-600 hover:text-lawn-green-dark">About</a>
-              <a href="#" className="text-gray-600 hover:text-lawn-green-dark">Contact</a>
-            </div>
-          </div>
-          <div className="mt-8 pt-4 border-t border-gray-100 text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} LawnRadar. All rights reserved.
-          </div>
+      {/* Footer */}
+      <footer className="bg-white py-6 border-t border-gray-200">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+          &copy; {new Date().getFullYear()} LawnRadar. Alle Rechte vorbehalten.
         </div>
       </footer>
     </div>

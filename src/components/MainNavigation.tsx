@@ -11,8 +11,8 @@ const MainNavigation = () => {
   
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Content Library', path: '/content' },
-    { name: 'Season Guide', path: '/season-guide' },
+    { name: 'Inhalte', path: '/content' },
+    { name: 'Jahreszeiten-Anleitung', path: '/season-guide' },
   ];
 
   return (
@@ -39,7 +39,7 @@ const MainNavigation = () => {
                 {item.name}
               </Link>
             ))}
-            <Button className="ml-8 bg-lawn-green hover:bg-lawn-green-dark" size="sm">Sign In</Button>
+            <Button className="ml-8 bg-lawn-green hover:bg-lawn-green-dark" size="sm">Anmelden</Button>
           </div>
           
           {/* Mobile menu button */}
@@ -69,7 +69,7 @@ const MainNavigation = () => {
               </Link>
             ))}
             <div className="px-3 py-2">
-              <Button className="w-full bg-lawn-green hover:bg-lawn-green-dark">Sign In</Button>
+              <Button className="w-full bg-lawn-green hover:bg-lawn-green-dark">Anmelden</Button>
             </div>
           </div>
         )}
@@ -79,3 +79,4 @@ const MainNavigation = () => {
 };
 
 export default MainNavigation;
+
