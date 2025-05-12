@@ -7,26 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout, Calendar } from 'lucide-react';
 import FeatureCallToAction from '@/components/FeatureCallToAction';
 
-// Gallery of lawn images for the inspiration section
-const lawnGallery = [
-  {
-    url: "https://images.unsplash.com/photo-1560179304-5a43b8a4ca10?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHBlcmZlY3QlMjBsYXdufGVufDB8fDB8fHww&auto=format&fit=crop&w=600&q=60",
-    alt: "Perfekt gemähter Rasen mit geraden Linien"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGF3bnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=600&q=60",
-    alt: "Saftig grüner Rasen im Sonnenuntergang"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGxhd24lMjBjYXJlfGVufDB8fDB8fHww&auto=format&fit=crop&w=600&q=60",
-    alt: "Rasensprenger bei der Arbeit"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1556453825-eaa9c38b164f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bGF3biUyMGNhcmV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=600&q=60",
-    alt: "Nahaufnahme gesundes Gras"
-  }
-];
-
+// Premium features list
 const premiumFeatures = [
   {
     title: 'Persönliches Rasenprofil',
@@ -195,32 +176,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Gallery Section */}
-        <section className="py-14">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-green-800 mb-4">Inspiration für deinen perfekten Rasen</h2>
-              <p className="text-gray-600">
-                So könnte dein Rasen mit der richtigen Pflege aussehen
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {lawnGallery.map((image, index) => (
-                <div 
-                  key={index} 
-                  className="overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-48 md:h-64"
-                >
-                  <img 
-                    src={image.url} 
-                    alt={image.alt} 
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Gallery Section - REMOVED */}
         
         {/* Testimonial Section - Social Proof */}
         <section className="py-16 bg-green-50">
