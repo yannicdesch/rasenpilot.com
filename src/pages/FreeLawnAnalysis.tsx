@@ -5,7 +5,7 @@ import MainNavigation from '@/components/MainNavigation';
 import LawnAnalyzer from '@/components/LawnAnalyzer';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plant, Camera, Sparkles, BrainCircuit, Check, UserRound } from 'lucide-react';
+import { Leaf, Camera, Sparkles, BrainCircuit, Check, UserRound } from 'lucide-react';
 import FeatureCallToAction from '@/components/FeatureCallToAction';
 
 const FreeLawnAnalysis = () => {
