@@ -69,7 +69,7 @@ const FreeLawnAnalysis = () => {
               </CardContent>
             </Card>
 
-            <Card className="mb-8">
+            <Card className="mb-8 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700">
               <CardHeader>
                 <CardTitle className="text-xl">Premium-Funktionen</CardTitle>
               </CardHeader>
@@ -80,19 +80,19 @@ const FreeLawnAnalysis = () => {
                   </p>
                   
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <li className="flex items-start">
+                    <li className="flex items-start bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg shadow-sm">
                       <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
                       <span>Detaillierte Bodenanalyse und pH-Wert-Empfehlungen</span>
                     </li>
-                    <li className="flex items-start">
+                    <li className="flex items-start bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg shadow-sm">
                       <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
                       <span>Fortschrittsüberwachung mit Foto-Zeitverlauf</span>
                     </li>
-                    <li className="flex items-start">
+                    <li className="flex items-start bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg shadow-sm">
                       <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
                       <span>Saisonale Pflegepläne basierend auf Ihren Fotos</span>
                     </li>
-                    <li className="flex items-start">
+                    <li className="flex items-start bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg shadow-sm">
                       <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
                       <span>Unbegrenzte Bildanalysen und Empfehlungen</span>
                     </li>
