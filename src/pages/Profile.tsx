@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,7 +45,15 @@ const Profile = () => {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        console.error('Supabase is not configured properly');
+        toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+        navigate('/auth');
+        return;
+      }
+
+      const { data, error } = await supabase!.auth.getUser();
       
       if (error || !data?.user) {
         navigate('/auth');
@@ -70,9 +78,14 @@ const Profile = () => {
   }, [navigate, form]);
 
   const onSubmit = async (values: ProfileFormValues) => {
+    if (!isSupabaseConfigured()) {
+      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { error } = await supabase!.auth.updateUser({
         data: { name: values.name }
       });
 
@@ -94,9 +107,14 @@ const Profile = () => {
   };
 
   const handleSignOut = async () => {
+    if (!isSupabaseConfigured()) {
+      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+      return;
+    }
+
     setLoading(true);
     try {
-      await supabase.auth.signOut();
+      await supabase!.auth.signOut();
       navigate('/auth');
       toast.success('Du wurdest erfolgreich abgemeldet');
     } catch (error: any) {

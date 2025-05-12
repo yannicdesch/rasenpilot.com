@@ -21,5 +21,5 @@ export const supabase = isUsingDefaultCredentials
 
 // Helper to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-  return !!supabase;
+  return supabase !== null;
 };

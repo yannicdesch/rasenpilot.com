@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -11,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Lock, UserRoundPlus } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 const loginSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -50,9 +49,14 @@ const AuthForm = () => {
   });
 
   const onLoginSubmit = async (data: LoginFormValues) => {
+    if (!isSupabaseConfigured()) {
+      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase!.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
@@ -71,9 +75,14 @@ const AuthForm = () => {
   };
 
   const onRegisterSubmit = async (data: RegisterFormValues) => {
+    if (!isSupabaseConfigured()) {
+      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase!.auth.signUp({
         email: data.email,
         password: data.password,
         options: {

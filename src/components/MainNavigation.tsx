@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut } from "lucide-react";
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -22,7 +22,14 @@ const MainNavigation = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const { data } = await supabase.auth.getUser();
+        // Check if Supabase is configured
+        if (!isSupabaseConfigured()) {
+          console.log('Supabase is not configured in MainNavigation');
+          setLoading(false);
+          return;
+        }
+
+        const { data } = await supabase!.auth.getUser();
         if (data?.user) {
           setUser({
             id: data.user.id,
@@ -39,28 +46,46 @@ const MainNavigation = () => {
 
     getUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          name: session.user.user_metadata?.name,
+    // Only set up the auth listener if Supabase is configured
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: authListener } = supabase!.auth.onAuthStateChange((_event, session) => {
+          if (session?.user) {
+            setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              name: session.user.user_metadata?.name,
+            });
+          } else {
+            setUser(null);
+          }
         });
-      } else {
-        setUser(null);
+    
+        return () => {
+          if (authListener?.subscription) {
+            authListener.subscription.unsubscribe();
+          }
+        };
+      } catch (error) {
+        console.error('Error setting up auth listener:', error);
+        return () => {};
       }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    }
+    
+    return () => {};
   }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const handleSignOut = async () => {
+    if (!isSupabaseConfigured()) {
+      console.error('Supabase is not configured properly');
+      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+      return;
+    }
+
     try {
-      await supabase.auth.signOut();
+      await supabase!.auth.signOut();
       navigate('/');
       toast.success('Du wurdest erfolgreich abgemeldet');
     } catch (error: any) {
