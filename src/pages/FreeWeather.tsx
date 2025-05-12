@@ -5,7 +5,7 @@ import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Cloud, CloudRain, Thermometer, Wind, Sun, Info, UserRound } from 'lucide-react';
+import { Cloud, CloudRain, Thermometer, Wind, Sun, Info, UserRound, Leaf, Check } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useLawn } from '@/context/LawnContext';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
