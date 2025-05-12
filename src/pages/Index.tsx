@@ -55,6 +55,26 @@ const premiumFeatures = [
   }
 ];
 
+// Gallery of lawn images for the inspiration section
+const lawnGallery = [
+  {
+    url: "https://images.unsplash.com/photo-1560179304-6fc1d8749b23?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bGF3bnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=600&q=60",
+    alt: "Perfekt gemähter Rasen mit geraden Linien"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGF3bnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=600&q=60",
+    alt: "Saftig grüner Rasen im Sonnenuntergang"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGxhd24lMjBjYXJlfGVufDB8fDB8fHww&auto=format&fit=crop&w=600&q=60",
+    alt: "Rasensprenger bei der Arbeit"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1556453825-eaa9c38b164f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bGF3biUyMGNhcmV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=600&q=60",
+    alt: "Nahaufnahme gesundes Gras"
+  }
+];
+
 const Index = () => {
   const navigate = useNavigate();
   
@@ -63,7 +83,7 @@ const Index = () => {
       <MainNavigation />
       
       <main className="flex-grow">
-        {/* Hero Section */}
+        {/* Hero Section with larger image */}
         <section className="bg-gradient-to-br from-green-100 to-green-50 py-16 md:py-24 border-b border-green-200">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-8">
@@ -110,6 +130,25 @@ const Index = () => {
           </div>
         </section>
         
+        {/* Image Banner Section */}
+        <section className="py-10 overflow-hidden">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-wrap -mx-4 items-center justify-center">
+              {lawnGallery.map((image, index) => (
+                <div key={index} className="px-2 w-1/2 md:w-1/4 mb-4">
+                  <div className="h-40 md:h-52 overflow-hidden rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300">
+                    <img
+                      src={image.url}
+                      alt={image.alt}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        
         {/* Kostenlose Funktionen */}
         <section className="py-20">
           <div className="container mx-auto px-4">
@@ -139,6 +178,48 @@ const Index = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+        </section>
+        
+        {/* Lawn Inspiration Section */}
+        <section className="py-16 bg-green-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold mb-4 text-green-800">Inspiration für Ihren perfekten Rasen</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Sehen Sie, welche Ergebnisse Sie mit unseren personalisierten Pflegeplänen erzielen können
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="relative rounded-xl overflow-hidden h-80 shadow-lg">
+                <img 
+                  src="https://images.unsplash.com/photo-1622560481143-4a31d30bf66e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGxhd24lMjBjYXJlfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60" 
+                  alt="Gepflegter Vorstadtrasen" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-green-900/70 to-transparent flex items-end p-6">
+                  <div className="text-white">
+                    <h3 className="text-xl font-semibold mb-2">Vorstadtrasen</h3>
+                    <p>Ein gleichmäßig gepflegter und sattgrüner Rasen als Schmuckstück für Ihr Zuhause</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="relative rounded-xl overflow-hidden h-80 shadow-lg">
+                <img 
+                  src="https://images.unsplash.com/photo-1556453317-6c415a6f5a9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8bGF3biUyMGNhcmV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60" 
+                  alt="Sportlicher Rasen" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-green-900/70 to-transparent flex items-end p-6">
+                  <div className="text-white">
+                    <h3 className="text-xl font-semibold mb-2">Sportlicher Rasen</h3>
+                    <p>Strapazierfähiger und dennoch weicher Rasen für aktive Familien und Sportbegeisterte</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -173,9 +254,16 @@ const Index = () => {
           </div>
         </section>
         
-        {/* How It Works */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
+        {/* How It Works with Background Image */}
+        <section className="py-20 relative">
+          <div className="absolute inset-0 z-0">
+            <img 
+              src="https://images.unsplash.com/photo-1543467804-b4275f5c5bd4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGF3bnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=1200&q=60" 
+              alt="Rasenhintergrund"
+              className="w-full h-full object-cover opacity-20"
+            />
+          </div>
+          <div className="container mx-auto px-4 relative z-10">
             <h2 className="text-3xl font-bold text-center mb-4 text-green-800">So funktioniert Rasenpilot</h2>
             <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">Unser intelligenter Assistent hilft Ihnen bei jedem Schritt Ihrer Rasenpflege</p>
             
@@ -250,6 +338,55 @@ const Index = () => {
                     </div>
                   </CardContent>
                 </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+        
+        {/* Seasonal Lawn Care Section */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold mb-4 text-green-800">Rasenpflege für jede Jahreszeit</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Unser KI-Assistent passt Ihre Pflegetipps an die aktuelle Jahreszeit und das Wetter an
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[
+                {
+                  season: "Frühling",
+                  image: "https://images.unsplash.com/photo-1580910365204-91aa43950a2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHNwcmluZyUyMGxhd258ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=600&q=60",
+                  tip: "Vertikutieren und Düngen für einen starken Start"
+                },
+                {
+                  season: "Sommer",
+                  image: "https://images.unsplash.com/photo-1533460004989-cef01064af7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c3VtbWVyJTIwbGF3bnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=600&q=60",
+                  tip: "Regelmäßiges Mähen und ausreichend Bewässern"
+                },
+                {
+                  season: "Herbst",
+                  image: "https://images.unsplash.com/photo-1508178566134-ec24bef0eee1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YXV0dW1uJTIwbGF3bnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=600&q=60",
+                  tip: "Laub entfernen und Winterdünger ausbringen"
+                },
+                {
+                  season: "Winter",
+                  image: "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2ludGVyJTIwZ2FyZGVufGVufDB8fDB8fHww&auto=format&fit=crop&w=600&q=60",
+                  tip: "Rasen schonen und vor Frost schützen"
+                }
+              ].map((item, index) => (
+                <div key={index} className="relative rounded-lg overflow-hidden group">
+                  <img 
+                    src={item.image} 
+                    alt={`${item.season} Rasenpflege`}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/50 to-transparent flex flex-col justify-end p-4">
+                    <h3 className="text-xl font-bold text-white mb-1">{item.season}</h3>
+                    <p className="text-white text-sm">{item.tip}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
