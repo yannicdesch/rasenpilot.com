@@ -8,7 +8,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { toast } from '@/components/ui/use-toast';
-import { ArrowRight, Check, Plant, Cloud, MessageSquare } from 'lucide-react';
+import { ArrowRight, Check, Leaf, Cloud, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const grassTypes = [
@@ -37,7 +37,7 @@ const features = [
   {
     title: 'AI-Powered Care Plans',
     description: 'Get a personalized 2-week lawn care plan based on your grass type, location, and goals',
-    icon: <Plant className="h-10 w-10 text-green-600"/>
+    icon: <Leaf className="h-10 w-10 text-green-600"/>
   },
   {
     title: 'Weather-Aware Advice',

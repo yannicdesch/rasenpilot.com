@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, Plant, MessageSquare, Cloud, Calendar } from "lucide-react";
+import { Menu, X, Leaf, MessageSquare, Cloud, Calendar } from "lucide-react";
 
 const MainNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +10,7 @@ const MainNavigation = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   
   const menuItems = [
-    { name: 'Home', path: '/', icon: <Plant size={18} className="mr-1" /> },
+    { name: 'Home', path: '/', icon: <Leaf size={18} className="mr-1" /> },
     { name: 'My Care Plan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
     { name: 'Ask LawnBuddy', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Weather Advice', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
