@@ -21,6 +21,7 @@ import FreePlan from "./pages/FreePlan";
 import FreeCarePlan from "./pages/FreeCarePlan";
 import FreeChat from "./pages/FreeChat";
 import FreeWeather from "./pages/FreeWeather";
+import FreeLawnAnalysis from "./pages/FreeLawnAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => {
               <Route path="/free-care-plan" element={<FreeCarePlan />} />
               <Route path="/free-chat" element={<FreeChat />} />
               <Route path="/free-weather" element={<FreeWeather />} />
+              <Route path="/free-analysis" element={<FreeLawnAnalysis />} />
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
