@@ -1,25 +1,14 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// We'll use empty strings as fallbacks instead of placeholders
-// This makes it clearer that these are missing values
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Use the provided anon key and a default URL for Supabase
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
 
-// This will be true if either URL or key is missing
-const isUsingDefaultCredentials = !supabaseUrl || !supabaseAnonKey;
-
-// Log warning if using default/empty credentials
-if (isUsingDefaultCredentials) {
-  console.warn('Using default Supabase credentials. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.');
-}
-
-// Create the client only if we have both URL and key
-export const supabase = isUsingDefaultCredentials 
-  ? null 
-  : createClient(supabaseUrl, supabaseAnonKey);
+// Create the Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Helper to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-  return supabase !== null;
+  return true; // Since we're now using fixed values, we can return true
 };

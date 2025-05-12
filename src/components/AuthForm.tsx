@@ -56,7 +56,7 @@ const AuthForm = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase!.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
@@ -82,7 +82,7 @@ const AuthForm = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase!.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -11,7 +10,7 @@ const ProtectedRoute = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Check if Supabase is configured
+        // We should always be configured now, but keep the check
         if (!isSupabaseConfigured()) {
           console.error('Supabase is not configured properly');
           toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
@@ -39,25 +38,21 @@ const ProtectedRoute = () => {
 
     checkAuth();
 
-    // Only set up the auth listener if Supabase is configured
-    if (isSupabaseConfigured()) {
-      try {
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-          setIsAuthenticated(!!session);
-        });
-    
-        return () => {
-          if (authListener?.subscription) {
-            authListener.subscription.unsubscribe();
-          }
-        };
-      } catch (error) {
-        console.error('Error setting up auth listener:', error);
-        return () => {};
-      }
+    // Set up auth listener
+    try {
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsAuthenticated(!!session);
+      });
+  
+      return () => {
+        if (authListener?.subscription) {
+          authListener.subscription.unsubscribe();
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up auth listener:', error);
+      return () => {};
     }
-    
-    return () => {};
   }, []);
 
   if (isLoading) {

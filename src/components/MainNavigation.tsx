@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -22,14 +21,14 @@ const MainNavigation = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        // Check if Supabase is configured
+        // We're now always configured, but keep the checks for robustness
         if (!isSupabaseConfigured()) {
           console.log('Supabase is not configured in MainNavigation');
           setLoading(false);
           return;
         }
 
-        const { data } = await supabase!.auth.getUser();
+        const { data } = await supabase.auth.getUser();
         if (data?.user) {
           setUser({
             id: data.user.id,
@@ -46,33 +45,29 @@ const MainNavigation = () => {
 
     getUser();
 
-    // Only set up the auth listener if Supabase is configured
-    if (isSupabaseConfigured()) {
-      try {
-        const { data: authListener } = supabase!.auth.onAuthStateChange((_event, session) => {
-          if (session?.user) {
-            setUser({
-              id: session.user.id,
-              email: session.user.email || '',
-              name: session.user.user_metadata?.name,
-            });
-          } else {
-            setUser(null);
-          }
-        });
-    
-        return () => {
-          if (authListener?.subscription) {
-            authListener.subscription.unsubscribe();
-          }
-        };
-      } catch (error) {
-        console.error('Error setting up auth listener:', error);
-        return () => {};
-      }
+    // Set up auth listener
+    try {
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.name,
+          });
+        } else {
+          setUser(null);
+        }
+      });
+  
+      return () => {
+        if (authListener?.subscription) {
+          authListener.subscription.unsubscribe();
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up auth listener:', error);
+      return () => {};
     }
-    
-    return () => {};
   }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
