@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
+import WeatherInfo from '@/components/WeatherInfo';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle, Clock, Droplet, Sun, Wind } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useLawn } from '@/context/LawnContext';
-import { generateCarePlan, CarePlanTask } from '@/services/lawnService';
+import { generateCarePlan, CarePlanTask, fetchWeatherData, WeatherData } from '@/services/lawnService';
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -38,6 +39,8 @@ const CarePlan = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<CarePlanTask[]>([]);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
 
   useEffect(() => {
     // Redirect to home if there's no profile
@@ -67,6 +70,20 @@ const CarePlan = () => {
         });
         setLoading(false);
       });
+      
+    // Fetch weather data
+    if (profile?.zipCode) {
+      setWeatherLoading(true);
+      fetchWeatherData(profile.zipCode)
+        .then(data => {
+          setWeatherData(data);
+          setWeatherLoading(false);
+        })
+        .catch(error => {
+          console.error("Error fetching weather data:", error);
+          setWeatherLoading(false);
+        });
+    }
   }, [profile, isProfileComplete, navigate]);
 
   const markComplete = (id: number) => {
@@ -200,34 +217,7 @@ const CarePlan = () => {
             
             {/* Sidebar */}
             <div className="w-full lg:w-1/3 space-y-6">
-              <Card>
-                <CardHeader className="bg-green-50 pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Sun className="text-yellow-500" size={20} />
-                    Wettereinfluss
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-2xl font-bold">22°C</div>
-                    <div className="text-sm">Sonnig</div>
-                  </div>
-                  
-                  <div className="space-y-3 text-sm">
-                    <div className="p-3 bg-yellow-50 rounded-md flex items-center">
-                      <Sun className="text-yellow-500 mr-2" size={18} />
-                      <div>
-                        <p className="font-medium text-yellow-700">Heiß und trocken</p>
-                        <p className="text-yellow-600">Früh morgens bewässern, um Verdunstung zu vermeiden</p>
-                      </div>
-                    </div>
-                    
-                    <p className="text-gray-600">
-                      Wetterdaten werden verwendet, um Ihre Pflegeplanempfehlungen anzupassen und Wasser zu sparen.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <WeatherInfo weatherData={weatherData} loading={weatherLoading} />
               
               <Card>
                 <CardHeader className="pb-2">

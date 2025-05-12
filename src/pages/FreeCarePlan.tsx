@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
+import WeatherInfo from '@/components/WeatherInfo';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle, Clock, Info, MessageSquare, UserRound } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useLawn } from '@/context/LawnContext';
-import { CarePlanTask } from '@/services/lawnService';
+import { CarePlanTask, fetchWeatherData, WeatherData } from '@/services/lawnService';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import FeatureCallToAction from '@/components/FeatureCallToAction';
 
@@ -82,6 +83,8 @@ const FreeCarePlan = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<CarePlanTask[]>([]);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
 
   useEffect(() => {
     // Redirect to home if there's no temporary profile
@@ -105,6 +108,20 @@ const FreeCarePlan = () => {
       setTasks(generatedTasks);
       setLoading(false);
     }, 1500);
+    
+    // Fetch weather data
+    if (temporaryProfile?.zipCode) {
+      setWeatherLoading(true);
+      fetchWeatherData(temporaryProfile.zipCode)
+        .then(data => {
+          setWeatherData(data);
+          setWeatherLoading(false);
+        })
+        .catch(error => {
+          console.error("Error fetching weather data:", error);
+          setWeatherLoading(false);
+        });
+    }
   }, [temporaryProfile, navigate]);
 
   if (loading) {
@@ -213,6 +230,8 @@ const FreeCarePlan = () => {
             
             {/* Sidebar */}
             <div className="w-full lg:w-1/3 space-y-6">
+              <WeatherInfo weatherData={weatherData} loading={weatherLoading} />
+              
               <Card>
                 <CardHeader className="bg-green-50 pb-2">
                   <CardTitle className="text-lg">Premium-Funktionen</CardTitle>
