@@ -1,11 +1,13 @@
+
 import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 
 const ProtectedRoute = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -27,6 +29,16 @@ const ProtectedRoute = () => {
           setIsAuthenticated(false);
         } else {
           setIsAuthenticated(!!data.session);
+          
+          // If not authenticated, inform about premium features
+          if (!data.session) {
+            toast.error('Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.', {
+              action: {
+                label: 'Mehr Info',
+                onClick: () => window.location.href = '/features'
+              },
+            });
+          }
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
@@ -60,7 +72,7 @@ const ProtectedRoute = () => {
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/auth" />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/features" state={{ from: location }} />;
 };
 
 export default ProtectedRoute;

@@ -11,6 +11,7 @@ import WeatherAdvice from "./pages/WeatherAdvice";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import FeaturesBehindRegistration from "./pages/FeaturesBehindRegistration";
 import { LawnProvider } from "./context/LawnContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -54,6 +55,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/features" element={<FeaturesBehindRegistration />} />
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>

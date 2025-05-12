@@ -3,7 +3,7 @@ import React from 'react';
 import AuthForm from '@/components/AuthForm';
 import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -17,7 +17,16 @@ const Auth = () => {
       <MainNavigation />
       <div className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
         <div className="w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center mb-8 text-green-800">Willkommen bei Rasenpilot</h1>
+          <h1 className="text-3xl font-bold text-center mb-4 text-green-800 dark:text-green-400">Willkommen bei Rasenpilot</h1>
+          
+          <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg mb-6 flex items-start gap-3">
+            <Lock className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                Mit Ihrem kostenlosen Konto erhalten Sie Zugriff auf alle <Link to="/features" className="underline font-medium">Premium-Funktionen</Link> wie personalisierte Pflegepläne, Foto-Upload und mehr.
+              </p>
+            </div>
+          </div>
           
           {!isSupabaseReady ? (
             <Alert variant="destructive" className="mb-6">
