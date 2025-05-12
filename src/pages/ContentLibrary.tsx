@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import ContentCard from '@/components/ContentCard';
@@ -105,7 +104,7 @@ const ContentLibrary = () => {
       
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-lawn-green-dark mb-6">Lawn Care Content Library</h1>
+          <h1 className="text-3xl font-bold text-lawn-green-dark mb-6">Rasenpflege Bibliothek</h1>
           
           {/* Search and filter bar */}
           <div className="bg-white rounded-lg shadow-sm p-4 mb-8">
@@ -114,14 +113,14 @@ const ContentLibrary = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input 
                   className="pl-10" 
-                  placeholder="Search articles..." 
+                  placeholder="Suche Artikel..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               
               <div className="flex-grow">
-                <h3 className="text-sm font-medium mb-2">Popular Tags:</h3>
+                <h3 className="text-sm font-medium mb-2">Populäre Tags:</h3>
                 <div className="flex flex-wrap gap-2">
                   {allTags.slice(0, 8).map(tag => (
                     <Button
@@ -142,13 +141,13 @@ const ContentLibrary = () => {
           {/* Content tabs and grid */}
           <Tabs defaultValue="all" className="w-full" onValueChange={setActiveCategory}>
             <TabsList className="w-full bg-white border mb-6">
-              <TabsTrigger value="all" className="flex-1">All Content</TabsTrigger>
+              <TabsTrigger value="all" className="flex-1">Alle Inhalte</TabsTrigger>
               {categories.map(category => (
                 <TabsTrigger key={category} value={category} className="flex-1 hidden md:flex">
                   {category}
                 </TabsTrigger>
               ))}
-              <TabsTrigger value="saved" className="flex-1">Saved</TabsTrigger>
+              <TabsTrigger value="saved" className="flex-1">Gespeicherte</TabsTrigger>
             </TabsList>
             
             <TabsContent value="all" className="mt-0">
@@ -159,8 +158,8 @@ const ContentLibrary = () => {
                   ))
                 ) : (
                   <div className="col-span-3 py-16 text-center">
-                    <h3 className="text-xl font-medium mb-2">No matching articles found</h3>
-                    <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                    <h3 className="text-xl font-medium mb-2">Keine passenden Artikel gefunden</h3>
+                    <p className="text-muted-foreground">Versuchen Sie, Ihre Suche oder Ihre Filtereinstellungen zu ändern</p>
                   </div>
                 )}
               </div>
@@ -180,12 +179,12 @@ const ContentLibrary = () => {
             
             <TabsContent value="saved" className="mt-0">
               <div className="py-16 text-center">
-                <h3 className="text-xl font-medium mb-2">No saved articles yet</h3>
+                <h3 className="text-xl font-medium mb-2">Keine gespeicherten Artikel</h3>
                 <p className="text-muted-foreground mb-4">
-                  Your saved articles will appear here once you save them
+                  Ihre gespeicherten Artikel werden hier angezeigt, sobald Sie sie gespeichert haben
                 </p>
                 <Button className="bg-lawn-green hover:bg-lawn-green-dark">
-                  Browse Articles
+                  Artikel durchsuchen
                 </Button>
               </div>
             </TabsContent>
@@ -196,7 +195,7 @@ const ContentLibrary = () => {
       {/* Footer */}
       <footer className="bg-white py-6 border-t border-gray-200">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} LawnRadar. All rights reserved.
+          &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
         </div>
       </footer>
     </div>

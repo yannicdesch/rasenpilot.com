@@ -12,7 +12,7 @@ const MainNavigation = () => {
   const menuItems = [
     { name: 'Startseite', path: '/', icon: <Leaf size={18} className="mr-1" /> },
     { name: 'Mein Pflegeplan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
-    { name: 'Fragen an RasenFreund', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
+    { name: 'Fragen an Rasenpilot', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
   ];
 
@@ -25,7 +25,7 @@ const MainNavigation = () => {
               <div className="h-8 w-8 bg-green-600 rounded-full flex items-center justify-center mr-2">
                 <span className="text-white font-bold">R</span>
               </div>
-              <span className="text-xl font-bold text-green-700">RasenFreund</span>
+              <span className="text-xl font-bold text-green-700">Rasenpilot</span>
             </Link>
           </div>
           

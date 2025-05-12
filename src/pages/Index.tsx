@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
@@ -44,7 +45,7 @@ const features = [
     icon: <Cloud className="h-12 w-12 text-blue-500"/>
   },
   {
-    title: 'RasenFreund KI-Assistent',
+    title: 'Rasenpilot KI-Assistent',
     description: 'Stellen Sie Fragen und erhalten Sie jederzeit fachkundige Rasenpflege-Beratung',
     icon: <MessageSquare className="h-12 w-12 text-green-700"/>
   }
@@ -117,7 +118,7 @@ const Index = () => {
         {/* Features Section */}
         <section className="py-20 leaf-pattern">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-4 text-green-800">Wie RasenFreund funktioniert</h2>
+            <h2 className="text-3xl font-bold text-center mb-4 text-green-800">Wie Rasenpilot funktioniert</h2>
             <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">Unser intelligenter Assistent hilft Ihnen bei jedem Schritt Ihrer Rasenpflege</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -287,7 +288,7 @@ const Index = () => {
         <section className="py-16 bg-green-50">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-4 text-green-800">Was unsere Benutzer sagen</h2>
-            <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">Entdecken Sie, wie RasenFreund anderen Gartenbesitzern geholfen hat</p>
+            <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">Entdecken Sie, wie Rasenpilot anderen Gartenbesitzern geholfen hat</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
@@ -301,7 +302,7 @@ const Index = () => {
                       ))}
                     </div>
                     <p className="text-gray-600 mb-4">
-                      {i === 1 && "RasenFreund hat die Art und Weise, wie ich mich um meinen Rasen kümmere, komplett verändert. Der personalisierte Plan ist so einfach zu befolgen, und mein Rasen sieht besser aus als je zuvor!"}
+                      {i === 1 && "Rasenpilot hat die Art und Weise, wie ich mich um meinen Rasen kümmere, komplett verändert. Der personalisierte Plan ist so einfach zu befolgen, und mein Rasen sieht besser aus als je zuvor!"}
                       {i === 2 && "Die Möglichkeit, jederzeit mit dem KI-Assistenten zu chatten, wenn ich Fragen habe, war unglaublich hilfreich. Es ist, als hätte man rund um die Uhr einen Rasenexperten zur Hand."}
                       {i === 3 && "Die wetterbasierte Empfehlungen haben mir so viel Zeit und Wasser gespart. Ich mache mir keine Sorgen mehr, an Regentagen zu bewässern."}
                     </p>
@@ -337,11 +338,11 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
             <Leaf className="h-6 w-6 mr-2" />
-            <span className="text-xl font-bold">RasenFreund</span>
+            <span className="text-xl font-bold">Rasenpilot</span>
           </div>
           <p className="text-green-100 mb-4">Ihr intelligenter Begleiter für die perfekte Rasenpflege</p>
           <div className="text-sm text-green-200">
-            &copy; {new Date().getFullYear()} RasenFreund. Alle Rechte vorbehalten.
+            &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
           </div>
         </div>
       </footer>
