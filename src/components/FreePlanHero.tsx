@@ -12,6 +12,9 @@ const FreePlanHero: React.FC = () => {
           <p className="text-lg text-gray-700 mb-6">
             Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
           </p>
+          <p className="text-sm text-green-600 font-medium">
+            Registriere dich, um deinen individuellen Pflegeplan zu speichern und jederzeit darauf zuzugreifen.
+          </p>
         </div>
       </div>
     </section>

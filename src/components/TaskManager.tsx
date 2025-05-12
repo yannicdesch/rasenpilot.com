@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -8,6 +8,7 @@ import { CalendarIcon, CheckSquare, Clock, Plus, X } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useLawn } from '@/context/LawnContext';
 
 interface Task {
   id: string;
@@ -17,19 +18,29 @@ interface Task {
   completed: boolean;
   user_id: string;
   created_at: string;
+  lawn_profile_id?: string; // Reference to the lawn profile
 }
 
 const TaskManager = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const queryClient = useQueryClient();
+  const { profile, temporaryProfile } = useLawn();
+  
+  // Check if user is authenticated
+  const checkAuthStatus = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  };
   
   const fetchTasks = async (): Promise<Task[]> => {
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
+      // Return empty array if not authenticated
       return [];
     }
     
+    // Fetch tasks associated with the user's current lawn profile
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
@@ -43,10 +54,17 @@ const TaskManager = () => {
     return data || [];
   };
   
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [], isLoading, refetch } = useQuery({
     queryKey: ['tasks'],
     queryFn: fetchTasks,
   });
+  
+  // Effect to refetch tasks when profile changes
+  useEffect(() => {
+    if (profile) {
+      refetch();
+    }
+  }, [profile, refetch]);
   
   const createTaskMutation = useMutation({
     mutationFn: async (title: string) => {
@@ -56,13 +74,16 @@ const TaskManager = () => {
         throw new Error('Sie müssen angemeldet sein, um Aufgaben zu erstellen');
       }
       
+      const newTask = {
+        title,
+        user_id: session.user.id,
+        completed: false,
+        lawn_profile_id: profile?.zipCode // Use zipCode as a simple reference to the lawn profile
+      };
+      
       const { data, error } = await supabase
         .from('tasks')
-        .insert({
-          title,
-          user_id: session.user.id,
-          completed: false,
-        })
+        .insert(newTask)
         .select()
         .single();
       
@@ -129,7 +150,19 @@ const TaskManager = () => {
       return;
     }
     
-    createTaskMutation.mutate(newTaskTitle.trim());
+    // Check if user is authenticated
+    checkAuthStatus().then(isAuthenticated => {
+      if (isAuthenticated) {
+        createTaskMutation.mutate(newTaskTitle.trim());
+      } else {
+        toast.error('Sie müssen angemeldet sein, um Aufgaben zu speichern', {
+          action: {
+            label: 'Anmelden',
+            onClick: () => window.location.href = '/auth'
+          },
+        });
+      }
+    });
   };
   
   const handleToggleTask = (taskId: string, completed: boolean) => {
