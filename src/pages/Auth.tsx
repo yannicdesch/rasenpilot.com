@@ -5,12 +5,17 @@ import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 const Auth = () => {
   // Check if Supabase is configured
   const isSupabaseReady = isSupabaseConfigured();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get redirect path from location state or default to dashboard
+  const from = location.state?.from?.pathname || '/dashboard';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -44,7 +49,7 @@ const Auth = () => {
               </AlertDescription>
             </Alert>
           ) : (
-            <AuthForm />
+            <AuthForm redirectTo={from} />
           )}
         </div>
       </div>

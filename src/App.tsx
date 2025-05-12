@@ -9,6 +9,7 @@ import CarePlan from "./pages/CarePlan";
 import ChatAssistant from "./pages/ChatAssistant";
 import WeatherAdvice from "./pages/WeatherAdvice";
 import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import FeaturesBehindRegistration from "./pages/FeaturesBehindRegistration";
@@ -59,6 +60,7 @@ const App = () => {
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} /> 
                 <Route path="/care-plan" element={<CarePlan />} />
                 <Route path="/chat" element={<ChatAssistant />} />
                 <Route path="/weather" element={<WeatherAdvice />} />

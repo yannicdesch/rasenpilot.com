@@ -1,75 +1,74 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Lock } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, UserRound } from 'lucide-react';
 
-const FeatureCallToAction = () => {
+interface FeatureCallToActionProps {
+  variant?: 'default' | 'minimal';
+  className?: string;
+}
+
+const FeatureCallToAction = ({ 
+  variant = 'default',
+  className = '' 
+}: FeatureCallToActionProps) => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        setIsAuthenticated(!!data.session);
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  if (loading) {
-    return <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />;
-  }
-
-  if (isAuthenticated) {
-    return null; // Don't show for authenticated users
+  if (variant === 'minimal') {
+    return (
+      <div className={`flex flex-wrap gap-3 ${className}`}>
+        <Button 
+          className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+          onClick={() => navigate('/auth')}
+        >
+          <UserRound className="mr-2 h-4 w-4" />
+          Kostenlos anmelden
+        </Button>
+        <Button 
+          variant="outline"
+          className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400"
+          onClick={() => navigate('/features')}
+        >
+          Mehr Infos
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    );
   }
 
   return (
-    <Card className="border-green-100 dark:border-green-800 bg-gradient-to-r from-green-50 to-white dark:from-gray-800 dark:to-gray-900 hover:shadow-md transition-all">
-      <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="h-10 w-10 bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center flex-shrink-0">
-            <Lock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-medium text-green-800 dark:text-green-400 mb-1">
-              Premium-Funktionen freischalten
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Mit einem kostenlosen Konto erhalten Sie personalisierte Pflegepläne, Aufgabenmanagement, 
-              KI-Chatverläufe und vieles mehr.
-            </p>
-          </div>
+    <div className={`bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 rounded-lg p-6 ${className}`}>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-semibold text-green-800 dark:text-green-400">
+            Alle Premium-Funktionen freischalten
+          </h3>
+          <p className="text-green-700 dark:text-green-300 mt-1">
+            Erstellen Sie ein kostenloses Konto, um personalisierte Pflegepläne und mehr zu erhalten
+          </p>
         </div>
-      </CardContent>
-      <CardFooter className="px-6 py-4 bg-green-50 dark:bg-gray-800/50 flex justify-between items-center">
-        <Button 
-          className="bg-green-600 hover:bg-green-700 text-white"
-          onClick={() => navigate('/features')}
-        >
-          Alle Premium-Funktionen ansehen
-          <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          className="text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-gray-700"
-          onClick={() => navigate('/auth')}
-        >
-          Registrieren
-        </Button>
-      </CardFooter>
-    </Card>
+        <div className="flex flex-wrap gap-3">
+          <Button 
+            size="lg"
+            className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+            onClick={() => navigate('/auth')}
+          >
+            <UserRound className="mr-2 h-4 w-4" />
+            Kostenlos anmelden
+          </Button>
+          <Button 
+            variant="outline"
+            size="lg"
+            className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400"
+            onClick={() => navigate('/features')}
+          >
+            Mehr Infos
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 

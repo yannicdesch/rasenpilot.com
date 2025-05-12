@@ -5,9 +5,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
-import { MessageSquare, Send, Leaf, ArrowUp, Image, X } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
+import { MessageSquare, Send, Leaf, ArrowUp, Image, X, Save } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 import { useLawn } from '@/context/LawnContext';
+import { supabase } from '@/lib/supabase';
+import { v4 as uuidv4 } from 'uuid';
+import ChatHistory from '@/components/ChatHistory';
 
 interface Message {
   id: number;
@@ -49,23 +52,98 @@ const ChatAssistant = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [imageAttachment, setImageAttachment] = useState<File | null>(null);
-  const { toast } = useToast();
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
+  // Check auth state
   useEffect(() => {
-    // Set initial welcome message when the component mounts
-    const welcomeMessage = profile 
-      ? `👋 Hallo! Ich bin Ihr Rasenpilot KI-Assistent. Ich sehe, dass Sie einen ${profile.grassType}-Rasen haben. Wie kann ich Ihnen heute bei der Rasenpflege helfen?` 
-      : "👋 Hallo! Ich bin Ihr Rasenpilot KI-Assistent. Wie kann ich Ihnen heute bei der Rasenpflege helfen?";
-    
-    setMessages([
-      {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsAuthenticated(!!data.session);
+    };
+
+    checkAuth();
+
+    // Set up auth listener
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Initialize chat session
+  useEffect(() => {
+    const initChat = async () => {
+      const welcomeMessage = profile 
+        ? `👋 Hallo! Ich bin Ihr Rasenpilot KI-Assistent. Ich sehe, dass Sie einen ${profile.grassType}-Rasen haben. Wie kann ich Ihnen heute bei der Rasenpflege helfen?` 
+        : "👋 Hallo! Ich bin Ihr Rasenpilot KI-Assistent. Wie kann ich Ihnen heute bei der Rasenpflege helfen?";
+      
+      const initialMessage = {
         id: 1,
         content: welcomeMessage,
-        sender: 'ai',
+        sender: 'ai' as const,
         timestamp: new Date()
+      };
+      
+      setMessages([initialMessage]);
+      
+      // Create a new chat session if authenticated
+      if (isAuthenticated) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session) {
+            const sessionId = uuidv4();
+            setCurrentSessionId(sessionId);
+            
+            // Create chat session in database
+            await supabase.from('chat_sessions').insert({
+              id: sessionId,
+              user_id: session.user.id,
+              title: 'Neue Chat-Session',
+            });
+            
+            // Save initial AI message
+            await supabase.from('chat_messages').insert({
+              chat_session_id: sessionId,
+              content: welcomeMessage,
+              sender: 'ai',
+              timestamp: new Date().toISOString(),
+            });
+          }
+        } catch (error) {
+          console.error('Error creating chat session:', error);
+        }
       }
-    ]);
-  }, [profile]);
+    };
+    
+    initChat();
+  }, [profile, isAuthenticated]);
+
+  const saveMessage = async (content: string, sender: 'user' | 'ai') => {
+    if (!isAuthenticated || !currentSessionId) return;
+    
+    try {
+      await supabase.from('chat_messages').insert({
+        chat_session_id: currentSessionId,
+        content,
+        sender,
+        timestamp: new Date().toISOString(),
+      });
+      
+      // Update session title based on first user question
+      if (sender === 'user' && messages.length <= 1) {
+        await supabase.from('chat_sessions').update({
+          title: content.length > 50 ? content.substring(0, 50) + '...' : content,
+        }).eq('id', currentSessionId);
+      }
+    } catch (error) {
+      console.error('Error saving message:', error);
+    }
+  };
 
   const handleSend = () => {
     if (input.trim() === '' && !imageAttachment) return;
@@ -79,6 +157,12 @@ const ChatAssistant = () => {
     };
     
     setMessages([...messages, newUserMessage]);
+    
+    // Save user message if authenticated
+    if (isAuthenticated) {
+      saveMessage(input, 'user');
+    }
+    
     setInput('');
     setIsLoading(true);
     
@@ -116,6 +200,12 @@ const ChatAssistant = () => {
       };
       
       setMessages(prevMessages => [...prevMessages, newAiMessage]);
+      
+      // Save AI response if authenticated
+      if (isAuthenticated) {
+        saveMessage(responseText, 'ai');
+      }
+      
       setIsLoading(false);
     }, 1000);
   };
@@ -146,6 +236,11 @@ const ChatAssistant = () => {
       timestamp: new Date()
     }]);
     
+    // Save user message if authenticated
+    if (isAuthenticated) {
+      saveMessage(question, 'user');
+    }
+    
     setIsLoading(true);
     
     // Simulate AI response delay
@@ -165,17 +260,23 @@ const ChatAssistant = () => {
       };
       
       setMessages(prevMessages => [...prevMessages, newAiMessage]);
+      
+      // Save AI response if authenticated
+      if (isAuthenticated) {
+        saveMessage(responseText, 'ai');
+      }
+      
       setIsLoading(false);
     }, 1000);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <MainNavigation />
       
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4 max-w-5xl">
-          <h1 className="text-3xl font-bold text-green-800 mb-6">Fragen an Rasenpilot</h1>
+          <h1 className="text-3xl font-bold text-green-800 dark:text-green-400 mb-6">Fragen an Rasenpilot</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Sidebar with suggested questions */}
@@ -202,14 +303,20 @@ const ChatAssistant = () => {
                   </div>
                 </CardContent>
               </Card>
+              
+              {isAuthenticated && (
+                <div className="mt-6">
+                  <ChatHistory />
+                </div>
+              )}
             </div>
             
             {/* Chat interface */}
             <div className="md:col-span-3">
               <Card className="h-[600px] flex flex-col">
-                <CardHeader className="bg-green-50 pb-2">
+                <CardHeader className="bg-green-50 dark:bg-green-900/30 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Leaf className="text-green-600" size={20} />
+                    <Leaf className="text-green-600 dark:text-green-500" size={20} />
                     Rasenpilot Assistent
                   </CardTitle>
                 </CardHeader>
@@ -224,14 +331,14 @@ const ChatAssistant = () => {
                         <div 
                           className={`max-w-[80%] rounded-lg px-4 py-2 ${
                             message.sender === 'user' 
-                              ? 'bg-green-600 text-white' 
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-green-600 text-white dark:bg-green-700' 
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
                           }`}
                         >
                           <div className="whitespace-pre-line">{message.content}</div>
                           <div 
                             className={`text-xs mt-1 ${
-                              message.sender === 'user' ? 'text-green-100' : 'text-gray-500'
+                              message.sender === 'user' ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'
                             }`}
                           >
                             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -242,7 +349,7 @@ const ChatAssistant = () => {
                     
                     {isLoading && (
                       <div className="flex justify-start">
-                        <div className="max-w-[80%] rounded-lg px-4 py-2 bg-gray-100">
+                        <div className="max-w-[80%] rounded-lg px-4 py-2 bg-gray-100 dark:bg-gray-800">
                           <div className="flex items-center space-x-2">
                             <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
                             <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
@@ -257,7 +364,7 @@ const ChatAssistant = () => {
                 <CardFooter className="pt-4 pb-4">
                   <div className="w-full space-y-2">
                     {imageAttachment && (
-                      <div className="flex items-center bg-gray-100 rounded p-2">
+                      <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded p-2">
                         <div className="flex-grow truncate text-sm">
                           {imageAttachment.name}
                         </div>
@@ -299,7 +406,7 @@ const ChatAssistant = () => {
                       />
                       
                       <Button 
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
                         onClick={handleSend}
                         disabled={input.trim() === '' && !imageAttachment}
                       >
@@ -310,7 +417,7 @@ const ChatAssistant = () => {
                 </CardFooter>
               </Card>
               
-              <div className="text-center text-xs text-gray-500 mt-2">
+              <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
                 Rasenpilot KI ist entwickelt, um allgemeine Rasenberatung zu bieten, berücksichtigt jedoch möglicherweise nicht alle lokalen Bedingungen. Ziehen Sie bei speziellen Problemen immer lokale Experten hinzu.
               </div>
             </div>
@@ -318,8 +425,8 @@ const ChatAssistant = () => {
         </div>
       </main>
       
-      <footer className="bg-white py-6 border-t border-gray-200 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+      <footer className="bg-white dark:bg-gray-800 py-6 border-t border-gray-200 dark:border-gray-700 mt-8">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
         </div>
       </footer>

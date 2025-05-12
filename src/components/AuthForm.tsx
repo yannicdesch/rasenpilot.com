@@ -26,7 +26,11 @@ const registerSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-const AuthForm = () => {
+interface AuthFormProps {
+  redirectTo?: string;
+}
+
+const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
   const navigate = useNavigate();
@@ -66,7 +70,7 @@ const AuthForm = () => {
       }
 
       toast.success('Erfolgreich eingeloggt!');
-      navigate('/profile');
+      navigate(redirectTo);
     } catch (error: any) {
       toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));
     } finally {
