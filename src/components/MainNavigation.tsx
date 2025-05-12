@@ -10,22 +10,22 @@ const MainNavigation = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   
   const menuItems = [
-    { name: 'Home', path: '/', icon: <Leaf size={18} className="mr-1" /> },
-    { name: 'My Care Plan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
-    { name: 'Ask LawnBuddy', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
-    { name: 'Weather Advice', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
+    { name: 'Startseite', path: '/', icon: <Leaf size={18} className="mr-1" /> },
+    { name: 'Mein Pflegeplan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
+    { name: 'Fragen an RasenFreund', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
+    { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
   ];
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-green-50 shadow-sm border-b border-green-200">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <div className="h-8 w-8 bg-green-600 rounded-full flex items-center justify-center mr-2">
-                <span className="text-white font-bold">L</span>
+                <span className="text-white font-bold">R</span>
               </div>
-              <span className="text-xl font-bold text-green-700">LawnBuddy</span>
+              <span className="text-xl font-bold text-green-700">RasenFreund</span>
             </Link>
           </div>
           
@@ -35,13 +35,13 @@ const MainNavigation = () => {
               <Link 
                 key={item.name}
                 to={item.path}
-                className="ml-8 text-gray-700 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center"
+                className="ml-8 text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all"
               >
                 {item.icon}
                 {item.name}
               </Link>
             ))}
-            <Button className="ml-8 bg-green-600 hover:bg-green-700" size="sm">Login</Button>
+            <Button className="ml-8 bg-green-600 hover:bg-green-700" size="sm">Anmelden</Button>
           </div>
           
           {/* Mobile menu button */}
@@ -50,7 +50,7 @@ const MainNavigation = () => {
               variant="ghost" 
               size="icon"
               onClick={toggleMenu}
-              aria-label="Menu"
+              aria-label="Menü"
             >
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </Button>
@@ -64,7 +64,7 @@ const MainNavigation = () => {
               <Link 
                 key={item.name}
                 to={item.path}
-                className="block px-3 py-2 text-gray-700 hover:bg-gray-100 hover:text-green-600 rounded-md flex items-center"
+                className="block px-3 py-2 text-green-800 hover:bg-green-100 hover:text-green-600 rounded-md flex items-center"
                 onClick={() => setIsOpen(false)}
               >
                 {item.icon}
@@ -72,7 +72,7 @@ const MainNavigation = () => {
               </Link>
             ))}
             <div className="px-3 py-2">
-              <Button className="w-full bg-green-600 hover:bg-green-700">Login</Button>
+              <Button className="w-full bg-green-600 hover:bg-green-700">Anmelden</Button>
             </div>
           </div>
         )}
