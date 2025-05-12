@@ -169,7 +169,6 @@ const ChatAssistant = () => {
     if (imageAttachment) {
       // Handle image upload logic here
       toast({
-        title: "Bild empfangen",
         description: "Unsere KI analysiert Ihr Rasenfoto."
       });
       setImageAttachment(null);
@@ -221,8 +220,7 @@ const ChatAssistant = () => {
     if (e.target.files && e.target.files[0]) {
       setImageAttachment(e.target.files[0]);
       toast({
-        title: "Bild angehängt",
-        description: "Senden Sie Ihre Nachricht, um das Rasenfoto zu analysieren."
+        description: "Bild angehängt. Senden Sie Ihre Nachricht, um das Rasenfoto zu analysieren."
       });
     }
   };

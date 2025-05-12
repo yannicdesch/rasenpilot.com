@@ -6,6 +6,7 @@ export interface LawnProfile {
   grassType: string;
   lawnSize: string;
   lawnGoal: string;
+  name?: string;
   lastMowed?: string;
   lastFertilized?: string;
   soilType?: string;
