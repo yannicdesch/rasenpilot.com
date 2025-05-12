@@ -22,6 +22,7 @@ import FreeCarePlan from "./pages/FreeCarePlan";
 import FreeChat from "./pages/FreeChat";
 import FreeWeather from "./pages/FreeWeather";
 import FreeLawnAnalysis from "./pages/FreeLawnAnalysis";
+import SEOManagement from "./pages/SEOManagement";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,7 @@ const App = () => {
                 <Route path="/chat" element={<ChatAssistant />} />
                 <Route path="/weather" element={<WeatherAdvice />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/seo" element={<SEOManagement />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
