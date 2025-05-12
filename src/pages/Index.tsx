@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { toast } from '@/components/ui/use-toast';
-import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout, Grass } from 'lucide-react';
+import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const grassTypes = [
@@ -259,7 +258,7 @@ const Index = () => {
                             <input type="file" className="hidden" id="lawn-photo" accept="image/*" />
                             <label htmlFor="lawn-photo" className="cursor-pointer">
                               <div className="space-y-2 text-gray-600">
-                                <Grass className="h-12 w-12 mx-auto text-green-500 mb-2" />
+                                <Sprout className="h-12 w-12 mx-auto text-green-500 mb-2" />
                                 <p className="text-sm">Ziehen Sie ein Bild hierher oder klicken Sie zum Durchsuchen</p>
                                 <p className="text-xs">JPG, PNG oder GIF bis zu 10MB</p>
                               </div>
