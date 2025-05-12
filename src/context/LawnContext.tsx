@@ -17,6 +17,9 @@ interface LawnContextType {
   setProfile: (profile: LawnProfile) => void;
   clearProfile: () => void;
   isProfileComplete: boolean;
+  temporaryProfile: LawnProfile | null;
+  setTemporaryProfile: (profile: LawnProfile) => void; 
+  clearTemporaryProfile: () => void;
 }
 
 const LawnContext = createContext<LawnContextType | undefined>(undefined);
@@ -26,6 +29,9 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedProfile = localStorage.getItem('lawnProfile');
     return savedProfile ? JSON.parse(savedProfile) : null;
   });
+  
+  // Temporäres Profil für nicht-registrierte Benutzer
+  const [temporaryProfile, setTemporaryProfileState] = useState<LawnProfile | null>(null);
 
   const setProfile = (newProfile: LawnProfile) => {
     setProfileState(newProfile);
@@ -35,6 +41,14 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearProfile = () => {
     setProfileState(null);
     localStorage.removeItem('lawnProfile');
+  };
+  
+  const setTemporaryProfile = (newProfile: LawnProfile) => {
+    setTemporaryProfileState(newProfile);
+  };
+  
+  const clearTemporaryProfile = () => {
+    setTemporaryProfileState(null);
   };
 
   const isProfileComplete = !!profile && !!profile.zipCode && !!profile.grassType && !!profile.lawnSize;
@@ -46,7 +60,15 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [profile]);
 
   return (
-    <LawnContext.Provider value={{ profile, setProfile, clearProfile, isProfileComplete }}>
+    <LawnContext.Provider value={{ 
+      profile, 
+      setProfile, 
+      clearProfile, 
+      isProfileComplete,
+      temporaryProfile,
+      setTemporaryProfile,
+      clearTemporaryProfile
+    }}>
       {children}
     </LawnContext.Provider>
   );

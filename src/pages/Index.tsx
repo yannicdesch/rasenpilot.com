@@ -3,83 +3,61 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useForm } from 'react-hook-form';
-import { toast } from '@/components/ui/use-toast';
-import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout, Calendar, UserRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useLawn } from '@/context/LawnContext';
+import FeatureCallToAction from '@/components/FeatureCallToAction';
 
-const grassTypes = [
-  { value: 'bermuda', label: 'Bermuda' },
-  { value: 'fescue', label: 'Fescue / Schwingel' },
-  { value: 'kentucky', label: 'Kentucky Bluegrass / Wiesenrispe' },
-  { value: 'zoysia', label: 'Zoysia' },
-  { value: 'st-augustine', label: 'St. Augustine' },
-  { value: 'ryegrass', label: 'Ryegrass / Raigras' },
-  { value: 'bahia', label: 'Bahia' },
-  { value: 'centipede', label: 'Hundertfüßer' },
-  { value: 'buffalo', label: 'Buffalo' },
-  { value: 'bent', label: 'Bentgrass / Straußgras' },
-  { value: 'other', label: 'Andere/Nicht sicher' }
-];
-
-const lawnGoals = [
-  { value: 'greener', label: 'Grünerer Rasen' },
-  { value: 'patches', label: 'Kahle Stellen reparieren' },
-  { value: 'weeds', label: 'Unkraut bekämpfen' },
-  { value: 'water', label: 'Wasserverbrauch reduzieren' },
-  { value: 'maintenance', label: 'Weniger Pflegeaufwand' }
-];
-
-const features = [
+const freeFunctions = [
   {
-    title: 'KI-gestützte Pflegepläne',
-    description: 'Erhalten Sie einen personalisierten 2-Wochen-Pflegeplan basierend auf Ihrer Rasenart, Standort und Zielen',
-    icon: <Leaf className="h-12 w-12 text-green-600"/>
+    title: 'Kostenloser 14-Tage-Pflegeplan',
+    description: 'Erstellen Sie einen grundlegenden Rasenpflegeplan ohne Registrierung – für einen schnellen Überblick über anstehende Pflegemaßnahmen.',
+    icon: <Calendar className="h-12 w-12 text-green-600"/>,
+    link: '/free-plan',
+    linkText: 'Pflegeplan erstellen'
   },
   {
-    title: 'Wetterbasierte Empfehlungen',
-    description: 'Erhalten Sie intelligente Bewässerungsvorschläge basierend auf lokalen Wettervorhersagen',
-    icon: <Cloud className="h-12 w-12 text-blue-500"/>
+    title: 'KI-Rasenberatung',
+    description: 'Stellen Sie bis zu drei Fragen an unseren KI-Assistenten und erhalten Sie sofortige Expertentipps zur Rasenpflege.',
+    icon: <MessageSquare className="h-12 w-12 text-green-700"/>,
+    link: '/free-chat',
+    linkText: 'Chat starten'
   },
   {
-    title: 'Rasenpilot KI-Assistent',
-    description: 'Stellen Sie Fragen und erhalten Sie jederzeit fachkundige Rasenpflege-Beratung',
-    icon: <MessageSquare className="h-12 w-12 text-green-700"/>
+    title: 'Wetterbasierte Tipps',
+    description: 'Sehen Sie lokale Wettervorhersagen und erhalten Sie darauf basierende Pflegetipps für optimale Rasenpflege.',
+    icon: <Cloud className="h-12 w-12 text-blue-500"/>,
+    link: '/free-weather',
+    linkText: 'Wetter abrufen'
+  }
+];
+
+const premiumFeatures = [
+  {
+    title: 'Persönliches Rasenprofil',
+    description: 'Speichern und verwalten Sie Ihre Rasendaten und passen Sie diese jederzeit an.'
+  },
+  {
+    title: 'Individueller Pflegeplan',
+    description: 'Erhalten Sie einen detaillierten, dauerhaft gespeicherten Pflegeplan mit Fortschrittsverfolgung.'
+  },
+  {
+    title: 'Unbegrenzter KI-Chat',
+    description: 'Stellen Sie unbegrenzt viele Fragen und greifen Sie auf Ihren gespeicherten Chatverlauf zu.'
+  },
+  {
+    title: 'Aufgabenmanagement',
+    description: 'Verwalten Sie Ihre Rasenpflegeaufgaben und erhalten Sie Erinnerungen.'
+  },
+  {
+    title: 'Foto-Upload & Analyse',
+    description: 'Laden Sie Fotos Ihres Rasens hoch und verfolgen Sie den Fortschritt im Zeitverlauf.'
   }
 ];
 
 const Index = () => {
-  const [step, setStep] = useState(1);
-  const { setProfile } = useLawn();
   const navigate = useNavigate();
   
-  const form = useForm({
-    defaultValues: {
-      zipCode: '',
-      grassType: '',
-      lawnSize: '',
-      lawnGoal: '',
-    }
-  });
-  
-  const onSubmit = (data: any) => {
-    toast({
-      title: "Profil erstellt!",
-      description: "Ihr Rasenpflegeplan wird generiert."
-    });
-    
-    // Save the lawn profile in context
-    setProfile(data);
-    
-    // Redirect to care plan page
-    navigate('/care-plan');
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />
@@ -93,19 +71,29 @@ const Index = () => {
                 <div className="inline-block bg-white/70 backdrop-blur-sm px-4 py-2 rounded-full text-green-800 font-medium text-sm mb-4 shadow-sm">
                   <Sprout className="inline-block mr-1 h-4 w-4" /> Ihr persönlicher Rasenberater
                 </div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-6 text-shadow">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-6">
                   Ihr KI-gestützter<br/> Rasenpflege-Assistent
                 </h1>
                 <p className="text-lg text-gray-700 mb-8 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
                   Erhalten Sie personalisierte Rasenpflegepläne, Expertenberatung und wetterkluge Empfehlungen für den perfekten Rasen mit minimalem Aufwand.
                 </p>
-                <Button
-                  className="garden-button px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
-                  size="lg"
-                  onClick={() => document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  Jetzt starten <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <div className="flex flex-wrap gap-4">
+                  <Button
+                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
+                    size="lg"
+                    onClick={() => navigate('/free-plan')}
+                  >
+                    Kostenlos testen <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                  <Button
+                    className="px-8 py-6 text-lg rounded-full"
+                    variant="outline"
+                    size="lg"
+                    onClick={() => navigate('/auth')}
+                  >
+                    <UserRound className="mr-2 h-5 w-5" /> Anmelden
+                  </Button>
+                </div>
               </div>
               <div className="md:w-1/2 mt-8 md:mt-0">
                 <div className="relative">
@@ -122,21 +110,32 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Features Section */}
-        <section className="py-20 leaf-pattern">
+        {/* Kostenlose Funktionen */}
+        <section className="py-20">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-4 text-green-800">Wie Rasenpilot funktioniert</h2>
-            <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">Unser intelligenter Assistent hilft Ihnen bei jedem Schritt Ihrer Rasenpflege</p>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4 text-green-800">Testen Sie Rasenpilot kostenlos</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Probieren Sie diese Funktionen ohne Registrierung aus und erleben Sie, was Rasenpilot für Ihren Rasen tun kann
+              </p>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {features.map((feature, index) => (
-                <Card key={index} className="border-green-100 hover-grow bg-white/80 backdrop-blur-sm">
+              {freeFunctions.map((feature, index) => (
+                <Card key={index} className="border-green-100 hover:shadow-md transition-shadow">
                   <CardHeader className="pb-2">
                     <div className="mb-4 bg-green-50 p-4 rounded-full inline-block">{feature.icon}</div>
                     <CardTitle className="text-xl text-green-800">{feature.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-4">
                     <p className="text-gray-600">{feature.description}</p>
+                    <Button 
+                      onClick={() => navigate(feature.link)} 
+                      className="w-full bg-green-600 hover:bg-green-700"
+                    >
+                      {feature.linkText}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -144,150 +143,67 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Get Started Form */}
-        <section id="get-started" className="py-20 bg-white">
-          <div className="container mx-auto px-4 max-w-3xl">
-            <h2 className="text-3xl font-bold text-center mb-2 text-green-800">Erstellen Sie Ihr Rasenprofil</h2>
-            <p className="text-center text-gray-600 mb-8">Wir verwenden diese Informationen, um Ihren personalisierten Pflegeplan zu erstellen</p>
+        {/* Premium Features */}
+        <section className="py-20 bg-green-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4 text-green-800">Premium-Funktionen mit Registrierung</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Registrieren Sie sich kostenlos, um alle Funktionen zu nutzen und Ihre Daten dauerhaft zu speichern
+              </p>
+            </div>
             
-            <Card className="border-green-200 shadow-lg">
-              <CardContent className="pt-6">
-                {step === 1 ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="bg-green-600 rounded-full h-10 w-10 flex items-center justify-center text-white font-semibold">1</div>
-                      <h3 className="text-lg font-medium">Grundlegende Raseninformationen</h3>
-                    </div>
-                    
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(() => setStep(2))} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="zipCode"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Postleitzahl</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Geben Sie Ihre PLZ ein" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                  Wir verwenden dies für lokales Wetter und Wachstumsbedingungen
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="lawnSize"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Ungefähre Rasengröße (m²)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" placeholder="z.B. 500" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        <FormField
-                          control={form.control}
-                          name="grassType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Rasentyp</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Wählen Sie Ihren Rasentyp" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {grassTypes.map((type) => (
-                                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormDescription>
-                                Nicht sicher? Wählen Sie "Andere/Nicht sicher" und unsere KI kann Ihnen helfen, ihn zu identifizieren
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <div className="pt-4 flex justify-end">
-                          <Button type="submit" className="garden-button bg-green-600 hover:bg-green-700">
-                            Weiter <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {premiumFeatures.map((feature, index) => (
+                <div key={index} className="bg-white p-6 rounded-lg shadow-sm flex items-start gap-4">
+                  <div className="mt-1">
+                    <Check className="h-5 w-5 text-green-600" />
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="bg-green-600 rounded-full h-10 w-10 flex items-center justify-center text-white font-semibold">2</div>
-                      <h3 className="text-lg font-medium">Ihre Rasenpflegeziele</h3>
-                    </div>
-                    
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="lawnGoal"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Hauptziel</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Was ist Ihr Hauptziel für Ihren Rasen?" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {lawnGoals.map((goal) => (
-                                    <SelectItem key={goal.value} value={goal.value}>{goal.label}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <div className="pt-6">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Laden Sie ein Foto Ihres Rasens hoch (optional)</label>
-                          <div className="border-2 border-dashed border-green-300 bg-green-50 rounded-md p-8 text-center">
-                            <input type="file" className="hidden" id="lawn-photo" accept="image/*" />
-                            <label htmlFor="lawn-photo" className="cursor-pointer">
-                              <div className="space-y-2 text-gray-600">
-                                <Sprout className="h-12 w-12 mx-auto text-green-500 mb-2" />
-                                <p className="text-sm">Ziehen Sie ein Bild hierher oder klicken Sie zum Durchsuchen</p>
-                                <p className="text-xs">JPG, PNG oder GIF bis zu 10MB</p>
-                              </div>
-                            </label>
-                          </div>
-                        </div>
-                        
-                        <div className="pt-6 flex justify-between items-center">
-                          <Button type="button" variant="outline" className="border-green-200" onClick={() => setStep(1)}>
-                            Zurück
-                          </Button>
-                          <Button type="submit" className="garden-button bg-green-600 hover:bg-green-700">
-                            Meinen Pflegeplan generieren <Sprout className="ml-2 h-4 w-4" />
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
+                  <div>
+                    <h3 className="font-semibold text-green-800 mb-1">{feature.title}</h3>
+                    <p className="text-gray-600 text-sm">{feature.description}</p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-12 text-center">
+              <FeatureCallToAction />
+            </div>
+          </div>
+        </section>
+        
+        {/* How It Works */}
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-4 text-green-800">So funktioniert Rasenpilot</h2>
+            <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">Unser intelligenter Assistent hilft Ihnen bei jedem Schritt Ihrer Rasenpflege</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center mb-4">
+                  <span className="text-2xl font-bold text-green-800">1</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-green-800">Profil erstellen</h3>
+                <p className="text-gray-600">Geben Sie einige grundlegende Informationen über Ihren Rasen ein, wie Standort, Größe und Rasentyp.</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center mb-4">
+                  <span className="text-2xl font-bold text-green-800">2</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-green-800">Pflegeplan erhalten</h3>
+                <p className="text-gray-600">Unsere KI generiert einen personalisierten Pflegeplan basierend auf Ihren individuellen Bedürfnissen.</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center mb-4">
+                  <span className="text-2xl font-bold text-green-800">3</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-green-800">Rasen perfekt pflegen</h3>
+                <p className="text-gray-600">Folgen Sie den Anweisungen, stellen Sie Fragen an den KI-Assistenten und genießen Sie Ihren perfekten Rasen.</p>
+              </div>
+            </div>
           </div>
         </section>
         
@@ -299,7 +215,7 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="bg-white border-green-100 hover-grow">
+                <Card key={i} className="bg-white border-green-100">
                   <CardContent className="pt-6">
                     <div className="flex items-center mb-4">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -335,6 +251,34 @@ const Index = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+        </section>
+        
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-br from-green-600 to-green-700 text-white">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-6">Bereit für einen perfekten Rasen?</h2>
+            <p className="text-lg mb-8 max-w-2xl mx-auto">
+              Starten Sie noch heute – kostenlos und ohne Verpflichtung. Testen Sie unsere Funktionen und erleben Sie den Unterschied!
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-green-700"
+                onClick={() => navigate('/free-plan')}
+              >
+                Kostenlos testen
+              </Button>
+              <Button
+                size="lg"
+                className="bg-white text-green-700 hover:bg-green-100"
+                onClick={() => navigate('/auth')}
+              >
+                <UserRound className="mr-2 h-5 w-5" />
+                Konto erstellen
+              </Button>
             </div>
           </div>
         </section>

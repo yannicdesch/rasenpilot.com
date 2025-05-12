@@ -4,9 +4,8 @@ import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar } from "@/components/ui/avatar";
-import { MessageSquare, Send, Leaf, ArrowUp, Image, X, Save } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { MessageSquare, Send, Leaf, Image, X } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
@@ -169,6 +168,7 @@ const ChatAssistant = () => {
     if (imageAttachment) {
       // Handle image upload logic here
       toast({
+        title: "Bild empfangen",
         description: "Unsere KI analysiert Ihr Rasenfoto."
       });
       setImageAttachment(null);
@@ -220,7 +220,8 @@ const ChatAssistant = () => {
     if (e.target.files && e.target.files[0]) {
       setImageAttachment(e.target.files[0]);
       toast({
-        description: "Bild angehängt. Senden Sie Ihre Nachricht, um das Rasenfoto zu analysieren."
+        title: "Bild angehängt",
+        description: "Senden Sie Ihre Nachricht, um das Rasenfoto zu analysieren."
       });
     }
   };

@@ -17,6 +17,10 @@ import { LawnProvider } from "./context/LawnContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import { supabase } from "./lib/supabase";
+import FreePlan from "./pages/FreePlan";
+import FreeCarePlan from "./pages/FreeCarePlan";
+import FreeChat from "./pages/FreeChat";
+import FreeWeather from "./pages/FreeWeather";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +61,12 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/features" element={<FeaturesBehindRegistration />} />
+              
+              {/* Kostenlose Routen ohne Registrierung */}
+              <Route path="/free-plan" element={<FreePlan />} />
+              <Route path="/free-care-plan" element={<FreeCarePlan />} />
+              <Route path="/free-chat" element={<FreeChat />} />
+              <Route path="/free-weather" element={<FreeWeather />} />
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
