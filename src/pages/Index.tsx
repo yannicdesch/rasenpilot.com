@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from '@/components/ui/use-toast';
 import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLawn } from '@/context/LawnContext';
 
 const grassTypes = [
   { value: 'bermuda', label: 'Bermuda' },
@@ -53,6 +55,8 @@ const features = [
 
 const Index = () => {
   const [step, setStep] = useState(1);
+  const { setProfile } = useLawn();
+  const navigate = useNavigate();
   
   const form = useForm({
     defaultValues: {
@@ -68,9 +72,12 @@ const Index = () => {
       title: "Profil erstellt!",
       description: "Ihr Rasenpflegeplan wird generiert."
     });
-    console.log(data);
-    // In a real app, we would submit this data to an API
-    // and redirect to the care plan page
+    
+    // Save the lawn profile in context
+    setProfile(data);
+    
+    // Redirect to care plan page
+    navigate('/care-plan');
   };
 
   return (
@@ -93,7 +100,7 @@ const Index = () => {
                   Erhalten Sie personalisierte Rasenpflegepläne, Expertenberatung und wetterkluge Empfehlungen für den perfekten Rasen mit minimalem Aufwand.
                 </p>
                 <Button
-                  className="garden-button px-8 py-6 text-lg rounded-full"
+                  className="garden-button px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
                   size="lg"
                   onClick={() => document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' })}
                 >
@@ -214,7 +221,7 @@ const Index = () => {
                         />
                         
                         <div className="pt-4 flex justify-end">
-                          <Button type="submit" className="garden-button">
+                          <Button type="submit" className="garden-button bg-green-600 hover:bg-green-700">
                             Weiter <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                         </div>
@@ -271,7 +278,7 @@ const Index = () => {
                           <Button type="button" variant="outline" className="border-green-200" onClick={() => setStep(1)}>
                             Zurück
                           </Button>
-                          <Button type="submit" className="garden-button">
+                          <Button type="submit" className="garden-button bg-green-600 hover:bg-green-700">
                             Meinen Pflegeplan generieren <Sprout className="ml-2 h-4 w-4" />
                           </Button>
                         </div>

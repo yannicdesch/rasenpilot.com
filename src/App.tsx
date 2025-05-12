@@ -9,24 +9,27 @@ import CarePlan from "./pages/CarePlan";
 import ChatAssistant from "./pages/ChatAssistant";
 import WeatherAdvice from "./pages/WeatherAdvice";
 import NotFound from "./pages/NotFound";
+import { LawnProvider } from "./context/LawnContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/care-plan" element={<CarePlan />} />
-          <Route path="/chat" element={<ChatAssistant />} />
-          <Route path="/weather" element={<WeatherAdvice />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <LawnProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/care-plan" element={<CarePlan />} />
+            <Route path="/chat" element={<ChatAssistant />} />
+            <Route path="/weather" element={<WeatherAdvice />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </LawnProvider>
   </QueryClientProvider>
 );
 
