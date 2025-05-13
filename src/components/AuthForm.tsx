@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -9,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, UserRoundPlus, Shield } from 'lucide-react';
+import { Mail, Lock, UserRoundPlus, Shield, Settings } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -115,21 +114,18 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
     }
   };
 
-  // Toggle admin option with secret key combination
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Ctrl+Shift+A to toggle admin options
-    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-      setShowAdminOption(!showAdminOption);
-      if (!showAdminOption) {
-        toast.success('Admin-Optionen aktiviert');
-      } else {
-        toast.info('Admin-Optionen deaktiviert');
-      }
+  // Toggle admin option button handler
+  const toggleAdminOption = () => {
+    setShowAdminOption(!showAdminOption);
+    if (!showAdminOption) {
+      toast.success('Admin-Optionen aktiviert');
+    } else {
+      toast.info('Admin-Optionen deaktiviert');
     }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto" onKeyDown={handleKeyDown}>
+    <Card className="w-full max-w-md mx-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Anmelden</TabsTrigger>
@@ -244,6 +240,21 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
                     </FormItem>
                   )}
                 />
+                
+                {/* Admin toggle button */}
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleAdminOption}
+                    className={`flex items-center gap-1 text-xs ${showAdminOption ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400' : ''}`}
+                  >
+                    <Settings className="h-3 w-3" />
+                    Erweiterte Optionen
+                  </Button>
+                </div>
+                
                 {showAdminOption && (
                   <FormField
                     control={registerForm.control}
