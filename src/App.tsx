@@ -25,6 +25,7 @@ import FreeWeather from "./pages/FreeWeather";
 import FreeLawnAnalysis from "./pages/FreeLawnAnalysis";
 import SEOManagement from "./pages/SEOManagement";
 import Blog from "./pages/Blog";
+import BlogPostView from "./pages/BlogPostView";
 import NewBlogPost from "./pages/NewBlogPost";
 import EditBlogPost from "./pages/EditBlogPost";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -77,6 +78,7 @@ const App = () => {
               <Route path="/free-weather" element={<FreeWeather />} />
               <Route path="/free-analysis" element={<FreeLawnAnalysis />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/post/:id" element={<BlogPostView />} />
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>

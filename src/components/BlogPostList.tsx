@@ -79,8 +79,11 @@ const BlogPostList: React.FC = () => {
   const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
   const totalPages = Math.ceil(posts.length / postsPerPage);
 
-  const handleEditPost = (id: number) => {
-    navigate(`/blog/edit/${id}`);
+  const handlePostClick = (id: number) => {
+    // Open blog post detail view for reading
+    // We'll use /blog/post/:id for viewing posts (for everyone)
+    // While /blog/edit/:id remains for editing (admin only)
+    navigate(`/blog/post/${id}`);
   };
 
   if (posts.length === 0) {
@@ -95,7 +98,7 @@ const BlogPostList: React.FC = () => {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {currentPosts.map((post) => (
-          <div key={post.id} onClick={() => handleEditPost(post.id)} className="cursor-pointer">
+          <div key={post.id} onClick={() => handlePostClick(post.id)} className="cursor-pointer">
             <ContentCard
               id={post.id}
               title={post.title}
