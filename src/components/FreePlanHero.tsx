@@ -14,7 +14,7 @@ const FreePlanHero: React.FC = () => {
   }, []);
 
   return (
-    <section className="bg-gradient-to-br from-green-100 to-green-50 py-12 md:py-16 border-b border-green-200">
+    <section className="bg-gradient-to-br from-green-100 to-white py-12 md:py-16 border-b border-green-200">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">
