@@ -82,13 +82,15 @@ const BlogPostEditor = () => {
   const handleChange = (field: keyof BlogPostType | string, value: string | number) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
-      setBlogPost(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof BlogPostType],
-          [child]: value
-        }
-      }));
+      if (parent === 'seo') {
+        setBlogPost(prev => ({
+          ...prev,
+          seo: {
+            ...prev.seo,
+            [child]: value
+          }
+        }));
+      }
     } else {
       setBlogPost(prev => ({
         ...prev,
