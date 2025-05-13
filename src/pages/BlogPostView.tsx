@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -183,17 +182,12 @@ const BlogPostView = () => {
                   Tags
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {typeof post.tags === 'string' 
-                    ? post.tags.split(',').map((tag, index) => (
-                        <span key={index} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                          {tag.trim()}
-                        </span>
-                      ))
-                    : post.tags.map((tag: string, index: number) => (
-                        <span key={index} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                          {tag}
-                        </span>
-                      ))
+                  {typeof post.tags === 'string' && 
+                    post.tags.split(',').map((tag, index) => (
+                      <span key={index} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                        {tag.trim()}
+                      </span>
+                    ))
                   }
                 </div>
               </div>
