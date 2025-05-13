@@ -35,7 +35,9 @@ interface LawnContextType {
   tasks: LawnTask[];
   setTasks: (tasks: LawnTask[]) => void;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   checkAuthentication: () => Promise<boolean>;
+  checkAdminRole: () => Promise<boolean>;
 }
 
 const LawnContext = createContext<LawnContextType | undefined>(undefined);
@@ -54,6 +56,8 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  // Admin role state
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   
   // Check authentication status
   const checkAuthentication = async (): Promise<boolean> => {
@@ -61,9 +65,34 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session } } = await supabase.auth.getSession();
       const isLoggedIn = !!session;
       setIsAuthenticated(isLoggedIn);
+      
+      // If logged in, also check admin status
+      if (isLoggedIn) {
+        await checkAdminRole();
+      }
+      
       return isLoggedIn;
     } catch (error) {
       console.error("Error checking authentication:", error);
+      return false;
+    }
+  };
+  
+  // Check if user has admin role
+  const checkAdminRole = async (): Promise<boolean> => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setIsAdmin(false);
+        return false;
+      }
+      
+      const isUserAdmin = session.user.user_metadata?.isAdmin === true;
+      setIsAdmin(isUserAdmin);
+      return isUserAdmin;
+    } catch (error) {
+      console.error("Error checking admin role:", error);
+      setIsAdmin(false);
       return false;
     }
   };
@@ -161,9 +190,16 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
       
-      // If user just signed in, sync profile
-      if (event === 'SIGNED_IN' && profile) {
-        syncProfileWithSupabase();
+      // Check admin role on auth state change
+      if (session) {
+        checkAdminRole();
+        
+        // If user just signed in, sync profile
+        if (event === 'SIGNED_IN' && profile) {
+          syncProfileWithSupabase();
+        }
+      } else {
+        setIsAdmin(false);
       }
     });
     
@@ -192,7 +228,9 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       tasks,
       setTasks,
       isAuthenticated,
-      checkAuthentication
+      isAdmin,
+      checkAuthentication,
+      checkAdminRole
     }}>
       {children}
     </LawnContext.Provider>

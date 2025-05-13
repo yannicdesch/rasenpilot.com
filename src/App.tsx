@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import FeaturesBehindRegistration from "./pages/FeaturesBehindRegistration";
 import { LawnProvider } from "./context/LawnContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import { useEffect } from "react";
 import { supabase } from "./lib/supabase";
 import FreePlan from "./pages/FreePlan";
@@ -25,6 +27,8 @@ import SEOManagement from "./pages/SEOManagement";
 import Blog from "./pages/Blog";
 import NewBlogPost from "./pages/NewBlogPost";
 import EditBlogPost from "./pages/EditBlogPost";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserManagement from "./pages/UserManagement";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +88,12 @@ const App = () => {
                 <Route path="/seo" element={<SEOManagement />} />
                 <Route path="/blog/new" element={<NewBlogPost />} />
                 <Route path="/blog/edit/:id" element={<EditBlogPost />} />
+              </Route>
+              
+              {/* Admin Routes */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<UserManagement />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />

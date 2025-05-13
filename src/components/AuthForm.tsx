@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -8,9 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, UserRoundPlus } from 'lucide-react';
+import { Mail, Lock, UserRoundPlus, Shield } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const loginSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -21,6 +23,7 @@ const registerSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
   password: z.string().min(6, 'Das Passwort muss mindestens 6 Zeichen lang sein'),
   name: z.string().min(2, 'Name muss mindestens 2 Zeichen lang sein'),
+  isAdmin: z.boolean().optional(),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -33,6 +36,7 @@ interface AuthFormProps {
 const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  const [showAdminOption, setShowAdminOption] = useState(false);
   const navigate = useNavigate();
 
   const loginForm = useForm<LoginFormValues>({
@@ -49,6 +53,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       email: '',
       password: '',
       name: '',
+      isAdmin: false,
     },
   });
 
@@ -92,6 +97,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
         options: {
           data: {
             name: data.name,
+            isAdmin: data.isAdmin || false,
           },
         },
       });
@@ -109,8 +115,21 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
     }
   };
 
+  // Toggle admin option with secret key combination
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Ctrl+Shift+A to toggle admin options
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+      setShowAdminOption(!showAdminOption);
+      if (!showAdminOption) {
+        toast.success('Admin-Optionen aktiviert');
+      } else {
+        toast.info('Admin-Optionen deaktiviert');
+      }
+    }
+  };
+
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-md mx-auto" onKeyDown={handleKeyDown}>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Anmelden</TabsTrigger>
@@ -225,6 +244,31 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
                     </FormItem>
                   )}
                 />
+                {showAdminOption && (
+                  <FormField
+                    control={registerForm.control}
+                    name="isAdmin"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-3">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value} 
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="flex items-center">
+                            <Shield className="h-4 w-4 mr-1 text-green-600" />
+                            Administrator-Rechte
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Gewährt vollen Zugriff auf alle Verwaltungsfunktionen
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <CardFooter className="px-0 pt-4">
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Wird registriert...' : 'Registrieren'}

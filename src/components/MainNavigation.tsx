@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText } from "lucide-react";
+import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText, Shield } from "lucide-react";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useLawn } from '@/context/LawnContext';
 
 interface User {
   id: string;
@@ -17,6 +18,7 @@ const MainNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { isAdmin, checkAdminRole } = useLawn();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +38,9 @@ const MainNavigation = () => {
             email: data.user.email || '',
             name: data.user.user_metadata?.name,
           });
+          
+          // Check if user is admin
+          await checkAdminRole();
         }
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -48,13 +53,16 @@ const MainNavigation = () => {
 
     // Set up auth listener
     try {
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
         if (session?.user) {
           setUser({
             id: session.user.id,
             email: session.user.email || '',
             name: session.user.user_metadata?.name,
           });
+          
+          // Check if user is admin
+          await checkAdminRole();
         } else {
           setUser(null);
         }
@@ -69,7 +77,7 @@ const MainNavigation = () => {
       console.error('Error setting up auth listener:', error);
       return () => {};
     }
-  }, []);
+  }, [checkAdminRole]);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -106,6 +114,11 @@ const MainNavigation = () => {
     { name: 'Fragen an Rasenpilot', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
   ] : [];
+  
+  // Admin-dependent menuItems
+  const adminMenuItems = isAdmin ? [
+    { name: 'Admin Dashboard', path: '/admin', icon: <Shield size={18} className="mr-1" /> },
+  ] : [];
 
   return (
     <nav className="bg-green-50 shadow-sm border-b border-green-200">
@@ -132,6 +145,17 @@ const MainNavigation = () => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Admin Menu Items */}
+            {isAdmin && (
+              <Link 
+                to="/admin"
+                className="ml-8 text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all bg-green-100"
+              >
+                <Shield size={18} className="mr-1 text-green-600" />
+                Admin
+              </Link>
+            )}
             
             {!loading && (
               <>
@@ -197,6 +221,19 @@ const MainNavigation = () => {
                 key={item.name}
                 to={item.path}
                 className="block px-3 py-2 text-green-800 hover:bg-green-100 hover:text-green-600 rounded-md flex items-center"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.icon}
+                <span className="ml-2">{item.name}</span>
+              </Link>
+            ))}
+            
+            {/* Admin Mobile Navigation */}
+            {!loading && isAdmin && adminMenuItems.map((item) => (
+              <Link 
+                key={item.name}
+                to={item.path}
+                className="block px-3 py-2 text-green-800 bg-green-100 hover:bg-green-200 hover:text-green-600 rounded-md flex items-center"
                 onClick={() => setIsOpen(false)}
               >
                 {item.icon}
