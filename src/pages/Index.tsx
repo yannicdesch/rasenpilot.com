@@ -65,7 +65,7 @@ const Index = () => {
                   <div className="absolute -top-4 -left-4 w-24 h-24 bg-yellow-400/20 rounded-full z-0"></div>
                   <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-green-400/20 rounded-full z-0"></div>
                   <img
-                    src="https://images.unsplash.com/photo-1560179304-5a43b8a4ca10?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHBlcmZlY3QlMjBsYXdufGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=70"
+                    src="/placeholder.svg"
                     alt="Perfekter grüner Rasen"
                     className="rounded-2xl shadow-xl w-full h-auto object-cover border-4 border-white relative z-10"
                   />
