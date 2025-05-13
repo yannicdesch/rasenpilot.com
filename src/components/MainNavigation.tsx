@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut } from "lucide-react";
+import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText } from "lucide-react";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -93,6 +94,7 @@ const MainNavigation = () => {
     { name: 'Mein Pflegeplan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
     { name: 'Fragen an Rasenpilot', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
+    { name: 'Blog', path: '/blog', icon: <FileText size={18} className="mr-1" /> },
   ];
 
   return (

@@ -23,6 +23,9 @@ import FreeChat from "./pages/FreeChat";
 import FreeWeather from "./pages/FreeWeather";
 import FreeLawnAnalysis from "./pages/FreeLawnAnalysis";
 import SEOManagement from "./pages/SEOManagement";
+import Blog from "./pages/Blog";
+import NewBlogPost from "./pages/NewBlogPost";
+import EditBlogPost from "./pages/EditBlogPost";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +82,9 @@ const App = () => {
                 <Route path="/weather" element={<WeatherAdvice />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/seo" element={<SEOManagement />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/new" element={<NewBlogPost />} />
+                <Route path="/blog/edit/:id" element={<EditBlogPost />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
