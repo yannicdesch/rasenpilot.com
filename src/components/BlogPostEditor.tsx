@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Book, BookOpen } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 
 type BlogPostType = {
   id: number;
@@ -79,7 +79,7 @@ const BlogPostEditor = () => {
     }
   }, [id]);
   
-  const handleChange = (field: keyof BlogPostType | string, value: string) => {
+  const handleChange = (field: keyof BlogPostType | string, value: string | number) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setBlogPost(prev => ({
@@ -97,7 +97,7 @@ const BlogPostEditor = () => {
     }
     
     // If title changes, generate a slug
-    if (field === 'title') {
+    if (field === 'title' && typeof value === 'string') {
       const slug = value
         .toLowerCase()
         .replace(/[äöüß]/g, match => {
@@ -141,13 +141,20 @@ const BlogPostEditor = () => {
       localStorage.setItem('blogPosts', JSON.stringify(posts));
       
       setSavedStatus('Blogbeitrag erfolgreich gespeichert!');
-      toast.success('Blogbeitrag wurde gespeichert');
+      toast({
+        title: "Erfolgreich gespeichert",
+        description: "Ihr Blogbeitrag wurde erfolgreich gespeichert."
+      });
       
       setTimeout(() => {
         setSavedStatus(null);
       }, 3000);
     } catch (error) {
-      toast.error('Fehler beim Speichern des Blogbeitrags');
+      toast({
+        variant: "destructive",
+        title: "Fehler beim Speichern",
+        description: "Der Blogbeitrag konnte nicht gespeichert werden."
+      });
       console.error('Error saving blog post:', error);
     }
   };
@@ -246,7 +253,7 @@ const BlogPostEditor = () => {
               <Input 
                 id="readTime"
                 type="number"
-                value={blogPost.readTime} 
+                value={blogPost.readTime.toString()} 
                 onChange={(e) => handleChange('readTime', parseInt(e.target.value) || 1)}
                 min={1}
                 max={60}
