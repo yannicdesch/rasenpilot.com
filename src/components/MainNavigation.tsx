@@ -89,13 +89,23 @@ const MainNavigation = () => {
     }
   };
 
+  // Updated menuItems to include links to both free offerings and authenticated routes
   const menuItems = [
     { name: 'Startseite', path: '/', icon: <Leaf size={18} className="mr-1" /> },
+    { name: 'Kostenloser Pflegeplan', path: '/free-care-plan', icon: <Calendar size={18} className="mr-1" /> },
+    { name: 'Kostenloser Chat', path: '/free-chat', icon: <MessageSquare size={18} className="mr-1" /> },
+    { name: 'Kostenlose Wetterberatung', path: '/free-weather', icon: <Cloud size={18} className="mr-1" /> },
+    { name: 'Rasenanalyse', path: '/free-analysis', icon: <Leaf size={18} className="mr-1" /> },
+    { name: 'Blog', path: '/blog', icon: <FileText size={18} className="mr-1" /> },
+  ];
+
+  // Auth-dependent menuItems
+  const authMenuItems = user ? [
+    { name: 'Dashboard', path: '/dashboard', icon: <Leaf size={18} className="mr-1" /> },
     { name: 'Mein Pflegeplan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
     { name: 'Fragen an Rasenpilot', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
-    { name: 'Blog', path: '/blog', icon: <FileText size={18} className="mr-1" /> },
-  ];
+  ] : [];
 
   return (
     <nav className="bg-green-50 shadow-sm border-b border-green-200">
@@ -171,6 +181,18 @@ const MainNavigation = () => {
         {isOpen && (
           <div className="md:hidden py-2 space-y-1">
             {menuItems.map((item) => (
+              <Link 
+                key={item.name}
+                to={item.path}
+                className="block px-3 py-2 text-green-800 hover:bg-green-100 hover:text-green-600 rounded-md flex items-center"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.icon}
+                <span className="ml-2">{item.name}</span>
+              </Link>
+            ))}
+            
+            {!loading && user && authMenuItems.map((item) => (
               <Link 
                 key={item.name}
                 to={item.path}
