@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Lock, UserRoundPlus, Shield, Settings } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLawn } from '@/context/LawnContext';
@@ -91,9 +91,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
   const onLoginSubmit = async (data: LoginFormValues) => {
     if (!isSupabaseConfigured()) {
-      toast({
-        variant: "destructive",
-        title: "Konfigurationsfehler",
+      toast.error("Konfigurationsfehler", {
         description: "Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten."
       });
       return;
@@ -127,8 +125,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
             console.error('Failed to update admin status:', updateError);
           } else {
             console.log('Admin rights granted successfully');
-            toast({
-              title: "Admin-Rechte",
+            toast.success("Admin-Rechte", {
               description: "Admin-Rechte wurden gewährt!"
             });
           }
@@ -145,8 +142,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
         await checkAdminRole();
       }
 
-      toast({
-        title: "Erfolgreich eingeloggt!",
+      toast.success("Erfolgreich eingeloggt!", {
         description: "Sie werden weitergeleitet."
       });
       
@@ -155,9 +151,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       navigate(redirectTo, { replace: true });
     } catch (error: any) {
       console.error('Login error:', error);
-      toast({
-        variant: "destructive",
-        title: "Fehler beim Einloggen",
+      toast.error("Fehler beim Einloggen", {
         description: error.message || 'Unbekannter Fehler'
       });
     } finally {
@@ -167,9 +161,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
   const onRegisterSubmit = async (data: RegisterFormValues) => {
     if (!isSupabaseConfigured()) {
-      toast({
-        variant: "destructive",
-        title: "Konfigurationsfehler",
+      toast.error("Konfigurationsfehler", {
         description: "Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten."
       });
       return;
@@ -192,16 +184,13 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
         throw error;
       }
 
-      toast({
-        title: "Registrierung erfolgreich!",
+      toast.success("Registrierung erfolgreich!", {
         description: "Bitte überprüfe deine E-Mails für den Bestätigungslink."
       });
       
       setActiveTab('login');
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Fehler bei der Registrierung",
+      toast.error("Fehler bei der Registrierung", {
         description: error.message || 'Unbekannter Fehler'
       });
     } finally {
@@ -213,13 +202,9 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
   const toggleAdminOption = () => {
     setShowAdminOption(!showAdminOption);
     if (!showAdminOption) {
-      toast({
-        title: "Admin-Optionen aktiviert"
-      });
+      toast.success("Admin-Optionen aktiviert");
     } else {
-      toast({
-        title: "Admin-Optionen deaktiviert"
-      });
+      toast.success("Admin-Optionen deaktiviert");
     }
   };
 

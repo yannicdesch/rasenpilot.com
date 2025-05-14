@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 
 export interface LawnProfile {
   zipCode: string;
@@ -265,8 +265,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAdmin(false);
         
         if (event === 'SIGNED_OUT') {
-          toast({
-            title: "Abgemeldet",
+          toast("Abgemeldet", {
             description: "Sie wurden ausgeloggt"
           });
         }

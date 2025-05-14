@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import WeatherWidget from '@/components/WeatherWidget';
@@ -10,7 +9,7 @@ import { Calendar, Check, Clock, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = React.useState("overview");
@@ -43,9 +42,7 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error("Error verifying authentication in Dashboard:", error);
-        toast({
-          variant: "destructive",
-          title: "Authentifizierungsfehler",
+        toast.error("Authentifizierungsfehler", {
           description: "Fehler beim Überprüfen der Authentifizierung"
         });
         navigate('/auth', { replace: true });
