@@ -8,6 +8,7 @@ import { useLawn } from '@/context/LawnContext';
 const ProtectedRoute = () => {
   const { isAuthenticated, checkAuthentication } = useLawn();
   const [isLoading, setIsLoading] = useState(true);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -18,13 +19,14 @@ const ProtectedRoute = () => {
           console.error('Supabase is not configured properly');
           toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
           setIsLoading(false);
+          setHasCheckedAuth(true);
           return;
         }
 
         // Force a check of authentication status
         await checkAuthentication();
         
-        // Get the session directly as well
+        // Get the session directly as well for double verification
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -47,15 +49,18 @@ const ProtectedRoute = () => {
         console.error('Error checking authentication:', error);
       } finally {
         setIsLoading(false);
+        setHasCheckedAuth(true);
       }
     };
 
     verifyAuthentication();
     
-    // Set up auth listener
+    // Set up auth listener for real-time updates
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed in ProtectedRoute:", event, !!session);
-      checkAuthentication();
+      checkAuthentication().then(() => {
+        setHasCheckedAuth(true);
+      });
     });
 
     return () => {
@@ -65,7 +70,7 @@ const ProtectedRoute = () => {
     };
   }, [checkAuthentication]);
 
-  if (isLoading) {
+  if (isLoading || !hasCheckedAuth) {
     // Still checking auth state
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }

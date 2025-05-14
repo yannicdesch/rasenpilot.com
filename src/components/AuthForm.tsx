@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -39,6 +39,33 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
   const [showAdminOption, setShowAdminOption] = useState(false);
   const navigate = useNavigate();
   const { checkAuthentication, checkAdminRole } = useLawn();
+
+  // Listen for authentication changes and redirect if already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        console.log("User already authenticated, redirecting to:", redirectTo);
+        window.location.href = redirectTo;
+      }
+    };
+    
+    checkAuth();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed in AuthForm:", event, !!session);
+      if (session && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
+        console.log("Auth event detected, redirecting to:", redirectTo);
+        window.location.href = redirectTo;
+      }
+    });
+
+    return () => {
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
+  }, [redirectTo]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -109,17 +136,11 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
       toast.success('Erfolgreich eingeloggt!');
       
-      // Get session again to confirm we're logged in
-      const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Session after login:', sessionData?.session ? 'Active' : 'Not active');
-      
-      // Add a delay before navigating to ensure metadata update completes
+      // Force redirect with page reload to ensure state is refreshed
       console.log('Redirecting to:', redirectTo);
       
-      // Use window.location for direct navigation instead of React Router
-      setTimeout(() => {
-        window.location.href = redirectTo;
-      }, 1500);
+      // Directly set window location instead of using React Router
+      window.location.href = redirectTo;
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));
