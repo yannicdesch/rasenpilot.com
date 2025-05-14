@@ -6,7 +6,7 @@ import WeatherInfo from '@/components/WeatherInfo';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Info, MessageSquare, UserRound, Camera, CheckCircle } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/hooks/use-toast';
 import { useLawn } from '@/context/LawnContext';
 import { fetchWeatherData, WeatherData } from '@/services/lawnService';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -104,7 +104,6 @@ const FreeCarePlan = () => {
     // Redirect to home if there's no temporary profile
     if (!temporaryProfile) {
       toast({
-        title: "Keine Daten vorhanden",
         description: "Bitte fülle zuerst das Rasenformular aus."
       });
       navigate('/free-plan');
@@ -142,14 +141,16 @@ const FreeCarePlan = () => {
     updatedTasks[index].completed = true;
     setTasks(updatedTasks);
     
-    toast.success("Aufgabe als erledigt markiert");
+    toast({
+      description: "Aufgabe als erledigt markiert",
+      variant: "success"
+    });
   };
 
   const handlePhotoUpload = () => {
     // Show upgrade prompt after first attempt to upload photo
     setShowUpgradePrompt(true);
     toast({
-      title: "Premium-Funktion",
       description: "Foto-Checks sind Teil des Pro-Plans. Registriere dich jetzt!",
       action: {
         label: "Upgrade",

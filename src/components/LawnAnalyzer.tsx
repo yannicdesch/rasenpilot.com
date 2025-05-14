@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, Image as ImageIcon, Loader2, Sparkles, Camera, Lock } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
@@ -65,7 +64,6 @@ const LawnAnalyzer = () => {
   const analyzeImage = async () => {
     if (!selectedFile) {
       toast({
-        title: "Fehler",
         description: "Bitte wähle zuerst ein Foto aus.",
         variant: "destructive",
       });
@@ -75,7 +73,6 @@ const LawnAnalyzer = () => {
     // Check if free analyze is already used
     if (analyzesUsed >= 1 && !isAuthenticated) {
       toast({
-        title: "Analyse-Limit erreicht",
         description: "Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.",
       });
       
@@ -94,13 +91,11 @@ const LawnAnalyzer = () => {
       setAnalyzesUsed(prevCount => prevCount + 1);
       
       toast({
-        title: "Analyse abgeschlossen",
         description: "Die KI hat deinen Rasen analysiert und Empfehlungen erstellt.",
       });
     } catch (error) {
       console.error("Error analyzing image:", error);
       toast({
-        title: "Fehler",
         description: "Bei der Analyse ist ein Fehler aufgetreten.",
         variant: "destructive",
       });
