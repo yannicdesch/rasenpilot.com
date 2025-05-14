@@ -18,13 +18,17 @@ const FreePlanHero: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">
-            {seoContent?.title || "Dein persönlicher Rasenpflege-Plan – in 30 Sekunden, kostenlos"}
+            {seoContent?.title || "Wir haben Tausende Rasen analysiert – jetzt ist deiner dran."}
           </h1>
+          <h2 className="text-xl md:text-2xl font-medium text-green-700 mb-6">
+            Mit Hilfe von KI und der Rasenpilot-Community erstellen wir den perfekten Pflegeplan für deinen Rasen – basierend auf Standort, Grasart und Ziel.
+          </h2>
           <p className="text-lg text-gray-700 mb-6">
-            Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
-          </p>
-          <p className="text-sm text-green-600 font-medium">
-            Registriere dich, um deinen individuellen Pflegeplan zu speichern und jederzeit darauf zuzugreifen.
+            Egal ob du einen grüneren Rasen willst, kahle Stellen reparieren musst oder Unkraut bekämpfst – Rasenpilot kombiniert Expertenwissen, echte Erfahrungen und aktuelle Wetterdaten.
+            <br />
+            <span className="font-medium text-green-600">
+              Sofort starten. Ohne Anmeldung. Kostenlos.
+            </span>
           </p>
           
           {/* Hidden SEO content that's visible to search engines */}
