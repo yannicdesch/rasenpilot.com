@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -65,6 +64,8 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
     setIsLoading(true);
     try {
+      console.log('Attempting login with:', data.email);
+      
       const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -73,6 +74,8 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       if (error) {
         throw error;
       }
+      
+      console.log('Login successful');
 
       // Special case for yannic.desch@gmail.com - set admin rights
       if (data.email.toLowerCase() === 'yannic.desch@gmail.com') {
@@ -95,11 +98,18 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       }
 
       toast.success('Erfolgreich eingeloggt!');
-      // Add a small delay before navigating to ensure metadata update completes
+      
+      // Get session again to confirm we're logged in
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Session after login:', sessionData?.session ? 'Active' : 'Not active');
+      
+      // Add a delay before navigating to ensure metadata update completes
+      console.log('Redirecting to:', redirectTo);
       setTimeout(() => {
         navigate(redirectTo);
-      }, 500);
+      }, 1000);
     } catch (error: any) {
+      console.error('Login error:', error);
       toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));
     } finally {
       setIsLoading(false);

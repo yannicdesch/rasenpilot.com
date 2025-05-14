@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -27,6 +28,7 @@ const ProtectedRoute = () => {
           toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
           setIsAuthenticated(false);
         } else {
+          console.log("Auth session check:", data.session ? "Session exists" : "No session");
           setIsAuthenticated(!!data.session);
           
           // If not authenticated, inform about premium features
@@ -52,6 +54,7 @@ const ProtectedRoute = () => {
     // Set up auth listener
     try {
       const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        console.log("Auth state changed:", _event, !!session);
         setIsAuthenticated(!!session);
       });
   
@@ -71,6 +74,7 @@ const ProtectedRoute = () => {
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }
 
+  console.log("Protected route render - isAuthenticated:", isAuthenticated);
   return isAuthenticated ? <Outlet /> : <Navigate to="/auth" state={{ from: location }} />;
 };
 
