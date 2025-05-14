@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLawn } from '@/context/LawnContext';
-import { Shield } from 'lucide-react';
 
 const FreePlanHero: React.FC = () => {
   const { temporaryProfile, isAuthenticated } = useLawn();
@@ -31,12 +30,6 @@ const FreePlanHero: React.FC = () => {
               Sofort starten. Ohne Anmeldung. Kostenlos.
             </span>
           </p>
-          
-          {/* IP protection badge */}
-          <div className="mt-3 mb-6 inline-flex items-center justify-center px-4 py-2 bg-green-50 border border-green-200 rounded-full">
-            <Shield className="h-4 w-4 text-green-700 mr-2" />
-            <span className="text-sm font-medium text-green-700">IP-geschützte Analysetechnologie</span>
-          </div>
           
           {/* Hidden SEO content that's visible to search engines */}
           {seoContent && (
