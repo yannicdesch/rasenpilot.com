@@ -18,13 +18,13 @@ const FreePlanHero: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">
-            {seoContent?.title || "Dein persönlicher Rasenpflege-Plan – in 30 Sekunden, kostenlos"}
+            {seoContent?.title || "Dein persönlicher 14-Tage-Rasenpflegeplan – kostenlos in 30 Sekunden"}
           </h1>
           <p className="text-lg text-gray-700 mb-6">
-            Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
+            Basierend auf deiner Postleitzahl, Rasengröße & deinem Ziel. Einfach starten – ohne Anmeldung.
           </p>
           <p className="text-sm text-green-600 font-medium">
-            Registriere dich, um deinen individuellen Pflegeplan zu speichern und jederzeit darauf zuzugreifen.
+            Registriere dich für unbegrenzten Zugriff auf alle Premium-Funktionen.
           </p>
           
           {/* Hidden SEO content that's visible to search engines */}

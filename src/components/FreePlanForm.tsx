@@ -16,20 +16,16 @@ const grassTypes = [
   { value: 'kentucky', label: 'Kentucky Bluegrass / Wiesenrispe' },
   { value: 'zoysia', label: 'Zoysia' },
   { value: 'st-augustine', label: 'St. Augustine' },
-  { value: 'ryegrass', label: 'Ryegrass / Raigras' },
-  { value: 'bahia', label: 'Bahia' },
-  { value: 'centipede', label: 'Hundertfüßer' },
-  { value: 'buffalo', label: 'Buffalo' },
-  { value: 'bent', label: 'Bentgrass / Straußgras' },
   { value: 'other', label: 'Ich weiß es nicht' }
 ];
 
 const lawnGoals = [
-  { value: 'greener', label: 'Grünerer Rasen' },
-  { value: 'patches', label: 'Kahle Stellen reparieren' },
-  { value: 'weeds', label: 'Unkraut bekämpfen' },
-  { value: 'water', label: 'Wasserverbrauch reduzieren' },
-  { value: 'maintenance', label: 'Weniger Pflegeaufwand' }
+  { value: 'repair', label: 'Rasen reparieren' },
+  { value: 'appearance', label: 'Aussehen verbessern' },
+  { value: 'child-safe', label: 'Kinderfreundlicher Rasen' },
+  { value: 'luxury', label: 'Luxuriöser Rasen' },
+  { value: 'eco', label: 'Umweltfreundliche Pflege' },
+  { value: 'low-maintenance', label: 'Weniger Pflegeaufwand' }
 ];
 
 interface FreePlanFormProps {
@@ -48,8 +44,8 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
   
   const onSubmit = (data: any) => {
     toast({
-      title: "Dein Plan ist bereit!",
-      description: "3 personalisierte Aufgaben für die nächsten 7 Tage..."
+      title: "Dein 14-Tage-Plan ist bereit!",
+      description: "Tägliche Aufgaben für die nächsten 2 Wochen..."
     });
     
     onFormSubmit(data);
@@ -60,7 +56,7 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
       <CardHeader className="text-center pb-2">
         <CardTitle className="text-2xl text-green-800">Rasen-Check starten</CardTitle>
         <CardDescription>
-          Beantworte diese 4 kurzen Fragen für deinen personalisierten Plan
+          Beantworte diese kurzen Fragen für deinen personalisierten 14-Tage-Plan
         </CardDescription>
       </CardHeader>
       
@@ -92,7 +88,7 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
                 rules={{ required: "Rasengröße wird benötigt" }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ungefähre Rasengröße (m²)</FormLabel>
+                    <FormLabel>Ungefähre Rasenfläche (m²)</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="z.B. 500" {...field} />
                     </FormControl>
@@ -105,10 +101,9 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
             <FormField
               control={form.control}
               name="grassType"
-              rules={{ required: "Rasentyp wird benötigt" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rasentyp</FormLabel>
+                  <FormLabel>Rasentyp (optional)</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -122,7 +117,7 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Keine Sorge, wenn du es nicht weißt - wähle "Ich weiß es nicht"
+                    Keine Sorge, wenn du es nicht weißt - unsere KI kann es auch anhand eines Fotos erkennen
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -158,7 +153,7 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
                 type="submit" 
                 className="w-full md:w-2/3 py-6 text-lg garden-button bg-green-600 hover:bg-green-700"
               >
-                Meinen kostenlosen Pflegeplan generieren <ArrowRight className="ml-2 h-5 w-5" />
+                Meinen kostenlosen 14-Tage-Plan erstellen <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </form>

@@ -21,10 +21,10 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    location: '',
+    zipCode: '',
     grassType: '',
-    goal: '',
-    gardenSize: '',
+    lawnGoal: '',
+    lawnSize: '',
     hasChildren: false,
     hasPets: false,
   });
@@ -40,13 +40,13 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   
   const handleNext = () => {
     // Validate current step
-    if (step === 1 && !formData.location) {
-      toast.error("Bitte gib deinen Standort ein");
+    if (step === 1 && !formData.zipCode) {
+      toast.error("Bitte gib deine Postleitzahl ein");
       return;
     } else if (step === 2 && !formData.grassType) {
       toast.error("Bitte wähle deinen Rasentyp aus");
       return;
-    } else if (step === 3 && !formData.goal) {
+    } else if (step === 3 && !formData.lawnGoal) {
       toast.error("Bitte wähle dein Rasenziel aus");
       return;
     }
@@ -56,7 +56,14 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       setStep(step + 1);
     } else {
       // Submit data and complete
-      setTemporaryProfile(formData);
+      setTemporaryProfile({
+        zipCode: formData.zipCode,
+        grassType: formData.grassType,
+        lawnSize: formData.lawnSize,
+        lawnGoal: formData.lawnGoal,
+        hasChildren: formData.hasChildren,
+        hasPets: formData.hasPets,
+      });
       
       if (onComplete) {
         onComplete();
@@ -90,9 +97,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
               Dies hilft uns, klimatische Bedingungen zu berücksichtigen.
             </p>
             <Input
-              placeholder="z.B. Berlin, München, Köln"
-              value={formData.location}
-              onChange={(e) => handleInputChange('location', e.target.value)}
+              placeholder="Deine Postleitzahl"
+              value={formData.zipCode}
+              onChange={(e) => handleInputChange('zipCode', e.target.value)}
               className="w-full"
             />
           </div>
@@ -129,8 +136,8 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Was ist dein Hauptziel?</h3>
             <RadioGroup 
-              value={formData.goal}
-              onValueChange={(value) => handleInputChange('goal', value)}
+              value={formData.lawnGoal}
+              onValueChange={(value) => handleInputChange('lawnGoal', value)}
             >
               <div className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
                 <RadioGroupItem value="health" id="health" />
@@ -154,15 +161,15 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       case 4:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Zusatzinformationen (optional)</h3>
+            <h3 className="text-lg font-medium">Zusatzinformationen</h3>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="gardenSize">Ungefähre Rasenfläche (m²)</Label>
                 <Input
                   id="gardenSize"
                   placeholder="z.B. 100"
-                  value={formData.gardenSize}
-                  onChange={(e) => handleInputChange('gardenSize', e.target.value)}
+                  value={formData.lawnSize}
+                  onChange={(e) => handleInputChange('lawnSize', e.target.value)}
                   className="w-full mt-1"
                 />
               </div>

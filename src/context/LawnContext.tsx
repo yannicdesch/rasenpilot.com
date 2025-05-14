@@ -11,7 +11,9 @@ export interface LawnProfile {
   lastMowed?: string;
   lastFertilized?: string;
   soilType?: string;
-  id?: string; // Added id field to track profiles in database
+  id?: string;
+  hasChildren?: boolean;
+  hasPets?: boolean;
 }
 
 export interface LawnTask {
@@ -21,6 +23,13 @@ export interface LawnTask {
   completed: boolean;
   dueDate?: string;
   category?: string;
+}
+
+export interface SubscriptionDetails {
+  isSubscribed: boolean;
+  plan: 'free' | 'monthly' | 'yearly' | 'lifetime' | null;
+  expiresAt: string | null;
+  analyzesRemaining?: number;
 }
 
 interface LawnContextType {
@@ -36,6 +45,9 @@ interface LawnContextType {
   setTasks: (tasks: LawnTask[]) => void;
   isAuthenticated: boolean;
   checkAuthentication: () => Promise<boolean>;
+  subscriptionDetails: SubscriptionDetails;
+  updateSubscriptionDetails: (details: Partial<SubscriptionDetails>) => void;
+  checkSubscriptionStatus: () => Promise<void>;
 }
 
 const LawnContext = createContext<LawnContextType | undefined>(undefined);
@@ -46,7 +58,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return savedProfile ? JSON.parse(savedProfile) : null;
   });
   
-  // Temporäres Profil für nicht-registrierte Benutzer
+  // Temporary profile for non-registered users
   const [temporaryProfile, setTemporaryProfileState] = useState<LawnProfile | null>(null);
   
   // Task management
@@ -54,6 +66,38 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  
+  // Subscription details
+  const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails>({
+    isSubscribed: false,
+    plan: 'free',
+    expiresAt: null,
+    analyzesRemaining: 1
+  });
+  
+  // Update subscription details
+  const updateSubscriptionDetails = (details: Partial<SubscriptionDetails>) => {
+    setSubscriptionDetails(prev => ({
+      ...prev,
+      ...details
+    }));
+  };
+  
+  // Check subscription status
+  const checkSubscriptionStatus = async (): Promise<void> => {
+    if (!isAuthenticated) return;
+    
+    try {
+      // In a real app, this would call a Supabase function to check subscription status
+      // For now we'll simulate a check
+      console.log("Checking subscription status...");
+      
+      // For demo purposes, we'll just maintain the current subscription state
+      // In a real app, you would update this based on the response from your backend
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+    }
+  };
   
   // Check authentication status
   const checkAuthentication = async (): Promise<boolean> => {
@@ -94,6 +138,8 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
             last_mowed: profile.lastMowed,
             last_fertilized: profile.lastFertilized,
             soil_type: profile.soilType,
+            has_children: profile.hasChildren,
+            has_pets: profile.hasPets,
           })
           .eq('id', existingProfiles[0].id);
           
@@ -116,6 +162,8 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
             last_mowed: profile.lastMowed,
             last_fertilized: profile.lastFertilized,
             soil_type: profile.soilType,
+            has_children: profile.hasChildren,
+            has_pets: profile.hasPets,
           })
           .select()
           .single();
@@ -165,6 +213,11 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_IN' && profile) {
         syncProfileWithSupabase();
       }
+      
+      // Check subscription status when auth state changes
+      if (session) {
+        checkSubscriptionStatus();
+      }
     });
     
     return () => {
@@ -192,7 +245,10 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       tasks,
       setTasks,
       isAuthenticated,
-      checkAuthentication
+      checkAuthentication,
+      subscriptionDetails,
+      updateSubscriptionDetails,
+      checkSubscriptionStatus
     }}>
       {children}
     </LawnContext.Provider>
