@@ -46,7 +46,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         console.log("User already authenticated, redirecting to:", redirectTo);
-        window.location.href = redirectTo;
+        navigate(redirectTo, { replace: true });
       }
     };
     
@@ -56,7 +56,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       console.log("Auth state changed in AuthForm:", event, !!session);
       if (session && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
         console.log("Auth event detected, redirecting to:", redirectTo);
-        window.location.href = redirectTo;
+        navigate(redirectTo, { replace: true });
       }
     });
 
@@ -65,7 +65,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [redirectTo]);
+  }, [redirectTo, navigate]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -136,11 +136,9 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
       toast.success('Erfolgreich eingeloggt!');
       
-      // Force redirect with page reload to ensure state is refreshed
+      // Use React Router for navigation instead of direct page reload
       console.log('Redirecting to:', redirectTo);
-      
-      // Directly set window location instead of using React Router
-      window.location.href = redirectTo;
+      navigate(redirectTo, { replace: true });
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));

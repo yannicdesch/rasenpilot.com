@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -7,15 +7,25 @@ import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { useLawn } from '@/context/LawnContext';
 
 const Auth = () => {
   // Check if Supabase is configured
   const isSupabaseReady = isSupabaseConfigured();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useLawn();
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
+  
+  // Redirect already authenticated users
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log("User already authenticated in Auth page, redirecting to:", from);
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   return (
     <div className="flex min-h-screen flex-col">
