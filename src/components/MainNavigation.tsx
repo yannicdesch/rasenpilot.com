@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText, Shield } from "lucide-react";
+import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText, Shield, Image } from "lucide-react";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -97,13 +96,11 @@ const MainNavigation = () => {
     }
   };
 
-  // Updated menuItems to include links to both free offerings and authenticated routes
+  // Updated menuItems to include links to free offerings without chat and analysis
   const menuItems = [
     { name: 'Startseite', path: '/', icon: <Leaf size={18} className="mr-1" /> },
     { name: 'Kostenloser Pflegeplan', path: '/free-care-plan', icon: <Calendar size={18} className="mr-1" /> },
-    { name: 'Kostenloser Chat', path: '/free-chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Kostenlose Wetterberatung', path: '/free-weather', icon: <Cloud size={18} className="mr-1" /> },
-    { name: 'Rasenanalyse', path: '/free-analysis', icon: <Leaf size={18} className="mr-1" /> },
     { name: 'Blog', path: '/blog', icon: <FileText size={18} className="mr-1" /> },
   ];
 
@@ -113,6 +110,7 @@ const MainNavigation = () => {
     { name: 'Mein Pflegeplan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
     { name: 'Fragen an Rasenpilot', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
+    { name: 'Rasenanalyse', path: '/analysis', icon: <Image size={18} className="mr-1" /> },
   ] : [];
   
   // Admin-dependent menuItems

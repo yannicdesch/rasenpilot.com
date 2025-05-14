@@ -90,6 +90,7 @@ const App = () => {
                 <Route path="/seo" element={<SEOManagement />} />
                 <Route path="/blog/new" element={<NewBlogPost />} />
                 <Route path="/blog/edit/:id" element={<EditBlogPost />} />
+                <Route path="/analysis" element={<FreeLawnAnalysis />} /> {/* Redirects to this route when authenticated */}
               </Route>
               
               {/* Admin Routes */}

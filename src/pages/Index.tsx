@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -176,7 +175,69 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Gallery Section - REMOVED */}
+        {/* AI Technology Section - NEW */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-3xl font-bold text-center mb-6 text-green-800">Unsere KI-Technologie</h2>
+              <p className="text-lg text-center text-gray-600 mb-10">
+                Erfahren Sie, wie unsere fortschrittliche KI-Technologie Ihnen dabei helfen kann, 
+                den perfekten Rasen zu bekommen.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                  <img 
+                    src="/lovable-uploads/2d49b520-6bf6-4cc2-aba9-d223a8fd9097.png" 
+                    alt="KI-Analyse eines Rasens" 
+                    className="rounded-lg shadow-lg w-full"
+                  />
+                </div>
+                
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2 text-green-700">Mit Expertenwissen trainiert</h3>
+                    <p className="text-gray-600">
+                      Unsere KI wurde mit dem Wissen von professionellen Rasenpflegeexperten und Agrarwissenschaftlern 
+                      trainiert, um Ihnen fundierte und praxisnahe Beratung zu bieten.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2 text-green-700">Umfangreiche Datenanalyse</h3>
+                    <p className="text-gray-600">
+                      Mit mehr als 10.000 analysierten Rasenbildern und Hunderten von Rasenprofilen kann 
+                      unsere KI präzise Diagnosen stellen und personalisierte Empfehlungen geben.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2 text-green-700">Kontinuierliches Lernen</h3>
+                    <p className="text-gray-600">
+                      Unsere KI verbessert sich ständig durch neue Daten und Feedback unserer Nutzer, 
+                      um immer genauere und hilfreichere Beratung zu bieten.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2 text-green-700">Standortspezifische Beratung</h3>
+                    <p className="text-gray-600">
+                      Die KI berücksichtigt lokale Wetterbedingungen, Bodentypen und regionale Besonderheiten, 
+                      um maßgeschneiderte Pflegepläne zu erstellen.
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    onClick={() => navigate('/auth')} 
+                    className="mt-4 bg-green-600 hover:bg-green-700"
+                  >
+                    KI-Beratung freischalten
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         
         {/* Testimonial Section - Social Proof */}
         <section className="py-16 bg-green-50">
