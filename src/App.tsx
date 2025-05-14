@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,22 +33,19 @@ import UserManagement from "./pages/UserManagement";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Check user's theme preference on app initialization
+  // Modified theme initialization to prefer light mode
   useEffect(() => {
     const checkThemePreference = async () => {
       try {
         const { data } = await supabase.auth.getSession();
         const theme = data?.session?.user?.user_metadata?.theme;
         
+        // Always ensure dark mode is removed by default
+        document.documentElement.classList.remove('dark');
+        
+        // Only apply dark mode if explicitly set in user preferences
         if (theme === 'dark') {
           document.documentElement.classList.add('dark');
-        } else if (theme === 'light') {
-          document.documentElement.classList.remove('dark');
-        } else {
-          // Check system preference if no user preference is set
-          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-          }
         }
       } catch (error) {
         console.error('Error checking theme preference:', error);

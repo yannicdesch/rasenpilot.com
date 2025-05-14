@@ -18,7 +18,7 @@ const NewBlogPost = () => {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen flex flex-col bg-white">
       <MainNavigation />
       
       <main className="flex-grow container mx-auto px-4 py-8">

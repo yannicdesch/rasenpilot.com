@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -71,13 +70,13 @@ const FreeWeather = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 to-white dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen flex flex-col bg-white">
       <MainNavigation />
       
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-400 mb-4">Wetterbasierte Rasenberatung</h1>
+            <h1 className="text-3xl font-bold text-blue-800 mb-4">Wetterbasierte Rasenberatung</h1>
             
             <Alert className="mb-6 bg-amber-50 border-amber-200">
               <Info className="h-4 w-4 text-amber-600" />
@@ -264,8 +263,8 @@ const FreeWeather = () => {
         </div>
       </main>
       
-      <footer className="bg-white dark:bg-gray-800 py-6 border-t border-gray-200 dark:border-gray-700 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+      <footer className="bg-white py-6 border-t border-gray-200 mt-8">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
         </div>
       </footer>
