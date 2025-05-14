@@ -65,6 +65,8 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session } } = await supabase.auth.getSession();
       const isLoggedIn = !!session;
       console.log("checkAuthentication - Session exists:", isLoggedIn);
+      
+      // Important: Always update the state, whether true or false
       setIsAuthenticated(isLoggedIn);
       
       // If logged in, also check admin status
@@ -208,16 +210,20 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isProfileComplete = !!profile && !!profile.zipCode && !!profile.grassType && !!profile.lawnSize;
 
   useEffect(() => {
-    // Check authentication status on mount
-    console.log("LawnContext mounted, checking authentication...");
-    checkAuthentication();
+    // Check authentication status on mount and ensure it completes
+    const initialAuthCheck = async () => {
+      console.log("LawnContext mounted, checking authentication...");
+      await checkAuthentication();
+    };
     
-    // Set up auth listener
+    initialAuthCheck();
+    
+    // Set up auth listener with immediate check
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed in context:", event, !!session);
       
-      const isLoggedIn = !!session;
-      setIsAuthenticated(isLoggedIn);
+      // Important: Always update authentication state based on session
+      setIsAuthenticated(!!session);
       
       // Check admin role on auth state change
       if (session) {

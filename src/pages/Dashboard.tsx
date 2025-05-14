@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import WeatherWidget from '@/components/WeatherWidget';
@@ -9,22 +8,45 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Check, Clock, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
+import { supabase } from '@/lib/supabase';
+import { toast } from '@/components/ui/sonner';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = React.useState("overview");
-  const { profile, isAuthenticated } = useLawn();
+  const { profile, isAuthenticated, checkAuthentication } = useLawn();
   const navigate = useNavigate();
   
   // Add effect to verify authentication on dashboard load
   useEffect(() => {
     console.log("Dashboard mounted, authentication state:", isAuthenticated);
     
-    // If not authenticated, redirect to auth page
-    if (!isAuthenticated) {
-      console.log("User not authenticated in Dashboard, redirecting to auth");
-      navigate('/auth', { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
+    const verifyAuth = async () => {
+      try {
+        // Check Supabase session directly
+        const { data } = await supabase.auth.getSession();
+        console.log("Dashboard direct session check:", data.session ? "Session exists" : "No session");
+        
+        // Session doesn't exist, redirect to auth
+        if (!data.session) {
+          console.log("No session in Dashboard, redirecting to auth");
+          navigate('/auth', { replace: true });
+          return;
+        }
+        
+        // If context doesn't match session, update context
+        if (!isAuthenticated && data.session) {
+          console.log("Session exists but context says not authenticated, updating context");
+          await checkAuthentication();
+        }
+      } catch (error) {
+        console.error("Error verifying authentication in Dashboard:", error);
+        toast.error("Fehler beim Überprüfen der Authentifizierung");
+        navigate('/auth', { replace: true });
+      }
+    };
+    
+    verifyAuth();
+  }, [isAuthenticated, navigate, checkAuthentication]);
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
