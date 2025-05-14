@@ -42,16 +42,16 @@ const FeaturesBehindRegistration = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-950">
       <MainNavigation />
       
       <main className="flex-grow py-12">
         <div className="container px-4 mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-12">
-            <h1 className="text-4xl font-bold text-green-800 mb-4">
+            <h1 className="text-4xl font-bold text-green-800 dark:text-green-500 mb-4">
               Testen Sie Rasenpilot kostenlos
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 dark:text-gray-300">
               Entdecken Sie einige unserer besten Funktionen, ohne sich registrieren zu müssen.
             </p>
           </div>
@@ -148,8 +148,8 @@ const FeaturesBehindRegistration = () => {
         </div>
       </main>
       
-      <footer className="bg-white py-6 border-t border-gray-200">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+      <footer className="bg-white dark:bg-gray-800 py-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
         </div>
       </footer>

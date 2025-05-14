@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
 
 export interface LawnProfile {
   zipCode: string;
@@ -35,9 +35,7 @@ interface LawnContextType {
   tasks: LawnTask[];
   setTasks: (tasks: LawnTask[]) => void;
   isAuthenticated: boolean;
-  isAdmin: boolean;
   checkAuthentication: () => Promise<boolean>;
-  checkAdminRole: () => Promise<boolean>;
 }
 
 const LawnContext = createContext<LawnContextType | undefined>(undefined);
@@ -54,84 +52,21 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Task management
   const [tasks, setTasks] = useState<LawnTask[]>([]);
   
-  // Authentication state - force initial check with session storage
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    // Check if we have a cached session in sessionStorage as fallback
-    const cachedAuth = sessionStorage.getItem('isAuthenticated');
-    return cachedAuth === 'true';
-  });
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   
-  // Admin role state
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  
-  // Check authentication status - using useCallback to avoid dependency loops
-  const checkAuthentication = useCallback(async (): Promise<boolean> => {
+  // Check authentication status
+  const checkAuthentication = async (): Promise<boolean> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const isLoggedIn = !!session;
-      console.log("checkAuthentication - Session exists:", isLoggedIn);
-      
-      // Important: Always update the state, whether true or false
       setIsAuthenticated(isLoggedIn);
-      
-      // Cache authentication state in sessionStorage as fallback
-      sessionStorage.setItem('isAuthenticated', String(isLoggedIn));
-      
-      // If logged in, also check admin status
-      if (isLoggedIn) {
-        await checkAdminRole();
-      }
-      
       return isLoggedIn;
     } catch (error) {
       console.error("Error checking authentication:", error);
-      setIsAuthenticated(false);
-      sessionStorage.removeItem('isAuthenticated');
       return false;
     }
-  }, []);
-  
-  // Check if user has admin role - using useCallback to avoid dependency loops  
-  const checkAdminRole = useCallback(async (): Promise<boolean> => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log("checkAdminRole - No session found");
-        setIsAdmin(false);
-        return false;
-      }
-      
-      // Special case for yannic.desch@gmail.com
-      const email = session.user.email?.toLowerCase();
-      console.log("checkAdminRole - User email:", email);
-      
-      if (email === 'yannic.desch@gmail.com') {
-        console.log('Special user detected in context, setting admin rights');
-        setIsAdmin(true);
-        
-        // Always update the user metadata to ensure admin rights are set
-        try {
-          await supabase.auth.updateUser({
-            data: { isAdmin: true }
-          });
-          console.log("Successfully updated admin rights for special user");
-        } catch (err) {
-          console.error("Error updating admin rights:", err);
-        }
-        
-        return true;
-      }
-      
-      const isUserAdmin = session.user.user_metadata?.isAdmin === true;
-      console.log("checkAdminRole - Is admin from metadata:", isUserAdmin);
-      setIsAdmin(isUserAdmin);
-      return isUserAdmin;
-    } catch (error) {
-      console.error("Error checking admin role:", error);
-      setIsAdmin(false);
-      return false;
-    }
-  }, []);
+  };
   
   // Sync profile with Supabase
   const syncProfileWithSupabase = async () => {
@@ -219,63 +154,23 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isProfileComplete = !!profile && !!profile.zipCode && !!profile.grassType && !!profile.lawnSize;
 
   useEffect(() => {
-    // Check authentication status on mount and ensure it completes
-    const initialAuthCheck = async () => {
-      console.log("LawnContext mounted, checking authentication...");
-      try {
-        // First check Supabase session directly
-        const { data: { session } } = await supabase.auth.getSession();
-        const isLoggedIn = !!session;
-        console.log("Initial auth check - direct session check:", isLoggedIn);
-        
-        // Update state immediately with direct check result
-        setIsAuthenticated(isLoggedIn);
-        sessionStorage.setItem('isAuthenticated', String(isLoggedIn));
-        
-        // Then use the full check method which includes admin check
-        await checkAuthentication();
-      } catch (error) {
-        console.error("Error during initial auth check:", error);
-        setIsAuthenticated(false);
-        sessionStorage.removeItem('isAuthenticated');
-      }
-    };
+    // Check authentication status on mount
+    checkAuthentication();
     
-    initialAuthCheck();
-    
-    // Set up auth listener with immediate check
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed in context:", event, !!session);
-      
-      // Important: Always update authentication state based on session
+    // Set up auth listener
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
-      sessionStorage.setItem('isAuthenticated', String(!!session));
       
-      // Check admin role on auth state change
-      if (session) {
-        console.log("Session exists in auth change, checking admin role");
-        await checkAdminRole();
-        
-        // If user just signed in, sync profile
-        if (event === 'SIGNED_IN' && profile) {
-          console.log("User signed in, syncing profile");
-          syncProfileWithSupabase();
-        }
-      } else {
-        setIsAdmin(false);
-        
-        if (event === 'SIGNED_OUT') {
-          toast("Abgemeldet", {
-            description: "Sie wurden ausgeloggt"
-          });
-        }
+      // If user just signed in, sync profile
+      if (event === 'SIGNED_IN' && profile) {
+        syncProfileWithSupabase();
       }
     });
     
     return () => {
       authListener?.subscription?.unsubscribe();
     };
-  }, [checkAuthentication, checkAdminRole, profile]);
+  }, []);
   
   // When profile changes and user is authenticated, sync with Supabase
   useEffect(() => {
@@ -297,9 +192,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       tasks,
       setTasks,
       isAuthenticated,
-      isAdmin,
-      checkAuthentication,
-      checkAdminRole
+      checkAuthentication
     }}>
       {children}
     </LawnContext.Provider>

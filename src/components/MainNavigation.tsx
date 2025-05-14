@@ -2,11 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText, Shield, Image } from "lucide-react";
+import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText } from "lucide-react";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useLawn } from '@/context/LawnContext';
 
 interface User {
   id: string;
@@ -18,12 +17,12 @@ const MainNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const { isAdmin, checkAdminRole } = useLawn();
   const navigate = useNavigate();
 
   useEffect(() => {
     const getUser = async () => {
       try {
+        // We're now always configured, but keep the checks for robustness
         if (!isSupabaseConfigured()) {
           console.log('Supabase is not configured in MainNavigation');
           setLoading(false);
@@ -37,9 +36,6 @@ const MainNavigation = () => {
             email: data.user.email || '',
             name: data.user.user_metadata?.name,
           });
-          
-          // Check if user is admin
-          await checkAdminRole();
         }
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -52,16 +48,13 @@ const MainNavigation = () => {
 
     // Set up auth listener
     try {
-      const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
           setUser({
             id: session.user.id,
             email: session.user.email || '',
             name: session.user.user_metadata?.name,
           });
-          
-          // Check if user is admin
-          await checkAdminRole();
         } else {
           setUser(null);
         }
@@ -76,7 +69,7 @@ const MainNavigation = () => {
       console.error('Error setting up auth listener:', error);
       return () => {};
     }
-  }, [checkAdminRole]);
+  }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -96,11 +89,13 @@ const MainNavigation = () => {
     }
   };
 
-  // Updated menuItems to include links to free offerings without chat and analysis
+  // Updated menuItems to include links to both free offerings and authenticated routes
   const menuItems = [
     { name: 'Startseite', path: '/', icon: <Leaf size={18} className="mr-1" /> },
     { name: 'Kostenloser Pflegeplan', path: '/free-care-plan', icon: <Calendar size={18} className="mr-1" /> },
+    { name: 'Kostenloser Chat', path: '/free-chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Kostenlose Wetterberatung', path: '/free-weather', icon: <Cloud size={18} className="mr-1" /> },
+    { name: 'Rasenanalyse', path: '/free-analysis', icon: <Leaf size={18} className="mr-1" /> },
     { name: 'Blog', path: '/blog', icon: <FileText size={18} className="mr-1" /> },
   ];
 
@@ -110,12 +105,6 @@ const MainNavigation = () => {
     { name: 'Mein Pflegeplan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
     { name: 'Fragen an Rasenpilot', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
     { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
-    { name: 'Rasenanalyse', path: '/analysis', icon: <Image size={18} className="mr-1" /> },
-  ] : [];
-  
-  // Admin-dependent menuItems
-  const adminMenuItems = isAdmin ? [
-    { name: 'Admin Dashboard', path: '/admin', icon: <Shield size={18} className="mr-1" /> },
   ] : [];
 
   return (
@@ -132,58 +121,47 @@ const MainNavigation = () => {
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
+          <div className="hidden md:flex md:items-center">
             {menuItems.map((item) => (
               <Link 
                 key={item.name}
                 to={item.path}
-                className="text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all"
+                className="ml-8 text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all"
               >
                 {item.icon}
                 {item.name}
               </Link>
             ))}
             
-            {/* Admin Menu Items */}
-            {isAdmin && (
-              <Link 
-                to="/admin"
-                className="text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all bg-green-100"
-              >
-                <Shield size={18} className="mr-1 text-green-600" />
-                Admin
-              </Link>
-            )}
-            
-            {/* Auth Section - Always visible */}
-            <div className="ml-4 flex items-center gap-2">
-              {!loading && user ? (
-                <>
-                  <Link to="/profile">
-                    <Avatar className="h-8 w-8 hover:ring-2 hover:ring-green-400 transition-all">
-                      <AvatarFallback className="bg-green-100 text-green-800 text-sm">
-                        {user.name?.charAt(0) || user.email.charAt(0) || '?'}
-                      </AvatarFallback>
-                    </Avatar>
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="ml-8 flex items-center gap-2">
+                    <Link to="/profile">
+                      <Avatar className="h-8 w-8 hover:ring-2 hover:ring-green-400 transition-all">
+                        <AvatarFallback className="bg-green-100 text-green-800 text-sm">
+                          {user.name?.charAt(0) || user.email.charAt(0) || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={handleSignOut}
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut size={18} />
+                    </Button>
+                  </div>
+                ) : (
+                  <Link to="/auth">
+                    <Button className="ml-8 bg-green-600 hover:bg-green-700" size="sm">
+                      Anmelden
+                    </Button>
                   </Link>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={handleSignOut}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut size={18} />
-                  </Button>
-                </>
-              ) : (
-                <Link to="/auth">
-                  <Button className="bg-green-600 hover:bg-green-700" size="sm">
-                    <UserRound size={18} className="mr-1" />
-                    Anmelden
-                  </Button>
-                </Link>
-              )}
-            </div>
+                )}
+              </>
+            )}
           </div>
           
           {/* Mobile menu button */}
@@ -226,20 +204,6 @@ const MainNavigation = () => {
               </Link>
             ))}
             
-            {/* Admin Mobile Navigation */}
-            {!loading && isAdmin && adminMenuItems.map((item) => (
-              <Link 
-                key={item.name}
-                to={item.path}
-                className="block px-3 py-2 text-green-800 bg-green-100 hover:bg-green-200 hover:text-green-600 rounded-md flex items-center"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.icon}
-                <span className="ml-2">{item.name}</span>
-              </Link>
-            ))}
-            
-            {/* Always show login/register in mobile menu */}
             {!loading && (
               <>
                 {user ? (
@@ -265,9 +229,8 @@ const MainNavigation = () => {
                   </>
                 ) : (
                   <div className="px-3 py-2">
-                    <Link to="/auth" onClick={() => setIsOpen(false)}>
-                      <Button className="w-full bg-green-600 hover:bg-green-700 flex items-center justify-center">
-                        <UserRound size={18} className="mr-2" />
+                    <Link to="/auth">
+                      <Button className="w-full bg-green-600 hover:bg-green-700">
                         Anmelden
                       </Button>
                     </Link>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -38,30 +39,36 @@ const Index = () => {
       <MainNavigation />
       
       <main className="flex-grow">
-        {/* Hero Section - Updated with provided text and AI focus */}
+        {/* Hero Section - Updated with new value proposition */}
         <section className="bg-gradient-to-br from-green-100 to-green-50 py-12 md:py-20 border-b border-green-200">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col items-center justify-between">
-              <div className="w-full max-w-3xl text-center">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="md:w-1/2">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-4">
                   Dein persönlicher Rasenpflege-Plan – in 30 Sekunden, kostenlos
                 </h1>
-                <p className="text-lg md:text-xl text-gray-700 mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
+                <p className="text-lg text-gray-700 mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
                   Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
                 </p>
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100 mb-8">
-                  <p className="text-green-800 font-medium">
-                    <span className="font-bold text-green-700">KI-gestützte Analyse:</span> Unsere patentierte Technologie hat bereits tausende Rasenflächen analysiert und erstellt dir einen maßgeschneiderten Pflegeplan
-                  </p>
-                </div>
-                <div className="flex justify-center flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4">
                   <Button
-                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl transition-all"
+                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
                     size="lg"
                     onClick={() => navigate('/free-plan')}
                   >
                     Rasen-Check starten <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
+                </div>
+              </div>
+              <div className="md:w-1/2 mt-8 md:mt-0">
+                <div className="relative">
+                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-yellow-400/20 rounded-full z-0"></div>
+                  <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-green-400/20 rounded-full z-0"></div>
+                  <img
+                    src="/lovable-uploads/2d49b520-6bf6-4cc2-aba9-d223a8fd9097.png"
+                    alt="Mann mäht Rasen in einem Garten mit Obstbäumen"
+                    className="rounded-2xl shadow-xl w-full h-auto object-cover border-4 border-white relative z-10"
+                  />
                 </div>
               </div>
             </div>
@@ -169,65 +176,9 @@ const Index = () => {
           </div>
         </section>
         
-        {/* AI Technology Section */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-center mb-6 text-green-800">Unsere KI-Technologie</h2>
-              <p className="text-lg text-center text-gray-600 mb-10">
-                Erfahren Sie, wie unsere fortschrittliche KI-Technologie Ihnen dabei helfen kann, 
-                den perfekten Rasen zu bekommen.
-              </p>
-              
-              <div className="grid grid-cols-1 gap-8">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2 text-green-700">Mit Expertenwissen trainiert</h3>
-                    <p className="text-gray-600">
-                      Unsere KI wurde mit dem Wissen von professionellen Rasenpflegeexperten und Agrarwissenschaftlern 
-                      trainiert, um Ihnen fundierte und praxisnahe Beratung zu bieten.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2 text-green-700">Umfangreiche Datenanalyse</h3>
-                    <p className="text-gray-600">
-                      Mit mehr als 10.000 analysierten Rasenbildern und Hunderten von Rasenprofilen kann 
-                      unsere KI präzise Diagnosen stellen und personalisierte Empfehlungen geben.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2 text-green-700">Kontinuierliches Lernen</h3>
-                    <p className="text-gray-600">
-                      Unsere KI verbessert sich ständig durch neue Daten und Feedback unserer Nutzer, 
-                      um immer genauere und hilfreichere Beratung zu bieten.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2 text-green-700">Standortspezifische Beratung</h3>
-                    <p className="text-gray-600">
-                      Die KI berücksichtigt lokale Wetterbedingungen, Bodentypen und regionale Besonderheiten, 
-                      um maßgeschneiderte Pflegepläne zu erstellen.
-                    </p>
-                  </div>
-                  
-                  <div className="flex justify-center pt-4">
-                    <Button 
-                      onClick={() => navigate('/auth')} 
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      KI-Beratung freischalten
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Gallery Section - REMOVED */}
         
-        {/* Testimonial Section */}
+        {/* Testimonial Section - Social Proof */}
         <section className="py-16 bg-green-50">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-10 text-green-800">Was unsere Nutzer sagen</h2>

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 import { Brain, Calendar, RefreshCw } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -77,21 +77,19 @@ const AiBlogGenerator = () => {
       nextScheduled: enabled ? nextDate.toISOString() : null
     });
     
-    if (enabled) {
-      toast("KI-Blogbeiträge aktiviert", {
-        description: `Der nächste Beitrag wird am ${nextDate.toLocaleDateString('de-DE')} generiert.`
-      });
-    } else {
-      toast("KI-Blogbeiträge deaktiviert", {
-        description: "Die automatische Generierung wurde gestoppt."
-      });
-    }
+    toast({
+      title: enabled ? "KI-Blogbeiträge aktiviert" : "KI-Blogbeiträge deaktiviert",
+      description: enabled 
+        ? `Der nächste Beitrag wird am ${nextDate.toLocaleDateString('de-DE')} generiert.`
+        : "Die automatische Generierung wurde gestoppt."
+    });
   };
 
   const addTopic = () => {
     if (!topic.trim()) return;
     if (settings.topics.includes(topic.trim())) {
-      toast("Thema existiert bereits", {
+      toast({
+        title: "Thema existiert bereits",
         description: "Dieses Thema ist bereits in der Liste enthalten.",
         variant: "destructive"
       });
@@ -171,12 +169,14 @@ const AiBlogGenerator = () => {
         nextScheduled: settings.isEnabled ? nextDate.toISOString() : null
       });
       
-      toast("Neuer Blogbeitrag erstellt", {
+      toast({
+        title: "Neuer Blogbeitrag erstellt",
         description: `"${title}" wurde erfolgreich generiert.`
       });
     } catch (error) {
       console.error('Error generating blog post:', error);
-      toast("Fehler", {
+      toast({
+        title: "Fehler",
         description: "Bei der Generierung des Blogbeitrags ist ein Fehler aufgetreten.",
         variant: "destructive"
       });

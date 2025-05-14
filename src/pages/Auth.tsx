@@ -1,57 +1,21 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import AuthForm from '@/components/AuthForm';
 import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { isSupabaseConfigured, supabase } from '@/lib/supabase';
-import { useLawn } from '@/context/LawnContext';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 const Auth = () => {
   // Check if Supabase is configured
   const isSupabaseReady = isSupabaseConfigured();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useLawn();
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
-  
-  // Check session directly and then redirect if needed
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        // Direct session check
-        const { data } = await supabase.auth.getSession();
-        
-        if (data.session) {
-          console.log("Session found in Auth page, redirecting to:", from);
-          navigate(from, { replace: true });
-        }
-      } catch (error) {
-        console.error("Error checking session in Auth page:", error);
-      } finally {
-        setIsCheckingSession(false);
-      }
-    };
-    
-    checkSession();
-  }, [from, navigate]);
-  
-  // Also redirect on context auth changes
-  useEffect(() => {
-    if (isAuthenticated && !isCheckingSession) {
-      console.log("User authenticated in Auth page context, redirecting to:", from);
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, from, navigate, isCheckingSession]);
-
-  if (isCheckingSession) {
-    return <div className="h-screen flex items-center justify-center">Lade...</div>;
-  }
 
   return (
     <div className="flex min-h-screen flex-col">

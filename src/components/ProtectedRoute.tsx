@@ -1,40 +1,34 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
-import { useLawn } from '@/context/LawnContext';
 
 const ProtectedRoute = () => {
-  const { isAuthenticated, checkAuthentication } = useLawn();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const location = useLocation();
-  const [timeoutOccurred, setTimeoutOccurred] = useState(false);
 
   useEffect(() => {
-    const verifyAuthentication = async () => {
+    const checkAuth = async () => {
       try {
         // We should always be configured now, but keep the check
         if (!isSupabaseConfigured()) {
           console.error('Supabase is not configured properly');
           toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+          setIsAuthenticated(false);
           setIsLoading(false);
-          setHasCheckedAuth(true);
           return;
         }
 
-        // Force a check of authentication status
-        const authResult = await checkAuthentication();
-        console.log("Authentication check result:", authResult);
-        
-        // Get the session directly as well for double verification
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Supabase authentication error:', error);
           toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
+          setIsAuthenticated(false);
         } else {
-          console.log("Auth session check in ProtectedRoute:", data.session ? "Session exists" : "No session");
+          setIsAuthenticated(!!data.session);
           
           // If not authenticated, inform about premium features
           if (!data.session) {
@@ -48,61 +42,37 @@ const ProtectedRoute = () => {
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
+        setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
-        setHasCheckedAuth(true);
       }
     };
 
-    console.log("ProtectedRoute mounted, verifying authentication...");
-    verifyAuthentication();
-    
-    // Add a timeout to prevent infinite loading state
-    const timeoutId = setTimeout(() => {
-      console.log("Authentication timeout occurred, forcing state update");
-      setTimeoutOccurred(true);
-      setIsLoading(false);
-      setHasCheckedAuth(true);
-    }, 5000); // 5 second timeout
-    
-    // Set up auth listener for real-time updates
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed in ProtectedRoute:", event, !!session);
-      const authResult = await checkAuthentication();
-      console.log("Auth result after state change:", authResult);
-      setHasCheckedAuth(true);
-      setIsLoading(false);
-    });
+    checkAuth();
 
-    return () => {
-      clearTimeout(timeoutId);
-      if (authListener?.subscription) {
-        authListener.subscription.unsubscribe();
-      }
-    };
-  }, [checkAuthentication]);
-
-  // Add explicit logging to help debug the rendering condition
-  console.log("Protected route render state:", { 
-    isLoading, 
-    hasCheckedAuth, 
-    isAuthenticated,
-    timeoutOccurred
-  });
+    // Set up auth listener
+    try {
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsAuthenticated(!!session);
+      });
   
-  if (isLoading && !timeoutOccurred) {
+      return () => {
+        if (authListener?.subscription) {
+          authListener.subscription.unsubscribe();
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up auth listener:', error);
+      return () => {};
+    }
+  }, []);
+
+  if (isLoading) {
     // Still checking auth state
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }
 
-  console.log("Protected route render - isAuthenticated:", isAuthenticated);
-  
-  if (!isAuthenticated) {
-    console.log("Redirecting to auth page from protected route");
-    return <Navigate to="/auth" state={{ from: location }} replace />;
-  }
-  
-  return <Outlet />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/features" state={{ from: location }} />;
 };
 
 export default ProtectedRoute;
