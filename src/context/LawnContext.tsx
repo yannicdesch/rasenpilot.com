@@ -75,6 +75,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return isLoggedIn;
     } catch (error) {
       console.error("Error checking authentication:", error);
+      setIsAuthenticated(false);
       return false;
     }
   }, []);
@@ -208,6 +209,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check authentication status on mount
+    console.log("LawnContext mounted, checking authentication...");
     checkAuthentication();
     
     // Set up auth listener
@@ -219,10 +221,12 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Check admin role on auth state change
       if (session) {
+        console.log("Session exists in auth change, checking admin role");
         await checkAdminRole();
         
         // If user just signed in, sync profile
         if (event === 'SIGNED_IN' && profile) {
+          console.log("User signed in, syncing profile");
           syncProfileWithSupabase();
         }
       } else {

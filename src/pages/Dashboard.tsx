@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import WeatherWidget from '@/components/WeatherWidget';
 import TaskTimeline from '@/components/TaskTimeline';
@@ -11,9 +11,20 @@ import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("overview");
-  const { profile } = useLawn();
+  const [activeTab, setActiveTab] = React.useState("overview");
+  const { profile, isAuthenticated } = useLawn();
   const navigate = useNavigate();
+  
+  // Add effect to verify authentication on dashboard load
+  useEffect(() => {
+    console.log("Dashboard mounted, authentication state:", isAuthenticated);
+    
+    // If not authenticated, redirect to auth page
+    if (!isAuthenticated) {
+      console.log("User not authenticated in Dashboard, redirecting to auth");
+      navigate('/auth', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
