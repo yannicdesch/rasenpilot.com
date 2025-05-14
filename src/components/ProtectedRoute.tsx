@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -72,7 +71,7 @@ const ProtectedRoute = () => {
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/features" state={{ from: location }} />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/auth" state={{ from: location }} />;
 };
 
 export default ProtectedRoute;
