@@ -192,10 +192,18 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
         throw error;
       }
 
-      toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
+      toast({
+        title: "Registrierung erfolgreich!",
+        description: "Bitte überprüfe deine E-Mails für den Bestätigungslink."
+      });
+      
       setActiveTab('login');
     } catch (error: any) {
-      toast.error('Fehler bei der Registrierung: ' + (error.message || 'Unbekannter Fehler'));
+      toast({
+        variant: "destructive",
+        title: "Fehler bei der Registrierung",
+        description: error.message || 'Unbekannter Fehler'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -205,9 +213,13 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
   const toggleAdminOption = () => {
     setShowAdminOption(!showAdminOption);
     if (!showAdminOption) {
-      toast.success('Admin-Optionen aktiviert');
+      toast({
+        title: "Admin-Optionen aktiviert"
+      });
     } else {
-      toast.info('Admin-Optionen deaktiviert');
+      toast({
+        title: "Admin-Optionen deaktiviert"
+      });
     }
   };
 
