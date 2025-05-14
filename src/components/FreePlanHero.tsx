@@ -1,10 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLawn } from '@/context/LawnContext';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 const FreePlanHero: React.FC = () => {
   const { temporaryProfile, isAuthenticated } = useLawn();
   const [seoContent, setSEOContent] = useState<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedSeoContent = localStorage.getItem('seoContent');
@@ -23,13 +27,31 @@ const FreePlanHero: React.FC = () => {
           <h2 className="text-xl md:text-2xl font-medium text-green-700 mb-6">
             Mit Hilfe von KI und der Rasenpilot-Community erstellen wir den perfekten Pflegeplan für deinen Rasen – basierend auf Standort, Grasart und Ziel.
           </h2>
-          <p className="text-lg text-gray-700 mb-6">
+          <p className="text-lg text-gray-700 mb-8">
             Egal ob du einen grüneren Rasen willst, kahle Stellen reparieren musst oder Unkraut bekämpfst – Rasenpilot kombiniert Expertenwissen, echte Erfahrungen und aktuelle Wetterdaten.
             <br />
             <span className="font-medium text-green-600">
               Sofort starten. Ohne Anmeldung. Kostenlos.
             </span>
           </p>
+          
+          {/* Added clear call to action button */}
+          <div className="mb-8">
+            <Button
+              className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700 shadow-lg"
+              size="lg"
+              onClick={() => navigate('/free-plan/form')}
+            >
+              Rasen-Check mit KI starten <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
+          
+          {/* KI Technology Badge */}
+          <div className="bg-green-50 p-4 rounded-lg border border-green-100 mb-6 inline-block">
+            <p className="text-green-800 text-sm font-medium">
+              <span className="font-bold">IP-geschützte KI-Technologie</span> für präzise Rasenanalyse
+            </p>
+          </div>
           
           {/* Hidden SEO content that's visible to search engines */}
           {seoContent && (

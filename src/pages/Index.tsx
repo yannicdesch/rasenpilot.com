@@ -38,20 +38,25 @@ const Index = () => {
       <MainNavigation />
       
       <main className="flex-grow">
-        {/* Hero Section - Updated to remove image */}
+        {/* Hero Section - Updated with provided text and AI focus */}
         <section className="bg-gradient-to-br from-green-100 to-green-50 py-12 md:py-20 border-b border-green-200">
           <div className="container mx-auto px-4">
             <div className="flex flex-col items-center justify-between">
               <div className="w-full max-w-3xl text-center">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-4">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-6">
                   Dein persönlicher Rasenpflege-Plan – in 30 Sekunden, kostenlos
                 </h1>
-                <p className="text-lg text-gray-700 mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
+                <p className="text-lg md:text-xl text-gray-700 mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
                   Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
                 </p>
+                <div className="bg-green-50 p-4 rounded-lg border border-green-100 mb-8">
+                  <p className="text-green-800 font-medium">
+                    <span className="font-bold text-green-700">KI-gestützte Analyse:</span> Unsere patentierte Technologie hat bereits tausende Rasenflächen analysiert und erstellt dir einen maßgeschneiderten Pflegeplan
+                  </p>
+                </div>
                 <div className="flex justify-center flex-wrap gap-4">
                   <Button
-                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
+                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl transition-all"
                     size="lg"
                     onClick={() => navigate('/free-plan')}
                   >
@@ -164,7 +169,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* AI Technology Section - Updated to remove image */}
+        {/* AI Technology Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -222,7 +227,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Testimonial Section - Social Proof */}
+        {/* Testimonial Section */}
         <section className="py-16 bg-green-50">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-10 text-green-800">Was unsere Nutzer sagen</h2>
