@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import WeatherWidget from '@/components/WeatherWidget';
 import TaskTimeline from '@/components/TaskTimeline';
@@ -9,12 +10,13 @@ import { Calendar, Check, Clock, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = React.useState("overview");
   const { profile, isAuthenticated, checkAuthentication } = useLawn();
   const navigate = useNavigate();
+  const [isVerifying, setIsVerifying] = useState(true);
   
   // Add effect to verify authentication on dashboard load
   useEffect(() => {
@@ -22,6 +24,7 @@ const Dashboard = () => {
     
     const verifyAuth = async () => {
       try {
+        setIsVerifying(true);
         // Check Supabase session directly
         const { data } = await supabase.auth.getSession();
         console.log("Dashboard direct session check:", data.session ? "Session exists" : "No session");
@@ -40,13 +43,30 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error("Error verifying authentication in Dashboard:", error);
-        toast.error("Fehler beim Überprüfen der Authentifizierung");
+        toast({
+          variant: "destructive",
+          title: "Authentifizierungsfehler",
+          description: "Fehler beim Überprüfen der Authentifizierung"
+        });
         navigate('/auth', { replace: true });
+      } finally {
+        setIsVerifying(false);
       }
     };
     
     verifyAuth();
+    
+    // Add a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsVerifying(false);
+    }, 3000);
+    
+    return () => clearTimeout(timeoutId);
   }, [isAuthenticated, navigate, checkAuthentication]);
+  
+  if (isVerifying) {
+    return <div className="h-screen flex items-center justify-center">Lade Dashboard...</div>;
+  }
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">

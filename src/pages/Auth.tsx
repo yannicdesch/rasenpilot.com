@@ -1,12 +1,12 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import AuthForm from '@/components/AuthForm';
 import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { isSupabaseConfigured } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useLawn } from '@/context/LawnContext';
 
 const Auth = () => {
@@ -15,17 +15,43 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useLawn();
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
   
-  // Redirect already authenticated users
+  // Check session directly and then redirect if needed
   useEffect(() => {
-    if (isAuthenticated) {
-      console.log("User already authenticated in Auth page, redirecting to:", from);
+    const checkSession = async () => {
+      try {
+        // Direct session check
+        const { data } = await supabase.auth.getSession();
+        
+        if (data.session) {
+          console.log("Session found in Auth page, redirecting to:", from);
+          navigate(from, { replace: true });
+        }
+      } catch (error) {
+        console.error("Error checking session in Auth page:", error);
+      } finally {
+        setIsCheckingSession(false);
+      }
+    };
+    
+    checkSession();
+  }, [from, navigate]);
+  
+  // Also redirect on context auth changes
+  useEffect(() => {
+    if (isAuthenticated && !isCheckingSession) {
+      console.log("User authenticated in Auth page context, redirecting to:", from);
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, from, navigate, isCheckingSession]);
+
+  if (isCheckingSession) {
+    return <div className="h-screen flex items-center justify-center">Lade...</div>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

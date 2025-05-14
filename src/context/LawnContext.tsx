@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 
 export interface LawnProfile {
   zipCode: string;
@@ -54,8 +54,13 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Task management
   const [tasks, setTasks] = useState<LawnTask[]>([]);
   
-  // Authentication state
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  // Authentication state - force initial check with session storage
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    // Check if we have a cached session in sessionStorage as fallback
+    const cachedAuth = sessionStorage.getItem('isAuthenticated');
+    return cachedAuth === 'true';
+  });
+  
   // Admin role state
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   
@@ -69,6 +74,9 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Important: Always update the state, whether true or false
       setIsAuthenticated(isLoggedIn);
       
+      // Cache authentication state in sessionStorage as fallback
+      sessionStorage.setItem('isAuthenticated', String(isLoggedIn));
+      
       // If logged in, also check admin status
       if (isLoggedIn) {
         await checkAdminRole();
@@ -78,6 +86,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error("Error checking authentication:", error);
       setIsAuthenticated(false);
+      sessionStorage.removeItem('isAuthenticated');
       return false;
     }
   }, []);
@@ -213,7 +222,23 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check authentication status on mount and ensure it completes
     const initialAuthCheck = async () => {
       console.log("LawnContext mounted, checking authentication...");
-      await checkAuthentication();
+      try {
+        // First check Supabase session directly
+        const { data: { session } } = await supabase.auth.getSession();
+        const isLoggedIn = !!session;
+        console.log("Initial auth check - direct session check:", isLoggedIn);
+        
+        // Update state immediately with direct check result
+        setIsAuthenticated(isLoggedIn);
+        sessionStorage.setItem('isAuthenticated', String(isLoggedIn));
+        
+        // Then use the full check method which includes admin check
+        await checkAuthentication();
+      } catch (error) {
+        console.error("Error during initial auth check:", error);
+        setIsAuthenticated(false);
+        sessionStorage.removeItem('isAuthenticated');
+      }
     };
     
     initialAuthCheck();
@@ -224,6 +249,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Important: Always update authentication state based on session
       setIsAuthenticated(!!session);
+      sessionStorage.setItem('isAuthenticated', String(!!session));
       
       // Check admin role on auth state change
       if (session) {
@@ -239,7 +265,10 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAdmin(false);
         
         if (event === 'SIGNED_OUT') {
-          toast.info('Sie wurden ausgeloggt');
+          toast({
+            title: "Abgemeldet",
+            description: "Sie wurden ausgeloggt"
+          });
         }
       }
     });

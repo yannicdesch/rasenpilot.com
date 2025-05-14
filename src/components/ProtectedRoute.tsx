@@ -9,6 +9,7 @@ const ProtectedRoute = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const location = useLocation();
+  const [timeoutOccurred, setTimeoutOccurred] = useState(false);
 
   useEffect(() => {
     const verifyAuthentication = async () => {
@@ -56,6 +57,14 @@ const ProtectedRoute = () => {
     console.log("ProtectedRoute mounted, verifying authentication...");
     verifyAuthentication();
     
+    // Add a timeout to prevent infinite loading state
+    const timeoutId = setTimeout(() => {
+      console.log("Authentication timeout occurred, forcing state update");
+      setTimeoutOccurred(true);
+      setIsLoading(false);
+      setHasCheckedAuth(true);
+    }, 5000); // 5 second timeout
+    
     // Set up auth listener for real-time updates
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed in ProtectedRoute:", event, !!session);
@@ -66,6 +75,7 @@ const ProtectedRoute = () => {
     });
 
     return () => {
+      clearTimeout(timeoutId);
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
@@ -76,10 +86,11 @@ const ProtectedRoute = () => {
   console.log("Protected route render state:", { 
     isLoading, 
     hasCheckedAuth, 
-    isAuthenticated 
+    isAuthenticated,
+    timeoutOccurred
   });
   
-  if (isLoading || !hasCheckedAuth) {
+  if (isLoading && !timeoutOccurred) {
     // Still checking auth state
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Lock, UserRoundPlus, Shield, Settings } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLawn } from '@/context/LawnContext';
@@ -43,10 +43,14 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
   // Listen for authentication changes and redirect if already authenticated
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        console.log("User already authenticated, redirecting to:", redirectTo);
-        navigate(redirectTo, { replace: true });
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          console.log("User already authenticated in AuthForm, redirecting to:", redirectTo);
+          navigate(redirectTo, { replace: true });
+        }
+      } catch (error) {
+        console.error("Error checking session in AuthForm:", error);
       }
     };
     
@@ -87,7 +91,11 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
   const onLoginSubmit = async (data: LoginFormValues) => {
     if (!isSupabaseConfigured()) {
-      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+      toast({
+        variant: "destructive",
+        title: "Konfigurationsfehler",
+        description: "Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten."
+      });
       return;
     }
 
@@ -119,7 +127,10 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
             console.error('Failed to update admin status:', updateError);
           } else {
             console.log('Admin rights granted successfully');
-            toast.success('Admin-Rechte wurden gewährt!');
+            toast({
+              title: "Admin-Rechte",
+              description: "Admin-Rechte wurden gewährt!"
+            });
           }
         } catch (updateErr) {
           console.error('Error during admin rights update:', updateErr);
@@ -134,14 +145,21 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
         await checkAdminRole();
       }
 
-      toast.success('Erfolgreich eingeloggt!');
+      toast({
+        title: "Erfolgreich eingeloggt!",
+        description: "Sie werden weitergeleitet."
+      });
       
       // Use React Router for navigation instead of direct page reload
       console.log('Redirecting to:', redirectTo);
       navigate(redirectTo, { replace: true });
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));
+      toast({
+        variant: "destructive",
+        title: "Fehler beim Einloggen",
+        description: error.message || 'Unbekannter Fehler'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -149,7 +167,11 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
   const onRegisterSubmit = async (data: RegisterFormValues) => {
     if (!isSupabaseConfigured()) {
-      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+      toast({
+        variant: "destructive",
+        title: "Konfigurationsfehler",
+        description: "Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten."
+      });
       return;
     }
 
