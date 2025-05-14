@@ -31,6 +31,7 @@ import EditBlogPost from "./pages/EditBlogPost";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserManagement from "./pages/UserManagement";
 
+// Create the query client once (outside the component)
 const queryClient = new QueryClient();
 
 const App = () => {

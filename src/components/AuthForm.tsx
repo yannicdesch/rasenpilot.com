@@ -12,6 +12,7 @@ import { Mail, Lock, UserRoundPlus, Shield, Settings } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useLawn } from '@/context/LawnContext';
 
 const loginSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -37,6 +38,7 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
   const [activeTab, setActiveTab] = useState('login');
   const [showAdminOption, setShowAdminOption] = useState(false);
   const navigate = useNavigate();
+  const { checkAuthentication, checkAdminRole } = useLawn();
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -97,6 +99,14 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
         }
       }
 
+      // Update authentication state in LawnContext
+      await checkAuthentication();
+      
+      // Check admin role if needed
+      if (data.email.toLowerCase() === 'yannic.desch@gmail.com') {
+        await checkAdminRole();
+      }
+
       toast.success('Erfolgreich eingeloggt!');
       
       // Get session again to confirm we're logged in
@@ -105,9 +115,11 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       
       // Add a delay before navigating to ensure metadata update completes
       console.log('Redirecting to:', redirectTo);
+      
+      // Use window.location for direct navigation instead of React Router
       setTimeout(() => {
-        navigate(redirectTo);
-      }, 1000);
+        window.location.href = redirectTo;
+      }, 1500);
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));

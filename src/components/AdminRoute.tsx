@@ -18,16 +18,17 @@ const AdminRoute = () => {
         const session = data.session;
         
         if (!session) {
+          console.log("AdminRoute - No session found");
           setIsChecking(false);
           return;
         }
         
         const userEmail = session.user?.email?.toLowerCase();
-        console.log('Current user email:', userEmail);
+        console.log('AdminRoute - Current user email:', userEmail);
         
         // Special case for yannic.desch@gmail.com
         if (userEmail === 'yannic.desch@gmail.com') {
-          console.log('Special user detected, ensuring admin rights');
+          console.log('AdminRoute - Special user detected, ensuring admin rights');
           // Update user metadata to ensure isAdmin: true
           try {
             const { error } = await supabase.auth.updateUser({
@@ -37,7 +38,7 @@ const AdminRoute = () => {
             if (error) {
               console.error('Failed to update admin status:', error);
             } else {
-              console.log('Admin rights confirmed for special user');
+              console.log('Admin rights confirmed for special user in AdminRoute');
             }
           } catch (err) {
             console.error('Error updating user:', err);
@@ -66,15 +67,18 @@ const AdminRoute = () => {
   }
 
   if (!isAuthenticated) {
+    console.log("AdminRoute - Not authenticated, redirecting to auth");
     toast.error('Bitte loggen Sie sich ein, um den Admin-Bereich zu nutzen.');
-    return <Navigate to="/auth" state={{ from: location }} />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   if (!isAdmin) {
+    console.log("AdminRoute - Not admin, redirecting to dashboard");
     toast.error('Sie haben keine Administrator-Berechtigung.');
-    return <Navigate to="/dashboard" state={{ from: location }} />;
+    return <Navigate to="/dashboard" replace />;
   }
 
+  console.log("AdminRoute - Access granted to admin area");
   return <Outlet />;
 };
 

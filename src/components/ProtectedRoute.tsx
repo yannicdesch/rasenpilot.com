@@ -3,33 +3,35 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
+import { useLawn } from '@/context/LawnContext';
 
 const ProtectedRoute = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { isAuthenticated, checkAuthentication } = useLawn();
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const verifyAuthentication = async () => {
       try {
         // We should always be configured now, but keep the check
         if (!isSupabaseConfigured()) {
           console.error('Supabase is not configured properly');
           toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
-          setIsAuthenticated(false);
           setIsLoading(false);
           return;
         }
 
+        // Force a check of authentication status
+        await checkAuthentication();
+        
+        // Get the session directly as well
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Supabase authentication error:', error);
           toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
-          setIsAuthenticated(false);
         } else {
-          console.log("Auth session check:", data.session ? "Session exists" : "No session");
-          setIsAuthenticated(!!data.session);
+          console.log("Auth session check in ProtectedRoute:", data.session ? "Session exists" : "No session");
           
           // If not authenticated, inform about premium features
           if (!data.session) {
@@ -43,31 +45,25 @@ const ProtectedRoute = () => {
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
-        setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkAuth();
-
+    verifyAuthentication();
+    
     // Set up auth listener
-    try {
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        console.log("Auth state changed:", _event, !!session);
-        setIsAuthenticated(!!session);
-      });
-  
-      return () => {
-        if (authListener?.subscription) {
-          authListener.subscription.unsubscribe();
-        }
-      };
-    } catch (error) {
-      console.error('Error setting up auth listener:', error);
-      return () => {};
-    }
-  }, []);
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed in ProtectedRoute:", event, !!session);
+      checkAuthentication();
+    });
+
+    return () => {
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
+  }, [checkAuthentication]);
 
   if (isLoading) {
     // Still checking auth state
@@ -75,7 +71,13 @@ const ProtectedRoute = () => {
   }
 
   console.log("Protected route render - isAuthenticated:", isAuthenticated);
-  return isAuthenticated ? <Outlet /> : <Navigate to="/auth" state={{ from: location }} />;
+  
+  if (!isAuthenticated) {
+    console.log("Redirecting to auth page from protected route");
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+  
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

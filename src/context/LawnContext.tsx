@@ -1,6 +1,6 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { toast } from '@/components/ui/sonner';
 
 export interface LawnProfile {
   zipCode: string;
@@ -59,11 +59,12 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Admin role state
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   
-  // Check authentication status
-  const checkAuthentication = async (): Promise<boolean> => {
+  // Check authentication status - using useCallback to avoid dependency loops
+  const checkAuthentication = useCallback(async (): Promise<boolean> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const isLoggedIn = !!session;
+      console.log("checkAuthentication - Session exists:", isLoggedIn);
       setIsAuthenticated(isLoggedIn);
       
       // If logged in, also check admin status
@@ -76,26 +77,41 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Error checking authentication:", error);
       return false;
     }
-  };
+  }, []);
   
-  // Check if user has admin role
-  const checkAdminRole = async (): Promise<boolean> => {
+  // Check if user has admin role - using useCallback to avoid dependency loops  
+  const checkAdminRole = useCallback(async (): Promise<boolean> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        console.log("checkAdminRole - No session found");
         setIsAdmin(false);
         return false;
       }
       
       // Special case for yannic.desch@gmail.com
       const email = session.user.email?.toLowerCase();
+      console.log("checkAdminRole - User email:", email);
+      
       if (email === 'yannic.desch@gmail.com') {
         console.log('Special user detected in context, setting admin rights');
         setIsAdmin(true);
+        
+        // Always update the user metadata to ensure admin rights are set
+        try {
+          await supabase.auth.updateUser({
+            data: { isAdmin: true }
+          });
+          console.log("Successfully updated admin rights for special user");
+        } catch (err) {
+          console.error("Error updating admin rights:", err);
+        }
+        
         return true;
       }
       
       const isUserAdmin = session.user.user_metadata?.isAdmin === true;
+      console.log("checkAdminRole - Is admin from metadata:", isUserAdmin);
       setIsAdmin(isUserAdmin);
       return isUserAdmin;
     } catch (error) {
@@ -103,7 +119,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAdmin(false);
       return false;
     }
-  };
+  }, []);
   
   // Sync profile with Supabase
   const syncProfileWithSupabase = async () => {
@@ -195,12 +211,15 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuthentication();
     
     // Set up auth listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed in context:", event, !!session);
+      
+      const isLoggedIn = !!session;
+      setIsAuthenticated(isLoggedIn);
       
       // Check admin role on auth state change
       if (session) {
-        checkAdminRole();
+        await checkAdminRole();
         
         // If user just signed in, sync profile
         if (event === 'SIGNED_IN' && profile) {
@@ -208,13 +227,17 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         setIsAdmin(false);
+        
+        if (event === 'SIGNED_OUT') {
+          toast.info('Sie wurden ausgeloggt');
+        }
       }
     });
     
     return () => {
       authListener?.subscription?.unsubscribe();
     };
-  }, []);
+  }, [checkAuthentication, checkAdminRole, profile]);
   
   // When profile changes and user is authenticated, sync with Supabase
   useEffect(() => {
