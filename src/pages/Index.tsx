@@ -38,18 +38,18 @@ const Index = () => {
       <MainNavigation />
       
       <main className="flex-grow">
-        {/* Hero Section - Updated with new value proposition */}
+        {/* Hero Section - Updated to remove image */}
         <section className="bg-gradient-to-br from-green-100 to-green-50 py-12 md:py-20 border-b border-green-200">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="md:w-1/2">
+            <div className="flex flex-col items-center justify-between">
+              <div className="w-full max-w-3xl text-center">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-4">
                   Dein persönlicher Rasenpflege-Plan – in 30 Sekunden, kostenlos
                 </h1>
                 <p className="text-lg text-gray-700 mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
                   Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
                 </p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex justify-center flex-wrap gap-4">
                   <Button
                     className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
                     size="lg"
@@ -57,17 +57,6 @@ const Index = () => {
                   >
                     Rasen-Check starten <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                </div>
-              </div>
-              <div className="md:w-1/2 mt-8 md:mt-0">
-                <div className="relative">
-                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-yellow-400/20 rounded-full z-0"></div>
-                  <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-green-400/20 rounded-full z-0"></div>
-                  <img
-                    src="/lovable-uploads/2d49b520-6bf6-4cc2-aba9-d223a8fd9097.png"
-                    alt="Mann mäht Rasen in einem Garten mit Obstbäumen"
-                    className="rounded-2xl shadow-xl w-full h-auto object-cover border-4 border-white relative z-10"
-                  />
                 </div>
               </div>
             </div>
@@ -175,7 +164,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* AI Technology Section - NEW */}
+        {/* AI Technology Section - Updated to remove image */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -185,15 +174,7 @@ const Index = () => {
                 den perfekten Rasen zu bekommen.
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div>
-                  <img 
-                    src="/lovable-uploads/2d49b520-6bf6-4cc2-aba9-d223a8fd9097.png" 
-                    alt="KI-Analyse eines Rasens" 
-                    className="rounded-lg shadow-lg w-full"
-                  />
-                </div>
-                
+              <div className="grid grid-cols-1 gap-8">
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-semibold mb-2 text-green-700">Mit Expertenwissen trainiert</h3>
@@ -227,12 +208,14 @@ const Index = () => {
                     </p>
                   </div>
                   
-                  <Button 
-                    onClick={() => navigate('/auth')} 
-                    className="mt-4 bg-green-600 hover:bg-green-700"
-                  >
-                    KI-Beratung freischalten
-                  </Button>
+                  <div className="flex justify-center pt-4">
+                    <Button 
+                      onClick={() => navigate('/auth')} 
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      KI-Beratung freischalten
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
