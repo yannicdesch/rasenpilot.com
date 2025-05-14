@@ -39,24 +39,24 @@ const Index = () => {
       <MainNavigation />
       
       <main className="flex-grow">
-        {/* Hero Section - Updated with new value proposition */}
+        {/* Hero Section - Updated with new clear CTA */}
         <section className="bg-gradient-to-br from-green-100 to-green-50 py-12 md:py-20 border-b border-green-200">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="md:w-1/2">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-4">
-                  Dein persönlicher Rasenpflege-Plan – in 30 Sekunden, kostenlos
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-6">
+                  Erstelle Deinen Rasenplan kostenlos in 30 Sekunden
                 </h1>
-                <p className="text-lg text-gray-700 mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
-                  Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
+                <p className="text-lg text-gray-700 mb-8 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
+                  Maßgeschneiderter Plan basierend auf deinem Standort, Rasentyp und persönlichen Zielen - ohne Anmeldung.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button
-                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
+                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700 shadow-lg"
                     size="lg"
                     onClick={() => navigate('/free-plan')}
                   >
-                    Rasen-Check starten <ArrowRight className="ml-2 h-5 w-5" />
+                    Rasenplan erstellen <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </div>
@@ -66,7 +66,7 @@ const Index = () => {
                   <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-green-400/20 rounded-full z-0"></div>
                   <img
                     src="/lovable-uploads/2d49b520-6bf6-4cc2-aba9-d223a8fd9097.png"
-                    alt="Mann mäht Rasen in einem Garten mit Obstbäumen"
+                    alt="Gepflegter Rasen in einem schönen Garten"
                     className="rounded-2xl shadow-xl w-full h-auto object-cover border-4 border-white relative z-10"
                   />
                 </div>
@@ -81,7 +81,7 @@ const Index = () => {
             <h2 className="text-3xl font-bold text-center mb-10 text-green-800">So einfach geht's</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
+              <div className="text-center hover-grow">
                 <div className="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center mb-4">
                   <span className="text-2xl font-bold text-green-800">1</span>
                 </div>
@@ -89,7 +89,7 @@ const Index = () => {
                 <p className="text-gray-600">Nur 3 kurze Fragen zu deinem Standort, Rasentyp und Ziel – ohne Anmeldung.</p>
               </div>
               
-              <div className="text-center">
+              <div className="text-center hover-grow">
                 <div className="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center mb-4">
                   <span className="text-2xl font-bold text-green-800">2</span>
                 </div>
@@ -97,11 +97,11 @@ const Index = () => {
                 <p className="text-gray-600">Unser KI-System erstellt einen personalisierten 14-Tage-Pflegeplan für deinen Rasen.</p>
               </div>
               
-              <div className="text-center">
+              <div className="text-center hover-grow">
                 <div className="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center mb-4">
                   <span className="text-2xl font-bold text-green-800">3</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-green-800">Speichere deinen Fortschritt</h3>
+                <h3 className="text-xl font-semibold mb-2 text-green-800">Registriere dich für mehr</h3>
                 <p className="text-gray-600">Optional registrieren für erweiterte Funktionen wie Wetter-Updates und KI-Beratung.</p>
               </div>
             </div>
@@ -298,10 +298,10 @@ const Index = () => {
             </p>
             <Button
               size="lg"
-              className="px-8 py-6 text-lg rounded-full bg-white text-green-700 hover:bg-green-100"
+              className="px-8 py-6 text-lg rounded-full bg-white text-green-700 hover:bg-green-100 shadow-lg"
               onClick={() => navigate('/free-plan')}
             >
-              Rasen-Check starten <ArrowRight className="ml-2 h-5 w-5" />
+              Rasenplan erstellen <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </section>

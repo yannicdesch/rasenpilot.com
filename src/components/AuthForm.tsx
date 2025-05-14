@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -28,9 +29,10 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 interface AuthFormProps {
   redirectTo?: string;
+  onRegistrationSuccess?: () => void;
 }
 
-const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
+const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
   const navigate = useNavigate();
@@ -101,7 +103,13 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
       }
 
       toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
-      setActiveTab('login');
+      
+      // If onRegistrationSuccess callback is provided, call it to show the onboarding wizard
+      if (onRegistrationSuccess) {
+        onRegistrationSuccess();
+      } else {
+        setActiveTab('login');
+      }
     } catch (error: any) {
       toast.error('Fehler bei der Registrierung: ' + (error.message || 'Unbekannter Fehler'));
     } finally {

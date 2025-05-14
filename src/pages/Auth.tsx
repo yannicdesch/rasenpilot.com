@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import AuthForm from '@/components/AuthForm';
+import OnboardingWizard from '@/components/OnboardingWizard';
 import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Lock } from 'lucide-react';
@@ -13,43 +14,69 @@ const Auth = () => {
   const isSupabaseReady = isSupabaseConfigured();
   const navigate = useNavigate();
   const location = useLocation();
+  const [registrationComplete, setRegistrationComplete] = useState(false);
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
 
+  const handleRegistrationSuccess = () => {
+    setRegistrationComplete(true);
+  };
+
+  const handleOnboardingComplete = () => {
+    navigate(from);
+  };
+
+  const handleOnboardingSkip = () => {
+    navigate(from);
+  };
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />
       <div className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
         <div className="w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center mb-4 text-green-800 dark:text-green-400">Willkommen bei Rasenpilot</h1>
-          
-          <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg mb-6 flex items-start gap-3">
-            <Lock className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm text-green-700 dark:text-green-300">
-                Mit Ihrem kostenlosen Konto erhalten Sie Zugriff auf alle <Link to="/features" className="underline font-medium">Premium-Funktionen</Link> wie personalisierte Pflegepläne, Foto-Upload und mehr.
-              </p>
-            </div>
-          </div>
-          
-          {!isSupabaseReady ? (
-            <Alert variant="destructive" className="mb-6">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Konfigurationsproblem</AlertTitle>
-              <AlertDescription>
-                Die Supabase-Konfiguration wurde nicht gefunden. Bitte stellen Sie sicher, dass die Umgebungsvariablen VITE_SUPABASE_URL und VITE_SUPABASE_ANON_KEY korrekt eingerichtet sind.
-                <div className="mt-4">
-                  <Link to="/">
-                    <Button variant="outline" className="w-full">
-                      Zurück zur Startseite
-                    </Button>
-                  </Link>
+          {!registrationComplete ? (
+            <>
+              <h1 className="text-3xl font-bold text-center mb-4 text-green-800 dark:text-green-400">
+                Willkommen bei Rasenpilot
+              </h1>
+              
+              <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg mb-6 flex items-start gap-3">
+                <Lock className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    Mit Ihrem kostenlosen Konto erhalten Sie Zugriff auf alle <Link to="/features" className="underline font-medium">Premium-Funktionen</Link> wie personalisierte Pflegepläne, Foto-Upload und mehr.
+                  </p>
                 </div>
-              </AlertDescription>
-            </Alert>
+              </div>
+              
+              {!isSupabaseReady ? (
+                <Alert variant="destructive" className="mb-6">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Konfigurationsproblem</AlertTitle>
+                  <AlertDescription>
+                    Die Supabase-Konfiguration wurde nicht gefunden. Bitte stellen Sie sicher, dass die Umgebungsvariablen VITE_SUPABASE_URL und VITE_SUPABASE_ANON_KEY korrekt eingerichtet sind.
+                    <div className="mt-4">
+                      <Link to="/">
+                        <Button variant="outline" className="w-full">
+                          Zurück zur Startseite
+                        </Button>
+                      </Link>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <AuthForm redirectTo={from} onRegistrationSuccess={handleRegistrationSuccess} />
+              )}
+            </>
           ) : (
-            <AuthForm redirectTo={from} />
+            <div className="w-full max-w-lg">
+              <OnboardingWizard 
+                onComplete={handleOnboardingComplete} 
+                onSkip={handleOnboardingSkip}
+              />
+            </div>
           )}
         </div>
       </div>
