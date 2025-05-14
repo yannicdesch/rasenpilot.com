@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout, Calendar } from 'lucide-react';
 import FeatureCallToAction from '@/components/FeatureCallToAction';
+import FreePlanHero from '@/components/FreePlanHero';
 
 // Premium features list
 const premiumFeatures = [
@@ -38,30 +39,8 @@ const Index = () => {
       <MainNavigation />
       
       <main className="flex-grow">
-        {/* Hero Section - Updated to remove image */}
-        <section className="bg-gradient-to-br from-green-100 to-green-50 py-12 md:py-20 border-b border-green-200">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col items-center justify-between">
-              <div className="w-full max-w-3xl text-center">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-4">
-                  Dein persönlicher Rasenpflege-Plan – in 30 Sekunden, kostenlos
-                </h1>
-                <p className="text-lg text-gray-700 mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-lg shadow-sm">
-                  Basierend auf deinem Standort, Rasentyp & Ziel. Sofort starten – ohne Anmeldung.
-                </p>
-                <div className="flex justify-center flex-wrap gap-4">
-                  <Button
-                    className="px-8 py-6 text-lg rounded-full bg-green-600 hover:bg-green-700"
-                    size="lg"
-                    onClick={() => navigate('/free-plan')}
-                  >
-                    Rasen-Check starten <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Hero Section - Using FreePlanHero component */}
+        <FreePlanHero />
         
         {/* How It Works - Process Steps */}
         <section className="py-16 relative">
@@ -164,7 +143,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* AI Technology Section - Updated to remove image */}
+        {/* AI Technology Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
