@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -71,6 +72,20 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
       if (error) {
         throw error;
+      }
+
+      // Special case for yannic.desch@gmail.com - set admin rights
+      if (data.email.toLowerCase() === 'yannic.desch@gmail.com') {
+        // Update user metadata to include isAdmin: true
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: { isAdmin: true }
+        });
+        
+        if (updateError) {
+          console.error('Failed to update admin status:', updateError);
+        } else {
+          toast.success('Admin-Rechte wurden gewährt!');
+        }
       }
 
       toast.success('Erfolgreich eingeloggt!');
