@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ const MainNavigation = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        // We're now always configured, but keep the checks for robustness
         if (!isSupabaseConfigured()) {
           console.log('Supabase is not configured in MainNavigation');
           setLoading(false);
@@ -132,12 +132,12 @@ const MainNavigation = () => {
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center">
+          <div className="hidden md:flex md:items-center md:space-x-4">
             {menuItems.map((item) => (
               <Link 
                 key={item.name}
                 to={item.path}
-                className="ml-8 text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all"
+                className="text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all"
               >
                 {item.icon}
                 {item.name}
@@ -148,42 +148,42 @@ const MainNavigation = () => {
             {isAdmin && (
               <Link 
                 to="/admin"
-                className="ml-8 text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all bg-green-100"
+                className="text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all bg-green-100"
               >
                 <Shield size={18} className="mr-1 text-green-600" />
                 Admin
               </Link>
             )}
             
-            {!loading && (
-              <>
-                {user ? (
-                  <div className="ml-8 flex items-center gap-2">
-                    <Link to="/profile">
-                      <Avatar className="h-8 w-8 hover:ring-2 hover:ring-green-400 transition-all">
-                        <AvatarFallback className="bg-green-100 text-green-800 text-sm">
-                          {user.name?.charAt(0) || user.email.charAt(0) || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Link>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={handleSignOut}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut size={18} />
-                    </Button>
-                  </div>
-                ) : (
-                  <Link to="/auth">
-                    <Button className="ml-8 bg-green-600 hover:bg-green-700" size="sm">
-                      Anmelden
-                    </Button>
+            {/* Auth Section - Always visible */}
+            <div className="ml-4 flex items-center gap-2">
+              {!loading && user ? (
+                <>
+                  <Link to="/profile">
+                    <Avatar className="h-8 w-8 hover:ring-2 hover:ring-green-400 transition-all">
+                      <AvatarFallback className="bg-green-100 text-green-800 text-sm">
+                        {user.name?.charAt(0) || user.email.charAt(0) || '?'}
+                      </AvatarFallback>
+                    </Avatar>
                   </Link>
-                )}
-              </>
-            )}
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={handleSignOut}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut size={18} />
+                  </Button>
+                </>
+              ) : (
+                <Link to="/auth">
+                  <Button className="bg-green-600 hover:bg-green-700" size="sm">
+                    <UserRound size={18} className="mr-1" />
+                    Anmelden
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
           
           {/* Mobile menu button */}
@@ -239,6 +239,7 @@ const MainNavigation = () => {
               </Link>
             ))}
             
+            {/* Always show login/register in mobile menu */}
             {!loading && (
               <>
                 {user ? (
@@ -264,8 +265,9 @@ const MainNavigation = () => {
                   </>
                 ) : (
                   <div className="px-3 py-2">
-                    <Link to="/auth">
-                      <Button className="w-full bg-green-600 hover:bg-green-700">
+                    <Link to="/auth" onClick={() => setIsOpen(false)}>
+                      <Button className="w-full bg-green-600 hover:bg-green-700 flex items-center justify-center">
+                        <UserRound size={18} className="mr-2" />
                         Anmelden
                       </Button>
                     </Link>
