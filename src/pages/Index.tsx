@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout, Calendar } from 'lucide-react';
+import { ArrowRight, Check, Leaf, Cloud, MessageSquare, Sprout, Calendar, Shield, Globe } from 'lucide-react';
 import FeatureCallToAction from '@/components/FeatureCallToAction';
 import FreePlanHero from '@/components/FreePlanHero';
 
@@ -143,13 +143,47 @@ const Index = () => {
           </div>
         </section>
         
+        {/* IP-Protected Technology Section - NEW */}
+        <section className="py-12 bg-green-50 border-y border-green-100">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+              <div className="md:w-1/3 flex justify-center">
+                <div className="bg-white p-6 rounded-full shadow-md">
+                  <Shield className="h-20 w-20 text-green-600" />
+                </div>
+              </div>
+              <div className="md:w-2/3">
+                <h2 className="text-2xl md:text-3xl font-bold text-green-800 mb-4">
+                  Unsere IP-geschützte Technologie
+                </h2>
+                <p className="text-gray-700 mb-4">
+                  Rasenpilot nutzt eine exklusive, rechtlich geschützte Technologie zur präzisen Analyse und Bewertung von Rasenflächen. Unser proprietäres System wurde entwickelt, um spezifische und effektive Pflegeempfehlungen zu generieren.
+                </p>
+                <p className="text-gray-700 mb-4">
+                  Durch die Kombination von Bodenanalyse, lokalen Wetterbedingungen und den Eigenschaften verschiedener Grasarten können wir maßgeschneiderte Lösungen anbieten, die auf wissenschaftlicher Grundlage basieren.
+                </p>
+                <div className="flex gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm">
+                    <Shield className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium">IP-geschützte Methodik</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm">
+                    <Globe className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium">Regional optimiert</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
         {/* AI Technology Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl font-bold text-center mb-6 text-green-800">Unsere KI-Technologie</h2>
               <p className="text-lg text-center text-gray-600 mb-10">
-                Erfahren Sie, wie unsere fortschrittliche KI-Technologie Ihnen dabei helfen kann, 
+                Erfahren Sie, wie unsere fortschrittliche, rechtlich geschützte KI-Technologie Ihnen dabei helfen kann, 
                 den perfekten Rasen zu bekommen.
               </p>
               
@@ -167,15 +201,15 @@ const Index = () => {
                     <h3 className="text-xl font-semibold mb-2 text-green-700">Umfangreiche Datenanalyse</h3>
                     <p className="text-gray-600">
                       Mit mehr als 10.000 analysierten Rasenbildern und Hunderten von Rasenprofilen kann 
-                      unsere KI präzise Diagnosen stellen und personalisierte Empfehlungen geben.
+                      unsere proprietäre KI präzise Diagnosen stellen und personalisierte Empfehlungen geben.
                     </p>
                   </div>
                   
                   <div>
-                    <h3 className="text-xl font-semibold mb-2 text-green-700">Kontinuierliches Lernen</h3>
+                    <h3 className="text-xl font-semibold mb-2 text-green-700">IP-geschützte Analysetechnologie</h3>
                     <p className="text-gray-600">
-                      Unsere KI verbessert sich ständig durch neue Daten und Feedback unserer Nutzer, 
-                      um immer genauere und hilfreichere Beratung zu bieten.
+                      Unsere geschützte Technologie analysiert Standortfaktoren, Bodentypen und Rasensorten, 
+                      um individuell abgestimmte und rechtlich geschützte Pflegekonzepte zu entwickeln.
                     </p>
                   </div>
                   
@@ -316,8 +350,11 @@ const Index = () => {
         <section className="py-20 bg-gradient-to-br from-green-600 to-green-700 text-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">Bereit für deinen perfekten Rasen?</h2>
-            <p className="text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-lg mb-4 max-w-2xl mx-auto">
               In nur 30 Sekunden erhältst du einen kostenlosen, personalisierten Pflegeplan – ohne Registrierung oder Verpflichtung.
+            </p>
+            <p className="text-md mb-8 max-w-2xl mx-auto">
+              <Shield className="h-4 w-4 inline-block mr-1" /> Mit unserer IP-geschützten Analysetechnologie
             </p>
             <Button
               size="lg"
@@ -332,14 +369,38 @@ const Index = () => {
       
       {/* Footer */}
       <footer className="bg-green-800 text-white py-8 border-t border-green-700">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Leaf className="h-6 w-6 mr-2" />
-            <span className="text-xl font-bold">Rasenpilot</span>
-          </div>
-          <p className="text-green-100 mb-4">Dein intelligenter Begleiter für die perfekte Rasenpflege</p>
-          <div className="text-sm text-green-200">
-            &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between gap-8">
+              <div className="md:w-1/3">
+                <div className="flex items-center mb-4">
+                  <Leaf className="h-6 w-6 mr-2" />
+                  <span className="text-xl font-bold">Rasenpilot</span>
+                </div>
+                <p className="text-green-100 mb-4">Dein intelligenter Begleiter für die perfekte Rasenpflege</p>
+                <p className="text-green-200 text-sm">
+                  <Shield className="h-4 w-4 inline-block mr-1" /> Mit IP-geschützter Analysetechnologie
+                </p>
+              </div>
+              
+              <div className="md:w-1/3">
+                <h3 className="text-lg font-medium mb-4">Über uns</h3>
+                <p className="text-green-200 text-sm">
+                  Rasenpilot verwendet proprietäre Technologie und KI-Algorithmen, um personalisierte und rechtlich geschützte Rasenpflegelösungen anzubieten.
+                </p>
+              </div>
+              
+              <div className="md:w-1/3">
+                <h3 className="text-lg font-medium mb-4">Kontakt</h3>
+                <p className="text-green-200 text-sm">
+                  Fragen zu unserer IP-geschützten Technologie oder unseren Dienstleistungen? Kontaktieren Sie uns.
+                </p>
+              </div>
+            </div>
+            
+            <div className="border-t border-green-700 mt-8 pt-4 text-center text-sm text-green-200">
+              &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
+            </div>
           </div>
         </div>
       </footer>

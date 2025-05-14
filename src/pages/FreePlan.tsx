@@ -7,6 +7,7 @@ import FeatureCallToAction from '@/components/FeatureCallToAction';
 import FreePlanForm from '@/components/FreePlanForm';
 import ConversionPrompt from '@/components/ConversionPrompt';
 import FreePlanHero from '@/components/FreePlanHero';
+import { Shield } from 'lucide-react';
 
 const FreePlan = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -39,6 +40,18 @@ const FreePlan = () => {
         {/* Hero Section */}
         <FreePlanHero />
         
+        {/* IP Protection Notice */}
+        <div className="bg-green-50 py-4 border-b border-green-100">
+          <div className="container mx-auto px-4 max-w-3xl">
+            <div className="flex items-center justify-center gap-2 text-center text-green-700">
+              <Shield className="h-5 w-5" />
+              <p className="text-sm font-medium">
+                Alle Empfehlungen basieren auf unserer IP-geschützten Analysetechnologie
+              </p>
+            </div>
+          </div>
+        </div>
+        
         {/* Form Section */}
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4 max-w-3xl">
@@ -69,8 +82,16 @@ const FreePlan = () => {
       </main>
       
       <footer className="bg-white py-6 border-t border-gray-200">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
+        <div className="container mx-auto px-4 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center text-sm text-gray-500">
+              <Shield className="h-4 w-4 mr-1 text-green-600" />
+              <span>IP-geschützte Analysetechnologie</span>
+            </div>
+            <p className="text-sm text-gray-500">
+              &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
