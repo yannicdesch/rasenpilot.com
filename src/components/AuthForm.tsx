@@ -76,20 +76,29 @@ const AuthForm = ({ redirectTo = '/dashboard' }: AuthFormProps) => {
 
       // Special case for yannic.desch@gmail.com - set admin rights
       if (data.email.toLowerCase() === 'yannic.desch@gmail.com') {
-        // Update user metadata to include isAdmin: true
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: { isAdmin: true }
-        });
-        
-        if (updateError) {
-          console.error('Failed to update admin status:', updateError);
-        } else {
-          toast.success('Admin-Rechte wurden gewährt!');
+        console.log('Setting admin rights for special user');
+        try {
+          // Update user metadata to include isAdmin: true
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: { isAdmin: true }
+          });
+          
+          if (updateError) {
+            console.error('Failed to update admin status:', updateError);
+          } else {
+            console.log('Admin rights granted successfully');
+            toast.success('Admin-Rechte wurden gewährt!');
+          }
+        } catch (updateErr) {
+          console.error('Error during admin rights update:', updateErr);
         }
       }
 
       toast.success('Erfolgreich eingeloggt!');
-      navigate(redirectTo);
+      // Add a small delay before navigating to ensure metadata update completes
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 500);
     } catch (error: any) {
       toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));
     } finally {

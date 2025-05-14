@@ -87,6 +87,14 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
       
+      // Special case for yannic.desch@gmail.com
+      const email = session.user.email?.toLowerCase();
+      if (email === 'yannic.desch@gmail.com') {
+        console.log('Special user detected in context, setting admin rights');
+        setIsAdmin(true);
+        return true;
+      }
+      
       const isUserAdmin = session.user.user_metadata?.isAdmin === true;
       setIsAdmin(isUserAdmin);
       return isUserAdmin;

@@ -15,21 +15,37 @@ const AdminRoute = () => {
       try {
         // Get current user session
         const { data } = await supabase.auth.getSession();
-        const userEmail = data.session?.user?.email?.toLowerCase();
+        const session = data.session;
         
-        // Force check admin role from context
-        await checkAdminRole();
+        if (!session) {
+          setIsChecking(false);
+          return;
+        }
+        
+        const userEmail = session.user?.email?.toLowerCase();
+        console.log('Current user email:', userEmail);
         
         // Special case for yannic.desch@gmail.com
         if (userEmail === 'yannic.desch@gmail.com') {
+          console.log('Special user detected, ensuring admin rights');
           // Update user metadata to ensure isAdmin: true
-          await supabase.auth.updateUser({
-            data: { isAdmin: true }
-          });
-          
-          // Force re-check admin status
-          await checkAdminRole();
+          try {
+            const { error } = await supabase.auth.updateUser({
+              data: { isAdmin: true }
+            });
+            
+            if (error) {
+              console.error('Failed to update admin status:', error);
+            } else {
+              console.log('Admin rights confirmed for special user');
+            }
+          } catch (err) {
+            console.error('Error updating user:', err);
+          }
         }
+        
+        // Force check admin role from context
+        await checkAdminRole();
       } catch (error) {
         console.error('Error checking admin status:', error);
       } finally {
