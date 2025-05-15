@@ -9,12 +9,16 @@ import ConversionPrompt from '@/components/ConversionPrompt';
 import FreePlanHero from '@/components/FreePlanHero';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const FreePlan = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const { setTemporaryProfile, syncProfileWithSupabase, isAuthenticated } = useLawn();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const handleFormSubmit = async (data: any) => {
     console.log("Form submitted with data:", data);
@@ -93,10 +97,25 @@ const FreePlan = () => {
         {/* Hero Section */}
         <FreePlanHero />
         
+        {/* CTA Button */}
+        {!showForm && !formSubmitted && (
+          <div className="container mx-auto px-4 -mt-4 mb-8">
+            <div className="max-w-md mx-auto">
+              <Button 
+                onClick={() => setShowForm(true)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 rounded-lg text-lg font-medium shadow-lg transition-all duration-200 flex items-center justify-center"
+              >
+                Gratis Pflegeplan erstellen
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        )}
+        
         {/* Main Content Section */}
         <section className="py-8 bg-white">
           <div className="container mx-auto px-4">
-            {!showForm ? (
+            {!showForm && !formSubmitted ? (
               <div className="max-w-lg mx-auto">
                 <OnboardingWizard
                   onComplete={handleOnboardingComplete}
