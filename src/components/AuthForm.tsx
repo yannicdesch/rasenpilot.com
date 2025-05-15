@@ -1,32 +1,10 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, UserRoundPlus } from 'lucide-react';
-import { toast } from "sonner";
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import PasswordResetLink from './PasswordResetLink';
-
-const loginSchema = z.object({
-  email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
-  password: z.string().min(6, 'Das Passwort muss mindestens 6 Zeichen lang sein'),
-});
-
-const registerSchema = z.object({
-  email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
-  password: z.string().min(6, 'Das Passwort muss mindestens 6 Zeichen lang sein'),
-  name: z.string().min(2, 'Name muss mindestens 2 Zeichen lang sein'),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
+import LoginForm from '@/components/auth/LoginForm';
+import RegisterForm from '@/components/auth/RegisterForm';
+import PasswordResetLink from '@/components/auth/PasswordResetLink';
 
 interface AuthFormProps {
   redirectTo?: string;
@@ -34,112 +12,25 @@ interface AuthFormProps {
 }
 
 const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
   const [showPasswordReset, setShowPasswordReset] = useState(false);
-  const navigate = useNavigate();
 
-  const loginForm = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      name: '',
-    },
-  });
-
-  const onLoginSubmit = async (data: LoginFormValues) => {
-    if (!isSupabaseConfigured()) {
-      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success('Erfolgreich eingeloggt!');
-      navigate(redirectTo);
-    } catch (error: any) {
-      toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));
-    } finally {
-      setIsLoading(false);
-    }
+  const handleForgotPassword = () => {
+    setShowPasswordReset(true);
   };
 
-  const onRegisterSubmit = async (data: RegisterFormValues) => {
-    if (!isSupabaseConfigured()) {
-      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
-      return;
-    }
+  const handleBackToLogin = () => {
+    setShowPasswordReset(false);
+  };
 
-    setIsLoading(true);
-    try {
-      const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            name: data.name,
-          },
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // Check if we have a session - user is authenticated
-      if (authData.session) {
-        toast.success('Registrierung erfolgreich!');
-        
-        // If onRegistrationSuccess callback is provided, call it to show the onboarding wizard
-        if (onRegistrationSuccess) {
-          onRegistrationSuccess();
-        } else {
-          // If no callback is provided, navigate directly to dashboard
-          navigate(redirectTo);
-        }
-      } else {
-        // If confirmation is required
-        toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
-        setActiveTab('login');
-      }
-    } catch (error: any) {
-      toast.error('Fehler bei der Registrierung: ' + (error.message || 'Unbekannter Fehler'));
-    } finally {
-      setIsLoading(false);
-    }
+  const handleRegistrationWithEmailConfirmation = () => {
+    setActiveTab('login');
   };
 
   if (showPasswordReset) {
     return (
       <div className="w-full max-w-md mx-auto">
-        <PasswordResetLink />
-        <div className="mt-4 text-center">
-          <Button 
-            variant="link" 
-            onClick={() => setShowPasswordReset(false)}
-            className="text-sm"
-          >
-            Zurück zur Anmeldung
-          </Button>
-        </div>
+        <PasswordResetLink onBackToLogin={handleBackToLogin} />
       </div>
     );
   }
@@ -158,61 +49,10 @@ const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthForm
               Melde dich mit deinem Rasenpilot-Konto an
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                <FormField
-                  control={loginForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>E-Mail</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="deine@email.de" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Passwort</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          <Input type="password" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="text-right">
-                  <Button
-                    variant="link"
-                    className="p-0 h-auto text-sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowPasswordReset(true);
-                    }}
-                  >
-                    Passwort vergessen?
-                  </Button>
-                </div>
-                <CardFooter className="px-0 pt-2">
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Form>
-          </CardContent>
+          <LoginForm 
+            redirectTo={redirectTo} 
+            onForgotPassword={handleForgotPassword} 
+          />
         </TabsContent>
         <TabsContent value="register">
           <CardHeader>
@@ -221,65 +61,11 @@ const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthForm
               Erstelle dein Rasenpilot-Konto für persönliche Rasenberatung
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Form {...registerForm}>
-              <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                <FormField
-                  control={registerForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <UserRoundPlus className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="Dein Name" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={registerForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>E-Mail</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="deine@email.de" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={registerForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Passwort</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          <Input type="password" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <CardFooter className="px-0 pt-2">
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Wird registriert...' : 'Registrieren'}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Form>
-          </CardContent>
+          <RegisterForm 
+            redirectTo={redirectTo} 
+            onRegistrationSuccess={onRegistrationSuccess}
+            onRegistrationWithEmailConfirmation={handleRegistrationWithEmailConfirmation}
+          />
         </TabsContent>
       </Tabs>
     </Card>
