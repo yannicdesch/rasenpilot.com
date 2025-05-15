@@ -19,7 +19,7 @@ const FeatureCallToAction = ({
     return (
       <div className={`flex flex-wrap gap-3 ${className}`}>
         <Button 
-          className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+          className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white font-medium"
           onClick={() => navigate('/auth')}
         >
           <UserRound className="mr-2 h-4 w-4" />
@@ -27,7 +27,7 @@ const FeatureCallToAction = ({
         </Button>
         <Button 
           variant="outline"
-          className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400"
+          className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400 font-medium"
           onClick={() => navigate('/features')}
         >
           Mehr Infos
@@ -38,20 +38,20 @@ const FeatureCallToAction = ({
   }
 
   return (
-    <div className={`bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 rounded-lg p-6 ${className}`}>
+    <div className={`bg-green-100 dark:bg-green-900/40 border-2 border-green-300 dark:border-green-700 rounded-lg p-6 shadow-md ${className}`}>
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h3 className="text-xl font-semibold text-green-800 dark:text-green-400">
+          <h3 className="text-xl font-bold text-green-800 dark:text-green-300">
             Alle Premium-Funktionen freischalten
           </h3>
-          <p className="text-green-700 dark:text-green-300 mt-1">
+          <p className="text-green-700 dark:text-green-200 mt-1 font-medium">
             Erstellen Sie ein kostenloses Konto, um personalisierte Pflegepläne und mehr zu erhalten
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 mt-3 sm:mt-0">
           <Button 
             size="lg"
-            className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+            className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white font-medium shadow-sm"
             onClick={() => navigate('/auth')}
           >
             <UserRound className="mr-2 h-4 w-4" />
@@ -60,7 +60,7 @@ const FeatureCallToAction = ({
           <Button 
             variant="outline"
             size="lg"
-            className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400"
+            className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400 font-medium"
             onClick={() => navigate('/features')}
           >
             Mehr Infos
