@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowRight } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import LawnImageUpload from './LawnImageUpload';
 
 // Constants for form options
 const grassTypes = [
@@ -33,6 +34,8 @@ interface FreePlanFormProps {
 }
 
 const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
+  const [lawnPicture, setLawnPicture] = useState<string>('');
+  
   const form = useForm({
     defaultValues: {
       zipCode: '',
@@ -43,12 +46,22 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
   });
   
   const onSubmit = (data: any) => {
+    // Add the lawn picture to the form data
+    const formData = {
+      ...data,
+      lawnPicture
+    };
+    
     toast({
       title: "Dein 14-Tage-Plan ist bereit!",
       description: "Tägliche Aufgaben für die nächsten 2 Wochen..."
     });
     
-    onFormSubmit(data);
+    onFormSubmit(formData);
+  };
+
+  const handleImageSelected = (imageUrl: string) => {
+    setLawnPicture(imageUrl);
   };
 
   return (
@@ -147,6 +160,17 @@ const FreePlanForm: React.FC<FreePlanFormProps> = ({ onFormSubmit }) => {
                 </FormItem>
               )}
             />
+            
+            <FormItem>
+              <FormLabel>Rasenbild (optional)</FormLabel>
+              <LawnImageUpload 
+                onImageSelected={handleImageSelected}
+                currentImage={lawnPicture}
+              />
+              <FormDescription>
+                Ein Bild deines Rasens hilft uns, spezifischere Empfehlungen zu geben
+              </FormDescription>
+            </FormItem>
             
             <div className="pt-4 flex justify-center">
               <Button 

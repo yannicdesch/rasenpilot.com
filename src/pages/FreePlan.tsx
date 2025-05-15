@@ -16,8 +16,14 @@ const FreePlan = () => {
   const navigate = useNavigate();
   
   const handleFormSubmit = (data: any) => {
-    // Save the temporary profile in context
-    setTemporaryProfile(data);
+    // Save the temporary profile in context with the lawn picture
+    setTemporaryProfile({
+      zipCode: data.zipCode,
+      grassType: data.grassType,
+      lawnSize: data.lawnSize,
+      lawnGoal: data.lawnGoal,
+      lawnPicture: data.lawnPicture // Add the lawn picture
+    });
     
     // Show registration prompt instead of direct navigation
     setFormSubmitted(true);

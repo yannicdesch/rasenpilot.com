@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { useLawn } from '@/context/LawnContext';
 import { toast } from '@/components/ui/sonner';
+import LawnImageUpload from './LawnImageUpload';
 
 interface OnboardingWizardProps {
   onComplete?: () => void;
@@ -26,9 +28,10 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     lawnSize: '',
     hasChildren: false,
     hasPets: false,
+    lawnPicture: '',
   });
   
-  const totalSteps = 4;
+  const totalSteps = 5; // Increased from 4 to 5 to include lawn picture upload
   
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData({
@@ -62,6 +65,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
         lawnGoal: formData.lawnGoal,
         hasChildren: formData.hasChildren,
         hasPets: formData.hasPets,
+        lawnPicture: formData.lawnPicture,
       });
       
       if (onComplete) {
@@ -84,6 +88,10 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     } else {
       navigate('/dashboard');
     }
+  };
+
+  const handleImageSelected = (imageUrl: string) => {
+    handleInputChange('lawnPicture', imageUrl);
   };
   
   const renderStep = () => {
@@ -158,6 +166,19 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
           </div>
         );
       case 4:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-green-800">Lade ein Bild deines Rasens hoch</h3>
+            <p className="text-sm text-gray-600">
+              Ein Foto hilft uns, den Zustand deines Rasens besser zu verstehen.
+            </p>
+            <LawnImageUpload 
+              onImageSelected={handleImageSelected}
+              currentImage={formData.lawnPicture}
+            />
+          </div>
+        );
+      case 5:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-green-800">Zusatzinformationen</h3>

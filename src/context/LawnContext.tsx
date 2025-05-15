@@ -14,6 +14,7 @@ export interface LawnProfile {
   id?: string;
   hasChildren?: boolean;
   hasPets?: boolean;
+  lawnPicture?: string; // Add lawn picture URL
 }
 
 export interface LawnTask {
@@ -143,7 +144,8 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
           lastFertilized: profileData.last_fertilized,
           soilType: profileData.soil_type,
           hasChildren: profileData.has_children,
-          hasPets: profileData.has_pets
+          hasPets: profileData.has_pets,
+          lawnPicture: profileData.lawn_picture
         };
         
         setProfileState(newProfile);
@@ -185,6 +187,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
             soil_type: profile.soilType,
             has_children: profile.hasChildren,
             has_pets: profile.hasPets,
+            lawn_picture: profile.lawnPicture
           })
           .eq('id', existingProfiles[0].id);
           
@@ -213,6 +216,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
             soil_type: profile.soilType,
             has_children: profile.hasChildren,
             has_pets: profile.hasPets,
+            lawn_picture: profile.lawnPicture
           })
           .select()
           .single();
