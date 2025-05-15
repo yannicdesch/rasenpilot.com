@@ -1,247 +1,306 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, MessageSquare, Cloud, Calendar, UserRound, LogOut, FileText } from "lucide-react";
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-
-interface User {
-  id: string;
-  email: string;
-  name?: string;
-}
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { 
+  Leaf, 
+  Menu, 
+  X, 
+  Home, 
+  Calendar, 
+  MessageSquare, 
+  Image, 
+  Cloud, 
+  UserRound, 
+  LogOut,
+  BookOpen
+} from 'lucide-react';
+import { useLawn } from '@/context/LawnContext';
+import { supabase } from '@/lib/supabase';
+import { useToast } from "@/hooks/use-toast";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const MainNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { isAuthenticated, clearProfile } = useLawn();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        // We're now always configured, but keep the checks for robustness
-        if (!isSupabaseConfigured()) {
-          console.log('Supabase is not configured in MainNavigation');
-          setLoading(false);
-          return;
-        }
-
-        const { data } = await supabase.auth.getUser();
-        if (data?.user) {
-          setUser({
-            id: data.user.id,
-            email: data.user.email || '',
-            name: data.user.user_metadata?.name,
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUser();
-
-    // Set up auth listener
-    try {
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.user_metadata?.name,
-          });
-        } else {
-          setUser(null);
-        }
-      });
+  const { toast } = useToast();
   
-      return () => {
-        if (authListener?.subscription) {
-          authListener.subscription.unsubscribe();
-        }
-      };
-    } catch (error) {
-      console.error('Error setting up auth listener:', error);
-      return () => {};
-    }
-  }, []);
-
-  const toggleMenu = () => setIsOpen(!isOpen);
-
   const handleSignOut = async () => {
-    if (!isSupabaseConfigured()) {
-      console.error('Supabase is not configured properly');
-      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
-      return;
-    }
-
-    try {
-      await supabase!.auth.signOut();
-      navigate('/');
-      toast.success('Du wurdest erfolgreich abgemeldet');
-    } catch (error: any) {
-      toast.error(`Fehler beim Abmelden: ${error.message}`);
-    }
+    await supabase.auth.signOut();
+    clearProfile();
+    toast({
+      description: "Erfolgreich abgemeldet"
+    });
+    navigate('/');
   };
-
-  // Updated menuItems to include links to both free offerings and authenticated routes
-  const menuItems = [
-    { name: 'Startseite', path: '/', icon: <Leaf size={18} className="mr-1" /> },
-    { name: 'Kostenloser Pflegeplan', path: '/free-care-plan', icon: <Calendar size={18} className="mr-1" /> },
-    { name: 'Kostenloser Chat', path: '/free-chat', icon: <MessageSquare size={18} className="mr-1" /> },
-    { name: 'Kostenlose Wetterberatung', path: '/free-weather', icon: <Cloud size={18} className="mr-1" /> },
-    { name: 'Rasenanalyse', path: '/free-analysis', icon: <Leaf size={18} className="mr-1" /> },
-    { name: 'Blog', path: '/blog', icon: <FileText size={18} className="mr-1" /> },
-  ];
-
-  // Auth-dependent menuItems
-  const authMenuItems = user ? [
-    { name: 'Dashboard', path: '/dashboard', icon: <Leaf size={18} className="mr-1" /> },
-    { name: 'Mein Pflegeplan', path: '/care-plan', icon: <Calendar size={18} className="mr-1" /> },
-    { name: 'Fragen an Rasenpilot', path: '/chat', icon: <MessageSquare size={18} className="mr-1" /> },
-    { name: 'Wetterberatung', path: '/weather', icon: <Cloud size={18} className="mr-1" /> },
-  ] : [];
-
+  
   return (
-    <nav className="bg-green-50 shadow-sm border-b border-green-200">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <div className="h-8 w-8 bg-green-600 rounded-full flex items-center justify-center mr-2">
-                <span className="text-white font-bold">R</span>
-              </div>
-              <span className="text-xl font-bold text-green-700">Rasenpilot</span>
-            </Link>
-          </div>
-          
+          {/* Logo section */}
+          <NavLink to="/" className="flex items-center space-x-2">
+            <Leaf className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <span className="font-bold text-lg md:text-xl text-green-800 dark:text-green-400">Rasenpilot</span>
+          </NavLink>
+
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center">
-            {menuItems.map((item) => (
-              <Link 
-                key={item.name}
-                to={item.path}
-                className="ml-8 text-green-800 hover:text-green-600 px-2 py-1 rounded-md text-sm font-medium flex items-center hover:bg-green-100 transition-all"
-              >
-                {item.icon}
-                {item.name}
-              </Link>
-            ))}
-            
-            {!loading && (
+          <nav className="hidden md:flex items-center space-x-1">
+            {isAuthenticated ? (
+              // Authenticated user menu
               <>
-                {user ? (
-                  <div className="ml-8 flex items-center gap-2">
-                    <Link to="/profile">
-                      <Avatar className="h-8 w-8 hover:ring-2 hover:ring-green-400 transition-all">
-                        <AvatarFallback className="bg-green-100 text-green-800 text-sm">
-                          {user.name?.charAt(0) || user.email.charAt(0) || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Link>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={handleSignOut}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut size={18} />
+                <NavLink to="/dashboard" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                }>
+                  Dashboard
+                </NavLink>
+                <NavLink to="/care-plan" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                }>
+                  Pflegeplan
+                </NavLink>
+                <NavLink to="/chat" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                }>
+                  KI-Chat
+                </NavLink>
+                
+                {/* User dropdown menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="ml-2 px-3">
+                      <UserRound className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     </Button>
-                  </div>
-                ) : (
-                  <Link to="/auth">
-                    <Button className="ml-8 bg-green-600 hover:bg-green-700" size="sm">
-                      Anmelden
-                    </Button>
-                  </Link>
-                )}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Mein Konto</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <UserRound className="mr-2 h-4 w-4" />
+                      <span>Profil</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/blog')}>
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      <span>Blog</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Abmelden</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              // Unauthenticated user menu
+              <>
+                <NavLink to="/free-plan" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                }>
+                  Kostenloser Plan
+                </NavLink>
+                <NavLink to="/free-analysis" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                }>
+                  Rasen-Analyzer
+                </NavLink>
+                <NavLink to="/free-chat" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                }>
+                  KI-Chat
+                </NavLink>
+                <Button 
+                  variant="outline" 
+                  className="ml-2"
+                  onClick={() => navigate('/auth', { state: { tab: 'login' } })}
+                >
+                  Anmelden
+                </Button>
+                <Button 
+                  className="bg-green-600 hover:bg-green-700 ml-2"
+                  onClick={() => navigate('/auth', { state: { tab: 'register' } })}
+                >
+                  Registrieren
+                </Button>
               </>
             )}
-          </div>
-          
+          </nav>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={toggleMenu}
-              aria-label="Menü"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Hauptmenü"
             >
-              {isOpen ? <X size={20} /> : <Menu size={20} />}
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </Button>
           </div>
         </div>
-        
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden py-2 space-y-1">
-            {menuItems.map((item) => (
-              <Link 
-                key={item.name}
-                to={item.path}
-                className="block px-3 py-2 text-green-800 hover:bg-green-100 hover:text-green-600 rounded-md flex items-center"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.icon}
-                <span className="ml-2">{item.name}</span>
-              </Link>
-            ))}
-            
-            {!loading && user && authMenuItems.map((item) => (
-              <Link 
-                key={item.name}
-                to={item.path}
-                className="block px-3 py-2 text-green-800 hover:bg-green-100 hover:text-green-600 rounded-md flex items-center"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.icon}
-                <span className="ml-2">{item.name}</span>
-              </Link>
-            ))}
-            
-            {!loading && (
+      </div>
+
+      {/* Mobile Navigation */}
+      {isOpen && (
+        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4 py-3 space-y-1">
+            {isAuthenticated ? (
+              // Authenticated mobile menu
               <>
-                {user ? (
-                  <>
-                    <Link
-                      to="/profile"
-                      className="block px-3 py-2 text-green-800 hover:bg-green-100 hover:text-green-600 rounded-md flex items-center"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <UserRound size={18} className="mr-2" />
-                      <span>Mein Profil</span>
-                    </Link>
-                    <div className="px-3 py-2">
-                      <Button 
-                        className="w-full flex items-center justify-center" 
-                        variant="outline"
-                        onClick={handleSignOut}
-                      >
-                        <LogOut size={18} className="mr-2" />
-                        Abmelden
-                      </Button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="px-3 py-2">
-                    <Link to="/auth">
-                      <Button className="w-full bg-green-600 hover:bg-green-700">
-                        Anmelden
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+                <NavLink to="/dashboard" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <Home className="mr-3 h-5 w-5" />
+                  Dashboard
+                </NavLink>
+                <NavLink to="/care-plan" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <Calendar className="mr-3 h-5 w-5" />
+                  Pflegeplan
+                </NavLink>
+                <NavLink to="/chat" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <MessageSquare className="mr-3 h-5 w-5" />
+                  KI-Chat
+                </NavLink>
+                <NavLink to="/profile" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <UserRound className="mr-3 h-5 w-5" />
+                  Profil
+                </NavLink>
+                <NavLink to="/blog" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <BookOpen className="mr-3 h-5 w-5" />
+                  Blog
+                </NavLink>
+                <div className="pt-2">
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => {
+                      handleSignOut();
+                      setIsOpen(false);
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Abmelden
+                  </Button>
+                </div>
+              </>
+            ) : (
+              // Unauthenticated mobile menu
+              <>
+                <NavLink to="/free-plan" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <Calendar className="mr-3 h-5 w-5" />
+                  Kostenloser Plan
+                </NavLink>
+                <NavLink to="/free-analysis" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <Image className="mr-3 h-5 w-5" />
+                  Rasen-Analyzer
+                </NavLink>
+                <NavLink to="/free-chat" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <MessageSquare className="mr-3 h-5 w-5" />
+                  KI-Chat
+                </NavLink>
+                <NavLink to="/free-weather" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'text-gray-600 dark:text-gray-300'}`
+                } onClick={() => setIsOpen(false)}>
+                  <Cloud className="mr-3 h-5 w-5" />
+                  Wetter
+                </NavLink>
+                <div className="pt-2 grid grid-cols-2 gap-2">
+                  <Button 
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      navigate('/auth', { state: { tab: 'login' } });
+                      setIsOpen(false);
+                    }}
+                  >
+                    Anmelden
+                  </Button>
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => {
+                      navigate('/auth', { state: { tab: 'register' } });
+                      setIsOpen(false);
+                    }}
+                  >
+                    Registrieren
+                  </Button>
+                </div>
               </>
             )}
           </div>
-        )}
-      </div>
-    </nav>
+        </div>
+      )}
+    </header>
   );
 };
 
