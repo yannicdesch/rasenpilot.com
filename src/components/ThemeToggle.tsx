@@ -1,17 +1,17 @@
 
 import { Button } from '@/components/ui/button';
-import { Sun } from 'lucide-react';
+import { Moon } from 'lucide-react';
 
 const ThemeToggle = () => {
   return (
     <Button
       variant="outline"
       size="icon"
-      aria-label="Helles Design aktiv"
-      className="border-green-100 text-green-700"
+      aria-label="Dunkles Design aktiv"
+      className="border-gray-700 text-gray-200 bg-gray-800 hover:bg-gray-700"
       disabled
     >
-      <Sun size={16} />
+      <Moon size={16} />
     </Button>
   );
 };
