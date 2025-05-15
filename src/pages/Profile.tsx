@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +42,7 @@ const Profile = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { profile, syncProfileWithSupabase, temporaryProfile, setProfile } = useLawn();
+  const { profile, syncProfileWithSupabase, temporaryProfile, setProfile, clearTemporaryProfile } = useLawn();
   const [activeTab, setActiveTab] = useState('account');
 
   const form = useForm<ProfileFormValues>({
@@ -59,6 +58,7 @@ const Profile = () => {
       const { data, error } = await supabase.auth.getUser();
       
       if (error || !data?.user) {
+        console.log("No authenticated user found, redirecting to auth");
         navigate('/auth');
         return;
       }
@@ -75,11 +75,13 @@ const Profile = () => {
         email: data.user.email || '',
       });
       
-      // If there's temporary profile data from onboarding wizard, save it to the user profile
+      // If there's temporary profile data, save it to the user profile
       if (temporaryProfile) {
-        console.log('Temporary profile found, saving to user profile:', temporaryProfile);
+        console.log('Temporary profile found in Profile page, saving to user profile:', temporaryProfile);
+        
+        // Create a merged profile by combining existing profile with temporary profile
         const updatedProfile = {
-          ...profile,
+          ...(profile || {}), // Ensure we have an object even if profile is null
           ...temporaryProfile,
           // Ensure these fields are included from temporaryProfile if they exist
           zipCode: temporaryProfile.zipCode || profile?.zipCode || '',
@@ -91,8 +93,13 @@ const Profile = () => {
           hasPets: temporaryProfile.hasPets !== undefined ? temporaryProfile.hasPets : profile?.hasPets,
         };
         
+        console.log("Updated profile to be set:", updatedProfile);
+        
         // Update profile in LawnContext
         setProfile(updatedProfile);
+        
+        // Clear temporary profile after merging to avoid reapplying
+        clearTemporaryProfile();
         
         // Sync with Supabase
         await syncProfileWithSupabase();
@@ -102,7 +109,7 @@ const Profile = () => {
     };
 
     getUser();
-  }, [navigate, form, temporaryProfile, profile, setProfile, syncProfileWithSupabase]);
+  }, [navigate, form, temporaryProfile, profile, setProfile, syncProfileWithSupabase, clearTemporaryProfile]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     setLoading(true);

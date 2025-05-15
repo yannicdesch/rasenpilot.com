@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
@@ -60,7 +61,10 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   
   // Temporary profile for non-registered users
-  const [temporaryProfile, setTemporaryProfileState] = useState<LawnProfile | null>(null);
+  const [temporaryProfile, setTemporaryProfileState] = useState<LawnProfile | null>(() => {
+    const savedTemporary = localStorage.getItem('temporaryLawnProfile');
+    return savedTemporary ? JSON.parse(savedTemporary) : null;
+  });
   
   // Task management
   const [tasks, setTasks] = useState<LawnTask[]>([]);
@@ -125,11 +129,18 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       
-      const { data: profileData } = await supabase
+      console.log("Fetching profile from Supabase for user:", session.user.id);
+      
+      const { data: profileData, error } = await supabase
         .from('lawn_profiles')
         .select('*')
         .eq('user_id', session.user.id)
         .single();
+        
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return;
+      }
         
       if (profileData) {
         // Convert from snake_case to camelCase
@@ -162,84 +173,137 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const isLoggedIn = await checkAuthentication();
       
-      if (!isLoggedIn || !profile) return;
+      if (!isLoggedIn) {
+        console.log("User not logged in, can't sync profile");
+        return;
+      }
       
-      console.log("Syncing profile with Supabase:", profile);
+      // If there's no profile to sync, check if we have a temporary profile to use
+      if (!profile && temporaryProfile) {
+        console.log("No profile found, using temporary profile for syncing:", temporaryProfile);
+        setProfileState(temporaryProfile);
+        localStorage.setItem('lawnProfile', JSON.stringify(temporaryProfile));
+        
+        // Continue with the newly set profile
+      } else if (!profile) {
+        console.log("No profile or temporary profile found, nothing to sync");
+        return;
+      }
+      
+      // At this point we should have a profile to sync
+      const currentProfile = profile || temporaryProfile;
+      if (!currentProfile) {
+        console.log("Still no profile to sync after checks");
+        return;
+      }
+      
+      console.log("Syncing profile with Supabase:", currentProfile);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log("No session found, can't sync profile");
+        return;
+      }
       
       // Check if profile already exists in Supabase
       const { data: existingProfiles } = await supabase
         .from('lawn_profiles')
         .select('*')
-        .eq('user_id', (await supabase.auth.getSession()).data.session?.user.id);
+        .eq('user_id', session.user.id);
         
       if (existingProfiles && existingProfiles.length > 0) {
         // Update existing profile
-        await supabase
+        console.log("Updating existing profile with ID:", existingProfiles[0].id);
+        
+        const { error } = await supabase
           .from('lawn_profiles')
           .update({
-            zip_code: profile.zipCode,
-            grass_type: profile.grassType,
-            lawn_size: profile.lawnSize,
-            lawn_goal: profile.lawnGoal,
-            name: profile.name,
-            last_mowed: profile.lastMowed,
-            last_fertilized: profile.lastFertilized,
-            soil_type: profile.soilType,
-            has_children: profile.hasChildren,
-            has_pets: profile.hasPets,
-            lawn_picture: profile.lawnPicture
+            zip_code: currentProfile.zipCode,
+            grass_type: currentProfile.grassType,
+            lawn_size: currentProfile.lawnSize,
+            lawn_goal: currentProfile.lawnGoal,
+            name: currentProfile.name,
+            last_mowed: currentProfile.lastMowed,
+            last_fertilized: currentProfile.lastFertilized,
+            soil_type: currentProfile.soilType,
+            has_children: currentProfile.hasChildren,
+            has_pets: currentProfile.hasPets,
+            lawn_picture: currentProfile.lawnPicture,
+            updated_at: new Date().toISOString()
           })
           .eq('id', existingProfiles[0].id);
           
+        if (error) {
+          console.error("Error updating profile in Supabase:", error);
+          toast.error("Fehler", {
+            description: "Ihre Rasendaten konnten nicht aktualisiert werden."
+          });
+          return;
+        }
+          
         // Update local profile with id
-        setProfileState({
-          ...profile,
+        const updatedProfile = {
+          ...currentProfile,
           id: existingProfiles[0].id
-        });
+        };
+        
+        setProfileState(updatedProfile);
+        localStorage.setItem('lawnProfile', JSON.stringify(updatedProfile));
         
         toast.success("Profil gespeichert", {
           description: "Ihre Rasendaten wurden erfolgreich aktualisiert."
         });
       } else {
         // Create new profile
+        console.log("Creating new profile for user:", session.user.id);
+        
         const { data: newProfile, error } = await supabase
           .from('lawn_profiles')
           .insert({
-            user_id: (await supabase.auth.getSession()).data.session?.user.id,
-            zip_code: profile.zipCode,
-            grass_type: profile.grassType,
-            lawn_size: profile.lawnSize,
-            lawn_goal: profile.lawnGoal,
-            name: profile.name,
-            last_mowed: profile.lastMowed,
-            last_fertilized: profile.lastFertilized,
-            soil_type: profile.soilType,
-            has_children: profile.hasChildren,
-            has_pets: profile.hasPets,
-            lawn_picture: profile.lawnPicture
+            user_id: session.user.id,
+            zip_code: currentProfile.zipCode,
+            grass_type: currentProfile.grassType,
+            lawn_size: currentProfile.lawnSize,
+            lawn_goal: currentProfile.lawnGoal,
+            name: currentProfile.name,
+            last_mowed: currentProfile.lastMowed,
+            last_fertilized: currentProfile.lastFertilized,
+            soil_type: currentProfile.soilType,
+            has_children: currentProfile.hasChildren,
+            has_pets: currentProfile.hasPets,
+            lawn_picture: currentProfile.lawnPicture,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           })
           .select()
           .single();
           
-        if (newProfile) {
-          // Update local profile with id
-          setProfileState({
-            ...profile,
-            id: newProfile.id
-          });
-          
-          toast.success("Profil erstellt", {
-            description: "Ihre Rasendaten wurden erfolgreich gespeichert."
-          });
-        }
-        
         if (error) {
           console.error("Error creating profile:", error);
           toast.error("Fehler", {
             description: "Ihre Rasendaten konnten nicht gespeichert werden."
           });
+          return;
+        }
+          
+        if (newProfile) {
+          // Update local profile with id
+          const updatedProfile = {
+            ...currentProfile,
+            id: newProfile.id
+          };
+          
+          setProfileState(updatedProfile);
+          localStorage.setItem('lawnProfile', JSON.stringify(updatedProfile));
+          
+          toast.success("Profil erstellt", {
+            description: "Ihre Rasendaten wurden erfolgreich gespeichert."
+          });
         }
       }
+      
+      // Clear temporary profile after successful sync
+      clearTemporaryProfile();
     } catch (error) {
       console.error("Error syncing profile with Supabase:", error);
       toast.error("Fehler", {
@@ -249,6 +313,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const setProfile = (newProfile: LawnProfile) => {
+    console.log("Setting profile:", newProfile);
     setProfileState(newProfile);
     localStorage.setItem('lawnProfile', JSON.stringify(newProfile));
   };
@@ -259,11 +324,15 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
   
   const setTemporaryProfile = (newProfile: LawnProfile) => {
+    console.log("Setting temporary profile:", newProfile);
     setTemporaryProfileState(newProfile);
+    localStorage.setItem('temporaryLawnProfile', JSON.stringify(newProfile));
   };
   
   const clearTemporaryProfile = () => {
+    console.log("Clearing temporary profile");
     setTemporaryProfileState(null);
+    localStorage.removeItem('temporaryLawnProfile');
   };
 
   const isProfileComplete = !!profile && !!profile.zipCode && !!profile.grassType && !!profile.lawnSize;
@@ -277,10 +346,16 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isLoggedIn = !!session;
       setIsAuthenticated(isLoggedIn);
       
+      console.log("Auth state changed:", event, "isLoggedIn:", isLoggedIn);
+      
       // If user just signed in, sync profile
       if (event === 'SIGNED_IN') {
         if (profile) {
           // If there's already a profile in local storage, sync it
+          await syncProfileWithSupabase();
+        } else if (temporaryProfile) {
+          // If there's a temporary profile, use it as the main profile and sync
+          setProfile(temporaryProfile);
           await syncProfileWithSupabase();
         } else {
           // Otherwise, try to fetch profile from Supabase
@@ -298,13 +373,6 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authListener?.subscription?.unsubscribe();
     };
   }, []);
-  
-  // When profile changes and user is authenticated, sync with Supabase
-  useEffect(() => {
-    if (isAuthenticated && profile) {
-      syncProfileWithSupabase();
-    }
-  }, [isAuthenticated, profile]);
 
   return (
     <LawnContext.Provider value={{ 

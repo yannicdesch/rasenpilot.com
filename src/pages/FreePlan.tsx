@@ -8,14 +8,17 @@ import FreePlanForm from '@/components/FreePlanForm';
 import ConversionPrompt from '@/components/ConversionPrompt';
 import FreePlanHero from '@/components/FreePlanHero';
 import OnboardingWizard from '@/components/OnboardingWizard';
+import { toast } from "sonner";
 
 const FreePlan = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const { setTemporaryProfile } = useLawn();
+  const { setTemporaryProfile, syncProfileWithSupabase } = useLawn();
   const navigate = useNavigate();
   
   const handleFormSubmit = (data: any) => {
+    console.log("Form submitted with data:", data);
+    
     // Save the temporary profile in context with the lawn picture
     setTemporaryProfile({
       zipCode: data.zipCode,
@@ -23,6 +26,10 @@ const FreePlan = () => {
       lawnSize: data.lawnSize,
       lawnGoal: data.lawnGoal,
       lawnPicture: data.lawnPicture // Add the lawn picture
+    });
+    
+    toast.success("Rasendaten gespeichert", {
+      description: "Ihre Daten wurden erfolgreich gespeichert."
     });
     
     // Show registration prompt instead of direct navigation
@@ -39,8 +46,27 @@ const FreePlan = () => {
     navigate('/auth', { state: { redirectTo: '/free-care-plan' } });
   };
 
-  const handleOnboardingComplete = () => {
-    navigate('/free-care-plan');
+  const handleOnboardingComplete = (data: any) => {
+    console.log("Onboarding completed with data:", data);
+    // Ensure we set the temporary profile with ALL the onboarding data
+    setTemporaryProfile({
+      zipCode: data.zipCode,
+      grassType: data.grassType,
+      lawnSize: data.lawnSize,
+      lawnGoal: data.lawnGoal,
+      hasChildren: data.hasChildren,
+      hasPets: data.hasPets,
+      lawnPicture: data.lawnPicture,
+    });
+    
+    toast.success("Rasendaten gespeichert", {
+      description: "Ihre Daten wurden erfolgreich gespeichert."
+    });
+    
+    // Sync profile with Supabase if the user is authenticated
+    syncProfileWithSupabase().then(() => {
+      navigate('/free-care-plan');
+    });
   };
 
   const handleOnboardingSkip = () => {

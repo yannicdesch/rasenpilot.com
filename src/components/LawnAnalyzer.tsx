@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, Image as ImageIcon, Loader2, Sparkles, Camera, Lock } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +49,7 @@ const LawnAnalyzer = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<typeof mockAnalysisResults | null>(null);
   const [analyzesUsed, setAnalyzesUsed] = useState(0);
-  const { temporaryProfile, isAuthenticated } = useLawn();
+  const { temporaryProfile, isAuthenticated, setTemporaryProfile, profile, syncProfileWithSupabase } = useLawn();
   const navigate = useNavigate();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +71,6 @@ const LawnAnalyzer = () => {
     // Check if free analyze is already used
     if (analyzesUsed >= 1 && !isAuthenticated) {
       toast("Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.");
-      
       return;
     }
 
@@ -84,6 +84,38 @@ const LawnAnalyzer = () => {
       // For demo purposes, we'll return mock results
       setAnalysisResults(mockAnalysisResults);
       setAnalyzesUsed(prevCount => prevCount + 1);
+      
+      // Store the lawn picture in the profile or temporary profile
+      if (previewUrl) {
+        console.log("Saving lawn picture to profile from analyzer:", previewUrl);
+        
+        if (isAuthenticated && profile) {
+          // Update the main profile with the lawn picture
+          const updatedProfile = {
+            ...profile,
+            lawnPicture: previewUrl
+          };
+          
+          // Use the context function to update the profile
+          setTemporaryProfile(updatedProfile);
+          
+          // Sync the updated profile with Supabase
+          await syncProfileWithSupabase();
+        } else {
+          // Store in temporary profile
+          const newTempProfile = {
+            ...(temporaryProfile || {}),
+            lawnPicture: previewUrl,
+            // Set some default values if they don't exist
+            zipCode: temporaryProfile?.zipCode || "",
+            grassType: temporaryProfile?.grassType || "",
+            lawnSize: temporaryProfile?.lawnSize || "",
+            lawnGoal: temporaryProfile?.lawnGoal || ""
+          };
+          
+          setTemporaryProfile(newTempProfile);
+        }
+      }
       
       toast("Die KI hat deinen Rasen analysiert und Empfehlungen erstellt.");
     } catch (error) {

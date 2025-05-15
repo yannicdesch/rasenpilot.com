@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,13 +11,12 @@ import { toast } from '@/components/ui/sonner';
 import LawnImageUpload from './LawnImageUpload';
 
 interface OnboardingWizardProps {
-  onComplete?: () => void;
+  onComplete?: (data: any) => void;
   onSkip?: () => void;
 }
 
 const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip }) => {
   const navigate = useNavigate();
-  const { setTemporaryProfile } = useLawn();
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -58,18 +56,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       setStep(step + 1);
     } else {
       // Submit data and complete
-      setTemporaryProfile({
-        zipCode: formData.zipCode,
-        grassType: formData.grassType,
-        lawnSize: formData.lawnSize,
-        lawnGoal: formData.lawnGoal,
-        hasChildren: formData.hasChildren,
-        hasPets: formData.hasPets,
-        lawnPicture: formData.lawnPicture,
-      });
-      
+      console.log("Completing onboarding with data:", formData);
       if (onComplete) {
-        onComplete();
+        onComplete(formData);
       } else {
         navigate('/dashboard');
       }
