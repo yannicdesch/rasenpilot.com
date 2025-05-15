@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -79,7 +78,7 @@ const MainNavigation = () => {
                     ? 'bg-green-50 text-green-700' 
                     : 'text-gray-600 hover:bg-gray-50'}`
                 }>
-                  KI-Chat
+                  Rasenpilot-KI
                 </NavLink>
                 
                 {/* User dropdown menu */}
@@ -133,7 +132,7 @@ const MainNavigation = () => {
                     ? 'bg-green-50 text-green-700' 
                     : 'text-gray-600 hover:bg-gray-50'}`
                 }>
-                  KI-Chat
+                  Rasenpilot-KI
                 </NavLink>
                 <Button 
                   variant="outline" 
@@ -202,7 +201,7 @@ const MainNavigation = () => {
                     : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <MessageSquare className="mr-3 h-5 w-5" />
-                  KI-Chat
+                  Rasenpilot-KI
                 </NavLink>
                 <NavLink to="/profile" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
@@ -263,7 +262,7 @@ const MainNavigation = () => {
                     : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <MessageSquare className="mr-3 h-5 w-5" />
-                  KI-Chat
+                  Rasenpilot-KI
                 </NavLink>
                 <NavLink to="/free-weather" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 

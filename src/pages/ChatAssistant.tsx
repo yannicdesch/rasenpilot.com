@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,8 +76,8 @@ const ChatAssistant = () => {
   useEffect(() => {
     const initChat = async () => {
       const welcomeMessage = profile 
-        ? `👋 Hallo! Ich bin Ihr Rasenpilot KI-Assistent. Ich sehe, dass Sie einen ${profile.grassType}-Rasen haben. Wie kann ich Ihnen heute bei der Rasenpflege helfen?` 
-        : "👋 Hallo! Ich bin Ihr Rasenpilot KI-Assistent. Wie kann ich Ihnen heute bei der Rasenpflege helfen?";
+        ? `👋 Hallo! Ich bin Ihr Rasenpilot-KI Assistent. Ich sehe, dass Sie einen ${profile.grassType}-Rasen haben. Wie kann ich Ihnen heute bei der Rasenpflege helfen?` 
+        : "👋 Hallo! Ich bin Ihr Rasenpilot-KI Assistent. Wie kann ich Ihnen heute bei der Rasenpflege helfen?";
       
       const initialMessage = {
         id: 1,
@@ -270,12 +269,12 @@ const ChatAssistant = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <MainNavigation />
       
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4 max-w-5xl">
-          <h1 className="text-3xl font-bold text-green-800 dark:text-green-400 mb-6">Fragen an Rasenpilot</h1>
+          <h1 className="text-3xl font-bold text-green-800 dark:text-green-400 mb-6">Fragen an Rasenpilot-KI</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Sidebar with suggested questions */}
@@ -316,7 +315,7 @@ const ChatAssistant = () => {
                 <CardHeader className="bg-green-50 dark:bg-green-900/30 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Leaf className="text-green-600 dark:text-green-500" size={20} />
-                    Rasenpilot Assistent
+                    Rasenpilot-KI Assistent
                   </CardTitle>
                 </CardHeader>
                 
@@ -417,15 +416,15 @@ const ChatAssistant = () => {
               </Card>
               
               <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Rasenpilot KI ist entwickelt, um allgemeine Rasenberatung zu bieten, berücksichtigt jedoch möglicherweise nicht alle lokalen Bedingungen. Ziehen Sie bei speziellen Problemen immer lokale Experten hinzu.
+                Rasenpilot-KI ist entwickelt, um allgemeine Rasenberatung zu bieten, berücksichtigt jedoch möglicherweise nicht alle lokalen Bedingungen. Ziehen Sie bei speziellen Problemen immer lokale Experten hinzu.
               </div>
             </div>
           </div>
         </div>
       </main>
       
-      <footer className="bg-white dark:bg-gray-800 py-6 border-t border-gray-200 dark:border-gray-700 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+      <footer className="bg-white py-6 border-t border-gray-200 mt-8">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
         </div>
       </footer>

@@ -59,7 +59,7 @@ const FreeChat = () => {
     // Initialisieren Sie den Chat mit einer Willkommensnachricht
     const initialMessage: Message = {
       id: 1,
-      content: "👋 Hallo! Ich bin der Rasenpilot KI-Assistent. Sie können mir bis zu drei Fragen zur Rasenpflege stellen. Wie kann ich Ihnen helfen?",
+      content: "👋 Hallo! Ich bin der Rasenpilot-KI Assistent. Sie können mir bis zu drei Fragen zur Rasenpflege stellen. Wie kann ich Ihnen helfen?",
       sender: 'ai',
       timestamp: new Date()
     };
@@ -172,12 +172,12 @@ const FreeChat = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <MainNavigation />
       
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4 max-w-5xl">
-          <h1 className="text-3xl font-bold text-green-800 dark:text-green-400 mb-4">Rasen-KI-Chat (Vorschau)</h1>
+          <h1 className="text-3xl font-bold text-green-800 mb-4">Rasenpilot-KI (Vorschau)</h1>
           
           <Alert className="mb-6 bg-amber-50 border-amber-200">
             <Info className="h-4 w-4 text-amber-600" />
@@ -246,10 +246,10 @@ const FreeChat = () => {
             {/* Chat-Schnittstelle */}
             <div className="md:col-span-3">
               <Card className="h-[500px] flex flex-col">
-                <CardHeader className="bg-green-50 dark:bg-green-900/30 pb-2">
+                <CardHeader className="bg-green-50 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Leaf className="text-green-600 dark:text-green-500" size={20} />
-                    Rasenpilot Assistent (Vorschau)
+                    <Leaf className="text-green-600" size={20} />
+                    Rasenpilot-KI Assistent (Vorschau)
                   </CardTitle>
                 </CardHeader>
                 
@@ -322,7 +322,7 @@ const FreeChat = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 mb-4">
-                      Registrieren Sie sich kostenlos, um unbegrenzten Zugriff auf den KI-Assistenten zu erhalten, Ihre Chatverläufe zu speichern und personalisierte Beratung zu bekommen.
+                      Registrieren Sie sich kostenlos, um unbegrenzten Zugriff auf den Rasenpilot-KI Assistenten zu erhalten, Ihre Chatverläufe zu speichern und personalisierte Beratung zu bekommen.
                     </p>
                     <FeatureCallToAction variant="minimal" />
                   </CardContent>
@@ -333,8 +333,8 @@ const FreeChat = () => {
         </div>
       </main>
       
-      <footer className="bg-white dark:bg-gray-800 py-6 border-t border-gray-200 dark:border-gray-700 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+      <footer className="bg-white py-6 border-t border-gray-200 mt-8">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
         </div>
       </footer>
