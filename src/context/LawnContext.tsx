@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
+import { toast } from "sonner";
 
 export interface LawnProfile {
   zipCode: string;
@@ -194,8 +194,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: existingProfiles[0].id
         });
         
-        toast({
-          title: "Profil gespeichert",
+        toast.success("Profil gespeichert", {
           description: "Ihre Rasendaten wurden erfolgreich aktualisiert."
         });
       } else {
@@ -225,27 +224,22 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: newProfile.id
           });
           
-          toast({
-            title: "Profil erstellt",
+          toast.success("Profil erstellt", {
             description: "Ihre Rasendaten wurden erfolgreich gespeichert."
           });
         }
         
         if (error) {
           console.error("Error creating profile:", error);
-          toast({
-            title: "Fehler",
-            description: "Ihre Rasendaten konnten nicht gespeichert werden.",
-            variant: "destructive"
+          toast.error("Fehler", {
+            description: "Ihre Rasendaten konnten nicht gespeichert werden."
           });
         }
       }
     } catch (error) {
       console.error("Error syncing profile with Supabase:", error);
-      toast({
-        title: "Fehler",
-        description: "Ihre Rasendaten konnten nicht gespeichert werden.",
-        variant: "destructive"
+      toast.error("Fehler", {
+        description: "Ihre Rasendaten konnten nicht gespeichert werden."
       });
     }
   };

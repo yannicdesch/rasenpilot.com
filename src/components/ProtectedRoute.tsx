@@ -1,7 +1,7 @@
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 
 interface ProtectedRouteProps {
@@ -19,9 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         // We should always be configured now, but keep the check
         if (!isSupabaseConfigured()) {
           console.error('Supabase is not configured properly');
-          toast({
-            description: 'Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.'
-          });
+          toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
           setIsAuthenticated(false);
           setIsLoading(false);
           return;
@@ -31,9 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         if (error) {
           console.error('Supabase authentication error:', error);
-          toast({
-            description: 'Authentifizierungsfehler. Bitte später erneut versuchen.'
-          });
+          toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
           setIsAuthenticated(false);
         } else {
           // The key fix is here - properly check if we have a session
@@ -41,17 +37,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           
           // If not authenticated, inform about premium features
           if (!data.session) {
-            toast({
-              description: 'Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.',
-              action: (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => window.location.href = '/features'}
-                >
-                  Mehr Info
-                </Button>
-              )
+            toast('Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.', {
+              action: {
+                label: 'Mehr Info',
+                onClick: () => window.location.href = '/features'
+              }
             });
           }
         }

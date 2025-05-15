@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/lib/supabase';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -30,14 +30,11 @@ const MainNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, clearProfile } = useLawn();
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     clearProfile();
-    toast({
-      description: "Erfolgreich abgemeldet"
-    });
+    toast.success("Erfolgreich abgemeldet");
     navigate('/');
   };
   
