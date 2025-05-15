@@ -75,7 +75,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/features" state={{ from: location }} />;
-};
+  // If authenticated, render the children (protected content)
+  // If not authenticated, redirect to the features page
+  return isAuthenticated ? 
+    <>{children}</> : 
+    <Navigate to="/auth" state={{ from: location }} replace />;
+}
 
 export default ProtectedRoute;
