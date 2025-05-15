@@ -8,11 +8,27 @@ import { useLawn } from '@/context/LawnContext';
 import BlogPostList from '@/components/BlogPostList';
 import AiBlogGenerator from '@/components/AiBlogGenerator';
 import { supabase } from '@/lib/supabase';
+import { Helmet } from 'react-helmet-async';
+import type { SEOContentType } from '@/components/SEOContentEditor';
 
 const Blog = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useLawn();
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [seoContent, setSeoContent] = useState<SEOContentType | null>(null);
+  
+  // Load SEO content
+  useEffect(() => {
+    const savedSeoContent = localStorage.getItem('seoContent');
+    if (savedSeoContent) {
+      try {
+        const parsedContent = JSON.parse(savedSeoContent);
+        setSeoContent(parsedContent);
+      } catch (e) {
+        console.error("Error parsing saved SEO content:", e);
+      }
+    }
+  }, []);
   
   // Check if user is authenticated and has admin privileges
   useEffect(() => {
@@ -26,6 +42,17 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
+      <Helmet>
+        <title>{seoContent?.title || "Rasen-Blog - Tipps und Tricks für Ihren perfekten Rasen"}</title>
+        <meta name="description" content={seoContent?.description || "Entdecken Sie nützliche Tipps und Informationen zur Rasenpflege in unserem Blog"} />
+        <meta name="keywords" content={seoContent?.keywords || "Rasenpflege, Rasen Blog, Rasentipps"} />
+        <link rel="canonical" href="https://rasenpilot.de/blog" />
+        <meta property="og:title" content={seoContent?.title || "Rasen-Blog - Rasenpilot"} />
+        <meta property="og:description" content={seoContent?.description || "Entdecken Sie nützliche Tipps und Informationen zur Rasenpflege in unserem Blog"} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://rasenpilot.de/blog" />
+      </Helmet>
+      
       <MainNavigation />
       
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -76,12 +103,21 @@ const Blog = () => {
                   <li>• Fügen Sie relevante interne und externe Links ein</li>
                   <li>• Verwenden Sie Bilder mit Alt-Text und beschreibenden Dateinamen</li>
                   <li>• Schreiben Sie mindestens 300 Wörter pro Blogbeitrag</li>
+                  <li>• Optimieren Sie URLs mit sprechenden Slugs</li>
+                  <li>• Aktualisieren Sie ältere Inhalte regelmäßig</li>
                 </ul>
               </div>
             </div>
           )}
         </div>
       </main>
+      
+      {/* Hidden SEO content for crawlers */}
+      {seoContent && (
+        <div className="hidden" aria-hidden="true">
+          <div dangerouslySetInnerHTML={{ __html: seoContent.content }} />
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import MainNavigation from '@/components/MainNavigation';
@@ -7,15 +6,29 @@ import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Calendar, ArrowRight, MessageSquare, Check } from 'lucide-react';
 import SubscriptionPlans from '@/components/SubscriptionPlans';
+import { Helmet } from 'react-helmet-async';
+import type { SEOContentType } from '@/components/SEOContentEditor';
 
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useLawn();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [seoContent, setSeoContent] = useState<SEOContentType | null>(null);
   
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
+    }
+    
+    // Load SEO content
+    const savedSeoContent = localStorage.getItem('seoContent');
+    if (savedSeoContent) {
+      try {
+        const parsedContent = JSON.parse(savedSeoContent);
+        setSeoContent(parsedContent);
+      } catch (e) {
+        console.error("Error parsing saved SEO content:", e);
+      }
     }
   }, [isAuthenticated, navigate]);
   
@@ -29,6 +42,17 @@ const Index = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>{seoContent?.title || "Rasenpilot - Ihr intelligenter Rasenberater"}</title>
+        <meta name="description" content={seoContent?.description || "Erstellen Sie kostenlos Ihren 14-Tage-Rasenpflegeplan mit dem KI-gestützten Rasenberater."} />
+        <meta name="keywords" content={seoContent?.keywords || "Rasenpflege, Rasenberatung, KI-Rasenberater, Rasenpflegeplan"} />
+        <link rel="canonical" href="https://rasenpilot.de/" />
+        <meta property="og:title" content={seoContent?.title || "Rasenpilot - Ihr intelligenter Rasenberater"} />
+        <meta property="og:description" content={seoContent?.description || "Erstellen Sie kostenlos Ihren 14-Tage-Rasenpflegeplan mit dem KI-gestützten Rasenberater."} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://rasenpilot.de/" />
+      </Helmet>
+      
       <MainNavigation />
       
       {showOnboarding ? (
@@ -85,7 +109,7 @@ const Index = () => {
                 <div className="lg:w-1/2">
                   <img 
                     src="/placeholder.svg" 
-                    alt="Rasenpilot App" 
+                    alt="Rasenpilot App - Rasenpflegeplan erstellen" 
                     className="rounded-lg shadow-xl w-full" 
                     width={600}
                     height={400}
@@ -211,6 +235,13 @@ const Index = () => {
               </div>
             </div>
           </section>
+          
+          {/* Hidden SEO content for search engines */}
+          {seoContent && (
+            <div className="sr-only">
+              <div dangerouslySetInnerHTML={{ __html: seoContent.content }} />
+            </div>
+          )}
         </>
       )}
       

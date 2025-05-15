@@ -14,5 +14,11 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://yourdomain.com/sitemap.xml
+# Private areas
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /blog/new
+Disallow: /blog/edit/
+Disallow: /seo-management
 
+Sitemap: https://rasenpilot.de/sitemap.xml

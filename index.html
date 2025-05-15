@@ -1,27 +1,81 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rasenpilot - Ihr intelligenter Rasenberater</title>
-    <meta name="description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent" />
-    <meta name="author" content="Lovable" />
+    <meta name="description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen" />
+    <meta name="author" content="Rasenpilot Team" />
+    <meta name="keywords" content="Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot" />
 
-    <meta property="og:title" content="Rasenpilot - Ihr intelligenter Rasenberater" />
-    <meta property="og:description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent" />
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
+    <meta property="og:url" content="https://rasenpilot.de/" />
+    <meta property="og:title" content="Rasenpilot - Ihr intelligenter Rasenberater" />
+    <meta property="og:description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen" />
+    <meta property="og:image" content="https://rasenpilot.de/og-image.png" />
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:site" content="@rasenpilot" />
+    <meta name="twitter:title" content="Rasenpilot - Ihr intelligenter Rasenberater" />
+    <meta name="twitter:description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen" />
+    <meta name="twitter:image" content="https://rasenpilot.de/twitter-image.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.ico" />
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/site.webmanifest" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://rasenpilot.de/" />
+    
+    <!-- Preconnect to important domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
-
   <body>
     <div id="root"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Structured Data for Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Rasenpilot",
+        "url": "https://rasenpilot.de",
+        "logo": "https://rasenpilot.de/logo.png",
+        "description": "Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen",
+        "sameAs": [
+          "https://facebook.com/rasenpilot",
+          "https://twitter.com/rasenpilot",
+          "https://instagram.com/rasenpilot"
+        ]
+      }
+    </script>
+    
+    <!-- Structured Data for SoftwareApplication -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Rasenpilot",
+        "applicationCategory": "GardeningApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        }
+      }
+    </script>
   </body>
 </html>

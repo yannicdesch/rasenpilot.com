@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
@@ -7,24 +7,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { FileText, Book, BookOpen, Search } from 'lucide-react';
+import { toast } from './ui/use-toast';
 
-type SEOContentType = {
+export type SEOContentType = {
   title: string;
   description: string;
   keywords: string;
   content: string;
+  lastUpdated?: string;
 }
 
 const initialContent: SEOContentType = {
   title: 'Rasenpflege für den perfekten Rasen - Expertentipps',
   description: 'Entdecken Sie die besten Tipps und Techniken für die Rasenpflege. Mit unserem kostenlosen Rasen-Check und individuellen Pflegeplänen zu einem gesunden, grünen Rasen.',
   keywords: 'Rasenpflege, Rasen düngen, Rasen mähen, gesunder Rasen, Rasen-Check, Rasenpilot',
-  content: 'Ein perfekter Rasen beginnt mit der richtigen Pflege. Regelmäßiges Mähen, ausreichende Bewässerung und gezielte Düngung sind die Grundlagen für einen gesunden, grünen Rasen. Mit unserem kostenlosen Rasen-Check erhalten Sie einen individuellen Pflegeplan, der genau auf Ihren Standort, Rasentyp und Ihre Ziele abgestimmt ist.'
+  content: 'Ein perfekter Rasen beginnt mit der richtigen Pflege. Regelmäßiges Mähen, ausreichende Bewässerung und gezielte Düngung sind die Grundlagen für einen gesunden, grünen Rasen. Mit unserem kostenlosen Rasen-Check erhalten Sie einen individuellen Pflegeplan, der genau auf Ihren Standort, Rasentyp und Ihre Ziele abgestimmt ist.',
+  lastUpdated: new Date().toISOString()
 }
 
 const SEOContentEditor = () => {
   const [seoContent, setSEOContent] = useState<SEOContentType>(initialContent);
   const [savedStatus, setSavedStatus] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Try to load saved SEO content on mount
+    const savedSeoContent = localStorage.getItem('seoContent');
+    if (savedSeoContent) {
+      try {
+        const parsedContent = JSON.parse(savedSeoContent);
+        setSEOContent(parsedContent);
+      } catch (e) {
+        console.error("Error parsing saved SEO content:", e);
+      }
+    }
+  }, []);
 
   const handleChange = (field: keyof SEOContentType, value: string) => {
     setSEOContent(prev => ({
@@ -35,10 +51,22 @@ const SEOContentEditor = () => {
   };
 
   const handleSave = () => {
-    // Here you would typically save to your database
-    // For now we'll just simulate saving
-    localStorage.setItem('seoContent', JSON.stringify(seoContent));
+    // Update the lastUpdated timestamp
+    const updatedContent = {
+      ...seoContent,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    localStorage.setItem('seoContent', JSON.stringify(updatedContent));
+    setSEOContent(updatedContent);
     setSavedStatus('Inhalte erfolgreich gespeichert!');
+    
+    // Show toast notification
+    toast({
+      title: "SEO-Inhalte gespeichert",
+      description: "Ihre SEO-Inhalte wurden erfolgreich aktualisiert.",
+    });
     
     setTimeout(() => {
       setSavedStatus(null);
@@ -128,6 +156,11 @@ const SEOContentEditor = () => {
         </Tabs>
       </CardContent>
       <CardFooter className="flex justify-between">
+        {seoContent.lastUpdated && (
+          <p className="text-xs text-gray-500">
+            Zuletzt aktualisiert: {new Date(seoContent.lastUpdated).toLocaleDateString('de-DE')}
+          </p>
+        )}
         {savedStatus && (
           <p className="text-sm text-green-600">{savedStatus}</p>
         )}
