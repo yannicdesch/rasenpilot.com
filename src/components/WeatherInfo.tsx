@@ -11,16 +11,16 @@ interface WeatherInfoProps {
 }
 
 const WeatherInfo = ({ weatherData, loading = false, className = '' }: WeatherInfoProps) => {
-  // Function to get the appropriate weather icon
+  // Funktion um das passende Wettersymbol zu erhalten
   const getWeatherIcon = (condition: string) => {
     const lowercaseCondition = condition.toLowerCase();
-    if (lowercaseCondition.includes('sun') || lowercaseCondition.includes('klar')) {
+    if (lowercaseCondition.includes('sonnig') || lowercaseCondition.includes('klar')) {
       return <Sun className="text-yellow-500" size={20} />;
-    } else if (lowercaseCondition.includes('regen') || lowercaseCondition.includes('rain')) {
+    } else if (lowercaseCondition.includes('regen')) {
       return <CloudRain className="text-blue-500" size={20} />;
-    } else if (lowercaseCondition.includes('schauer') || lowercaseCondition.includes('drizzle')) {
+    } else if (lowercaseCondition.includes('schauer') || lowercaseCondition.includes('leicht')) {
       return <CloudDrizzle className="text-blue-400" size={20} />;
-    } else if (lowercaseCondition.includes('wolke') || lowercaseCondition.includes('cloud')) {
+    } else if (lowercaseCondition.includes('wolke') || lowercaseCondition.includes('bewölkt')) {
       return <Cloud className="text-gray-400" size={20} />;
     } else {
       return <Sun className="text-yellow-500" size={20} />;

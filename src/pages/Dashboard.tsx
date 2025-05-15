@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import WeatherWidget from '@/components/WeatherWidget';
 import TaskTimeline from '@/components/TaskTimeline';
@@ -25,8 +25,8 @@ const Dashboard = () => {
             {/* Main Content */}
             <div className="w-full lg:w-2/3 space-y-6">
               <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-green-800 dark:text-green-400">Willkommen zurück
-                  {profile?.name ? `, ${profile.name}` : ''}
+                <h1 className="text-3xl font-bold text-green-800 dark:text-green-400">
+                  Willkommen zurück{profile?.name ? `, ${profile.name}` : ''}
                 </h1>
                 <Button onClick={() => navigate('/profile')} variant="outline">
                   Profil bearbeiten
@@ -85,7 +85,7 @@ const Dashboard = () => {
                 <TabsContent value="calendar" className="mt-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Pflegeplan Kalendar</CardTitle>
+                      <CardTitle>Pflegeplan Kalender</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-center text-gray-500 dark:text-gray-400 py-12">

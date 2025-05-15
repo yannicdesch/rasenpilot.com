@@ -29,12 +29,11 @@ export interface WeatherData {
   }>;
 }
 
-// This would be replaced by an actual API call in production
+// Diese Funktion würde durch einen tatsächlichen API-Aufruf ersetzt
 export const generateCarePlan = (profile: LawnProfile): Promise<CarePlanTask[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Here we generate tasks based on the lawn profile
-      // This is a simplified mock version
+      // Hier generieren wir Aufgaben basierend auf dem Rasenprofil
       const today = new Date();
       const taskTypes: Array<'mowing' | 'fertilizing' | 'watering' | 'weeding'> = ['mowing', 'fertilizing', 'watering', 'weeding'];
       
@@ -49,7 +48,7 @@ export const generateCarePlan = (profile: LawnProfile): Promise<CarePlanTask[]> 
           date: taskDate.toISOString().split('T')[0],
           title: getTaskTitle(taskTypes[i % taskTypes.length], profile.grassType),
           description: getTaskDescription(taskTypes[i % taskTypes.length], profile),
-          completed: i === 0, // First task is completed
+          completed: i === 0, // Erste Aufgabe ist erledigt
           type: taskTypes[i % taskTypes.length],
         });
       }
@@ -88,26 +87,28 @@ const getTaskDescription = (type: string, profile: LawnProfile): string => {
   }
 };
 
-// This would be replaced by an actual weather API call in production
+// Diese Funktion würde durch einen tatsächlichen Wetter-API-Aufruf ersetzt
 export const fetchWeatherData = async (zipCode: string): Promise<WeatherData> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Mock weather data
+      // Für deutsche Postleitzahlen spezifische Daten
+      const isGermanZipCode = /^\d{5}$/.test(zipCode);
+      
       resolve({
-        location: zipCode ? `Bereich ${zipCode}` : "Berlin",
+        location: isGermanZipCode ? `Bereich ${zipCode}, Deutschland` : "Berlin, Deutschland",
         current: {
-          temp: 22,
-          condition: "Sonnig",
+          temp: 18, // Temperaturen in Celsius für Deutschland
+          condition: "Teilweise bewölkt",
           humidity: 65,
-          windSpeed: 8,
-          icon: "sun"
+          windSpeed: 12,
+          icon: "cloud-sun"
         },
         forecast: [
-          { day: "Heute", high: 22, low: 15, condition: "Sonnig", icon: "sun", chanceOfRain: 0 },
-          { day: "Morgen", high: 24, low: 16, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 10 },
-          { day: "Mittwoch", high: 20, low: 14, condition: "Regen", icon: "cloud-rain", chanceOfRain: 70 },
-          { day: "Donnerstag", high: 19, low: 13, condition: "Vereinzelte Schauer", icon: "cloud-drizzle", chanceOfRain: 50 },
-          { day: "Freitag", high: 21, low: 14, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 20 }
+          { day: "Heute", high: 18, low: 10, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 10 },
+          { day: "Morgen", high: 19, low: 11, condition: "Überwiegend sonnig", icon: "sun", chanceOfRain: 5 },
+          { day: "Mittwoch", high: 17, low: 9, condition: "Regen", icon: "cloud-rain", chanceOfRain: 80 },
+          { day: "Donnerstag", high: 15, low: 8, condition: "Leichter Regen", icon: "cloud-drizzle", chanceOfRain: 60 },
+          { day: "Freitag", high: 16, low: 9, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 20 }
         ]
       });
     }, 800);
@@ -117,24 +118,24 @@ export const fetchWeatherData = async (zipCode: string): Promise<WeatherData> =>
 export const getWeatherBasedAdvice = (weatherData: WeatherData): string[] => {
   const advice: string[] = [];
 
-  // Temperature-based advice
+  // Temperaturbasierter Rat
   if (weatherData.current.temp > 25) {
     advice.push("Bei hohen Temperaturen früh morgens oder spät abends bewässern, um Verdunstung zu minimieren.");
   }
 
-  // Rain forecast advice
+  // Regenvorhersage-Ratschlag
   const rainInNext48Hours = weatherData.forecast.slice(0, 2).some(day => day.chanceOfRain > 30);
   if (rainInNext48Hours) {
     advice.push("Regen in den nächsten 48 Stunden erwartet. Bewässerung überspringen und natürliche Feuchtigkeit nutzen.");
   }
 
-  // Season-based advice (simplified)
+  // Jahreszeitenbasierter Rat (vereinfacht)
   const currentMonth = new Date().getMonth();
-  if (currentMonth >= 2 && currentMonth <= 4) { // Spring
+  if (currentMonth >= 2 && currentMonth <= 4) { // Frühling
     advice.push("Frühling ist ideal für Düngung und Nachsaat kahler Stellen.");
-  } else if (currentMonth >= 5 && currentMonth <= 7) { // Summer
+  } else if (currentMonth >= 5 && currentMonth <= 7) { // Sommer
     advice.push("Im Sommer höher schneiden (3-4 cm), um Wurzeln vor der Hitze zu schützen.");
-  } else if (currentMonth >= 8 && currentMonth <= 10) { // Fall
+  } else if (currentMonth >= 8 && currentMonth <= 10) { // Herbst
     advice.push("Herbst ist perfekt für Bodenbelüftung und Winterdünger.");
   } else { // Winter
     advice.push("Im Winter weniger mähen und Rasen vor Frost schützen.");
