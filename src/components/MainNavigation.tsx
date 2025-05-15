@@ -43,13 +43,13 @@ const MainNavigation = () => {
   };
   
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo section */}
           <NavLink to="/" className="flex items-center space-x-2">
-            <Leaf className="h-6 w-6 text-green-600 dark:text-green-400" />
-            <span className="font-bold text-lg md:text-xl text-green-800 dark:text-green-400">Rasenpilot</span>
+            <Leaf className="h-6 w-6 text-green-600" />
+            <span className="font-bold text-lg md:text-xl text-green-800">Rasenpilot</span>
           </NavLink>
 
           {/* Desktop Navigation */}
@@ -60,24 +60,24 @@ const MainNavigation = () => {
                 <NavLink to="/dashboard" className={({isActive}) => 
                   `px-3 py-2 rounded-md text-sm font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
                 }>
                   Dashboard
                 </NavLink>
                 <NavLink to="/care-plan" className={({isActive}) => 
                   `px-3 py-2 rounded-md text-sm font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
                 }>
                   Pflegeplan
                 </NavLink>
                 <NavLink to="/chat" className={({isActive}) => 
                   `px-3 py-2 rounded-md text-sm font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
                 }>
                   KI-Chat
                 </NavLink>
@@ -86,7 +86,7 @@ const MainNavigation = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="ml-2 px-3">
-                      <UserRound className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                      <UserRound className="h-5 w-5 text-gray-600" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -114,24 +114,24 @@ const MainNavigation = () => {
                 <NavLink to="/free-plan" className={({isActive}) => 
                   `px-3 py-2 rounded-md text-sm font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
                 }>
                   Kostenloser Plan
                 </NavLink>
                 <NavLink to="/free-analysis" className={({isActive}) => 
                   `px-3 py-2 rounded-md text-sm font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
                 }>
                   Rasen-Analyzer
                 </NavLink>
                 <NavLink to="/free-chat" className={({isActive}) => 
                   `px-3 py-2 rounded-md text-sm font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
                 }>
                   KI-Chat
                 </NavLink>
@@ -172,7 +172,7 @@ const MainNavigation = () => {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div className="md:hidden bg-white border-t border-gray-200">
           <div className="container mx-auto px-4 py-3 space-y-1">
             {isAuthenticated ? (
               // Authenticated mobile menu
@@ -180,8 +180,8 @@ const MainNavigation = () => {
                 <NavLink to="/dashboard" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <Home className="mr-3 h-5 w-5" />
                   Dashboard
@@ -189,8 +189,8 @@ const MainNavigation = () => {
                 <NavLink to="/care-plan" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <Calendar className="mr-3 h-5 w-5" />
                   Pflegeplan
@@ -198,8 +198,8 @@ const MainNavigation = () => {
                 <NavLink to="/chat" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <MessageSquare className="mr-3 h-5 w-5" />
                   KI-Chat
@@ -207,8 +207,8 @@ const MainNavigation = () => {
                 <NavLink to="/profile" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <UserRound className="mr-3 h-5 w-5" />
                   Profil
@@ -216,8 +216,8 @@ const MainNavigation = () => {
                 <NavLink to="/blog" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <BookOpen className="mr-3 h-5 w-5" />
                   Blog
@@ -241,8 +241,8 @@ const MainNavigation = () => {
                 <NavLink to="/free-plan" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <Calendar className="mr-3 h-5 w-5" />
                   Kostenloser Plan
@@ -250,8 +250,8 @@ const MainNavigation = () => {
                 <NavLink to="/free-analysis" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <Image className="mr-3 h-5 w-5" />
                   Rasen-Analyzer
@@ -259,8 +259,8 @@ const MainNavigation = () => {
                 <NavLink to="/free-chat" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <MessageSquare className="mr-3 h-5 w-5" />
                   KI-Chat
@@ -268,8 +268,8 @@ const MainNavigation = () => {
                 <NavLink to="/free-weather" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'text-gray-600 dark:text-gray-300'}`
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
                 } onClick={() => setIsOpen(false)}>
                   <Cloud className="mr-3 h-5 w-5" />
                   Wetter
