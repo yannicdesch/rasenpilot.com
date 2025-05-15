@@ -25,6 +25,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           return;
         }
 
+        // Get the current session
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -33,7 +34,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           setIsAuthenticated(false);
         } else {
           console.log('Auth session check:', data.session ? 'Session found' : 'No session found');
-          // The key fix is here - properly check if we have a session
+          // Update authentication state based on session presence
           setIsAuthenticated(!!data.session);
           
           // If not authenticated, inform about premium features
@@ -56,22 +57,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     checkAuth();
 
-    // Set up auth listener
-    try {
-      const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log('Auth state changed:', event, !!session);
-        setIsAuthenticated(!!session);
-      });
+    // Set up auth listener to respond to auth state changes in real-time
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed in ProtectedRoute:', event, !!session);
+      
+      // Update authentication state immediately when auth state changes
+      setIsAuthenticated(!!session);
+      
+      if (event === 'SIGNED_OUT') {
+        toast.info('Sie wurden abgemeldet');
+      }
+    });
   
-      return () => {
-        if (authListener?.subscription) {
-          authListener.subscription.unsubscribe();
-        }
-      };
-    } catch (error) {
-      console.error('Error setting up auth listener:', error);
-      return () => {};
-    }
+    return () => {
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
   }, []);
 
   if (isLoading) {

@@ -8,6 +8,7 @@ import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 const Auth = () => {
   // Check if Supabase is configured
@@ -17,6 +18,7 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [alreadyAuthenticated, setAlreadyAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
@@ -24,14 +26,32 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already authenticated
     const checkExistingAuth = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (data.session && !error) {
-        console.log('User already authenticated, redirecting to:', from);
-        setAlreadyAuthenticated(true);
-        // Small timeout to ensure state update before navigation
-        setTimeout(() => {
-          navigate(from);
-        }, 100);
+      try {
+        console.log('Checking for existing auth session...');
+        setCheckingAuth(true);
+        
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error checking auth session:', error);
+          return;
+        }
+        
+        if (data.session) {
+          console.log('User already authenticated, redirecting to:', from);
+          setAlreadyAuthenticated(true);
+          
+          // Small timeout to ensure state update before navigation
+          setTimeout(() => {
+            navigate(from);
+          }, 300);
+        } else {
+          console.log('No active session found');
+        }
+      } catch (error) {
+        console.error('Unexpected error checking authentication:', error);
+      } finally {
+        setCheckingAuth(false);
       }
     };
 
@@ -40,10 +60,36 @@ const Auth = () => {
     if (confirmationToken) {
       // Let Supabase handle the confirmation token automatically
       console.log('Email confirmation token detected. Handling confirmation...');
+      toast.info('E-Mail wird bestätigt...');
     }
 
     if (isSupabaseReady) {
       checkExistingAuth();
+    } else {
+      setCheckingAuth(false);
+    }
+  
+    // Set up auth listener
+    try {
+      const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event, !!session);
+        
+        if (event === 'SIGNED_IN' && session) {
+          toast.success('Erfolgreich eingeloggt!');
+          navigate(from);
+        } else if (event === 'SIGNED_OUT') {
+          toast.info('Abgemeldet');
+        }
+      });
+  
+      return () => {
+        if (authListener?.subscription) {
+          authListener.subscription.unsubscribe();
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up auth listener:', error);
+      return () => {};
     }
   }, [from, navigate, isSupabaseReady, searchParams]);
 
@@ -58,6 +104,17 @@ const Auth = () => {
   const handleOnboardingSkip = () => {
     navigate(from);
   };
+
+  // If checking auth state, show a loading state
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
+        <div className="text-center">
+          <p className="text-sm text-gray-500">Überprüfe Anmeldestatus...</p>
+        </div>
+      </div>
+    );
+  }
 
   // If already authenticated, show a loading state until redirect happens
   if (alreadyAuthenticated) {
