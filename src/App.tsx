@@ -41,8 +41,8 @@ function App() {
           <Route path="/free-analysis" element={<FreeLawnAnalysis />} />
           <Route path="/free-weather" element={<FreeWeather />} />
           <Route path="/features" element={<FeaturesBehindRegistration />} />
-
-          {/* Protected Routes */}
+          
+          {/* Protected Routes - Fixed to properly check authentication */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/care-plan" element={<ProtectedRoute><CarePlan /></ProtectedRoute>} />

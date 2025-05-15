@@ -1,6 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { toast } from '@/components/ui/sonner';
 
 export interface LawnProfile {
   zipCode: string;
@@ -105,10 +105,53 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session } } = await supabase.auth.getSession();
       const isLoggedIn = !!session;
       setIsAuthenticated(isLoggedIn);
+      
+      // If user is logged in but no profile exists, check for profile in Supabase
+      if (isLoggedIn && !profile) {
+        await fetchProfileFromSupabase();
+      }
+      
       return isLoggedIn;
     } catch (error) {
       console.error("Error checking authentication:", error);
       return false;
+    }
+  };
+  
+  // Fetch profile from Supabase
+  const fetchProfileFromSupabase = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      
+      const { data: profileData } = await supabase
+        .from('lawn_profiles')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
+        
+      if (profileData) {
+        // Convert from snake_case to camelCase
+        const newProfile: LawnProfile = {
+          id: profileData.id,
+          zipCode: profileData.zip_code,
+          grassType: profileData.grass_type,
+          lawnSize: profileData.lawn_size,
+          lawnGoal: profileData.lawn_goal,
+          name: profileData.name,
+          lastMowed: profileData.last_mowed,
+          lastFertilized: profileData.last_fertilized,
+          soilType: profileData.soil_type,
+          hasChildren: profileData.has_children,
+          hasPets: profileData.has_pets
+        };
+        
+        setProfileState(newProfile);
+        localStorage.setItem('lawnProfile', JSON.stringify(newProfile));
+        console.log("Profile loaded from Supabase:", newProfile);
+      }
+    } catch (error) {
+      console.error("Error fetching profile from Supabase:", error);
     }
   };
   
@@ -118,6 +161,8 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isLoggedIn = await checkAuthentication();
       
       if (!isLoggedIn || !profile) return;
+      
+      console.log("Syncing profile with Supabase:", profile);
       
       // Check if profile already exists in Supabase
       const { data: existingProfiles } = await supabase
@@ -148,9 +193,14 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...profile,
           id: existingProfiles[0].id
         });
+        
+        toast({
+          title: "Profil gespeichert",
+          description: "Ihre Rasendaten wurden erfolgreich aktualisiert."
+        });
       } else {
         // Create new profile
-        const { data: newProfile } = await supabase
+        const { data: newProfile, error } = await supabase
           .from('lawn_profiles')
           .insert({
             user_id: (await supabase.auth.getSession()).data.session?.user.id,
@@ -174,10 +224,29 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
             ...profile,
             id: newProfile.id
           });
+          
+          toast({
+            title: "Profil erstellt",
+            description: "Ihre Rasendaten wurden erfolgreich gespeichert."
+          });
+        }
+        
+        if (error) {
+          console.error("Error creating profile:", error);
+          toast({
+            title: "Fehler",
+            description: "Ihre Rasendaten konnten nicht gespeichert werden.",
+            variant: "destructive"
+          });
         }
       }
     } catch (error) {
       console.error("Error syncing profile with Supabase:", error);
+      toast({
+        title: "Fehler",
+        description: "Ihre Rasendaten konnten nicht gespeichert werden.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -206,12 +275,19 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuthentication();
     
     // Set up auth listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const isLoggedIn = !!session;
+      setIsAuthenticated(isLoggedIn);
       
       // If user just signed in, sync profile
-      if (event === 'SIGNED_IN' && profile) {
-        syncProfileWithSupabase();
+      if (event === 'SIGNED_IN') {
+        if (profile) {
+          // If there's already a profile in local storage, sync it
+          await syncProfileWithSupabase();
+        } else {
+          // Otherwise, try to fetch profile from Supabase
+          await fetchProfileFromSupabase();
+        }
       }
       
       // Check subscription status when auth state changes

@@ -6,7 +6,7 @@ import WeatherInfo from '@/components/WeatherInfo';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle, Clock, Droplet, Sun, Wind } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { useLawn } from '@/context/LawnContext';
 import { generateCarePlan, CarePlanTask, fetchWeatherData, WeatherData } from '@/services/lawnService';
 
@@ -35,7 +35,7 @@ const getTaskIcon = (type: string) => {
 };
 
 const CarePlan = () => {
-  const { profile, isProfileComplete } = useLawn();
+  const { profile, isProfileComplete, syncProfileWithSupabase } = useLawn();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<CarePlanTask[]>([]);
@@ -43,6 +43,9 @@ const CarePlan = () => {
   const [weatherLoading, setWeatherLoading] = useState(true);
 
   useEffect(() => {
+    // Make sure profile is synced with Supabase
+    syncProfileWithSupabase();
+    
     // Redirect to home if there's no profile
     if (!isProfileComplete) {
       toast({
@@ -84,7 +87,7 @@ const CarePlan = () => {
           setWeatherLoading(false);
         });
     }
-  }, [profile, isProfileComplete, navigate]);
+  }, [profile, isProfileComplete, navigate, syncProfileWithSupabase]);
 
   const markComplete = (id: number) => {
     setTasks(tasks.map(task => 
@@ -106,7 +109,7 @@ const CarePlan = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-white">
         <MainNavigation />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center">
@@ -119,7 +122,7 @@ const CarePlan = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <MainNavigation />
       
       <main className="flex-grow py-8">
@@ -137,7 +140,7 @@ const CarePlan = () => {
                 </Button>
               </div>
               
-              <Card>
+              <Card className="border border-green-100 shadow-sm bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle>Anstehende Aufgaben</CardTitle>
                 </CardHeader>
@@ -190,7 +193,7 @@ const CarePlan = () => {
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="border border-green-100 shadow-sm bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle>Saisonale Tipps</CardTitle>
                 </CardHeader>
@@ -219,7 +222,7 @@ const CarePlan = () => {
             <div className="w-full lg:w-1/3 space-y-6">
               <WeatherInfo weatherData={weatherData} loading={weatherLoading} />
               
-              <Card>
+              <Card className="border border-green-100 shadow-sm bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Ihr Rasenprofil</CardTitle>
                 </CardHeader>
