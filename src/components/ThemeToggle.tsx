@@ -8,6 +8,7 @@ const ThemeToggle = () => {
       variant="outline"
       size="icon"
       aria-label="Helles Design aktiv"
+      className="border-green-100 text-green-700"
       disabled
     >
       <Sun size={16} />
