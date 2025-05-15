@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -92,7 +91,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       case 1:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Wo befindet sich dein Rasen?</h3>
+            <h3 className="text-lg font-medium text-green-800">Wo befindet sich dein Rasen?</h3>
             <p className="text-sm text-gray-600 mb-4">
               Dies hilft uns, klimatische Bedingungen zu berücksichtigen.
             </p>
@@ -107,7 +106,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       case 2:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Welchen Rasentyp hast du?</h3>
+            <h3 className="text-lg font-medium text-green-800">Welchen Rasentyp hast du?</h3>
             <RadioGroup 
               value={formData.grassType}
               onValueChange={(value) => handleInputChange('grassType', value)}
@@ -134,7 +133,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       case 3:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Was ist dein Hauptziel?</h3>
+            <h3 className="text-lg font-medium text-green-800">Was ist dein Hauptziel?</h3>
             <RadioGroup 
               value={formData.lawnGoal}
               onValueChange={(value) => handleInputChange('lawnGoal', value)}
@@ -161,7 +160,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       case 4:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Zusatzinformationen</h3>
+            <h3 className="text-lg font-medium text-green-800">Zusatzinformationen</h3>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="gardenSize">Ungefähre Rasenfläche (m²)</Label>
@@ -202,9 +201,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   };
   
   return (
-    <Card className="w-full max-w-lg mx-auto shadow-lg border-green-100">
-      <CardHeader>
-        <CardTitle className="text-green-800">Erstelle deinen persönlichen Rasenpflegeplan</CardTitle>
+    <Card className="w-full border-green-100 shadow-md">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl text-green-800">Erstelle deinen persönlichen Rasenpflegeplan</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="mb-6">
@@ -212,9 +211,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
             <span>Start</span>
             <span>Fertig</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-green-600 h-2.5 rounded-full" 
+              className="bg-green-600 h-2 rounded-full" 
               style={{ width: `${(step / totalSteps) * 100}%` }}
             ></div>
           </div>
@@ -242,6 +241,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
             <Button 
               variant="ghost"
               onClick={handleSkip}
+              className="text-gray-500"
             >
               Überspringen
             </Button>
@@ -249,7 +249,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
         </div>
         <Button 
           onClick={handleNext}
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 flex items-center"
         >
           {step === totalSteps ? (
             <>
