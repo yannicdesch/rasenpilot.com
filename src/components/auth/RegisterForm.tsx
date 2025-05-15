@@ -11,6 +11,7 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 import { Mail, Lock, UserRoundPlus } from 'lucide-react';
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { useLawn } from '@/context/LawnContext';
 
 const registerSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -33,6 +34,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { temporaryProfile, syncProfileWithSupabase } = useLawn();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -68,6 +70,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       // Check if we have a session - user is authenticated
       if (authData.session) {
         toast.success('Registrierung erfolgreich!');
+        
+        // If we have temporary profile data, sync it first
+        if (temporaryProfile) {
+          console.log('Syncing temporary profile data after successful registration');
+          await syncProfileWithSupabase();
+        }
         
         // If onRegistrationSuccess callback is provided, call it to show the onboarding wizard
         if (onRegistrationSuccess) {

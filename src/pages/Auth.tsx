@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { useLawn } from '@/context/LawnContext';
 
 const Auth = () => {
   // Check if Supabase is configured
@@ -19,6 +20,7 @@ const Auth = () => {
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [alreadyAuthenticated, setAlreadyAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const { temporaryProfile, syncProfileWithSupabase } = useLawn();
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
@@ -40,6 +42,12 @@ const Auth = () => {
         if (data.session) {
           console.log('User already authenticated, redirecting to:', from);
           setAlreadyAuthenticated(true);
+          
+          // If we have temporary profile data, sync it first
+          if (temporaryProfile) {
+            console.log('Found temporary profile data, syncing before redirect');
+            await syncProfileWithSupabase();
+          }
           
           // Small timeout to ensure state update before navigation
           setTimeout(() => {
@@ -71,10 +79,16 @@ const Auth = () => {
   
     // Set up auth listener
     try {
-      const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
         console.log('Auth state changed:', event, !!session);
         
         if (event === 'SIGNED_IN' && session) {
+          // If we have temporary profile data, sync it
+          if (temporaryProfile) {
+            console.log('Found temporary profile data, syncing after sign in');
+            await syncProfileWithSupabase();
+          }
+          
           toast.success('Erfolgreich eingeloggt!');
           navigate(from);
         } else if (event === 'SIGNED_OUT') {
@@ -91,13 +105,15 @@ const Auth = () => {
       console.error('Error setting up auth listener:', error);
       return () => {};
     }
-  }, [from, navigate, isSupabaseReady, searchParams]);
+  }, [from, navigate, isSupabaseReady, searchParams, temporaryProfile, syncProfileWithSupabase]);
 
   const handleRegistrationSuccess = () => {
     setRegistrationComplete(true);
   };
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async (data: any) => {
+    // Sync profile before navigating
+    await syncProfileWithSupabase();
     navigate(from);
   };
 

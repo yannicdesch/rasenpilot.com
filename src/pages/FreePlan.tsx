@@ -13,10 +13,10 @@ import { toast } from "sonner";
 const FreePlan = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const { setTemporaryProfile, syncProfileWithSupabase } = useLawn();
+  const { setTemporaryProfile, syncProfileWithSupabase, isAuthenticated } = useLawn();
   const navigate = useNavigate();
   
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = async (data: any) => {
     console.log("Form submitted with data:", data);
     
     // Save the temporary profile in context with the lawn picture
@@ -32,8 +32,14 @@ const FreePlan = () => {
       description: "Ihre Daten wurden erfolgreich gespeichert."
     });
     
-    // Show registration prompt instead of direct navigation
-    setFormSubmitted(true);
+    // If user is already authenticated, sync the profile with Supabase immediately
+    if (isAuthenticated) {
+      await syncProfileWithSupabase();
+      navigate('/free-care-plan');
+    } else {
+      // Show registration prompt for non-authenticated users
+      setFormSubmitted(true);
+    }
   };
 
   // Handle navigation to free care plan when user chooses to continue without registration
@@ -46,8 +52,9 @@ const FreePlan = () => {
     navigate('/auth', { state: { redirectTo: '/free-care-plan' } });
   };
 
-  const handleOnboardingComplete = (data: any) => {
+  const handleOnboardingComplete = async (data: any) => {
     console.log("Onboarding completed with data:", data);
+    
     // Ensure we set the temporary profile with ALL the onboarding data
     setTemporaryProfile({
       zipCode: data.zipCode,
@@ -63,10 +70,15 @@ const FreePlan = () => {
       description: "Ihre Daten wurden erfolgreich gespeichert."
     });
     
-    // Sync profile with Supabase if the user is authenticated
-    syncProfileWithSupabase().then(() => {
+    // If user is already authenticated, sync profile with Supabase immediately
+    if (isAuthenticated) {
+      console.log("User is authenticated, syncing profile with Supabase");
+      await syncProfileWithSupabase();
       navigate('/free-care-plan');
-    });
+    } else {
+      // For non-authenticated users, navigate to registration/login or continue without
+      setFormSubmitted(true);
+    }
   };
 
   const handleOnboardingSkip = () => {
