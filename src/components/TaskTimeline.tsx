@@ -85,7 +85,7 @@ const TaskTimeline = () => {
   };
 
   return (
-    <Card className="border-green-100">
+    <Card className="border-green-100 bg-white">
       <CardHeader className="bg-green-50">
         <CardTitle className="flex items-center gap-2">
           <Clock size={20} className="text-green-600" />
@@ -99,7 +99,7 @@ const TaskTimeline = () => {
             {upcomingTasks.length > 0 ? (
               <div className="space-y-2">
                 {upcomingTasks.map(task => (
-                  <div key={task.id} className="flex items-start gap-2 p-2 rounded border border-gray-100">
+                  <div key={task.id} className="flex items-start gap-2 p-2 rounded border border-gray-100 bg-white">
                     <Checkbox 
                       id={`task-${task.id}`} 
                       checked={task.completed}
@@ -136,7 +136,7 @@ const TaskTimeline = () => {
             {completedTasks.length > 0 ? (
               <div className="space-y-2">
                 {completedTasks.map(task => (
-                  <div key={task.id} className="flex items-start gap-2 p-2 rounded border border-gray-100 bg-gray-50">
+                  <div key={task.id} className="flex items-start gap-2 p-2 rounded border border-gray-100 bg-green-50">
                     <Checkbox 
                       id={`task-${task.id}`} 
                       checked={task.completed}

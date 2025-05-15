@@ -49,13 +49,8 @@ const WeatherWidget = () => {
     }
   };
 
-  // Celsius zu Fahrenheit Umrechnung (falls nötig)
-  const celsiusToFahrenheit = (celsius: number) => {
-    return Math.round((celsius * 9/5) + 32);
-  };
-
   return (
-    <Card className="overflow-hidden border-green-100">
+    <Card className="overflow-hidden border-green-100 bg-white">
       <CardHeader className="bg-blue-50 py-3">
         <CardTitle className="flex justify-between items-center text-lg">
           <span className="font-semibold">{weatherData.location}</span>
@@ -71,15 +66,15 @@ const WeatherWidget = () => {
           <div className="flex justify-between items-center">
             <div>
               <div className="text-3xl font-bold">{weatherData.temperature}°C</div>
-              <div className="text-sm text-muted-foreground">{weatherData.condition}</div>
+              <div className="text-sm text-gray-500">{weatherData.condition}</div>
             </div>
             <div className="grid grid-cols-1 gap-1 text-sm">
               <div className="flex items-center gap-1">
-                <Clock size={14} />
+                <Clock size={14} className="text-gray-500" />
                 <span>Aktualisiert: vor {weatherData.updated} Min.</span>
               </div>
               <div className="flex items-center gap-1">
-                <Wind size={14} />
+                <Wind size={14} className="text-gray-500" />
                 <span>Wind: {weatherData.windSpeed} km/h</span>
               </div>
             </div>
