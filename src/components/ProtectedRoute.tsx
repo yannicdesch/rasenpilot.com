@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -18,7 +19,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         // We should always be configured now, but keep the check
         if (!isSupabaseConfigured()) {
           console.error('Supabase is not configured properly');
-          toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+          toast({
+            description: 'Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.'
+          });
           setIsAuthenticated(false);
           setIsLoading(false);
           return;
@@ -28,14 +31,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         if (error) {
           console.error('Supabase authentication error:', error);
-          toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
+          toast({
+            description: 'Authentifizierungsfehler. Bitte später erneut versuchen.'
+          });
           setIsAuthenticated(false);
         } else {
+          // The key fix is here - properly check if we have a session
           setIsAuthenticated(!!data.session);
           
           // If not authenticated, inform about premium features
           if (!data.session) {
-            toast.error('Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.', {
+            toast({
+              description: 'Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.',
               action: {
                 label: 'Mehr Info',
                 onClick: () => window.location.href = '/features'
@@ -76,7 +83,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // If authenticated, render the children (protected content)
-  // If not authenticated, redirect to the features page
+  // If not authenticated, redirect to the login page
   return isAuthenticated ? 
     <>{children}</> : 
     <Navigate to="/auth" state={{ from: location }} replace />;
