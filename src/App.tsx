@@ -25,6 +25,7 @@ import FreeChat from "@/pages/FreeChat";
 import FreeLawnAnalysis from "@/pages/FreeLawnAnalysis";
 import FreeWeather from "@/pages/FreeWeather";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminPanel from "@/pages/AdminPanel";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path="/blog/new" element={<ProtectedRoute><NewBlogPost /></ProtectedRoute>} />
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
           <Route path="/season-guide" element={<ProtectedRoute><SeasonGuide /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           
           {/* Legacy route */}
           <Route path="/home" element={<Index />} />

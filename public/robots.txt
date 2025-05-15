@@ -20,5 +20,6 @@ Disallow: /profile
 Disallow: /blog/new
 Disallow: /blog/edit/
 Disallow: /seo-management
+Disallow: /admin
 
 Sitemap: https://rasenpilot.de/sitemap.xml
