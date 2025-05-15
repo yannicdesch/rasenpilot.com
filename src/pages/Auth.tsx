@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
@@ -42,10 +41,10 @@ const Auth = () => {
                 Willkommen bei Rasenpilot
               </h1>
               
-              <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg mb-6 flex items-start gap-3">
-                <Lock className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+              <div className="bg-white border border-green-200 shadow-sm p-4 rounded-lg mb-6 flex items-start gap-3">
+                <Lock className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-green-700 dark:text-green-300">
+                  <p className="text-sm text-green-700">
                     Mit Ihrem kostenlosen Konto erhalten Sie Zugriff auf alle <Link to="/features" className="underline font-medium">Premium-Funktionen</Link> wie personalisierte Pflegepläne, Foto-Upload und mehr.
                   </p>
                 </div>
