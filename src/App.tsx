@@ -43,94 +43,17 @@ function App() {
           <Route path="/features" element={<FeaturesBehindRegistration />} />
 
           {/* Protected Routes */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/care-plan" 
-            element={
-              <ProtectedRoute>
-                <CarePlan />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/chat" 
-            element={
-              <ProtectedRoute>
-                <ChatAssistant />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/weather" 
-            element={
-              <ProtectedRoute>
-                <WeatherAdvice />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/content-library" 
-            element={
-              <ProtectedRoute>
-                <ContentLibrary />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/seo-management" 
-            element={
-              <ProtectedRoute>
-                <SEOManagement />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/blog/edit/:id" 
-            element={
-              <ProtectedRoute>
-                <EditBlogPost />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/blog/new" 
-            element={
-              <ProtectedRoute>
-                <NewBlogPost />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/blog" 
-            element={
-              <ProtectedRoute>
-                <Blog />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/season-guide" 
-            element={
-              <ProtectedRoute>
-                <SeasonGuide />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/care-plan" element={<ProtectedRoute><CarePlan /></ProtectedRoute>} />
+          <Route path="/chat" element={<ProtectedRoute><ChatAssistant /></ProtectedRoute>} />
+          <Route path="/weather" element={<ProtectedRoute><WeatherAdvice /></ProtectedRoute>} />
+          <Route path="/content-library" element={<ProtectedRoute><ContentLibrary /></ProtectedRoute>} />
+          <Route path="/seo-management" element={<ProtectedRoute><SEOManagement /></ProtectedRoute>} />
+          <Route path="/blog/edit/:id" element={<ProtectedRoute><EditBlogPost /></ProtectedRoute>} />
+          <Route path="/blog/new" element={<ProtectedRoute><NewBlogPost /></ProtectedRoute>} />
+          <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
+          <Route path="/season-guide" element={<ProtectedRoute><SeasonGuide /></ProtectedRoute>} />
           
           {/* Legacy route */}
           <Route path="/home" element={<Index />} />
