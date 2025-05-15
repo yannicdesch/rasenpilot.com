@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -88,7 +87,7 @@ const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthForm
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -102,12 +101,20 @@ const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthForm
         throw error;
       }
 
-      toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
-      
-      // If onRegistrationSuccess callback is provided, call it to show the onboarding wizard
-      if (onRegistrationSuccess) {
-        onRegistrationSuccess();
+      // Check if we have a session - user is authenticated
+      if (authData.session) {
+        toast.success('Registrierung erfolgreich!');
+        
+        // If onRegistrationSuccess callback is provided, call it to show the onboarding wizard
+        if (onRegistrationSuccess) {
+          onRegistrationSuccess();
+        } else {
+          // If no callback is provided, navigate directly to dashboard
+          navigate(redirectTo);
+        }
       } else {
+        // If confirmation is required
+        toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
         setActiveTab('login');
       }
     } catch (error: any) {
