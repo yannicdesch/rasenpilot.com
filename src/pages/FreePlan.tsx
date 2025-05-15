@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -10,7 +9,7 @@ import FreePlanHero from '@/components/FreePlanHero';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const FreePlan = () => {
@@ -99,21 +98,26 @@ const FreePlan = () => {
         
         {/* CTA Button */}
         {!showForm && !formSubmitted && (
-          <div className="container mx-auto px-4 -mt-4 mb-8">
+          <div className="container mx-auto px-4 -mt-6 md:-mt-8 mb-10">
             <div className="max-w-md mx-auto">
               <Button 
                 onClick={() => setShowForm(true)}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 rounded-lg text-lg font-medium shadow-lg transition-all duration-200 flex items-center justify-center"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 rounded-lg text-lg font-medium shadow-xl transition-all duration-200 flex items-center justify-center group"
               >
-                Gratis Pflegeplan erstellen
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <span className="mr-2">Gratis Pflegeplan erstellen</span>
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
+              
+              {/* Scroll indicator for mobile */}
+              <div className="flex justify-center mt-6 md:hidden animate-bounce">
+                <ChevronDown className="h-6 w-6 text-green-600" />
+              </div>
             </div>
           </div>
         )}
         
         {/* Main Content Section */}
-        <section className="py-8 bg-white">
+        <section className="py-8 bg-white rounded-t-3xl shadow-inner">
           <div className="container mx-auto px-4">
             {!showForm && !formSubmitted ? (
               <div className="max-w-lg mx-auto">
