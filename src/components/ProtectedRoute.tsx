@@ -1,10 +1,13 @@
-
-import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import React, { useEffect, useState, ReactNode } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 
-const ProtectedRoute = () => {
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
@@ -72,7 +75,7 @@ const ProtectedRoute = () => {
     return <div className="h-screen flex items-center justify-center">Lade...</div>;
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/features" state={{ from: location }} />;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/features" state={{ from: location }} />;
 };
 
 export default ProtectedRoute;
