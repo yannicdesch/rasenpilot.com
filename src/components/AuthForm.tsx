@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -11,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Lock, UserRoundPlus } from 'lucide-react';
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import PasswordResetLink from './PasswordResetLink';
 
 const loginSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -34,6 +36,7 @@ interface AuthFormProps {
 const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
   const navigate = useNavigate();
 
   const loginForm = useForm<LoginFormValues>({
@@ -124,6 +127,23 @@ const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthForm
     }
   };
 
+  if (showPasswordReset) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <PasswordResetLink />
+        <div className="mt-4 text-center">
+          <Button 
+            variant="link" 
+            onClick={() => setShowPasswordReset(false)}
+            className="text-sm"
+          >
+            Zurück zur Anmeldung
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -173,7 +193,19 @@ const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthForm
                     </FormItem>
                   )}
                 />
-                <CardFooter className="px-0 pt-4">
+                <div className="text-right">
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto text-sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowPasswordReset(true);
+                    }}
+                  >
+                    Passwort vergessen?
+                  </Button>
+                </div>
+                <CardFooter className="px-0 pt-2">
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
                   </Button>
@@ -240,7 +272,7 @@ const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthForm
                     </FormItem>
                   )}
                 />
-                <CardFooter className="px-0 pt-4">
+                <CardFooter className="px-0 pt-2">
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Wird registriert...' : 'Registrieren'}
                   </Button>
