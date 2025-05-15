@@ -8,7 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle, Clock, Droplet, Sun, Wind } from 'lucide-react';
 import { toast } from "sonner";
 import { useLawn } from '@/context/LawnContext';
-import { generateCarePlan, CarePlanTask, fetchWeatherData, WeatherData } from '@/services/lawnService';
+import { 
+  generateCarePlan, 
+  CarePlanTask, 
+  fetchWeatherData, 
+  WeatherData,
+  getTaskTitle,
+  getTaskDescription
+} from '@/services/lawnService';
 import ReminderSettings from '@/components/ReminderSettings';
 
 const formatDate = (dateStr: string) => {

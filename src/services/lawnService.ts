@@ -1,4 +1,3 @@
-
 import { LawnProfile } from '../context/LawnContext';
 
 export interface CarePlanTask {
@@ -83,7 +82,8 @@ export const generateCarePlan = (profile: LawnProfile): Promise<CarePlanTask[]> 
   });
 };
 
-const getTaskTitle = (type: string, grassType: string): string => {
+// Export task title and description functions so they can be used in other components
+export const getTaskTitle = (type: string, grassType: string): string => {
   switch (type) {
     case 'mowing': return `Mähen Sie Ihren ${grassType}-Rasen`;
     case 'fertilizing': return 'Düngen Sie Ihren Rasen';
@@ -93,7 +93,7 @@ const getTaskTitle = (type: string, grassType: string): string => {
   }
 };
 
-const getTaskDescription = (type: string, profile: LawnProfile): string => {
+export const getTaskDescription = (type: string, profile: LawnProfile): string => {
   switch (type) {
     case 'mowing':
       return profile.grassType === 'Bermuda' || profile.grassType === 'bermuda'
