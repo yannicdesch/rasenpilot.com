@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -5,9 +6,10 @@ import WeatherInfo from '@/components/WeatherInfo';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle, Clock, Droplet, Sun, Wind } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 import { useLawn } from '@/context/LawnContext';
 import { generateCarePlan, CarePlanTask, fetchWeatherData, WeatherData } from '@/services/lawnService';
+import ReminderSettings from '@/components/ReminderSettings';
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -34,12 +36,13 @@ const getTaskIcon = (type: string) => {
 };
 
 const CarePlan = () => {
-  const { profile, isProfileComplete, syncProfileWithSupabase } = useLawn();
+  const { profile, isProfileComplete, syncProfileWithSupabase, isAuthenticated, subscriptionDetails } = useLawn();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<CarePlanTask[]>([]);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
+  const [extendPlan, setExtendPlan] = useState(false);
 
   useEffect(() => {
     // Make sure profile is synced with Supabase
@@ -57,11 +60,20 @@ const CarePlan = () => {
     generateCarePlan(profile!)
       .then((carePlanTasks) => {
         setTasks(carePlanTasks);
+        // Save tasks to localStorage for persistence
+        localStorage.setItem('lawnTasks', JSON.stringify(carePlanTasks));
         setLoading(false);
       })
       .catch(error => {
         console.error("Error generating care plan:", error);
         toast("Beim Generieren Ihres Pflegeplans ist ein Fehler aufgetreten.");
+        
+        // Try to load from localStorage if available
+        const savedTasks = localStorage.getItem('lawnTasks');
+        if (savedTasks) {
+          setTasks(JSON.parse(savedTasks));
+        }
+        
         setLoading(false);
       });
       
@@ -81,15 +93,69 @@ const CarePlan = () => {
   }, [profile, isProfileComplete, navigate, syncProfileWithSupabase]);
 
   const markComplete = (id: number) => {
-    setTasks(tasks.map(task => 
+    const updatedTasks = tasks.map(task => 
       task.id === id ? { ...task, completed: true } : task
-    ));
+    );
+    
+    setTasks(updatedTasks);
+    localStorage.setItem('lawnTasks', JSON.stringify(updatedTasks));
     
     toast("Aufgabe als erledigt markiert. Ihr Pflegeplan wurde aktualisiert.");
   };
 
   const setReminder = (id: number) => {
+    if (!isAuthenticated) {
+      toast("Melden Sie sich an, um Erinnerungen zu setzen", {
+        description: "Diese Funktion erfordert einen Account."
+      });
+      return;
+    }
+    
     toast("Erinnerung gesetzt. Sie erhalten eine Benachrichtigung, wenn es Zeit für diese Aufgabe ist.");
+  };
+
+  const handleExtendPlan = () => {
+    if (!isAuthenticated) {
+      toast("Bitte registrieren Sie sich, um Ihren Plan zu erweitern", {
+        description: "Die Erweiterung Ihres Pflegeplans erfordert einen Account."
+      });
+      navigate('/auth', { state: { redirectTo: '/care-plan' } });
+      return;
+    }
+    
+    if (subscriptionDetails.plan === 'free') {
+      setExtendPlan(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // For paid users, generate extended plan immediately
+      toast.success("Ihr erweiterter Pflegeplan wird generiert...");
+      setLoading(true);
+      
+      // Simulate extended plan generation
+      setTimeout(() => {
+        const extendedTasks = [...tasks];
+        const lastDate = new Date(tasks[tasks.length - 1].date);
+        
+        // Add 8 more tasks (4 weeks)
+        for (let i = 1; i <= 8; i++) {
+          const newDate = new Date(lastDate);
+          newDate.setDate(lastDate.getDate() + i * 2);
+          
+          extendedTasks.push({
+            id: tasks.length + i,
+            date: newDate.toISOString().split('T')[0],
+            title: `Erweiterte Pflege: ${getTaskTitle('mowing', profile?.grassType || 'Standard')}`,
+            description: `Diese Aufgabe ist Teil Ihres erweiterten Pflegeplans. ${getTaskDescription('mowing', profile!)}`,
+            completed: false,
+            type: i % 4 === 0 ? 'fertilizing' : i % 3 === 0 ? 'watering' : i % 2 === 0 ? 'weeding' : 'mowing',
+          });
+        }
+        
+        setTasks(extendedTasks);
+        localStorage.setItem('lawnTasks', JSON.stringify(extendedTasks));
+        setLoading(false);
+      }, 2000);
+    }
   };
 
   if (loading) {
@@ -112,6 +178,22 @@ const CarePlan = () => {
       
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4">
+          {extendPlan && subscriptionDetails.plan === 'free' && (
+            <Card className="mb-6 border-amber-200 bg-amber-50">
+              <CardContent className="pt-6">
+                <div className="text-center mb-4">
+                  <h2 className="text-xl font-semibold text-amber-800">Erweitern Sie Ihren Pflegeplan</h2>
+                  <p className="text-gray-600">Für einen umfassenden Jahrespflegeplan benötigen Sie ein Premium-Konto</p>
+                </div>
+                <div className="flex justify-center">
+                  <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => navigate('/auth', { state: { upgradeSubscription: true } })}>
+                    Auf Premium upgraden
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
             {/* Main Content */}
             <div className="w-full lg:w-2/3 space-y-6">
@@ -120,9 +202,14 @@ const CarePlan = () => {
                   <h1 className="text-3xl font-bold text-green-800">Ihr Rasenpflegeplan</h1>
                   <p className="text-gray-600">Maßgeschneidert für {profile?.grassType} Rasen in {profile?.zipCode}</p>
                 </div>
-                <Button className="bg-green-600 hover:bg-green-700">
-                  <Calendar className="mr-2 h-4 w-4" /> In Kalender exportieren
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button className="bg-green-600 hover:bg-green-700">
+                    <Calendar className="mr-2 h-4 w-4" /> In Kalender exportieren
+                  </Button>
+                  <Button variant="outline" onClick={handleExtendPlan}>
+                    Plan erweitern
+                  </Button>
+                </div>
               </div>
               
               <Card className="border border-green-100 shadow-sm bg-white">
@@ -236,6 +323,8 @@ const CarePlan = () => {
                   </div>
                 </CardContent>
               </Card>
+              
+              <ReminderSettings />
             </div>
           </div>
         </div>
