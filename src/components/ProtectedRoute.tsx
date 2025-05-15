@@ -2,7 +2,8 @@
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -43,10 +44,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           if (!data.session) {
             toast({
               description: 'Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.',
-              action: {
-                label: 'Mehr Info',
-                onClick: () => window.location.href = '/features'
-              },
+              action: (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.location.href = '/features'}
+                >
+                  Mehr Info
+                </Button>
+              )
             });
           }
         }
