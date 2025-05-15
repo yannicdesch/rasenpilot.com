@@ -1,8 +1,8 @@
+
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
-import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -32,6 +32,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
           setIsAuthenticated(false);
         } else {
+          console.log('Auth session check:', data.session ? 'Session found' : 'No session found');
           // The key fix is here - properly check if we have a session
           setIsAuthenticated(!!data.session);
           
@@ -57,7 +58,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     // Set up auth listener
     try {
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event, !!session);
         setIsAuthenticated(!!session);
       });
   

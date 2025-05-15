@@ -1,23 +1,51 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { isSupabaseConfigured } from '@/lib/supabase';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 const Auth = () => {
   // Check if Supabase is configured
   const isSupabaseReady = isSupabaseConfigured();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [alreadyAuthenticated, setAlreadyAuthenticated] = useState(false);
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
+
+  useEffect(() => {
+    // Check if user is already authenticated
+    const checkExistingAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (data.session && !error) {
+        console.log('User already authenticated, redirecting to:', from);
+        setAlreadyAuthenticated(true);
+        // Small timeout to ensure state update before navigation
+        setTimeout(() => {
+          navigate(from);
+        }, 100);
+      }
+    };
+
+    // Check for confirmation token in URL (email verification flow)
+    const confirmationToken = searchParams.get('confirmation_token');
+    if (confirmationToken) {
+      // Let Supabase handle the confirmation token automatically
+      console.log('Email confirmation token detected. Handling confirmation...');
+    }
+
+    if (isSupabaseReady) {
+      checkExistingAuth();
+    }
+  }, [from, navigate, isSupabaseReady, searchParams]);
 
   const handleRegistrationSuccess = () => {
     setRegistrationComplete(true);
@@ -30,6 +58,18 @@ const Auth = () => {
   const handleOnboardingSkip = () => {
     navigate(from);
   };
+
+  // If already authenticated, show a loading state until redirect happens
+  if (alreadyAuthenticated) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
+        <div className="text-center">
+          <p className="mb-2 text-green-700">Sie sind bereits angemeldet.</p>
+          <p className="text-sm text-gray-500">Weiterleitung zur gewünschten Seite...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-green-50 to-white">

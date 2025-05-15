@@ -44,18 +44,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting to sign in with:', data.email);
+      
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
       if (error) {
+        console.error('Login error:', error);
         throw error;
       }
 
+      if (!authData.session) {
+        throw new Error('Keine Sitzung zurückgegeben');
+      }
+
+      console.log('Login successful, session established:', !!authData.session);
       toast.success('Erfolgreich eingeloggt!');
-      navigate(redirectTo);
+      
+      // Add a small delay to ensure the auth state is updated before navigation
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 300);
     } catch (error: any) {
+      console.error('Login error details:', error);
       toast.error('Fehler beim Einloggen: ' + (error.message || 'Unbekannter Fehler'));
     } finally {
       setIsLoading(false);
