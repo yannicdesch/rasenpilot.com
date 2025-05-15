@@ -63,18 +63,13 @@ const LawnAnalyzer = () => {
 
   const analyzeImage = async () => {
     if (!selectedFile) {
-      toast({
-        description: "Bitte wähle zuerst ein Foto aus.",
-        variant: "destructive",
-      });
+      toast("Bitte wähle zuerst ein Foto aus.");
       return;
     }
 
     // Check if free analyze is already used
     if (analyzesUsed >= 1 && !isAuthenticated) {
-      toast({
-        description: "Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.",
-      });
+      toast("Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.");
       
       return;
     }
@@ -90,15 +85,10 @@ const LawnAnalyzer = () => {
       setAnalysisResults(mockAnalysisResults);
       setAnalyzesUsed(prevCount => prevCount + 1);
       
-      toast({
-        description: "Die KI hat deinen Rasen analysiert und Empfehlungen erstellt.",
-      });
+      toast("Die KI hat deinen Rasen analysiert und Empfehlungen erstellt.");
     } catch (error) {
       console.error("Error analyzing image:", error);
-      toast({
-        description: "Bei der Analyse ist ein Fehler aufgetreten.",
-        variant: "destructive",
-      });
+      toast("Bei der Analyse ist ein Fehler aufgetreten.");
     } finally {
       setIsAnalyzing(false);
     }

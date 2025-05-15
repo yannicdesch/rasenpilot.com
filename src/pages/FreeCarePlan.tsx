@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -111,9 +110,7 @@ const FreeCarePlan: React.FC = () => {
   useEffect(() => {
     // Redirect to home if there's no temporary profile
     if (!temporaryProfile) {
-      toast({
-        description: "Bitte fülle zuerst das Rasenformular aus."
-      });
+      toast("Bitte fülle zuerst das Rasenformular aus.");
       navigate('/free-plan');
       return;
     }
@@ -140,17 +137,13 @@ const FreeCarePlan: React.FC = () => {
     updatedTasks[index].completed = true;
     setTasks(updatedTasks);
     
-    toast({
-      description: "Aufgabe als erledigt markiert"
-    });
+    toast("Aufgabe als erledigt markiert");
   };
 
   const handlePhotoUpload = () => {
     // Show upgrade prompt after first attempt to upload photo
     setShowUpgradePrompt(true);
-    toast({
-      description: "Foto-Checks sind Teil des Pro-Plans. Registriere dich jetzt!"
-    });
+    toast("Foto-Checks sind Teil des Pro-Plans. Registriere dich jetzt!");
   };
   
   const handleChatbotRedirect = () => {

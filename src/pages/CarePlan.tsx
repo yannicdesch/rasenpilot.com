@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -6,7 +5,7 @@ import WeatherInfo from '@/components/WeatherInfo';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle, Clock, Droplet, Sun, Wind } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/hooks/use-toast';
 import { useLawn } from '@/context/LawnContext';
 import { generateCarePlan, CarePlanTask, fetchWeatherData, WeatherData } from '@/services/lawnService';
 
@@ -48,11 +47,7 @@ const CarePlan = () => {
     
     // Redirect to home if there's no profile
     if (!isProfileComplete) {
-      toast({
-        title: "Profil unvollständig",
-        description: "Bitte erstellen Sie erst Ihr Rasenprofil.",
-        variant: "destructive"
-      });
+      toast("Profil unvollständig. Bitte erstellen Sie erst Ihr Rasenprofil.");
       navigate('/');
       return;
     }
@@ -66,11 +61,7 @@ const CarePlan = () => {
       })
       .catch(error => {
         console.error("Error generating care plan:", error);
-        toast({
-          title: "Fehler",
-          description: "Beim Generieren Ihres Pflegeplans ist ein Fehler aufgetreten.",
-          variant: "destructive"
-        });
+        toast("Beim Generieren Ihres Pflegeplans ist ein Fehler aufgetreten.");
         setLoading(false);
       });
       
@@ -94,17 +85,11 @@ const CarePlan = () => {
       task.id === id ? { ...task, completed: true } : task
     ));
     
-    toast({
-      title: "Aufgabe als erledigt markiert",
-      description: "Ihr Pflegeplan wurde aktualisiert."
-    });
+    toast("Aufgabe als erledigt markiert. Ihr Pflegeplan wurde aktualisiert.");
   };
 
   const setReminder = (id: number) => {
-    toast({
-      title: "Erinnerung gesetzt",
-      description: "Sie erhalten eine Benachrichtigung, wenn es Zeit für diese Aufgabe ist."
-    });
+    toast("Erinnerung gesetzt. Sie erhalten eine Benachrichtigung, wenn es Zeit für diese Aufgabe ist.");
   };
 
   if (loading) {
