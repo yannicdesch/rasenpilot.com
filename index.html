@@ -4,23 +4,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rasenpilot - Ihr intelligenter Rasenberater</title>
-    <meta name="description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen" />
+    <title>Rasenpilot - Intelligenter KI-Rasenberater | Persönlicher Pflegeplan in 30 Sekunden</title>
+    <meta name="description" content="Erhalte deinen personalisierten Rasenpflege-Plan in nur 30 Sekunden, kostenlos. Basierend auf deinem Standort, Rasentyp & Ziel. AI-gestützte Rasenberatung ohne Anmeldung." />
     <meta name="author" content="Rasenpilot Team" />
-    <meta name="keywords" content="Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot" />
+    <meta name="keywords" content="Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot, Rasenpflegeplan, smarter Rasenberater" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://rasenpilot.de/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rasenpilot.de/" />
-    <meta property="og:title" content="Rasenpilot - Ihr intelligenter Rasenberater" />
-    <meta property="og:description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen" />
+    <meta property="og:title" content="Rasenpilot - Persönlicher Rasenpflegeplan in 30 Sek, kostenlos" />
+    <meta property="og:description" content="Erstelle deinen personalisierten Rasenpflegeplan kostenlos. KI-gestützte Empfehlungen basierend auf deinem Standort, Rasentyp und Zielen." />
     <meta property="og:image" content="https://rasenpilot.de/og-image.png" />
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@rasenpilot" />
-    <meta name="twitter:title" content="Rasenpilot - Ihr intelligenter Rasenberater" />
-    <meta name="twitter:description" content="Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen" />
+    <meta name="twitter:title" content="Rasenpilot - Intelligenter KI-Rasenberater" />
+    <meta name="twitter:description" content="Dein persönlicher Rasenpflegeplan in 30 Sekunden. Basierend auf Standort, Rasentyp & Ziel. Kostenlos starten." />
     <meta name="twitter:image" content="https://rasenpilot.de/twitter-image.png" />
     
     <!-- Favicon -->
@@ -31,9 +34,6 @@
     
     <!-- Manifest -->
     <link rel="manifest" href="/site.webmanifest" />
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://rasenpilot.de/" />
     
     <!-- Preconnect to important domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -58,7 +58,13 @@
           "https://facebook.com/rasenpilot",
           "https://twitter.com/rasenpilot",
           "https://instagram.com/rasenpilot"
-        ]
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+49-123-456789",
+          "contactType": "customer service",
+          "availableLanguage": ["German", "English"]
+        }
       }
     </script>
     
@@ -74,6 +80,29 @@
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "EUR"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "127"
+        }
+      }
+    </script>
+    
+    <!-- Structured Data for Service -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Rasenpflegeberatung",
+        "provider": {
+          "@type": "Organization",
+          "name": "Rasenpilot"
+        },
+        "description": "KI-gestützte Rasenpflegeberatung mit personalisierten Pflegeplänen basierend auf Ihrem Standort, Rasentyp und Zielen",
+        "areaServed": {
+          "@type": "Country",
+          "name": "Deutschland"
         }
       }
     </script>

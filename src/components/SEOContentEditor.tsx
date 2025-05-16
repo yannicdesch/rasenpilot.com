@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { FileText, Book, BookOpen, Search } from 'lucide-react';
-import { toast } from './ui/use-toast';
+import { toast } from 'sonner';
 
 export type SEOContentType = {
   title: string;
@@ -18,10 +18,10 @@ export type SEOContentType = {
 }
 
 const initialContent: SEOContentType = {
-  title: 'Rasenpflege für den perfekten Rasen - Expertentipps',
-  description: 'Entdecken Sie die besten Tipps und Techniken für die Rasenpflege. Mit unserem kostenlosen Rasen-Check und individuellen Pflegeplänen zu einem gesunden, grünen Rasen.',
-  keywords: 'Rasenpflege, Rasen düngen, Rasen mähen, gesunder Rasen, Rasen-Check, Rasenpilot',
-  content: 'Ein perfekter Rasen beginnt mit der richtigen Pflege. Regelmäßiges Mähen, ausreichende Bewässerung und gezielte Düngung sind die Grundlagen für einen gesunden, grünen Rasen. Mit unserem kostenlosen Rasen-Check erhalten Sie einen individuellen Pflegeplan, der genau auf Ihren Standort, Rasentyp und Ihre Ziele abgestimmt ist.',
+  title: 'Rasenpilot - Intelligenter KI-Rasenberater | Persönlicher Pflegeplan in 30 Sekunden',
+  description: 'Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden. KI-gestützte Empfehlungen basierend auf deinem Standort, Rasentyp und Zielen für einen perfekten Rasen.',
+  keywords: 'Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot, Rasenpflegeplan kostenlos, Rasenberatung, intelligenter Rasenberater',
+  content: 'Einen gesunden, grünen Rasen zu pflegen erfordert Fachwissen und regelmäßige Pflege. Mit dem Rasenpilot erhalten Sie einen personalisierten Pflegeplan, der speziell auf Ihren Standort, Rasentyp und Ihre individuellen Ziele abgestimmt ist. Unser KI-gestützter Rasenberater analysiert lokale Wetterbedingungen, Bodenbeschaffenheit und saisonale Faktoren, um Ihnen tägliche Aufgaben und Tipps für einen perfekten Rasen zu geben. Starten Sie kostenlos in nur 30 Sekunden – ohne Anmeldung erforderlich. Für fortgeschrittene Funktionen wie Rasen-Analyzer mit KI-Diagnose von Krankheiten und Nährstoffmangel sowie einen persönlichen AI-Chatbot für all Ihre Rasenfragen bieten wir Premium-Pläne an.',
   lastUpdated: new Date().toISOString()
 }
 
