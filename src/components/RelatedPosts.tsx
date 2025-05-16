@@ -2,20 +2,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-
-interface BlogPostData {
-  id: number;
-  title: string;
-  slug: string;
-  image: string;
-  excerpt: string;
-  date: string;
-  category: string;
-  readTime: number;
-}
+import { BlogPost } from '../data/blogPosts';
 
 interface RelatedPostsProps {
-  posts: BlogPostData[];
+  posts: BlogPost[];
 }
 
 const RelatedPosts: React.FC<RelatedPostsProps> = ({ posts }) => {

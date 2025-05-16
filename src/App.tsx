@@ -26,6 +26,8 @@ import FreeLawnAnalysis from "@/pages/FreeLawnAnalysis";
 import FreeWeather from "@/pages/FreeWeather";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminPanel from "@/pages/AdminPanel";
+import BlogOverview from "@/pages/BlogOverview";
+import BlogPost from "@/pages/BlogPost";
 
 function App() {
   return (
@@ -43,6 +45,8 @@ function App() {
           <Route path="/free-analysis" element={<FreeLawnAnalysis />} />
           <Route path="/free-weather" element={<FreeWeather />} />
           <Route path="/features" element={<FeaturesBehindRegistration />} />
+          <Route path="/blog-overview" element={<BlogOverview />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           
           {/* Protected Routes - Fixed to properly check authentication */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
