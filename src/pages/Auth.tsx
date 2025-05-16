@@ -35,7 +35,16 @@ const Auth = () => {
       
       try {
         console.log('Checking for existing auth session...');
-        setCheckingAuth(true);
+        
+        // Check for auth_initialized flag that indicates we just logged in
+        const authInitialized = localStorage.getItem('auth_initialized');
+        if (authInitialized) {
+          console.log('Auth just initialized, skipping check and redirecting');
+          localStorage.removeItem('auth_initialized');
+          setAlreadyAuthenticated(true);
+          navigate(from);
+          return;
+        }
         
         const { data, error } = await supabase.auth.getSession();
         
@@ -55,14 +64,14 @@ const Auth = () => {
             await syncProfileWithSupabase();
           }
           
-          // Immediate navigation instead of timeout
+          // Immediate navigation
           navigate(from);
         } else {
           console.log('No active session found');
+          setCheckingAuth(false);
         }
       } catch (error) {
         console.error('Unexpected error checking authentication:', error);
-      } finally {
         setCheckingAuth(false);
       }
     };
@@ -70,7 +79,6 @@ const Auth = () => {
     // Check for confirmation token in URL (email verification flow)
     const confirmationToken = searchParams.get('confirmation_token');
     if (confirmationToken) {
-      // Let Supabase handle the confirmation token automatically
       console.log('Email confirmation token detected. Handling confirmation...');
       toast.info('E-Mail wird bestätigt...');
     }
@@ -116,17 +124,6 @@ const Auth = () => {
     navigate(from);
   };
 
-  // If checking auth state, show a loading state
-  if (checkingAuth) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
-        <div className="text-center">
-          <p className="text-sm text-gray-500">Überprüfe Anmeldestatus...</p>
-        </div>
-      </div>
-    );
-  }
-
   // If already authenticated, show a loading state until redirect happens
   if (alreadyAuthenticated) {
     return (
@@ -134,6 +131,24 @@ const Auth = () => {
         <div className="text-center">
           <p className="mb-2 text-green-700">Sie sind bereits angemeldet.</p>
           <p className="text-sm text-gray-500">Weiterleitung zur gewünschten Seite...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If checking auth state (and not already determined to be authenticated)
+  // Show the loading state for max 1 second, then just show the form anyway
+  if (checkingAuth) {
+    // Set a timeout to stop showing the loading state after 1 second
+    setTimeout(() => {
+      setCheckingAuth(false);
+    }, 1000);
+    
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4 mx-auto"></div>
+          <p className="text-sm text-gray-500">Überprüfe Anmeldestatus...</p>
         </div>
       </div>
     );

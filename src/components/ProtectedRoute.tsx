@@ -14,6 +14,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
+    // If auth_initialized is true, user just logged in, so we can skip the check
+    const authInitialized = localStorage.getItem('auth_initialized');
+    if (authInitialized) {
+      console.log('Auth initialized flag found, bypassing authentication check');
+      setIsAuthenticated(true);
+      setIsLoading(false);
+      localStorage.removeItem('auth_initialized');
+      return;
+    }
+
     const checkAuth = async () => {
       try {
         // Short circuit if Supabase is not configured
@@ -52,14 +62,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           });
         }
         
-        // Complete loading regardless of authentication status
-        setIsLoading(false);
+        // Maximum loading time of 2 seconds to prevent getting stuck
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 2000);
       } catch (error) {
         console.error('Error checking authentication:', error);
         setIsAuthenticated(false);
         setIsLoading(false);
       }
     };
+
+    // Set maximum timeout for loading state
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.log('Auth check timeout reached, forcing completion');
+        setIsLoading(false);
+        setIsAuthenticated(false);
+      }
+    }, 3000);
 
     checkAuth();
 
@@ -77,13 +98,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     });
   
     return () => {
+      clearTimeout(timeout);
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
   }, []);
 
-  // Show a better loading state with visual feedback
+  // Show a better loading state with visual feedback, but only for a short time
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
