@@ -62,9 +62,10 @@ const SEOContentEditor = () => {
     setSEOContent(updatedContent);
     setSavedStatus('Inhalte erfolgreich gespeichert!');
     
-    // Show toast notification - fixed this line
-    toast.success("SEO-Inhalte gespeichert", {
-      description: "Ihre SEO-Inhalte wurden erfolgreich aktualisiert."
+    // Show toast notification
+    toast({
+      title: "SEO-Inhalte gespeichert",
+      description: "Ihre SEO-Inhalte wurden erfolgreich aktualisiert.",
     });
     
     setTimeout(() => {
