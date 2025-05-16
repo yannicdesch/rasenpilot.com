@@ -28,6 +28,11 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already authenticated
     const checkExistingAuth = async () => {
+      if (!isSupabaseReady) {
+        setCheckingAuth(false);
+        return;
+      }
+      
       try {
         console.log('Checking for existing auth session...');
         setCheckingAuth(true);
@@ -36,6 +41,7 @@ const Auth = () => {
         
         if (error) {
           console.error('Error checking auth session:', error);
+          setCheckingAuth(false);
           return;
         }
         
@@ -49,10 +55,8 @@ const Auth = () => {
             await syncProfileWithSupabase();
           }
           
-          // Small timeout to ensure state update before navigation
-          setTimeout(() => {
-            navigate(from);
-          }, 300);
+          // Immediate navigation instead of timeout
+          navigate(from);
         } else {
           console.log('No active session found');
         }
@@ -71,40 +75,31 @@ const Auth = () => {
       toast.info('E-Mail wird bestätigt...');
     }
 
-    if (isSupabaseReady) {
-      checkExistingAuth();
-    } else {
-      setCheckingAuth(false);
-    }
+    checkExistingAuth();
   
     // Set up auth listener
-    try {
-      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth state changed:', event, !!session);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, !!session);
+      
+      if (event === 'SIGNED_IN' && session) {
+        // If we have temporary profile data, sync it
+        if (temporaryProfile) {
+          console.log('Found temporary profile data, syncing after sign in');
+          await syncProfileWithSupabase();
+        }
         
-        if (event === 'SIGNED_IN' && session) {
-          // If we have temporary profile data, sync it
-          if (temporaryProfile) {
-            console.log('Found temporary profile data, syncing after sign in');
-            await syncProfileWithSupabase();
-          }
-          
-          toast.success('Erfolgreich eingeloggt!');
-          navigate(from);
-        } else if (event === 'SIGNED_OUT') {
-          toast.info('Abgemeldet');
-        }
-      });
+        toast.success('Erfolgreich eingeloggt!');
+        navigate(from);
+      } else if (event === 'SIGNED_OUT') {
+        toast.info('Abgemeldet');
+      }
+    });
   
-      return () => {
-        if (authListener?.subscription) {
-          authListener.subscription.unsubscribe();
-        }
-      };
-    } catch (error) {
-      console.error('Error setting up auth listener:', error);
-      return () => {};
-    }
+    return () => {
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
   }, [from, navigate, isSupabaseReady, searchParams, temporaryProfile, syncProfileWithSupabase]);
 
   const handleRegistrationSuccess = () => {

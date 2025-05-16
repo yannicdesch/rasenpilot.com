@@ -61,18 +61,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
       }
 
       console.log('Login successful, session established:', !!authData.session);
-      
-      // Set session in local storage to ensure it's immediately available
-      // This is handled by Supabase client but we're making it explicit
-      window.localStorage.setItem('supabase.auth.token', JSON.stringify(authData.session));
-      
       toast.success('Erfolgreich eingeloggt!');
       
-      // Add a slightly longer delay to ensure the auth state is properly updated
-      setTimeout(() => {
-        console.log('Redirecting to:', redirectTo);
-        navigate(redirectTo);
-      }, 500);
+      // Navigate directly without timeout
+      navigate(redirectTo);
     } catch (error: any) {
       console.error('Login error details:', error);
       let errorMessage = 'Unbekannter Fehler';
