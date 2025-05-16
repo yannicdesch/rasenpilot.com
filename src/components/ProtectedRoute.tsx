@@ -38,6 +38,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         }
 
         // Get the current session
+        console.log('Checking for session in ProtectedRoute');
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -76,7 +77,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       }
     };
 
-    // Set shorter timeout for loading state (500ms max)
+    // Set shorter timeout for loading state (300ms max)
     const timeout = setTimeout(() => {
       if (isLoading) {
         console.log('Auth check timeout reached, forcing completion');
@@ -94,7 +95,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           });
         }
       }
-    }, 500); // Reduce timeout to 500ms for faster UX
+    }, 300); // Reduce timeout to 300ms for faster UX
 
     checkAuth();
 
@@ -120,7 +121,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   // Show a better loading state with visual feedback, but only for a short time
   if (isLoading) {

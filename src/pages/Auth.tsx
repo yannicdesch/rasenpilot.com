@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
@@ -98,6 +99,7 @@ const Auth = () => {
         }
         
         toast.success('Erfolgreich eingeloggt!');
+        localStorage.setItem('auth_initialized', 'true');
         
         // Force immediate hard redirect
         window.location.href = from;
@@ -130,11 +132,11 @@ const Auth = () => {
   const handleOnboardingComplete = async (data: any) => {
     // Sync profile before navigating
     await syncProfileWithSupabase();
-    navigate(from);
+    window.location.href = from;
   };
 
   const handleOnboardingSkip = () => {
-    navigate(from);
+    window.location.href = from;
   };
 
   // If already authenticated, show minimal loading and immediate redirect
