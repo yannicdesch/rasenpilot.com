@@ -55,7 +55,7 @@
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Structured Data for Organization -->
+    <!-- Enhanced Structured Data for Organization with Logo -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -63,6 +63,7 @@
         "name": "Rasenpilot",
         "url": "https://rasenpilot.de",
         "logo": "https://rasenpilot.de/logo.png",
+        "image": "https://rasenpilot.de/logo.png",
         "description": "Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen",
         "sameAs": [
           "https://facebook.com/rasenpilot",
@@ -74,6 +75,22 @@
           "telephone": "+49-123-456789",
           "contactType": "customer service",
           "availableLanguage": ["German", "English"]
+        }
+      }
+    </script>
+    
+    <!-- Website structured data with site name and search function -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Rasenpilot",
+        "alternateName": "Rasen Pilot",
+        "url": "https://rasenpilot.de",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://rasenpilot.de/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
         }
       }
     </script>
@@ -99,7 +116,7 @@
       }
     </script>
     
-    <!-- Structured Data for Service -->
+    <!-- Structured Data for Service with improved description -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -107,13 +124,70 @@
         "serviceType": "Rasenpflegeberatung",
         "provider": {
           "@type": "Organization",
-          "name": "Rasenpilot"
+          "name": "Rasenpilot",
+          "logo": "https://rasenpilot.de/logo.png"
         },
         "description": "KI-gestützte Rasenpflegeberatung mit personalisierten Pflegeplänen basierend auf Ihrem Standort, Rasentyp und Zielen",
         "areaServed": {
           "@type": "Country",
           "name": "Deutschland"
         }
+      }
+    </script>
+    
+    <!-- Breadcrumbs structured data for better navigation display -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Startseite",
+            "item": "https://rasenpilot.de/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Kostenloser Pflegeplan",
+            "item": "https://rasenpilot.de/free-plan"
+          }
+        ]
+      }
+    </script>
+
+    <!-- FAQ for search results enhancement -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Wie erstelle ich einen kostenlosen Rasenpflegeplan?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Geben Sie Ihren Standort, Rasentyp und Ziele ein, um in 30 Sekunden einen personalisierten Pflegeplan zu erhalten - ohne Anmeldung."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Was ist Rasenpilot?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Rasenpilot ist ein KI-gestützter Rasenberater, der anhand Ihrer Angaben einen maßgeschneiderten Pflegeplan für Ihren Rasen erstellt und tägliche Aufgaben vorschlägt."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Muss ich mich registrieren?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nein, Sie können kostenlos und ohne Anmeldung beginnen. Eine optionale Registrierung bietet Ihnen zusätzliche Funktionen wie Fortschrittsverfolgung und Erinnerungen."
+            }
+          }
+        ]
       }
     </script>
   </body>
