@@ -114,28 +114,44 @@ export const getTaskDescription = (type: string, profile: LawnProfile): string =
 
 // Fetch weather data based on ZIP code
 export const fetchWeatherData = async (zipCode: string): Promise<WeatherData> => {
-  return new Promise((resolve) => {
+  console.log("fetchWeatherData called with zipCode:", zipCode);
+  
+  if (!zipCode || zipCode.trim() === "") {
+    console.error("Invalid ZIP code provided:", zipCode);
+    throw new Error("Invalid ZIP code");
+  }
+  
+  return new Promise((resolve, reject) => {
+    // Simulate API call with timeout
     setTimeout(() => {
-      // For German ZIP codes specific data
-      const isGermanZipCode = /^\d{5}$/.test(zipCode);
-      
-      resolve({
-        location: isGermanZipCode ? `Bereich ${zipCode}, Deutschland` : "Berlin, Deutschland",
-        current: {
-          temp: 18, // Temperatures in Celsius for Germany
-          condition: "Teilweise bewölkt",
-          humidity: 65,
-          windSpeed: 12,
-          icon: "cloud-sun"
-        },
-        forecast: [
-          { day: "Heute", high: 18, low: 10, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 10 },
-          { day: "Morgen", high: 19, low: 11, condition: "Überwiegend sonnig", icon: "sun", chanceOfRain: 5 },
-          { day: "Mittwoch", high: 17, low: 9, condition: "Regen", icon: "cloud-rain", chanceOfRain: 80 },
-          { day: "Donnerstag", high: 15, low: 8, condition: "Leichter Regen", icon: "cloud-drizzle", chanceOfRain: 60 },
-          { day: "Freitag", high: 16, low: 9, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 20 }
-        ]
-      });
+      try {
+        // For German ZIP codes specific data
+        const isGermanZipCode = /^\d{5}$/.test(zipCode);
+        
+        const weatherData = {
+          location: isGermanZipCode ? `Bereich ${zipCode}, Deutschland` : "Berlin, Deutschland",
+          current: {
+            temp: 18, // Temperatures in Celsius for Germany
+            condition: "Teilweise bewölkt",
+            humidity: 65,
+            windSpeed: 12,
+            icon: "cloud-sun"
+          },
+          forecast: [
+            { day: "Heute", high: 18, low: 10, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 10 },
+            { day: "Morgen", high: 19, low: 11, condition: "Überwiegend sonnig", icon: "sun", chanceOfRain: 5 },
+            { day: "Mittwoch", high: 17, low: 9, condition: "Regen", icon: "cloud-rain", chanceOfRain: 80 },
+            { day: "Donnerstag", high: 15, low: 8, condition: "Leichter Regen", icon: "cloud-drizzle", chanceOfRain: 60 },
+            { day: "Freitag", high: 16, low: 9, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 20 }
+          ]
+        };
+        
+        console.log("Weather data generated:", weatherData);
+        resolve(weatherData);
+      } catch (error) {
+        console.error("Error generating weather data:", error);
+        reject(error);
+      }
     }, 800);
   });
 };
