@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
@@ -42,7 +41,9 @@ const Auth = () => {
           console.log('Auth just initialized, skipping check and redirecting');
           localStorage.removeItem('auth_initialized');
           setAlreadyAuthenticated(true);
-          navigate(from);
+          
+          // Force immediate hard redirect to dashboard
+          window.location.href = from;
           return;
         }
         
@@ -64,8 +65,8 @@ const Auth = () => {
             await syncProfileWithSupabase();
           }
           
-          // Immediate navigation
-          navigate(from);
+          // Force immediate hard redirect
+          window.location.href = from;
         } else {
           console.log('No active session found');
           setCheckingAuth(false);
@@ -85,7 +86,7 @@ const Auth = () => {
 
     checkExistingAuth();
   
-    // Set up auth listener
+    // Set up auth listener with immediate redirect on sign in
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, !!session);
       
@@ -97,7 +98,9 @@ const Auth = () => {
         }
         
         toast.success('Erfolgreich eingeloggt!');
-        navigate(from);
+        
+        // Force immediate hard redirect
+        window.location.href = from;
       } else if (event === 'SIGNED_OUT') {
         toast.info('Abgemeldet');
       }
@@ -108,6 +111,16 @@ const Auth = () => {
         authListener.subscription.unsubscribe();
       }
     };
+    
+    // Set a maximum timeout for the auth check
+    const timeout = setTimeout(() => {
+      if (checkingAuth) {
+        console.log('Auth check timeout reached, forcing auth state resolution');
+        setCheckingAuth(false);
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timeout);
   }, [from, navigate, isSupabaseReady, searchParams, temporaryProfile, syncProfileWithSupabase]);
 
   const handleRegistrationSuccess = () => {
@@ -124,26 +137,20 @@ const Auth = () => {
     navigate(from);
   };
 
-  // If already authenticated, show a loading state until redirect happens
+  // If already authenticated, show minimal loading and immediate redirect
   if (alreadyAuthenticated) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="text-center">
-          <p className="mb-2 text-green-700">Sie sind bereits angemeldet.</p>
-          <p className="text-sm text-gray-500">Weiterleitung zur gewünschten Seite...</p>
+          <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4 mx-auto"></div>
+          <p className="text-green-700">Sie sind bereits angemeldet. Weiterleitung zur gewünschten Seite...</p>
         </div>
       </div>
     );
   }
 
-  // If checking auth state (and not already determined to be authenticated)
-  // Show the loading state for max 1 second, then just show the form anyway
+  // If checking auth state, show minimal loading for max 1 second
   if (checkingAuth) {
-    // Set a timeout to stop showing the loading state after 1 second
-    setTimeout(() => {
-      setCheckingAuth(false);
-    }, 1000);
-    
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="text-center">

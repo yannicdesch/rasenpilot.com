@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -12,9 +12,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // If auth_initialized is true, user just logged in, so we can skip the check
+    // If auth_initialized is true, user just logged in, so we can immediately show the protected content
     const authInitialized = localStorage.getItem('auth_initialized');
     if (authInitialized) {
       console.log('Auth initialized flag found, bypassing authentication check');
@@ -32,6 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
           setIsAuthenticated(false);
           setIsLoading(false);
+          navigate('/auth', { replace: true });
           return;
         }
 
@@ -43,6 +45,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
           setIsAuthenticated(false);
           setIsLoading(false);
+          navigate('/auth', { replace: true });
           return;
         }
         
@@ -57,30 +60,41 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast('Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.', {
             action: {
               label: 'Mehr Info',
-              onClick: () => window.location.href = '/features'
+              onClick: () => navigate('/features')
             }
           });
+          navigate('/auth', { replace: true });
         }
         
-        // Maximum loading time of 2 seconds to prevent getting stuck
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 2000);
+        // Complete loading state faster
+        setIsLoading(false);
       } catch (error) {
         console.error('Error checking authentication:', error);
         setIsAuthenticated(false);
         setIsLoading(false);
+        navigate('/auth', { replace: true });
       }
     };
 
-    // Set maximum timeout for loading state
+    // Set shorter timeout for loading state (500ms max)
     const timeout = setTimeout(() => {
       if (isLoading) {
         console.log('Auth check timeout reached, forcing completion');
         setIsLoading(false);
-        setIsAuthenticated(false);
+        
+        // If we're still not sure of the auth state after timeout, try to check one more time
+        if (isAuthenticated === null) {
+          supabase.auth.getSession().then(({ data }) => {
+            const hasSession = !!data.session;
+            setIsAuthenticated(hasSession);
+            
+            if (!hasSession) {
+              navigate('/auth', { replace: true });
+            }
+          });
+        }
       }
-    }, 3000);
+    }, 500); // Reduce timeout to 500ms for faster UX
 
     checkAuth();
 
@@ -92,8 +106,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       setIsAuthenticated(!!session);
       setIsLoading(false);
       
-      if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_IN') {
+        toast.success('Erfolgreich eingeloggt!');
+      } else if (event === 'SIGNED_OUT') {
         toast.info('Sie wurden abgemeldet');
+        navigate('/auth', { replace: true });
       }
     });
   
@@ -103,7 +120,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, []);
+  }, [navigate]);
 
   // Show a better loading state with visual feedback, but only for a short time
   if (isLoading) {
@@ -116,7 +133,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // If authenticated, render the children (protected content)
-  // If not authenticated, redirect to the login page
+  // If not authenticated, navigate to the login page
   return isAuthenticated ? 
     <>{children}</> : 
     <Navigate to="/auth" state={{ from: location }} replace />;

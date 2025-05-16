@@ -67,8 +67,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
       
       toast.success('Erfolgreich eingeloggt!');
       
-      // Force a hard navigation to ensure complete page reload
-      window.location.href = redirectTo;
+      // First try to use navigate for a cleaner transition
+      try {
+        navigate(redirectTo, { replace: true });
+        
+        // Add fallback redirect after a short delay if navigate doesn't work
+        setTimeout(() => {
+          if (window.location.pathname === '/auth') {
+            console.log('Fallback: Using direct location change for redirect');
+            window.location.href = redirectTo;
+          }
+        }, 300);
+      } catch (navigationError) {
+        console.error('Navigation error:', navigationError);
+        // If navigate fails, use direct location change
+        window.location.href = redirectTo;
+      }
     } catch (error: any) {
       console.error('Login error details:', error);
       let errorMessage = 'Unbekannter Fehler';
