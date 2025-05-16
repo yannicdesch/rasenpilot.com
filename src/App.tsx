@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { Toaster } from "@/components/ui/toaster";
@@ -28,6 +27,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminPanel from "@/pages/AdminPanel";
 import BlogOverview from "@/pages/BlogOverview";
 import BlogPost from "@/pages/BlogPost";
+import LogoGeneratorPage from "@/pages/LogoGeneratorPage";
 
 function App() {
   return (
@@ -64,7 +64,10 @@ function App() {
           
           {/* Legacy route */}
           <Route path="/home" element={<Index />} />
-
+          
+          {/* Add the LogoGenerator route */}
+          <Route path="/logo-generator" element={<LogoGeneratorPage />} />
+          
           {/* Catch all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
