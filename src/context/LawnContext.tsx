@@ -27,6 +27,14 @@ export interface LawnTask {
   category?: string;
 }
 
+export interface UserData {
+  id: string;
+  email: string;
+  role?: 'user' | 'admin';
+  createdAt?: string;
+  lastSignIn?: string;
+}
+
 export interface SubscriptionDetails {
   isSubscribed: boolean;
   plan: 'free' | 'monthly' | 'yearly' | 'lifetime' | null;
@@ -50,6 +58,7 @@ interface LawnContextType {
   subscriptionDetails: SubscriptionDetails;
   updateSubscriptionDetails: (details: Partial<SubscriptionDetails>) => void;
   checkSubscriptionStatus: () => Promise<void>;
+  userData: UserData | null;
 }
 
 const LawnContext = createContext<LawnContextType | undefined>(undefined);
@@ -71,6 +80,9 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  
+  // User data
+  const [userData, setUserData] = useState<UserData | null>(null);
   
   // Subscription details
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails>({
@@ -104,22 +116,64 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
-  // Check authentication status
+  // Check authentication status and fetch user data
   const checkAuthentication = async (): Promise<boolean> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const isLoggedIn = !!session;
       setIsAuthenticated(isLoggedIn);
       
-      // If user is logged in but no profile exists, check for profile in Supabase
-      if (isLoggedIn && !profile) {
-        await fetchProfileFromSupabase();
+      // If user is logged in, fetch user data
+      if (isLoggedIn) {
+        await fetchUserData();
+        
+        // If user is logged in but no profile exists, check for profile in Supabase
+        if (!profile) {
+          await fetchProfileFromSupabase();
+        }
       }
       
       return isLoggedIn;
     } catch (error) {
       console.error("Error checking authentication:", error);
       return false;
+    }
+  };
+  
+  // Fetch user data from Supabase
+  const fetchUserData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      
+      console.log("Fetching user data for:", session.user.id);
+      
+      // Get user information from Supabase auth
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("Error fetching user data:", userError);
+        return;
+      }
+      
+      if (user) {
+        // In a real application, you would fetch the user role from a users table
+        // For demo purposes, we'll create mock admin users
+        const isAdmin = user.user?.email?.includes('admin') || false;
+        
+        const newUserData: UserData = {
+          id: user.user?.id || '',
+          email: user.user?.email || '',
+          role: isAdmin ? 'admin' : 'user',
+          createdAt: user.user?.created_at,
+          lastSignIn: session.user.last_sign_in_at
+        };
+        
+        setUserData(newUserData);
+        console.log("User data loaded:", newUserData);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
     }
   };
   
@@ -348,8 +402,10 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log("Auth state changed:", event, "isLoggedIn:", isLoggedIn);
       
-      // If user just signed in, sync profile
+      // If user just signed in, fetch user data and sync profile
       if (event === 'SIGNED_IN') {
+        await fetchUserData();
+        
         if (profile) {
           // If there's already a profile in local storage, sync it
           await syncProfileWithSupabase();
@@ -361,6 +417,9 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Otherwise, try to fetch profile from Supabase
           await fetchProfileFromSupabase();
         }
+      } else if (event === 'SIGNED_OUT') {
+        // Clear user data on sign out
+        setUserData(null);
       }
       
       // Check subscription status when auth state changes
@@ -390,7 +449,8 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       checkAuthentication,
       subscriptionDetails,
       updateSubscriptionDetails,
-      checkSubscriptionStatus
+      checkSubscriptionStatus,
+      userData
     }}>
       {children}
     </LawnContext.Provider>
