@@ -61,10 +61,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
       }
 
       console.log('Login successful, session established:', !!authData.session);
+      
+      // Set explicit flag in localStorage to help with auth detection
+      localStorage.setItem('auth_initialized', 'true');
+      
       toast.success('Erfolgreich eingeloggt!');
       
-      // Navigate directly without timeout
-      navigate(redirectTo);
+      // Force a hard navigation to ensure complete page reload
+      window.location.href = redirectTo;
     } catch (error: any) {
       console.error('Login error details:', error);
       let errorMessage = 'Unbekannter Fehler';
