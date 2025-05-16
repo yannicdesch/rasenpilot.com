@@ -77,7 +77,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       }
     };
 
-    // Set shorter timeout for loading state (300ms max)
+    // Set shorter timeout for loading state (150ms max)
     const timeout = setTimeout(() => {
       if (isLoading) {
         console.log('Auth check timeout reached, forcing completion');
@@ -92,11 +92,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             if (!hasSession) {
               navigate('/auth', { replace: true });
             }
+          }).catch(() => {
+            navigate('/auth', { replace: true });
           });
         }
       }
-    }, 300); // Reduce timeout to 300ms for faster UX
+    }, 150); // Reduced timeout to 150ms for faster UX
 
+    // Start auth check process
     checkAuth();
 
     // Set up auth listener to respond to auth state changes in real-time
@@ -123,12 +126,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
   }, [navigate, location.pathname]);
 
-  // Show a better loading state with visual feedback, but only for a short time
+  // Show a better loading state with visual feedback, but only for a very short time
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
-        <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4"></div>
-        <p className="text-green-800">Authentifizierung wird überprüft...</p>
+        <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mb-3"></div>
+        <p className="text-green-800 text-sm">Authentifizierung wird überprüft...</p>
       </div>
     );
   }

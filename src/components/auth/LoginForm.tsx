@@ -11,6 +11,7 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 import { Mail, Lock } from 'lucide-react';
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { Progress } from '@/components/ui/progress';
 
 const loginSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -27,6 +28,10 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  
+  // Add login timeout handling
+  const [loginProgress, setLoginProgress] = useState(0);
+  const [showProgress, setShowProgress] = useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -43,6 +48,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
     }
 
     setIsLoading(true);
+    setShowProgress(true);
+    
+    // Set up progress animation
+    let progressInterval = setInterval(() => {
+      setLoginProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return prev + 10;
+      });
+    }, 300);
+    
+    // Set timeout to prevent infinite loading
+    const loginTimeout = setTimeout(() => {
+      setIsLoading(false);
+      setShowProgress(false);
+      clearInterval(progressInterval);
+      toast.error('Anmeldung fehlgeschlagen. Zeitüberschreitung bei der Verbindung zum Server.');
+    }, 10000);
+
     try {
       console.log('Attempting to sign in with:', data.email);
       
@@ -50,6 +76,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
         email: data.email,
         password: data.password,
       });
+
+      clearTimeout(loginTimeout);
+      clearInterval(progressInterval);
 
       if (error) {
         console.error('Login error:', error);
@@ -67,11 +96,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
       
       toast.success('Erfolgreich eingeloggt!');
       
-      // Force a hard redirect to ensure full page reload
+      // Ensure we complete the progress bar before redirecting
+      setLoginProgress(100);
+      
+      // Force a hard redirect to ensure full page reload after a short delay
       console.log('Redirecting to:', redirectTo);
-      window.location.href = redirectTo;
+      setTimeout(() => {
+        window.location.href = redirectTo;
+      }, 500);
       
     } catch (error: any) {
+      clearTimeout(loginTimeout);
+      clearInterval(progressInterval);
+      
       console.error('Login error details:', error);
       let errorMessage = 'Unbekannter Fehler';
       
@@ -86,6 +123,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
       toast.error('Fehler beim Einloggen: ' + errorMessage);
     } finally {
       setIsLoading(false);
+      setShowProgress(false);
     }
   };
 
@@ -103,7 +141,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="deine@email.de" className="pl-10" {...field} />
+                      <Input placeholder="deine@email.de" className="pl-10" {...field} disabled={isLoading} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -119,13 +157,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input type="password" className="pl-10" {...field} />
+                      <Input type="password" className="pl-10" {...field} disabled={isLoading} />
                     </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {showProgress && (
+              <div className="py-2">
+                <Progress value={loginProgress} className="h-2" />
+              </div>
+            )}
             <div className="text-right">
               <Button
                 variant="link"
@@ -134,6 +177,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
                   e.preventDefault();
                   onForgotPassword();
                 }}
+                disabled={isLoading}
               >
                 Passwort vergessen?
               </Button>

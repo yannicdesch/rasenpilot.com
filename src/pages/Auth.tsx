@@ -10,6 +10,7 @@ import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-do
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useLawn } from '@/context/LawnContext';
+import { Progress } from '@/components/ui/progress';
 
 const Auth = () => {
   // Check if Supabase is configured
@@ -20,16 +21,35 @@ const Auth = () => {
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [alreadyAuthenticated, setAlreadyAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [authProgress, setAuthProgress] = useState(0);
   const { temporaryProfile, syncProfileWithSupabase } = useLawn();
   
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
 
   useEffect(() => {
+    let progressTimer: number | null = null;
+    
+    // Start progress animation
+    if (checkingAuth) {
+      progressTimer = window.setInterval(() => {
+        setAuthProgress(prev => Math.min(prev + 10, 90));
+      }, 100);
+    }
+    
+    // Enforce max time for auth check
+    const maxAuthCheckTime = setTimeout(() => {
+      if (checkingAuth) {
+        setCheckingAuth(false);
+        if (progressTimer) clearInterval(progressTimer);
+      }
+    }, 2000);
+    
     // Check if user is already authenticated
     const checkExistingAuth = async () => {
       if (!isSupabaseReady) {
         setCheckingAuth(false);
+        if (progressTimer) clearInterval(progressTimer);
         return;
       }
       
@@ -43,8 +63,13 @@ const Auth = () => {
           localStorage.removeItem('auth_initialized');
           setAlreadyAuthenticated(true);
           
+          // Complete progress animation
+          setAuthProgress(100);
+          
           // Force immediate hard redirect to dashboard
-          window.location.href = from;
+          setTimeout(() => {
+            window.location.href = from;
+          }, 300);
           return;
         }
         
@@ -53,6 +78,7 @@ const Auth = () => {
         if (error) {
           console.error('Error checking auth session:', error);
           setCheckingAuth(false);
+          if (progressTimer) clearInterval(progressTimer);
           return;
         }
         
@@ -60,21 +86,28 @@ const Auth = () => {
           console.log('User already authenticated, redirecting to:', from);
           setAlreadyAuthenticated(true);
           
+          // Complete progress animation
+          setAuthProgress(100);
+          
           // If we have temporary profile data, sync it first
           if (temporaryProfile) {
             console.log('Found temporary profile data, syncing before redirect');
             await syncProfileWithSupabase();
           }
           
-          // Force immediate hard redirect
-          window.location.href = from;
+          // Force immediate hard redirect after a short delay
+          setTimeout(() => {
+            window.location.href = from;
+          }, 300);
         } else {
           console.log('No active session found');
           setCheckingAuth(false);
+          if (progressTimer) clearInterval(progressTimer);
         }
       } catch (error) {
         console.error('Unexpected error checking authentication:', error);
         setCheckingAuth(false);
+        if (progressTimer) clearInterval(progressTimer);
       }
     };
 
@@ -92,6 +125,9 @@ const Auth = () => {
       console.log('Auth state changed:', event, !!session);
       
       if (event === 'SIGNED_IN' && session) {
+        // Complete progress animation
+        setAuthProgress(100);
+        
         // If we have temporary profile data, sync it
         if (temporaryProfile) {
           console.log('Found temporary profile data, syncing after sign in');
@@ -101,28 +137,23 @@ const Auth = () => {
         toast.success('Erfolgreich eingeloggt!');
         localStorage.setItem('auth_initialized', 'true');
         
-        // Force immediate hard redirect
-        window.location.href = from;
+        // Force immediate hard redirect after a short delay
+        setTimeout(() => {
+          window.location.href = from;
+        }, 300);
       } else if (event === 'SIGNED_OUT') {
         toast.info('Abgemeldet');
       }
     });
   
     return () => {
+      if (progressTimer) clearInterval(progressTimer);
+      clearTimeout(maxAuthCheckTime);
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
     
-    // Set a maximum timeout for the auth check
-    const timeout = setTimeout(() => {
-      if (checkingAuth) {
-        console.log('Auth check timeout reached, forcing auth state resolution');
-        setCheckingAuth(false);
-      }
-    }, 1000);
-    
-    return () => clearTimeout(timeout);
   }, [from, navigate, isSupabaseReady, searchParams, temporaryProfile, syncProfileWithSupabase]);
 
   const handleRegistrationSuccess = () => {
@@ -144,7 +175,8 @@ const Auth = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4 mx-auto"></div>
+          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mb-3 mx-auto"></div>
+          <Progress value={authProgress} className="w-64 h-1.5 mb-3" />
           <p className="text-green-700">Sie sind bereits angemeldet. Weiterleitung zur gewünschten Seite...</p>
         </div>
       </div>
@@ -156,13 +188,15 @@ const Auth = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4 mx-auto"></div>
+          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mb-3 mx-auto"></div>
+          <Progress value={authProgress} className="w-64 h-1.5 mb-3" />
           <p className="text-sm text-gray-500">Überprüfe Anmeldestatus...</p>
         </div>
       </div>
     );
   }
 
+  // Main auth form display
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />
