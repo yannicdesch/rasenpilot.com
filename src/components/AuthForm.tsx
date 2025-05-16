@@ -17,7 +17,7 @@ const AuthForm = ({
   onRegistrationSuccess,
   initialTab = 'login'
 }: AuthFormProps) => {
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>(initialTab);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
 
   const handleForgotPassword = () => {
@@ -42,7 +42,7 @@ const AuthForm = ({
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={(value: 'login' | 'register') => setActiveTab(value)}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Anmelden</TabsTrigger>
           <TabsTrigger value="register">Registrieren</TabsTrigger>
