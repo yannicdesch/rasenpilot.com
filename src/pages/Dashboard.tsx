@@ -6,14 +6,55 @@ import TaskTimeline from '@/components/TaskTimeline';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Check, Clock, Plus } from 'lucide-react';
+import { Calendar, Check, Clock, Plus, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
+import { toast } from 'sonner';
+import { generateCarePlan } from '@/services/lawnService';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const { profile } = useLawn();
+  const { profile, setProfile } = useLawn();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Check if profile has a zipCode but there is no care plan
+    if (profile && profile.zipCode) {
+      const savedTasks = localStorage.getItem('lawnTasks');
+      if (!savedTasks) {
+        console.log("Profile has zipCode but no care plan, generating one...");
+        generateInitialCarePlan();
+      }
+    } else {
+      // Check if we have a profile in localStorage
+      const storedProfile = localStorage.getItem('lawnProfile');
+      if (storedProfile) {
+        try {
+          const parsedProfile = JSON.parse(storedProfile);
+          console.log("Found stored profile, updating context:", parsedProfile);
+          setProfile(parsedProfile);
+        } catch (e) {
+          console.error("Error parsing stored profile:", e);
+        }
+      }
+    }
+  }, [profile, setProfile]);
+  
+  const generateInitialCarePlan = async () => {
+    if (!profile) return;
+    
+    setLoading(true);
+    try {
+      await generateCarePlan(profile);
+      console.log("Successfully generated initial care plan");
+    } catch (error) {
+      console.error("Error generating initial care plan:", error);
+      toast.error("Fehler beim Erstellen des Pflegeplans");
+    } finally {
+      setLoading(false);
+    }
+  };
   
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -50,14 +91,41 @@ const Dashboard = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <Button 
-                          className="w-full justify-start text-left text-green-700"
-                          variant="ghost"
-                          onClick={() => navigate('/care-plan')}
-                        >
-                          <Check className="mr-2 h-4 w-4" />
-                          <span>Pflegeplan öffnen</span>
-                        </Button>
+                        <div className="space-y-3">
+                          <Button 
+                            className="w-full justify-start text-left text-green-700"
+                            variant="ghost"
+                            onClick={() => navigate('/care-plan')}
+                          >
+                            <Check className="mr-2 h-4 w-4" />
+                            <span>Pflegeplan öffnen</span>
+                          </Button>
+                          
+                          <Button 
+                            className="w-full justify-start text-left text-green-700"
+                            variant="ghost"
+                            onClick={() => navigate('/free-care-plan')}
+                          >
+                            <Calendar className="mr-2 h-4 w-4" />
+                            <span>14-Tage-Pflegeplan anzeigen</span>
+                          </Button>
+                          
+                          {loading ? (
+                            <div className="flex items-center justify-center py-2">
+                              <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-green-600 border-r-transparent"></div>
+                              <span className="ml-2 text-sm text-gray-500">Plan wird erstellt...</span>
+                            </div>
+                          ) : (
+                            <Button 
+                              className="w-full justify-start text-left text-blue-600"
+                              variant="ghost"
+                              onClick={generateInitialCarePlan}
+                            >
+                              <RefreshCw className="mr-2 h-4 w-4" />
+                              <span>Pflegeplan neu generieren</span>
+                            </Button>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                     

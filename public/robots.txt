@@ -24,8 +24,16 @@ Disallow: /admin
 # Allow API endpoints to be crawled
 Allow: /api/public/
 
+# Important lawn care pages - explicitly allow
+Allow: /free-plan
+Allow: /free-care-plan
+Allow: /free-chat
+Allow: /free-analysis
+Allow: /free-weather
+Allow: /features
+
 # Sitemap
 Sitemap: https://rasenpilot.de/sitemap.xml
 
 # Crawl delay for bots
-Crawl-delay: 5
+Crawl-delay: 3

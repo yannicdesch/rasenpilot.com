@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Cloud, CloudRain, Thermometer, Wind, Clock } from 'lucide-react';
+import { Cloud, CloudRain, Thermometer, Wind, Clock, RefreshCw } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import { useLawn } from '@/context/LawnContext';
 import { fetchWeatherData } from '@/services/lawnService';
 import { toast } from 'sonner';
@@ -21,77 +22,58 @@ const WeatherWidget = () => {
 
   useEffect(() => {
     // Reset state when profile changes
-    setLoading(true);
-    setError(false);
-    
-    const loadWeather = async () => {
-      if (!profile?.zipCode) {
-        console.log("No ZIP code available in profile:", profile);
-        setLoading(false);
-        // Don't show an error if no zip code is available yet
-        return;
-      }
-      
-      try {
-        console.log("Fetching weather data for ZIP:", profile.zipCode);
-        const data = await fetchWeatherData(profile.zipCode);
-        
-        console.log("Weather data received:", data);
-        
-        // Check if we received valid data
-        if (!data || !data.current) {
-          console.error("Invalid weather data received:", data);
-          setError(true);
-          setLoading(false);
-          toast.error("Ungültige Wetterdaten erhalten");
-          return;
-        }
-        
-        setWeatherData({
-          location: data.location || "Deutschland",
-          temperature: data.current.temp,
-          condition: data.current.condition,
-          humidity: data.current.humidity,
-          windSpeed: data.current.windSpeed,
-          updated: "10 min"
-        });
-        setLoading(false);
-      } catch (error) {
-        console.error("Fehler beim Laden der Wetterdaten:", error);
-        setError(true);
-        setLoading(false);
-        toast.error("Wetterdaten konnten nicht geladen werden");
-      }
-    };
-    
-    loadWeather();
-  }, [profile?.zipCode]);
-
-  // Function for the appropriate weather icon
-  const getWeatherIcon = (condition: string) => {
-    const lowercaseCondition = condition?.toLowerCase() || '';
-    if (lowercaseCondition.includes('regen') || lowercaseCondition.includes('schauer')) {
-      return <CloudRain size={28} className="text-blue-500" />;
+    if (profile) {
+      loadWeather();
     } else {
-      return <Thermometer size={28} className="text-green-600" />;
+      // Try to load profile from localStorage if context doesn't have it yet
+      const storedProfile = localStorage.getItem('lawnProfile');
+      if (storedProfile) {
+        try {
+          const parsedProfile = JSON.parse(storedProfile);
+          if (parsedProfile.zipCode) {
+            console.log("Using zipCode from localStorage:", parsedProfile.zipCode);
+            loadWeatherByZipCode(parsedProfile.zipCode);
+          } else {
+            setLoading(false);
+            setError(true);
+          }
+        } catch (e) {
+          console.error("Error parsing stored profile:", e);
+          setLoading(false);
+          setError(true);
+        }
+      } else {
+        console.log("No profile available in context or localStorage");
+        setLoading(false);
+        setError(true);
+      }
     }
-  };
+  }, [profile]);
 
-  // Function to retry loading weather data
-  const retryLoadWeather = async () => {
+  const loadWeather = async () => {
+    if (!profile?.zipCode) {
+      console.log("No ZIP code available in profile:", profile);
+      setLoading(false);
+      setError(true);
+      return;
+    }
+    
+    await loadWeatherByZipCode(profile.zipCode);
+  };
+  
+  const loadWeatherByZipCode = async (zipCode: string) => {
     setLoading(true);
     setError(false);
     
     try {
-      if (!profile?.zipCode) {
-        setLoading(false);
-        toast.error("Keine PLZ verfügbar");
-        return;
-      }
+      console.log("Fetching weather data for ZIP:", zipCode);
+      const data = await fetchWeatherData(zipCode);
       
-      const data = await fetchWeatherData(profile.zipCode);
+      console.log("Weather data received:", data);
       
+      // Check if we received valid data
       if (!data || !data.current) {
+        console.error("Invalid weather data received:", data);
         setError(true);
         setLoading(false);
         toast.error("Ungültige Wetterdaten erhalten");
@@ -106,14 +88,46 @@ const WeatherWidget = () => {
         windSpeed: data.current.windSpeed,
         updated: "gerade eben"
       });
-      
       setLoading(false);
-      toast.success("Wetterdaten aktualisiert");
     } catch (error) {
-      console.error("Fehler beim erneuten Laden der Wetterdaten:", error);
+      console.error("Fehler beim Laden der Wetterdaten:", error);
       setError(true);
       setLoading(false);
-      toast.error("Wetterdaten konnten nicht aktualisiert werden");
+      toast.error("Wetterdaten konnten nicht geladen werden");
+    }
+  };
+
+  // Function for the appropriate weather icon
+  const getWeatherIcon = (condition: string) => {
+    const lowercaseCondition = condition?.toLowerCase() || '';
+    if (lowercaseCondition.includes('regen') || lowercaseCondition.includes('schauer')) {
+      return <CloudRain size={28} className="text-blue-500" />;
+    } else {
+      return <Thermometer size={28} className="text-green-600" />;
+    }
+  };
+
+  // Function to retry loading weather data
+  const retryLoadWeather = async () => {
+    // Get the most up-to-date zipCode
+    if (profile?.zipCode) {
+      await loadWeatherByZipCode(profile.zipCode);
+    } else {
+      // Fallback to localStorage
+      const storedProfile = localStorage.getItem('lawnProfile');
+      if (storedProfile) {
+        try {
+          const parsedProfile = JSON.parse(storedProfile);
+          if (parsedProfile.zipCode) {
+            await loadWeatherByZipCode(parsedProfile.zipCode);
+            return;
+          }
+        } catch (e) {
+          console.error("Error parsing stored profile:", e);
+        }
+      }
+      
+      toast.error("Keine PLZ verfügbar");
     }
   };
 
@@ -142,13 +156,14 @@ const WeatherWidget = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
-          <p className="text-gray-600">Aktuelle Wetterdaten konnten nicht geladen werden.</p>
-          <button 
+          <p className="text-gray-600">Aktuelle Wetterdaten konnten nicht geladen werden. Bitte stellen Sie sicher, dass eine gültige PLZ in Ihrem Profil hinterlegt ist.</p>
+          <Button 
             onClick={retryLoadWeather}
-            className="mt-2 px-4 py-1 text-sm text-green-600 border border-green-300 rounded hover:bg-green-50"
+            className="mt-4 bg-green-600 hover:bg-green-700"
           >
-            Erneut versuchen
-          </button>
+            <RefreshCw size={16} className="mr-2" />
+            Wetterdaten aktualisieren
+          </Button>
         </CardContent>
       </Card>
     );
@@ -159,7 +174,13 @@ const WeatherWidget = () => {
       <CardHeader className="bg-blue-50 py-3">
         <CardTitle className="flex justify-between items-center text-lg">
           <span className="font-semibold">{weatherData.location}</span>
-          {getWeatherIcon(weatherData.condition)}
+          <button 
+            onClick={retryLoadWeather} 
+            className="p-1 rounded-full hover:bg-blue-100 transition-colors"
+            title="Wetter aktualisieren"
+          >
+            {getWeatherIcon(weatherData.condition)}
+          </button>
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
@@ -171,7 +192,7 @@ const WeatherWidget = () => {
           <div className="grid grid-cols-1 gap-1 text-sm">
             <div className="flex items-center gap-1">
               <Clock size={14} className="text-gray-500" />
-              <span>Aktualisiert: vor {weatherData.updated}</span>
+              <span>Aktualisiert: {weatherData.updated}</span>
             </div>
             <div className="flex items-center gap-1">
               <Wind size={14} className="text-gray-500" />

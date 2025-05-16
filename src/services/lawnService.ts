@@ -63,22 +63,27 @@ export const generateCarePlan = (profile: LawnProfile): Promise<CarePlanTask[]> 
         
         const tasks: CarePlanTask[] = [];
         
-        for (let i = 0; i < 5; i++) {
+        // Generate 14 day plan (increased from 5 tasks)
+        for (let i = 0; i < 14; i++) {
           const taskDate = new Date(today);
-          taskDate.setDate(today.getDate() + i * 2);
+          taskDate.setDate(today.getDate() + i);
           
           tasks.push({
             id: i + 1,
             date: taskDate.toISOString().split('T')[0],
             title: getTaskTitle(taskTypes[i % taskTypes.length], profile.grassType || 'Standard'),
             description: getTaskDescription(taskTypes[i % taskTypes.length], profile),
-            completed: i === 0, // First task is completed
+            completed: false, // All tasks start as not completed
             type: taskTypes[i % taskTypes.length],
           });
         }
         
         // Save generated tasks to localStorage
         localStorage.setItem('lawnTasks', JSON.stringify(tasks));
+        
+        // Also update timeline tasks
+        updateTimelineTasks(tasks);
+        
         console.log("Generated and saved new tasks:", tasks.length);
         
         resolve(tasks);
@@ -88,6 +93,25 @@ export const generateCarePlan = (profile: LawnProfile): Promise<CarePlanTask[]> 
       }
     }, 1000);
   });
+};
+
+// Helper function to update timeline tasks based on care plan
+const updateTimelineTasks = (carePlanTasks: CarePlanTask[]) => {
+  try {
+    const timelineTasks = carePlanTasks.slice(0, 5).map((task, index) => ({
+      id: index + 1,
+      title: task.title,
+      dueDate: task.date,
+      category: task.type.charAt(0).toUpperCase() + task.type.slice(1),
+      completed: task.completed
+    }));
+    
+    // Save to localStorage
+    localStorage.setItem('lawnTimelineTasks', JSON.stringify(timelineTasks));
+    console.log("Updated timeline tasks:", timelineTasks.length);
+  } catch (error) {
+    console.error("Error updating timeline tasks:", error);
+  }
 };
 
 // Export task title and description functions so they can be used in other components
@@ -129,7 +153,24 @@ export const fetchWeatherData = async (zipCode: string): Promise<WeatherData> =>
   
   if (!zipCode || zipCode.trim() === "") {
     console.error("Invalid ZIP code provided:", zipCode);
-    throw new Error("Invalid ZIP code");
+    
+    // Check if we have a zipCode in localStorage as fallback
+    const storedProfile = localStorage.getItem('lawnProfile');
+    if (storedProfile) {
+      try {
+        const parsedProfile = JSON.parse(storedProfile);
+        if (parsedProfile.zipCode) {
+          console.log("Using zipCode from localStorage:", parsedProfile.zipCode);
+          zipCode = parsedProfile.zipCode;
+        }
+      } catch (e) {
+        console.error("Error parsing stored profile:", e);
+      }
+    }
+    
+    if (!zipCode || zipCode.trim() === "") {
+      throw new Error("Invalid ZIP code and no fallback available");
+    }
   }
   
   return new Promise((resolve, reject) => {
@@ -160,13 +201,46 @@ export const fetchWeatherData = async (zipCode: string): Promise<WeatherData> =>
         };
         
         console.log("Weather data generated:", weatherData);
+        
+        // Cache weather data to improve user experience
+        localStorage.setItem('lastWeatherData', JSON.stringify({
+          data: weatherData,
+          timestamp: Date.now(),
+          zipCode: zipCode
+        }));
+        
         resolve(weatherData);
       } catch (error) {
         console.error("Error generating weather data:", error);
+        
+        // Try to use cached weather data if available
+        const cachedWeather = localStorage.getItem('lastWeatherData');
+        if (cachedWeather) {
+          try {
+            const parsed = JSON.parse(cachedWeather);
+            // Only use cached data if it's less than 1 hour old
+            if (Date.now() - parsed.timestamp < 3600000) {
+              console.log("Using cached weather data");
+              return resolve(parsed.data);
+            }
+          } catch (e) {
+            console.error("Error parsing cached weather:", e);
+          }
+        }
+        
         reject(error);
       }
     }, 800);
   });
+};
+
+// Add ability to manually regenerate the care plan
+export const regenerateCarePlan = async (profile: LawnProfile): Promise<CarePlanTask[]> => {
+  // Clear existing tasks
+  localStorage.removeItem('lawnTasks');
+  
+  // Generate new care plan
+  return generateCarePlan(profile);
 };
 
 export const getWeatherBasedAdvice = (weatherData: WeatherData): string[] => {
