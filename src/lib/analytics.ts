@@ -28,7 +28,7 @@ export const initializeGA = (measurementId: string): void => {
 // Track page views
 export const trackPageView = (path: string): void => {
   if (typeof window.gtag !== 'undefined') {
-    window.gtag('config', 'G-MEASUREMENT-ID', {
+    window.gtag('config', window.gtag.arguments?.[1] || 'G-MEASUREMENT-ID', {
       page_path: path
     });
   }

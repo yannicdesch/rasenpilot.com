@@ -3,10 +3,24 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Calendar, Info, MessageSquare, Mail } from 'lucide-react';
+import { Check, Calendar, Info, MessageSquare, Mail, Lock, UserRoundPlus } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from '@/components/ui/input';
 import { toast } from "sonner";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+
+// Define schema for quick registration
+const quickRegisterSchema = z.object({
+  email: z.string().email("Bitte gib eine gültige E-Mail-Adresse ein"),
+  password: z.string().min(6, "Das Passwort muss mindestens 6 Zeichen lang sein"),
+  name: z.string().min(2, "Name muss mindestens 2 Zeichen lang sein").optional(),
+});
+
+type QuickRegisterValues = z.infer<typeof quickRegisterSchema>;
 
 interface ConversionPromptProps {
   onRegister: () => void;
@@ -19,30 +33,54 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
   onContinueWithoutRegistration,
   onQuickRegister
 }) => {
-  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleQuickRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !email.includes('@')) {
-      toast.error('Bitte gib eine gültige E-Mail-Adresse ein');
+  const form = useForm<QuickRegisterValues>({
+    resolver: zodResolver(quickRegisterSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      name: "",
+    },
+  });
+
+  const handleQuickRegister = async (data: QuickRegisterValues) => {
+    if (!isSupabaseConfigured()) {
+      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
       return;
     }
-    
+
     setIsSubmitting(true);
     
-    if (onQuickRegister) {
-      onQuickRegister(email);
-    } else {
-      // Fallback to navigate if onQuickRegister isn't provided
-      navigate('/auth?tab=register', { 
-        state: { 
-          redirectTo: '/free-care-plan',
-          prefillEmail: email 
-        } 
+    try {
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            name: data.name || "",
+          },
+        },
       });
+
+      if (error) {
+        throw error;
+      }
+
+      // Check if we have a session - user is authenticated
+      if (authData.session) {
+        toast.success('Registrierung erfolgreich!');
+        navigate('/free-care-plan');
+      } else {
+        // If confirmation is required
+        toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
+        navigate('/auth?tab=login');
+      }
+    } catch (error: any) {
+      toast.error('Fehler bei der Registrierung: ' + (error.message || 'Unbekannter Fehler'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,28 +130,72 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
             </div>
             
             {/* Quick registration form */}
-            <form onSubmit={handleQuickRegister} className="mb-4">
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <div className="relative flex-grow">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="email"
-                    placeholder="deine@email.de"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    disabled={isSubmitting}
-                  />
-                </div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleQuickRegister)} className="space-y-4 max-w-md mx-auto mb-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="relative">
+                          <UserRoundPlus className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                          <Input placeholder="Dein Name" className="pl-10" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                          <Input 
+                            placeholder="deine@email.de"
+                            type="email"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                          <Input 
+                            placeholder="Passwort (mind. 6 Zeichen)"
+                            type="password"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <Button 
                   type="submit"
-                  className="py-2 text-base bg-green-600 hover:bg-green-700 whitespace-nowrap"
+                  className="w-full py-2 text-base bg-green-600 hover:bg-green-700"
                   disabled={isSubmitting}
                 >
                   Account erstellen
                 </Button>
-              </div>
-            </form>
+              </form>
+            </Form>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button 
