@@ -99,10 +99,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) =
       // Ensure we complete the progress bar before redirecting
       setLoginProgress(100);
       
-      // Force a hard redirect to ensure full page reload after a short delay
-      console.log('Redirecting to:', redirectTo);
+      // Use navigate directly instead of a hard redirect
       setTimeout(() => {
-        window.location.href = redirectTo;
+        navigate(redirectTo, { replace: true });
       }, 500);
       
     } catch (error: any) {

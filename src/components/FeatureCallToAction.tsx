@@ -15,12 +15,17 @@ const FeatureCallToAction = ({
 }: FeatureCallToActionProps) => {
   const navigate = useNavigate();
 
+  const handleNavigateToAuth = () => {
+    // Use navigate with replace:true to avoid back button issues
+    navigate('/auth', { replace: true });
+  };
+
   if (variant === 'minimal') {
     return (
       <div className={`flex flex-wrap gap-3 ${className}`}>
         <Button 
           className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white font-medium"
-          onClick={() => navigate('/auth')}
+          onClick={handleNavigateToAuth}
         >
           <UserRound className="mr-2 h-4 w-4" />
           Kostenlos anmelden
@@ -44,7 +49,7 @@ const FeatureCallToAction = ({
           <Button 
             size="lg"
             className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white font-medium shadow-sm"
-            onClick={() => navigate('/auth')}
+            onClick={handleNavigateToAuth}
           >
             <UserRound className="mr-2 h-4 w-4" />
             Kostenlos anmelden
