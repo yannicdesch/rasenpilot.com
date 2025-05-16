@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Leaf, 
@@ -18,6 +17,7 @@ import {
 import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
+import { trackPageView } from '@/lib/analytics';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +32,13 @@ const MainNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, clearProfile } = useLawn();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
+  
+  // Track page views with Google Analytics
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location]);
   
   const handleSignOut = async () => {
     await supabase.auth.signOut();

@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
 import { useLawn } from '@/context/LawnContext';
@@ -13,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown, Bell } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { initializeGA } from '@/lib/analytics';
 
 const FreePlan = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -20,6 +20,11 @@ const FreePlan = () => {
   const { setTemporaryProfile, syncProfileWithSupabase, isAuthenticated } = useLawn();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  
+  useEffect(() => {
+    // Initialize Google Analytics with your measurement ID
+    initializeGA('G-MEASUREMENT-ID'); // Replace with your actual Google Analytics Measurement ID
+  }, []);
   
   const handleFormSubmit = async (data: any) => {
     console.log("Form submitted with data:", data);
