@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import MainNavigation from '@/components/MainNavigation';
@@ -65,9 +66,9 @@ const Index = () => {
         </div>
       ) : (
         <>
-          {/* Add Logo before MainNavigation */}
+          {/* Logo with tagline */}
           <div className="container mx-auto px-4 py-4">
-            <Logo />
+            <Logo showTagline={true} />
           </div>
           
           <MainNavigation />

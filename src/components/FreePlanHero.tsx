@@ -21,7 +21,7 @@ const FreePlanHero: React.FC = () => {
     <section className="relative overflow-hidden bg-gradient-to-br from-green-50 via-green-100 to-white py-10 md:py-20">
       {/* Logo */}
       <div className="container mx-auto px-4 mb-6">
-        <Logo className="relative z-10" />
+        <Logo className="relative z-10" showTagline={true} />
       </div>
       
       {/* Decorative elements */}

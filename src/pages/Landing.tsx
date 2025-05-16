@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, ArrowRight, Leaf, CalendarDays, CloudRain, Camera, MessageSquare, Star } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import Logo from '@/components/Logo';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -13,6 +13,11 @@ const Landing = () => {
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-white py-20">
+        {/* Add Logo at the top */}
+        <div className="container mx-auto px-4 mb-8">
+          <Logo showTagline={true} />
+        </div>
+        
         <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 space-y-6">
             <div className="inline-block bg-green-100 text-green-800 px-4 py-1 rounded-full text-sm font-medium">
