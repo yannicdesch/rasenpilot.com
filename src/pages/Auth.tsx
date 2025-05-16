@@ -66,9 +66,9 @@ const Auth = () => {
           // Complete progress animation
           setAuthProgress(100);
           
-          // Force immediate hard redirect to dashboard
+          // Use navigate instead of hard redirect
           setTimeout(() => {
-            window.location.href = from;
+            navigate(from, { replace: true });
           }, 300);
           return;
         }
@@ -95,9 +95,9 @@ const Auth = () => {
             await syncProfileWithSupabase();
           }
           
-          // Force immediate hard redirect after a short delay
+          // Use navigate instead of hard redirect
           setTimeout(() => {
-            window.location.href = from;
+            navigate(from, { replace: true });
           }, 300);
         } else {
           console.log('No active session found');
@@ -137,9 +137,9 @@ const Auth = () => {
         toast.success('Erfolgreich eingeloggt!');
         localStorage.setItem('auth_initialized', 'true');
         
-        // Force immediate hard redirect after a short delay
+        // Use navigate instead of hard redirect
         setTimeout(() => {
-          window.location.href = from;
+          navigate(from, { replace: true });
         }, 300);
       } else if (event === 'SIGNED_OUT') {
         toast.info('Abgemeldet');
@@ -163,11 +163,11 @@ const Auth = () => {
   const handleOnboardingComplete = async (data: any) => {
     // Sync profile before navigating
     await syncProfileWithSupabase();
-    window.location.href = from;
+    navigate(from, { replace: true });
   };
 
   const handleOnboardingSkip = () => {
-    window.location.href = from;
+    navigate(from, { replace: true });
   };
 
   // If already authenticated, show minimal loading and immediate redirect

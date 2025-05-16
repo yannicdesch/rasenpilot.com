@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -32,7 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
           setIsAuthenticated(false);
           setIsLoading(false);
-          navigate('/auth', { replace: true });
+          navigate('/auth', { state: { from: location }, replace: true });
           return;
         }
 
@@ -45,7 +46,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
           setIsAuthenticated(false);
           setIsLoading(false);
-          navigate('/auth', { replace: true });
+          navigate('/auth', { state: { from: location }, replace: true });
           return;
         }
         
@@ -63,7 +64,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
               onClick: () => navigate('/features')
             }
           });
-          navigate('/auth', { replace: true });
+          navigate('/auth', { state: { from: location }, replace: true });
         }
         
         // Complete loading state faster
@@ -72,7 +73,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         console.error('Error checking authentication:', error);
         setIsAuthenticated(false);
         setIsLoading(false);
-        navigate('/auth', { replace: true });
+        navigate('/auth', { state: { from: location }, replace: true });
       }
     };
 
@@ -89,10 +90,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             setIsAuthenticated(hasSession);
             
             if (!hasSession) {
-              navigate('/auth', { replace: true });
+              navigate('/auth', { state: { from: location }, replace: true });
             }
           }).catch(() => {
-            navigate('/auth', { replace: true });
+            navigate('/auth', { state: { from: location }, replace: true });
           });
         }
       }
@@ -113,7 +114,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         toast.success('Erfolgreich eingeloggt!');
       } else if (event === 'SIGNED_OUT') {
         toast.info('Sie wurden abgemeldet');
-        navigate('/auth', { replace: true });
+        navigate('/auth', { state: { from: location }, replace: true });
       }
     });
   
@@ -123,7 +124,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [navigate, location.pathname]);
+  }, [navigate, location]);
 
   // Show a better loading state with visual feedback, but only for a very short time
   if (isLoading) {
@@ -136,7 +137,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // If authenticated, render the children (protected content)
-  // If not authenticated, navigate to the login page
   return isAuthenticated ? 
     <>{children}</> : 
     <Navigate to="/auth" state={{ from: location }} replace />;
