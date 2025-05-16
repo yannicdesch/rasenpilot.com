@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -90,6 +89,40 @@ const FreePlan = () => {
     setShowForm(true);
   };
 
+  // For mobile devices, render only the onboarding wizard
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+        <MainNavigation />
+        
+        <main className="flex-grow pt-4 px-4">
+          <div className="max-w-lg mx-auto">
+            <OnboardingWizard
+              onComplete={handleOnboardingComplete}
+              onSkip={handleOnboardingSkip}
+            />
+          </div>
+          
+          {formSubmitted && (
+            <div className="mt-8 max-w-lg mx-auto">
+              <ConversionPrompt 
+                onRegister={handleRegister}
+                onContinueWithoutRegistration={handleContinueWithoutRegistration}
+              />
+            </div>
+          )}
+        </main>
+        
+        <footer className="bg-white py-4 border-t border-gray-200 mt-8">
+          <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+            &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // Regular desktop view remains unchanged
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />
