@@ -131,30 +131,10 @@ const FreePlan = () => {
         {/* Hero Section */}
         <FreePlanHero />
         
-        {/* CTA Button */}
-        {!showForm && !formSubmitted && (
-          <div className="container mx-auto px-4 -mt-6 md:-mt-8 mb-10">
-            <div className="max-w-md mx-auto">
-              <Button 
-                onClick={() => setShowForm(true)}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 rounded-lg text-lg font-medium shadow-xl transition-all duration-200 flex items-center justify-center group"
-              >
-                <span className="mr-2">Gratis Pflegeplan erstellen</span>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-              
-              {/* Scroll indicator for mobile */}
-              <div className="flex justify-center mt-6 md:hidden animate-bounce">
-                <ChevronDown className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Main Content Section */}
+        {/* Main Content Section - Removed the CTA Button */}
         <section className="py-8 bg-white rounded-t-3xl shadow-inner">
           <div className="container mx-auto px-4">
-            {!showForm && !formSubmitted ? (
+            {!formSubmitted ? (
               <div className="max-w-lg mx-auto">
                 <OnboardingWizard
                   onComplete={handleOnboardingComplete}
@@ -163,7 +143,7 @@ const FreePlan = () => {
               </div>
             ) : (
               <div className="max-w-3xl mx-auto">
-                {!formSubmitted ? (
+                {showForm ? (
                   // Step 1: Show the form for gathering lawn data
                   <FreePlanForm onFormSubmit={handleFormSubmit} />
                 ) : (
