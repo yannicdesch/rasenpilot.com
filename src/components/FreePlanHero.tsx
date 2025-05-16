@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useLawn } from '@/context/LawnContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sparkles } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 const FreePlanHero: React.FC = () => {
   const { temporaryProfile, isAuthenticated } = useLawn();
@@ -18,6 +19,11 @@ const FreePlanHero: React.FC = () => {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-green-50 via-green-100 to-white py-10 md:py-20">
+      {/* Logo */}
+      <div className="container mx-auto px-4 mb-6">
+        <Logo className="relative z-10" />
+      </div>
+      
       {/* Decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-16 -right-16 w-32 h-32 bg-green-200 rounded-full opacity-20 blur-xl"></div>

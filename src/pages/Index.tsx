@@ -8,6 +8,7 @@ import { Camera, Calendar, ArrowRight, MessageSquare, Check } from 'lucide-react
 import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
+import Logo from '@/components/Logo';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -53,8 +54,6 @@ const Index = () => {
         <meta property="og:url" content="https://rasenpilot.de/" />
       </Helmet>
       
-      <MainNavigation />
-      
       {showOnboarding ? (
         <div className="flex-grow flex items-center justify-center bg-gray-50 py-12">
           <div className="container max-w-4xl px-4">
@@ -66,6 +65,13 @@ const Index = () => {
         </div>
       ) : (
         <>
+          {/* Add Logo before MainNavigation */}
+          <div className="container mx-auto px-4 py-4">
+            <Logo />
+          </div>
+          
+          <MainNavigation />
+          
           <section className="bg-gradient-to-b from-green-50 to-white py-16 md:py-24 flex-grow">
             <div className="container mx-auto px-4">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
