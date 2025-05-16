@@ -16,8 +16,8 @@ const FeatureCallToAction = ({
   const navigate = useNavigate();
 
   const handleNavigateToAuth = () => {
-    // Use navigate with replace:true to avoid back button issues
-    navigate('/auth', { replace: true });
+    // Use navigate with replace:true and specify 'register' tab
+    navigate('/auth?tab=register', { replace: true });
   };
 
   if (variant === 'minimal') {

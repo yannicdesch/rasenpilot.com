@@ -9,10 +9,15 @@ import PasswordResetLink from '@/components/auth/PasswordResetLink';
 interface AuthFormProps {
   redirectTo?: string;
   onRegistrationSuccess?: () => void;
+  initialTab?: 'login' | 'register';
 }
 
-const AuthForm = ({ redirectTo = '/dashboard', onRegistrationSuccess }: AuthFormProps) => {
-  const [activeTab, setActiveTab] = useState('login');
+const AuthForm = ({ 
+  redirectTo = '/dashboard', 
+  onRegistrationSuccess,
+  initialTab = 'login'
+}: AuthFormProps) => {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
 
   const handleForgotPassword = () => {

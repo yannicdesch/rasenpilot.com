@@ -24,6 +24,9 @@ const Auth = () => {
   const [authProgress, setAuthProgress] = useState(0);
   const { temporaryProfile, syncProfileWithSupabase } = useLawn();
   
+  // Get initial active tab from URL search params
+  const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
+  
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -65,6 +68,11 @@ const Auth = () => {
           
           // Complete progress animation
           setAuthProgress(100);
+          
+          // If we have temporary profile data, sync it first
+          if (temporaryProfile) {
+            await syncProfileWithSupabase();
+          }
           
           // Use navigate instead of hard redirect
           setTimeout(() => {
@@ -233,7 +241,11 @@ const Auth = () => {
                   </AlertDescription>
                 </Alert>
               ) : (
-                <AuthForm redirectTo={from} onRegistrationSuccess={handleRegistrationSuccess} />
+                <AuthForm 
+                  redirectTo={from} 
+                  onRegistrationSuccess={handleRegistrationSuccess}
+                  initialTab={initialTab} 
+                />
               )}
             </>
           ) : (

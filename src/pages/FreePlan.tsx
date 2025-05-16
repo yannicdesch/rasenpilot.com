@@ -51,9 +51,9 @@ const FreePlan = () => {
     navigate('/free-care-plan');
   };
 
-  // Handle navigation to registration page
+  // Handle navigation to registration page with register tab active
   const handleRegister = () => {
-    navigate('/auth', { state: { redirectTo: '/free-care-plan' } });
+    navigate('/auth?tab=register', { state: { redirectTo: '/free-care-plan' } });
   };
 
   const handleOnboardingComplete = async (data: any) => {
