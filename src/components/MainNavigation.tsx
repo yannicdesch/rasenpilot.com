@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -25,11 +26,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const MainNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, clearProfile } = useLawn();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -276,6 +279,15 @@ const MainNavigation = () => {
                 } onClick={() => setIsOpen(false)}>
                   <MessageSquare className="mr-3 h-5 w-5" />
                   Rasenpilot-KI
+                </NavLink>
+                <NavLink to="/blog-overview" className={({isActive}) => 
+                  `flex items-center px-3 py-2 rounded-md text-base font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600'}`
+                } onClick={() => setIsOpen(false)}>
+                  <BookOpen className="mr-3 h-5 w-5" />
+                  Blog
                 </NavLink>
                 <NavLink to="/free-weather" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
