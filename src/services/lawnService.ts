@@ -1,3 +1,4 @@
+
 import { LawnProfile } from '../context/LawnContext';
 
 export interface CarePlanTask {
@@ -46,6 +47,13 @@ export const generateCarePlan = (profile: LawnProfile): Promise<CarePlanTask[]> 
       }
     }
     
+    if (!profile) {
+      console.error("No profile provided to generateCarePlan");
+      return reject(new Error("No profile provided"));
+    }
+    
+    console.log("Generating new care plan tasks for profile:", profile);
+    
     // Generate new tasks if no saved tasks or parsing failed
     setTimeout(() => {
       try {
@@ -62,7 +70,7 @@ export const generateCarePlan = (profile: LawnProfile): Promise<CarePlanTask[]> 
           tasks.push({
             id: i + 1,
             date: taskDate.toISOString().split('T')[0],
-            title: getTaskTitle(taskTypes[i % taskTypes.length], profile.grassType),
+            title: getTaskTitle(taskTypes[i % taskTypes.length], profile.grassType || 'Standard'),
             description: getTaskDescription(taskTypes[i % taskTypes.length], profile),
             completed: i === 0, // First task is completed
             type: taskTypes[i % taskTypes.length],
@@ -94,13 +102,16 @@ export const getTaskTitle = (type: string, grassType: string): string => {
 };
 
 export const getTaskDescription = (type: string, profile: LawnProfile): string => {
+  const grassType = profile?.grassType || 'Standard';
+  const lawnGoal = profile?.lawnGoal || 'health';
+  
   switch (type) {
     case 'mowing':
-      return profile.grassType === 'Bermuda' || profile.grassType === 'bermuda'
+      return grassType === 'Bermuda' || grassType === 'bermuda'
         ? 'Schneiden Sie auf 2,5 cm Höhe für optimales Wachstum'
         : 'Schneiden Sie auf 3-4 cm Höhe für gesundes Wachstum';
     case 'fertilizing':
-      return profile.lawnGoal === 'greener' || profile.lawnGoal === 'Grünerer Rasen'
+      return lawnGoal === 'greener' || lawnGoal === 'Grünerer Rasen'
         ? 'Verwenden Sie einen stickstoffreichen Dünger für satteres Grün'
         : 'Verwenden Sie einen ausgewogenen Dünger für ganzheitliches Wachstum';
     case 'watering':
@@ -125,6 +136,8 @@ export const fetchWeatherData = async (zipCode: string): Promise<WeatherData> =>
     // Simulate API call with timeout
     setTimeout(() => {
       try {
+        console.log("Generating weather data for ZIP code:", zipCode);
+        
         // For German ZIP codes specific data
         const isGermanZipCode = /^\d{5}$/.test(zipCode);
         

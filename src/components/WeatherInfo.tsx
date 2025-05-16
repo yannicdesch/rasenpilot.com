@@ -15,7 +15,7 @@ interface WeatherInfoProps {
 const WeatherInfo = ({ weatherData, loading = false, className = '', error = false, onRetry }: WeatherInfoProps) => {
   // Function to get the appropriate weather icon
   const getWeatherIcon = (condition: string) => {
-    const lowercaseCondition = condition.toLowerCase();
+    const lowercaseCondition = condition?.toLowerCase() || '';
     if (lowercaseCondition.includes('sonnig') || lowercaseCondition.includes('klar')) {
       return <Sun className="text-yellow-500" size={20} />;
     } else if (lowercaseCondition.includes('regen')) {
@@ -82,6 +82,31 @@ const WeatherInfo = ({ weatherData, loading = false, className = '', error = fal
         </CardHeader>
         <CardContent className="pt-4">
           <p className="text-gray-600">Wetterdaten sind derzeit nicht verfügbar.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Make sure we have all the required data before rendering
+  if (!weatherData.current || !weatherData.current.condition) {
+    return (
+      <Card className={`bg-green-50 ${className}`}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Wind className="text-green-500" size={20} />
+            Wettereinfluss
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <p className="text-gray-600">Unvollständige Wetterdaten empfangen.</p>
+          {onRetry && (
+            <button 
+              onClick={onRetry}
+              className="mt-2 px-4 py-1 text-sm text-green-600 border border-green-300 rounded hover:bg-green-50"
+            >
+              Erneut versuchen
+            </button>
+          )}
         </CardContent>
       </Card>
     );

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Clock } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLawn } from '@/context/LawnContext';
+import { toast } from 'sonner';
 
 type LawnTask = {
   id: number;
@@ -55,10 +56,42 @@ const TaskTimeline = () => {
   const { profile } = useLawn();
   const [tasks, setTasks] = useState<LawnTask[]>(mockTasks);
 
+  useEffect(() => {
+    // Try to load tasks from localStorage
+    const savedTasks = localStorage.getItem('lawnTimelineTasks');
+    if (savedTasks) {
+      try {
+        const parsedTasks = JSON.parse(savedTasks) as LawnTask[];
+        if (parsedTasks && parsedTasks.length > 0) {
+          console.log("Retrieved timeline tasks from localStorage:", parsedTasks.length);
+          setTasks(parsedTasks);
+        }
+      } catch (e) {
+        console.error("Error parsing saved timeline tasks:", e);
+        toast.error("Fehler beim Laden der gespeicherten Aufgaben");
+      }
+    }
+  }, []);
+
   const toggleTaskCompletion = (taskId: number) => {
-    setTasks(tasks.map(task => 
+    const updatedTasks = tasks.map(task => 
       task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
+    );
+    
+    setTasks(updatedTasks);
+    
+    // Save updated tasks to localStorage
+    localStorage.setItem('lawnTimelineTasks', JSON.stringify(updatedTasks));
+    
+    // Show confirmation toast
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      const isNowCompleted = !task.completed;
+      toast[isNowCompleted ? 'success' : 'info'](
+        isNowCompleted ? 'Aufgabe erledigt!' : 'Aufgabe wieder offen',
+        { description: task.title }
+      );
+    }
   };
 
   // Anstehende Aufgaben abrufen

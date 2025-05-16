@@ -26,6 +26,7 @@ const WeatherWidget = () => {
     
     const loadWeather = async () => {
       if (!profile?.zipCode) {
+        console.log("No ZIP code available in profile:", profile);
         setLoading(false);
         // Don't show an error if no zip code is available yet
         return;
@@ -36,6 +37,16 @@ const WeatherWidget = () => {
         const data = await fetchWeatherData(profile.zipCode);
         
         console.log("Weather data received:", data);
+        
+        // Check if we received valid data
+        if (!data || !data.current) {
+          console.error("Invalid weather data received:", data);
+          setError(true);
+          setLoading(false);
+          toast.error("Ungültige Wetterdaten erhalten");
+          return;
+        }
+        
         setWeatherData({
           location: data.location || "Deutschland",
           temperature: data.current.temp,
@@ -58,11 +69,51 @@ const WeatherWidget = () => {
 
   // Function for the appropriate weather icon
   const getWeatherIcon = (condition: string) => {
-    const lowercaseCondition = condition.toLowerCase();
+    const lowercaseCondition = condition?.toLowerCase() || '';
     if (lowercaseCondition.includes('regen') || lowercaseCondition.includes('schauer')) {
       return <CloudRain size={28} className="text-blue-500" />;
     } else {
       return <Thermometer size={28} className="text-green-600" />;
+    }
+  };
+
+  // Function to retry loading weather data
+  const retryLoadWeather = async () => {
+    setLoading(true);
+    setError(false);
+    
+    try {
+      if (!profile?.zipCode) {
+        setLoading(false);
+        toast.error("Keine PLZ verfügbar");
+        return;
+      }
+      
+      const data = await fetchWeatherData(profile.zipCode);
+      
+      if (!data || !data.current) {
+        setError(true);
+        setLoading(false);
+        toast.error("Ungültige Wetterdaten erhalten");
+        return;
+      }
+      
+      setWeatherData({
+        location: data.location || "Deutschland",
+        temperature: data.current.temp,
+        condition: data.current.condition,
+        humidity: data.current.humidity,
+        windSpeed: data.current.windSpeed,
+        updated: "gerade eben"
+      });
+      
+      setLoading(false);
+      toast.success("Wetterdaten aktualisiert");
+    } catch (error) {
+      console.error("Fehler beim erneuten Laden der Wetterdaten:", error);
+      setError(true);
+      setLoading(false);
+      toast.error("Wetterdaten konnten nicht aktualisiert werden");
     }
   };
 
@@ -93,25 +144,7 @@ const WeatherWidget = () => {
         <CardContent className="pt-4">
           <p className="text-gray-600">Aktuelle Wetterdaten konnten nicht geladen werden.</p>
           <button 
-            onClick={() => {
-              setLoading(true);
-              setError(false);
-              fetchWeatherData(profile?.zipCode || "").then(data => {
-                setWeatherData({
-                  location: data.location || "Deutschland",
-                  temperature: data.current.temp,
-                  condition: data.current.condition,
-                  humidity: data.current.humidity,
-                  windSpeed: data.current.windSpeed,
-                  updated: "gerade eben"
-                });
-                setLoading(false);
-              }).catch(error => {
-                console.error("Fehler beim erneuten Laden der Wetterdaten:", error);
-                setError(true);
-                setLoading(false);
-              });
-            }}
+            onClick={retryLoadWeather}
             className="mt-2 px-4 py-1 text-sm text-green-600 border border-green-300 rounded hover:bg-green-50"
           >
             Erneut versuchen
