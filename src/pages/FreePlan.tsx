@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -78,6 +79,7 @@ const FreePlan = () => {
     if (isAuthenticated) {
       console.log("User is authenticated, syncing profile with Supabase");
       await syncProfileWithSupabase();
+      // Force navigation to free care plan after syncing
       navigate('/free-care-plan');
     } else {
       // For non-authenticated users, show the conversion prompt

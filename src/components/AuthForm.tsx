@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoginForm from '@/components/auth/LoginForm';
@@ -17,8 +18,17 @@ const AuthForm = ({
   onRegistrationSuccess,
   initialTab = 'login'
 }: AuthFormProps) => {
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>(initialTab);
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab') as 'login' | 'register' | null;
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>(tabFromUrl || initialTab);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
+
+  // Update active tab when URL params change
+  useEffect(() => {
+    if (tabFromUrl && (tabFromUrl === 'login' || tabFromUrl === 'register')) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   const handleForgotPassword = () => {
     setShowPasswordReset(true);

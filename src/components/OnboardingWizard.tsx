@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     });
   };
   
+  // Updated function to handle the final submission
   const handleNext = () => {
     // Validate current step
     if (step === 1 && !formData.zipCode) {
@@ -55,12 +57,14 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
-      // Submit data and complete
+      // Final step - submit data and complete
       console.log("Completing onboarding with data:", formData);
       if (onComplete) {
+        // Make sure to call onComplete with the form data
         onComplete(formData);
       } else {
-        navigate('/dashboard');
+        // Fallback navigation if onComplete is not provided
+        navigate('/free-care-plan');
       }
     }
   };
