@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import MainNavigation from '@/components/MainNavigation';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Calendar, ArrowRight, MessageSquare, Check } from 'lucide-react';
+import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
 import Logo from '@/components/Logo';
@@ -186,7 +185,7 @@ const Index = () => {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
                 <div className="bg-white p-6 rounded-lg shadow-md">
                   <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
                     <Calendar className="h-6 w-6 text-green-700" />
@@ -215,6 +214,23 @@ const Index = () => {
                   <p className="text-gray-600">
                     Stelle deine Rasenfragen und erhalte sofort fachkundige Antworten
                   </p>
+                </div>
+                
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                  <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                    <BookOpen className="h-6 w-6 text-green-700" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Blog & Ratgeber</h3>
+                  <p className="text-gray-600">
+                    Entdecke unsere Expertentipps und Anleitungen für deinen perfekten Rasen
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/blog-overview')} 
+                    variant="ghost" 
+                    className="mt-2 text-green-600 hover:text-green-700 p-0"
+                  >
+                    Zum Blog <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
                 </div>
               </div>
               
@@ -261,6 +277,13 @@ const Index = () => {
       <footer className="bg-white py-6 border-t border-gray-200">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
+          <div className="mt-2 flex justify-center gap-4">
+            <a href="/blog-overview" className="text-gray-600 hover:text-green-600">Blog</a>
+            <span className="text-gray-400">|</span>
+            <a href="/free-plan" className="text-gray-600 hover:text-green-600">Kostenloser Plan</a>
+            <span className="text-gray-400">|</span>
+            <a href="/free-chat" className="text-gray-600 hover:text-green-600">KI-Chat</a>
+          </div>
         </div>
       </footer>
     </div>

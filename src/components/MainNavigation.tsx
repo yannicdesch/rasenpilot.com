@@ -77,6 +77,14 @@ const MainNavigation = () => {
                 }>
                   Rasenpilot-KI
                 </NavLink>
+                <NavLink to="/blog-overview" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
+                }>
+                  Blog
+                </NavLink>
                 
                 {/* User dropdown menu */}
                 <DropdownMenu>
@@ -130,6 +138,14 @@ const MainNavigation = () => {
                     : 'text-gray-600 hover:bg-gray-50'}`
                 }>
                   Rasenpilot-KI
+                </NavLink>
+                <NavLink to="/blog-overview" className={({isActive}) => 
+                  `px-3 py-2 rounded-md text-sm font-medium 
+                  ${isActive 
+                    ? 'bg-green-50 text-green-700' 
+                    : 'text-gray-600 hover:bg-gray-50'}`
+                }>
+                  Blog
                 </NavLink>
                 <Button 
                   variant="outline" 
@@ -209,7 +225,7 @@ const MainNavigation = () => {
                   <UserRound className="mr-3 h-5 w-5" />
                   Profil
                 </NavLink>
-                <NavLink to="/blog" className={({isActive}) => 
+                <NavLink to="/blog-overview" className={({isActive}) => 
                   `flex items-center px-3 py-2 rounded-md text-base font-medium 
                   ${isActive 
                     ? 'bg-green-50 text-green-700' 
