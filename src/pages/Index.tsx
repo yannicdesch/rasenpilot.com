@@ -6,7 +6,6 @@ import OnboardingWizard from '@/components/OnboardingWizard';
 import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Calendar, ArrowRight, MessageSquare, Check } from 'lucide-react';
-import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
 import Logo from '@/components/Logo';
@@ -81,7 +80,7 @@ const Index = () => {
                     Dein persönlicher Rasenpflegeplan in 30 Sekunden
                   </h1>
                   <p className="text-xl text-gray-600">
-                    Erstelle kostenlos deinen 14-Tage-Pflegeplan und erhalte tägliche Aufgaben für einen gesunden, schönen Rasen.
+                    Erstelle kostenlos deinen Pflegeplan und erhalte tägliche Aufgaben für einen gesunden, schönen Rasen.
                   </p>
                   <div className="pt-4 flex flex-wrap gap-4">
                     <Button 
@@ -90,6 +89,15 @@ const Index = () => {
                       className="bg-green-600 hover:bg-green-700 py-6"
                     >
                       Kostenlos starten <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                    
+                    <Button
+                      onClick={() => navigate('/auth')}
+                      size="lg"
+                      variant="outline"
+                      className="border-green-600 text-green-700 hover:bg-green-50 py-6"
+                    >
+                      Anmelden
                     </Button>
                   </div>
                   
@@ -150,7 +158,7 @@ const Index = () => {
                   <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl font-bold text-green-700">2</span>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">14-Tage-Plan</h3>
+                  <h3 className="text-xl font-semibold mb-3">Pflegeplan</h3>
                   <p className="text-gray-600">
                     Erhalte tägliche Aufgaben mit wetterbasierter Anpassung
                   </p>
@@ -160,9 +168,9 @@ const Index = () => {
                   <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl font-bold text-green-700">3</span>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">Premium-Features</h3>
+                  <h3 className="text-xl font-semibold mb-3">Registrieren</h3>
                   <p className="text-gray-600">
-                    Nutze KI-Analyse, Chat und Jahresplaner mit dem Pro-Plan
+                    Erstelle ein Konto für weitere Funktionen
                   </p>
                 </div>
               </div>
@@ -224,20 +232,18 @@ const Index = () => {
           <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-green-800 mb-4">Unsere Pläne</h2>
+                <h2 className="text-3xl font-bold text-green-800 mb-4">Jetzt anmelden</h2>
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                  Für jeden Rasenliebhaber das passende Angebot
+                  Registrieren Sie sich für ein kostenloses Konto
                 </p>
               </div>
               
-              <SubscriptionPlans variant="compact" />
-              
               <div className="text-center mt-12">
                 <Button 
-                  onClick={handleGetStarted} 
-                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => navigate('/auth')}
+                  className="bg-green-600 hover:bg-green-700 py-3 px-8 text-lg"
                 >
-                  Mit kostenlosem Plan starten <ArrowRight className="ml-2 h-4 w-4" />
+                  Kostenlos registrieren <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </div>

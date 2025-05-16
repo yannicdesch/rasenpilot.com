@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, UserRound, Check } from 'lucide-react';
+import { ArrowRight, UserRound } from 'lucide-react';
 
 interface FeatureCallToActionProps {
   variant?: 'default' | 'minimal';
@@ -25,14 +25,6 @@ const FeatureCallToAction = ({
           <UserRound className="mr-2 h-4 w-4" />
           Kostenlos anmelden
         </Button>
-        <Button 
-          variant="outline"
-          className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400 font-medium"
-          onClick={() => navigate('/features')}
-        >
-          Mehr Infos
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
       </div>
     );
   }
@@ -42,26 +34,11 @@ const FeatureCallToAction = ({
       <div className="flex flex-col gap-4">
         <div>
           <h3 className="text-xl font-bold text-green-800 dark:text-green-300">
-            Alle Premium-Funktionen freischalten
+            Jetzt kostenloses Konto erstellen
           </h3>
-          <p className="text-green-700 dark:text-green-200 mt-1 font-medium">
-            Erstellen Sie ein kostenloses Konto, um sofort Zugriff auf alle Tools zu erhalten:
+          <p className="text-green-700 dark:text-green-200 mt-1">
+            Erstellen Sie ein kostenloses Konto und erhalten Sie Zugang zu allen Funktionen:
           </p>
-          
-          <ul className="mt-3 space-y-2">
-            <li className="flex items-center text-green-700 dark:text-green-200">
-              <Check className="mr-2 h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-              <span>Unbegrenzte Rasenanalysen mit Foto-Uploads</span>
-            </li>
-            <li className="flex items-center text-green-700 dark:text-green-200">
-              <Check className="mr-2 h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-              <span>Persönlicher Pflege-Kalender mit Erinnerungen</span>
-            </li>
-            <li className="flex items-center text-green-700 dark:text-green-200">
-              <Check className="mr-2 h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-              <span>Unbegrenzte Chatbot-Unterstützung für alle Fragen</span>
-            </li>
-          </ul>
         </div>
         <div className="flex flex-wrap gap-3 mt-2">
           <Button 
@@ -71,15 +48,6 @@ const FeatureCallToAction = ({
           >
             <UserRound className="mr-2 h-4 w-4" />
             Kostenlos anmelden
-          </Button>
-          <Button 
-            variant="outline"
-            size="lg"
-            className="border-green-600 text-green-700 dark:border-green-400 dark:text-green-400 font-medium"
-            onClick={() => navigate('/features')}
-          >
-            Mehr Infos
-            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>

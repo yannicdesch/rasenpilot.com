@@ -178,68 +178,13 @@ const FreePlan = () => {
                   {!formSubmitted && (
                     <>
                       <div className="text-center mb-6">
-                        <h2 className="text-xl font-semibold text-green-800 mb-2">Mit dem Premium-Konto erhältst du noch mehr</h2>
-                        <p className="text-gray-600">Registriere dich, um auf alle Funktionen zuzugreifen</p>
+                        <h2 className="text-xl font-semibold text-green-800 mb-2">Mit einem Konto erhalten Sie noch mehr</h2>
+                        <p className="text-gray-600">Registrieren Sie sich, um auf alle Funktionen zuzugreifen</p>
                       </div>
                       <FeatureCallToAction />
                     </>
                   )}
                 </div>
-                
-                {/* New section about plan extension and reminders */}
-                {!formSubmitted && (
-                  <div className="mt-12">
-                    <Card className="border-green-200 bg-green-50">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Bell className="h-5 w-5 text-green-600" />
-                          Warum sollten Sie sich registrieren?
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-white p-4 rounded-lg border border-green-100">
-                              <h3 className="font-medium text-green-800 mb-2">Erweitern Sie Ihren Pflegeplan</h3>
-                              <p className="text-sm text-gray-600 mb-3">
-                                Mit einem kostenlosen Konto können Sie Ihren 14-Tage-Plan zu einem vollständigen 
-                                Monatsplan erweitern. Premium-Nutzer erhalten einen kompletten Jahresplan.
-                              </p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full border-green-200 text-green-700"
-                                onClick={() => navigate('/auth')}
-                              >
-                                Jetzt registrieren
-                              </Button>
-                            </div>
-                            
-                            <div className="bg-white p-4 rounded-lg border border-green-100">
-                              <h3 className="font-medium text-green-800 mb-2">Erinnerungen erhalten</h3>
-                              <p className="text-sm text-gray-600 mb-3">
-                                Verpassen Sie nie wieder einen wichtigen Zeitpunkt für die Rasenpflege. 
-                                Wir senden Ihnen Erinnerungen für anstehende Aufgaben.
-                              </p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full border-green-200 text-green-700"
-                                onClick={() => navigate('/auth')}
-                              >
-                                Erinnerungen aktivieren
-                              </Button>
-                            </div>
-                          </div>
-                          
-                          <div className="text-center text-sm text-gray-500 mt-2">
-                            Die Registrierung ist kostenlos und dauert nur wenige Sekunden.
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
               </div>
             )}
           </div>

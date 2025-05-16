@@ -14,8 +14,8 @@ const FeaturesBehindRegistration = () => {
       title: "Rasenplanung",
       icon: <Calendar className="h-8 w-8 text-green-600" />,
       features: [
-        "Personalisierter monatlicher Rasenkalender",
-        "Erinnerungen für wichtige Pflanztermine",
+        "Personalisierter Rasenkalender",
+        "Wichtige Pflegetermine",
         "Automatische Anpassung an lokale Wetterbedingungen",
         "Fortschrittsverfolgung für alle Pflegeaufgaben"
       ]
@@ -34,7 +34,7 @@ const FeaturesBehindRegistration = () => {
       title: "KI-Beratung",
       icon: <MessageSquare className="h-8 w-8 text-green-600" />,
       features: [
-        "Unbegrenzter Chat mit KI-Rasenexperte",
+        "Chat mit KI-Rasenexperte",
         "Sofortige Antworten zu allen Rasenfragen",
         "Personalisierte Lösungen für Rasenprobleme",
         "Gesprächtsverlauf wird gespeichert"
@@ -70,9 +70,9 @@ const FeaturesBehindRegistration = () => {
         <div className="container mx-auto px-4">
           {/* Hero Section */}
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">Premium-Funktionen für optimale Rasenpflege</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">Funktionen für optimale Rasenpflege</h1>
             <p className="text-lg text-gray-600 mb-6">
-              Mit einem kostenlosen Rasenpilot-Konto erhalten Sie Zugriff auf diese erweiterten Funktionen, die Ihnen helfen, einen perfekten Rasen zu pflegen.
+              Mit einem kostenlosen Rasenpilot-Konto erhalten Sie Zugriff auf diese Funktionen, die Ihnen helfen, einen perfekten Rasen zu pflegen.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Button
@@ -128,7 +128,7 @@ const FeaturesBehindRegistration = () => {
           <div className="bg-green-600 text-white rounded-lg p-8 text-center max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold mb-4">Bereit für Ihren perfekten Rasen?</h2>
             <p className="mb-6 text-green-100">
-              Erstellen Sie noch heute ein kostenloses Konto und erhalten Sie sofortigen Zugang zu all diesen Premium-Funktionen!
+              Erstellen Sie noch heute ein kostenloses Konto und erhalten Sie sofortigen Zugang zu all diesen Funktionen!
             </p>
             <Button 
               size="lg"
