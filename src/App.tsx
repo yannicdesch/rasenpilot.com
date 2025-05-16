@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { Toaster } from "@/components/ui/toaster";
@@ -28,6 +29,9 @@ import AdminPanel from "@/pages/AdminPanel";
 import BlogOverview from "@/pages/BlogOverview";
 import BlogPost from "@/pages/BlogPost";
 import LogoGeneratorPage from "@/pages/LogoGeneratorPage";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfUse from "@/pages/TermsOfUse";
+import Imprint from "@/pages/Imprint";
 
 function App() {
   return (
@@ -47,6 +51,11 @@ function App() {
           <Route path="/features" element={<FeaturesBehindRegistration />} />
           <Route path="/blog-overview" element={<BlogOverview />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          
+          {/* Legal pages */}
+          <Route path="/datenschutz" element={<PrivacyPolicy />} />
+          <Route path="/nutzungsbedingungen" element={<TermsOfUse />} />
+          <Route path="/impressum" element={<Imprint />} />
           
           {/* Protected Routes - Fixed to properly check authentication */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
