@@ -11,12 +11,14 @@ interface AuthFormProps {
   redirectTo?: string;
   onRegistrationSuccess?: () => void;
   initialTab?: 'login' | 'register';
+  prefillEmail?: string;
 }
 
 const AuthForm = ({ 
   redirectTo = '/dashboard', 
   onRegistrationSuccess,
-  initialTab = 'login'
+  initialTab = 'login',
+  prefillEmail = ''
 }: AuthFormProps) => {
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab') as 'login' | 'register' | null;

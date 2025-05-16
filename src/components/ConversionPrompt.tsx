@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Calendar, Info, MessageSquare } from 'lucide-react';
+import { Check, Calendar, Info, MessageSquare, Mail } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Input } from '@/components/ui/input';
+import { toast } from "sonner";
 
 interface ConversionPromptProps {
   onRegister: () => void;
@@ -15,6 +17,29 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
   onRegister, 
   onContinueWithoutRegistration 
 }) => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleQuickRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      toast.error('Bitte gib eine gültige E-Mail-Adresse ein');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Navigate to auth page with pre-filled email
+    navigate('/auth?tab=register', { 
+      state: { 
+        redirectTo: '/free-care-plan',
+        prefillEmail: email 
+      } 
+    });
+  };
+
   return (
     <Card className="border-green-200 shadow-lg">
       <CardHeader className="text-center pb-2">
@@ -60,12 +85,36 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
               </div>
             </div>
             
+            {/* Quick registration form */}
+            <form onSubmit={handleQuickRegister} className="mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <div className="relative flex-grow">
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="email"
+                    placeholder="deine@email.de"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  className="py-2 text-base bg-green-600 hover:bg-green-700 whitespace-nowrap"
+                  disabled={isSubmitting}
+                >
+                  Account erstellen
+                </Button>
+              </div>
+            </form>
+            
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button 
                 className="py-6 text-lg bg-green-600 hover:bg-green-700" 
                 onClick={onRegister}
               >
-                Jetzt kostenlos registrieren
+                Vollständig registrieren
               </Button>
               <Button 
                 variant="outline"

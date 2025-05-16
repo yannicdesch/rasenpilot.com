@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,16 +34,26 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { temporaryProfile, syncProfileWithSupabase } = useLawn();
+
+  const prefillEmail = location.state?.prefillEmail || '';
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      email: '',
+      email: prefillEmail,
       password: '',
       name: '',
     },
   });
+
+  // Update form values when prefillEmail changes
+  useEffect(() => {
+    if (prefillEmail) {
+      form.setValue('email', prefillEmail);
+    }
+  }, [prefillEmail, form]);
 
   const onSubmit = async (data: RegisterFormValues) => {
     if (!isSupabaseConfigured()) {

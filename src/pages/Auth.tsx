@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
@@ -28,7 +27,10 @@ const Auth = () => {
   const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
   
   // Get redirect path from location state or default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.redirectTo || location.state?.from?.pathname || '/dashboard';
+  
+  // Get pre-filled email from location state if available
+  const prefillEmail = location.state?.prefillEmail || '';
 
   useEffect(() => {
     let progressTimer: number | null = null;
@@ -245,6 +247,7 @@ const Auth = () => {
                   redirectTo={from} 
                   onRegistrationSuccess={handleRegistrationSuccess}
                   initialTab={initialTab} 
+                  prefillEmail={prefillEmail}
                 />
               )}
             </>
