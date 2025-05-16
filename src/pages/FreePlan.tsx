@@ -80,7 +80,7 @@ const FreePlan = () => {
       await syncProfileWithSupabase();
       navigate('/free-care-plan');
     } else {
-      // For non-authenticated users, navigate to registration/login or continue without
+      // For non-authenticated users, show the conversion prompt
       setFormSubmitted(true);
     }
   };
@@ -97,20 +97,18 @@ const FreePlan = () => {
         
         <main className="flex-grow pt-4 px-4">
           <div className="max-w-lg mx-auto">
-            <OnboardingWizard
-              onComplete={handleOnboardingComplete}
-              onSkip={handleOnboardingSkip}
-            />
-          </div>
-          
-          {formSubmitted && (
-            <div className="mt-8 max-w-lg mx-auto">
+            {!formSubmitted ? (
+              <OnboardingWizard
+                onComplete={handleOnboardingComplete}
+                onSkip={handleOnboardingSkip}
+              />
+            ) : (
               <ConversionPrompt 
                 onRegister={handleRegister}
                 onContinueWithoutRegistration={handleContinueWithoutRegistration}
               />
-            </div>
-          )}
+            )}
+          </div>
         </main>
         
         <footer className="bg-white py-4 border-t border-gray-200 mt-8">
