@@ -7,7 +7,7 @@ interface WindowWithGA extends Window {
 
 declare const window: WindowWithGA;
 
-export const initializeGA = (measurementId: string): void => {
+export const initializeGA = (measurementId: string = 'G-7F24N28JNH'): void => {
   // Add Google Analytics script to the document
   const script = document.createElement('script');
   script.async = true;
@@ -28,7 +28,7 @@ export const initializeGA = (measurementId: string): void => {
 // Track page views
 export const trackPageView = (path: string): void => {
   if (typeof window.gtag !== 'undefined') {
-    window.gtag('config', window.gtag.arguments?.[1] || 'G-MEASUREMENT-ID', {
+    window.gtag('config', 'G-7F24N28JNH', {
       page_path: path
     });
   }
