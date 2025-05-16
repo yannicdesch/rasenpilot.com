@@ -11,11 +11,13 @@ import { toast } from "sonner";
 interface ConversionPromptProps {
   onRegister: () => void;
   onContinueWithoutRegistration: () => void;
+  onQuickRegister?: (email: string) => void;
 }
 
 const ConversionPrompt: React.FC<ConversionPromptProps> = ({ 
   onRegister, 
-  onContinueWithoutRegistration 
+  onContinueWithoutRegistration,
+  onQuickRegister
 }) => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,13 +33,17 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
     
     setIsSubmitting(true);
     
-    // Navigate to auth page with pre-filled email
-    navigate('/auth?tab=register', { 
-      state: { 
-        redirectTo: '/free-care-plan',
-        prefillEmail: email 
-      } 
-    });
+    if (onQuickRegister) {
+      onQuickRegister(email);
+    } else {
+      // Fallback to navigate if onQuickRegister isn't provided
+      navigate('/auth?tab=register', { 
+        state: { 
+          redirectTo: '/free-care-plan',
+          prefillEmail: email 
+        } 
+      });
+    }
   };
 
   return (

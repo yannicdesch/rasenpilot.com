@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,7 +30,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     lawnPicture: '',
   });
   
-  const totalSteps = 5; // Increased from 4 to 5 to include lawn picture upload
+  const totalSteps = 5; 
   
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData({
@@ -39,7 +39,6 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     });
   };
   
-  // Updated function to handle the final submission
   const handleNext = () => {
     // Validate current step
     if (step === 1 && !formData.zipCode) {
@@ -60,7 +59,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       // Final step - submit data and complete
       console.log("Completing onboarding with data:", formData);
       if (onComplete) {
-        // Make sure to call onComplete with the form data
+        // Call onComplete with the complete form data
         onComplete(formData);
       } else {
         // Fallback navigation if onComplete is not provided
@@ -68,6 +67,17 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
       }
     }
   };
+  
+  // Force completion if an image is uploaded on step 4
+  useEffect(() => {
+    if (step === 4 && formData.lawnPicture) {
+      // Give a brief delay to allow the image to be processed
+      const timer = setTimeout(() => {
+        handleNext();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [formData.lawnPicture, step]);
   
   const handleBack = () => {
     if (step > 1) {
@@ -84,6 +94,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   };
 
   const handleImageSelected = (imageUrl: string) => {
+    console.log("Image selected:", imageUrl);
     handleInputChange('lawnPicture', imageUrl);
   };
   

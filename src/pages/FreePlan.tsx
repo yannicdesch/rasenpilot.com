@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -53,7 +54,11 @@ const FreePlan = () => {
 
   // Handle navigation to registration page with register tab active
   const handleRegister = () => {
-    navigate('/auth?tab=register', { state: { redirectTo: '/free-care-plan' } });
+    navigate('/auth?tab=register', { 
+      state: { 
+        redirectTo: '/free-care-plan'
+      } 
+    });
   };
 
   const handleOnboardingComplete = async (data: any) => {
@@ -80,13 +85,29 @@ const FreePlan = () => {
       await syncProfileWithSupabase();
       navigate('/free-care-plan');
     } else {
-      // For non-authenticated users, show the conversion prompt
+      // For non-authenticated users, always show the conversion prompt
       setFormSubmitted(true);
     }
   };
 
   const handleOnboardingSkip = () => {
     setShowForm(true);
+  };
+
+  // Handle quick registration with email
+  const handleQuickRegister = (email: string) => {
+    if (!email || !email.includes('@')) {
+      toast.error('Bitte gib eine gültige E-Mail-Adresse ein');
+      return;
+    }
+    
+    // Navigate to auth page with pre-filled email and register tab active
+    navigate('/auth?tab=register', { 
+      state: { 
+        redirectTo: '/free-care-plan',
+        prefillEmail: email 
+      } 
+    });
   };
 
   // For mobile devices, render only the onboarding wizard
@@ -105,6 +126,7 @@ const FreePlan = () => {
             ) : (
               <ConversionPrompt 
                 onRegister={handleRegister}
+                onQuickRegister={handleQuickRegister}
                 onContinueWithoutRegistration={handleContinueWithoutRegistration}
               />
             )}
@@ -129,7 +151,7 @@ const FreePlan = () => {
         {/* Hero Section */}
         <FreePlanHero />
         
-        {/* Main Content Section - Removed the CTA Button */}
+        {/* Main Content Section */}
         <section className="py-8 bg-white rounded-t-3xl shadow-inner">
           <div className="container mx-auto px-4">
             {!formSubmitted ? (
@@ -148,6 +170,7 @@ const FreePlan = () => {
                   // Step 2: Show the soft-gate conversion point after form submission
                   <ConversionPrompt 
                     onRegister={handleRegister}
+                    onQuickRegister={handleQuickRegister}
                     onContinueWithoutRegistration={handleContinueWithoutRegistration}
                   />
                 )}
