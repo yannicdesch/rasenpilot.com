@@ -62,9 +62,8 @@ const SEOContentEditor = () => {
     setSEOContent(updatedContent);
     setSavedStatus('Inhalte erfolgreich gespeichert!');
     
-    // Show toast notification
-    toast({
-      title: "SEO-Inhalte gespeichert",
+    // Show toast notification - Fix the toast usage to match sonner's API
+    toast("SEO-Inhalte gespeichert", {
       description: "Ihre SEO-Inhalte wurden erfolgreich aktualisiert.",
     });
     
