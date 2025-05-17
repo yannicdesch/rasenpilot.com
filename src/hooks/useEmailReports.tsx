@@ -21,6 +21,26 @@ export const useEmailReports = () => {
     try {
       setIsLoading(true);
       
+      // Check if the site_settings table exists by attempting to query it
+      try {
+        const { error: tableCheckError } = await supabase
+          .from('site_settings')
+          .select('id')
+          .limit(0);
+          
+        if (tableCheckError && !tableCheckError.message.includes('permission')) {
+          console.error('site_settings table does not exist:', tableCheckError);
+          toast.error('Die erforderliche Tabelle existiert nicht', {
+            description: 'Bitte erstellen Sie die Tabelle "site_settings" gemäß der Anleitung in der Dokumentation.'
+          });
+          return false;
+        }
+      } catch (err) {
+        console.error('Error checking for table existence:', err);
+        toast.error('Fehler beim Überprüfen der Tabelle');
+        return false;
+      }
+      
       // Get current settings
       const { data: settings, error: settingsError } = await supabase
         .from('site_settings')
@@ -84,9 +104,10 @@ export const useEmailReports = () => {
     try {
       setIsLoading(true);
       
-      // In a real implementation with Supabase, we would call an edge function
-      console.log(`Sending test email to: ${recipientEmail}`);
+      // Log attempt
+      console.log(`Attempting to send test email to: ${recipientEmail}`);
       
+      // Check if the function exists by calling it
       const { error } = await supabase.functions.invoke('send-email-report', {
         body: { 
           recipient: recipientEmail,
@@ -96,7 +117,7 @@ export const useEmailReports = () => {
       
       if (error) {
         console.error('Error invoking function:', error);
-        throw error;
+        throw new Error(`Failed to invoke function: ${error.message}`);
       }
       
       toast.success('Test-E-Mail gesendet', {
