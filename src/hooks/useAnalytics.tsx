@@ -48,21 +48,19 @@ export const useAnalytics = () => {
       
       console.log('Fetching analytics data from Supabase...');
       
-      // Check if the required tables exist
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .in('table_name', ['page_views', 'events']);
+      // Check if the required tables exist by directly querying them
+      const { error: pageViewsError } = await supabase
+        .from('page_views')
+        .select('id')
+        .limit(1);
+        
+      const { error: eventsError } = await supabase
+        .from('events')
+        .select('id')
+        .limit(1);
       
-      if (tablesError) {
-        console.error('Error checking for analytics tables:', tablesError);
-        throw new Error('Failed to check for analytics tables');
-      }
-      
-      const tableNames = existingTables?.map(t => t.table_name) || [];
-      const hasPageViewsTable = tableNames.includes('page_views');
-      const hasEventsTable = tableNames.includes('events');
+      const hasPageViewsTable = !pageViewsError || pageViewsError.message.includes('permission');
+      const hasEventsTable = !eventsError || eventsError.message.includes('permission');
       
       if (!hasPageViewsTable || !hasEventsTable) {
         console.log('Analytics tables do not exist, using example data');

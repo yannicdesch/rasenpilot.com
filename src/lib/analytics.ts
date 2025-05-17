@@ -38,20 +38,14 @@ export const trackPageView = async (path: string): Promise<void> => {
   
   // Store the page view in our database
   try {
-    // Check if analytics table exists
-    const { data: existingTables, error: tablesError } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'public')
-      .eq('table_name', 'page_views');
+    // Check if analytics table exists by directly querying it
+    const { error: tableCheckError } = await supabase
+      .from('page_views')
+      .select('id')
+      .limit(1);
       
-    if (tablesError) {
-      console.error('Error checking for page_views table:', tablesError);
-      return;
-    }
-    
     // If the table doesn't exist, we'll just log this and return
-    if (!existingTables || existingTables.length === 0) {
+    if (tableCheckError && !tableCheckError.message.includes('permission')) {
       console.log('page_views table may not exist');
       return;
     }
@@ -88,20 +82,14 @@ export const trackEvent = async (category: string, action: string, label?: strin
   
   // Store the event in our database
   try {
-    // Check if analytics table exists
-    const { data: existingTables, error: tablesError } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'public')
-      .eq('table_name', 'events');
+    // Check if analytics table exists by directly querying it
+    const { error: tableCheckError } = await supabase
+      .from('events')
+      .select('id')
+      .limit(1);
       
-    if (tablesError) {
-      console.error('Error checking for events table:', tablesError);
-      return;
-    }
-    
     // If the table doesn't exist, we'll just log this and return
-    if (!existingTables || existingTables.length === 0) {
+    if (tableCheckError && !tableCheckError.message.includes('permission')) {
       console.log('events table may not exist');
       return;
     }

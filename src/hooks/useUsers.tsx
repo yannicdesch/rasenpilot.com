@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -24,17 +25,16 @@ export const useUsers = () => {
       
       console.log('Fetching users from Supabase...');
       
-      // Statt information_schema.tables zu verwenden, direkten Ansatz probieren
-      // Versuche, die profiles-Tabelle direkt abzufragen
+      // Try to directly query the profiles table
       const { error: profilesError } = await supabase
         .from('profiles')
         .select('id')
         .limit(1);
       
-      // Wenn die Tabelle nicht existiert oder wir nicht zugreifen können
+      // If the table doesn't exist or we can't access it
       if (profilesError && !profilesError.message.includes('permission')) {
         console.log('Profiles table may not exist:', profilesError);
-        // Fallback zu Beispieldaten
+        // Fall back to example data
         setUsers([
           { 
             id: '1', 
@@ -69,6 +69,7 @@ export const useUsers = () => {
           description: 'Verwende Beispieldaten. Erstellen Sie eine "profiles"-Tabelle in Supabase.'
         });
         
+        setIsLoading(false);
         return;
       }
       

@@ -25,18 +25,17 @@ export const useSubscribers = () => {
       
       console.log('Fetching email subscribers from Supabase...');
       
-      // Statt information_schema.tables zu verwenden, direkten Ansatz probieren
-      // Versuche, die subscribers-Tabelle direkt abzufragen
+      // Try to directly query the subscribers table
       const { error: subscribersError } = await supabase
         .from('subscribers')
         .select('id')
         .limit(1);
       
-      // Wenn die Tabelle nicht existiert oder wir nicht zugreifen können
+      // If the table doesn't exist or we can't access it
       if (subscribersError && !subscribersError.message.includes('permission')) {
         console.log('Subscribers table may not exist:', subscribersError);
         
-        // Fallback zu Beispieldaten
+        // Fall back to example data
         setSubscribers([
           {
             id: '1',
@@ -74,6 +73,7 @@ export const useSubscribers = () => {
           description: 'Verwende Beispieldaten. Erstellen Sie eine "subscribers"-Tabelle in Supabase.'
         });
         
+        setIsLoading(false);
         return;
       }
       
