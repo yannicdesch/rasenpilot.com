@@ -1,5 +1,7 @@
 
 // Google Analytics setup
+import { supabase } from '@/lib/supabase';
+
 interface WindowWithGA extends Window {
   dataLayer: any[];
   gtag: (...args: any[]) => void;
@@ -7,6 +9,7 @@ interface WindowWithGA extends Window {
 
 declare const window: WindowWithGA;
 
+// Initialize Google Analytics
 export const initializeGA = (measurementId: string = 'G-7F24N28JNH'): void => {
   // Add Google Analytics script to the document
   const script = document.createElement('script');
@@ -26,21 +29,100 @@ export const initializeGA = (measurementId: string = 'G-7F24N28JNH'): void => {
 };
 
 // Track page views
-export const trackPageView = (path: string): void => {
+export const trackPageView = async (path: string): Promise<void> => {
   if (typeof window.gtag !== 'undefined') {
     window.gtag('config', 'G-7F24N28JNH', {
       page_path: path
     });
   }
+  
+  // Store the page view in our database
+  try {
+    // Check if analytics table exists
+    const { data: existingTables, error: tablesError } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_schema', 'public')
+      .eq('table_name', 'page_views');
+      
+    if (tablesError) {
+      console.error('Error checking for page_views table:', tablesError);
+      return;
+    }
+    
+    // If the table doesn't exist, we'll just log this and return
+    if (!existingTables || existingTables.length === 0) {
+      console.log('page_views table may not exist');
+      return;
+    }
+    
+    // Store the page view
+    const { error } = await supabase
+      .from('page_views')
+      .insert([
+        { 
+          path,
+          timestamp: new Date().toISOString(),
+          referrer: document.referrer || null,
+          user_agent: navigator.userAgent
+        }
+      ]);
+      
+    if (error) {
+      console.error('Error recording page view:', error);
+    }
+  } catch (err) {
+    console.error('Error logging page view to database:', err);
+  }
 };
 
 // Track events
-export const trackEvent = (category: string, action: string, label?: string, value?: number): void => {
+export const trackEvent = async (category: string, action: string, label?: string, value?: number): Promise<void> => {
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', action, {
       event_category: category,
       event_label: label,
       value: value
     });
+  }
+  
+  // Store the event in our database
+  try {
+    // Check if analytics table exists
+    const { data: existingTables, error: tablesError } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_schema', 'public')
+      .eq('table_name', 'events');
+      
+    if (tablesError) {
+      console.error('Error checking for events table:', tablesError);
+      return;
+    }
+    
+    // If the table doesn't exist, we'll just log this and return
+    if (!existingTables || existingTables.length === 0) {
+      console.log('events table may not exist');
+      return;
+    }
+    
+    // Store the event
+    const { error } = await supabase
+      .from('events')
+      .insert([
+        { 
+          category,
+          action,
+          label,
+          value,
+          timestamp: new Date().toISOString()
+        }
+      ]);
+      
+    if (error) {
+      console.error('Error recording event:', error);
+    }
+  } catch (err) {
+    console.error('Error logging event to database:', err);
   }
 };

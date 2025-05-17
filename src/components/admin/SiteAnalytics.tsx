@@ -4,51 +4,42 @@ import { BarChart, Legend, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Responsive
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-// Sample data - in a real application, this would come from your analytics API
-const dailyData = [
-  { name: 'Mo', besucher: 240, anmeldungen: 20 },
-  { name: 'Di', besucher: 300, anmeldungen: 25 },
-  { name: 'Mi', besucher: 280, anmeldungen: 18 },
-  { name: 'Do', besucher: 320, anmeldungen: 30 },
-  { name: 'Fr', besucher: 400, anmeldungen: 45 },
-  { name: 'Sa', besucher: 380, anmeldungen: 38 },
-  { name: 'So', besucher: 290, anmeldungen: 22 },
-];
-
-const weeklyData = [
-  { name: 'KW18', besucher: 1800, anmeldungen: 180 },
-  { name: 'KW19', besucher: 2000, anmeldungen: 210 },
-  { name: 'KW20', besucher: 2400, anmeldungen: 250 },
-  { name: 'KW21', besucher: 1900, anmeldungen: 190 },
-];
-
-const monthlyData = [
-  { name: 'Jan', besucher: 6500, anmeldungen: 650 },
-  { name: 'Feb', besucher: 5800, anmeldungen: 580 },
-  { name: 'Mär', besucher: 7800, anmeldungen: 780 },
-  { name: 'Apr', besucher: 8900, anmeldungen: 890 },
-  { name: 'Mai', besucher: 9500, anmeldungen: 950 },
-];
+import { Button } from '@/components/ui/button';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { RefreshCw, BarChart3 } from 'lucide-react';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
   const [metricType, setMetricType] = useState('all');
+  const { analyticsData, isLoading, refreshAnalytics } = useAnalytics();
   
   // Select data based on timeframe
-  const chartData = timeFrame === 'daily' ? dailyData : 
-                    timeFrame === 'weekly' ? weeklyData : monthlyData;
+  const chartData = timeFrame === 'daily' ? analyticsData.dailyVisitors : 
+                    timeFrame === 'weekly' ? analyticsData.weeklyVisitors : analyticsData.monthlyVisitors;
   
-  // Calculate summary statistics
-  const totalVisits = chartData.reduce((sum, item) => sum + item.besucher, 0);
-  const totalSignups = chartData.reduce((sum, item) => sum + item.anmeldungen, 0);
-  const conversionRate = ((totalSignups / totalVisits) * 100).toFixed(1);
+  // Get summary statistics
+  const totalVisits = analyticsData.totalVisits;
+  const totalSignups = analyticsData.totalSignups;
+  const conversionRate = analyticsData.conversionRate.toFixed(1);
   
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-green-800">Websiteanalysen</h2>
+        <h2 className="text-2xl font-bold text-green-800 flex items-center gap-2">
+          <BarChart3 className="h-6 w-6" />
+          Websiteanalysen
+        </h2>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refreshAnalytics}
+            disabled={isLoading}
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Aktualisieren
+          </Button>
           <Select value={timeFrame} onValueChange={setTimeFrame}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Zeitraum wählen" />
@@ -112,34 +103,52 @@ const SiteAnalytics = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                {(metricType === 'all' || metricType === 'visitors') && (
-                  <Bar dataKey="besucher" name="Besucher" fill="#4ade80" />
-                )}
-                {(metricType === 'all' || metricType === 'signups') && (
-                  <Bar dataKey="anmeldungen" name="Anmeldungen" fill="#2563eb" />
-                )}
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {isLoading ? (
+            <div className="h-[400px] flex items-center justify-center">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+                <p className="text-green-600">Analysedaten werden geladen...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  {(metricType === 'all' || metricType === 'visitors') && (
+                    <Bar dataKey="visitors" name="Besucher" fill="#4ade80" />
+                  )}
+                  {(metricType === 'all' || metricType === 'signups') && (
+                    <Bar dataKey="signups" name="Anmeldungen" fill="#2563eb" />
+                  )}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </CardContent>
       </Card>
       
-      <div className="bg-green-50 p-6 rounded-lg border border-green-100">
-        <h3 className="text-lg font-semibold text-green-800 mb-3">Über diese Daten</h3>
-        <p className="text-gray-700">
-          Diese Statistiken zeigen die Besucherzahlen und Anmeldungen für Ihre Rasenpilot-Website. 
-          In einer vollständigen Implementierung können diese Daten aus Google Analytics, Matomo oder 
-          einem eigenen Tracking-System stammen. Die hier gezeigten Daten sind Beispieldaten.
-        </p>
-      </div>
+      <Card className="bg-green-50 p-6 border border-green-100">
+        <CardHeader className="p-0 pb-2">
+          <CardTitle className="text-lg font-semibold text-green-800">Über diese Daten</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0 pt-2">
+          <p className="text-gray-700">
+            Diese Statistiken zeigen die Besucherzahlen und Anmeldungen für Ihre Rasenpilot-Website. 
+            Die Daten werden in Ihrer Supabase-Datenbank in den Tabellen <code>page_views</code> und <code>events</code> gespeichert.
+            {!analyticsData.dailyVisitors.some(d => d.visitors > 0) && (
+              <span className="block mt-2 text-amber-600">
+                Hinweis: Aktuell werden Beispieldaten angezeigt, da noch keine ausreichenden Analysedaten vorhanden sind.
+                Beginnen Sie mit der Erfassung echter Daten, indem Sie die entsprechenden Tabellen in Supabase erstellen.
+              </span>
+            )}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
