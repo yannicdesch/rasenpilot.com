@@ -6,7 +6,7 @@ import SEOContentEditor from '@/components/SEOContentEditor';
 import { Book, ArrowRight, FileText, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
-import { Helmet } from 'react-helmet-async';
+import SEO from '@/components/SEO';
 
 const SEOManagement = () => {
   const navigate = useNavigate();
@@ -21,16 +21,11 @@ const SEOManagement = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
-      <Helmet>
-        <title>SEO Management - Rasenpilot</title>
-        <meta name="description" content="Optimieren Sie Ihre Website-Inhalte für bessere Sichtbarkeit in Suchmaschinen mit Rasenpilot's SEO-Tools." />
-        <meta name="keywords" content="SEO, Rasenpflege, Content-Management, Suchmaschinenoptimierung" />
-        <link rel="canonical" href="https://rasenpilot.de/seo-management" />
-        <meta property="og:title" content="SEO Management - Rasenpilot" />
-        <meta property="og:description" content="Optimieren Sie Ihre Website-Inhalte für bessere Sichtbarkeit in Suchmaschinen mit Rasenpilot's SEO-Tools." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://rasenpilot.de/seo-management" />
-      </Helmet>
+      <SEO 
+        title="SEO Management - Optimieren Sie Ihre Website-Inhalte"
+        description="Optimieren Sie Ihre Website-Inhalte für bessere Sichtbarkeit in Suchmaschinen mit Rasenpilot's SEO-Tools."
+        canonical="/seo-management" 
+      />
       
       <MainNavigation />
       

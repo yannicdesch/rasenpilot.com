@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BlogPostGrid from '@/components/BlogPostGrid';
-import { Helmet } from 'react-helmet-async';
-import { ArrowRight, Search, Tag } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SEO from '@/components/SEO';
 
 const BlogOverview = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,16 +15,11 @@ const BlogOverview = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
-      <Helmet>
-        <title>Rasen-Blog: Expertentipps für Ihren perfekten Rasen | Rasenpilot</title>
-        <meta name="description" content="Entdecken Sie umfassende Expertentipps und Anleitungen für die Rasenpflege. Von Mähen und Düngen bis hin zu Krankheitsbekämpfung - alles für Ihren perfekten Rasen." />
-        <meta name="keywords" content="Rasenpflege, Rasen Blog, Rasentipps, Rasendüngung, Rasenmähen, Rasenprobleme, Rasenkrankheiten, Rasenexperte" />
-        <link rel="canonical" href="https://rasenpilot.de/blog-overview" />
-        <meta property="og:title" content="Rasen-Blog: Expertentipps für Ihren perfekten Rasen | Rasenpilot" />
-        <meta property="og:description" content="Entdecken Sie umfassende Expertentipps und Anleitungen für die Rasenpflege. Von Mähen und Düngen bis hin zu Krankheitsbekämpfung - alles für Ihren perfekten Rasen." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://rasenpilot.de/blog-overview" />
-      </Helmet>
+      <SEO 
+        title="Rasen-Blog: Expertentipps für Ihren perfekten Rasen"
+        description="Entdecken Sie umfassende Expertentipps und Anleitungen für die Rasenpflege. Von Mähen und Düngen bis hin zu Krankheitsbekämpfung."
+        canonical="/blog-overview"
+      />
       
       <MainNavigation />
       

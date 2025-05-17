@@ -6,12 +6,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, ArrowRight, Leaf, Camera, MessageSquare } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import Logo from '@/components/Logo';
+import SEO from '@/components/SEO';
 
 const Landing = () => {
   const navigate = useNavigate();
   
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title="Rasenpilot - Intelligenter KI-Rasenberater"
+        description="Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden mit KI-gestützten Empfehlungen für deinen perfekten Rasen."
+        canonical="/"
+      />
+      
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-white py-20">
         {/* Add Logo at the top */}

@@ -6,8 +6,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { FileText, Book, BookOpen, Search } from 'lucide-react';
+import { FileText, Book, BookOpen, Search, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from './ui/badge';
 
 export type SEOContentType = {
   title: string;
@@ -72,6 +73,12 @@ const SEOContentEditor = () => {
     }, 3000);
   };
 
+  // Check if title exceeds recommended length
+  const titleTooLong = seoContent.title.length > 60;
+  
+  // Check if description exceeds recommended length
+  const descriptionTooLong = seoContent.description.length > 160;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -98,29 +105,45 @@ const SEOContentEditor = () => {
 
           <TabsContent value="metadata" className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="seo-title">SEO Titel</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="seo-title">SEO Titel</Label>
+                {titleTooLong && (
+                  <Badge variant="destructive" className="flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Zu lang
+                  </Badge>
+                )}
+              </div>
               <Input 
                 id="seo-title"
                 value={seoContent.title} 
                 onChange={(e) => handleChange('title', e.target.value)}
-                className="w-full"
+                className={`w-full ${titleTooLong ? 'border-red-300 focus-visible:ring-red-300' : ''}`}
                 placeholder="Titel für Suchmaschinen"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className={`text-xs ${titleTooLong ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
                 {seoContent.title.length}/60 Zeichen (Empfohlen: 50-60)
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="seo-description">Meta-Beschreibung</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="seo-description">Meta-Beschreibung</Label>
+                {descriptionTooLong && (
+                  <Badge variant="destructive" className="flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Zu lang
+                  </Badge>
+                )}
+              </div>
               <Textarea 
                 id="seo-description"
                 value={seoContent.description} 
                 onChange={(e) => handleChange('description', e.target.value)}
-                className="min-h-24 resize-y w-full"
+                className={`min-h-24 resize-y w-full ${descriptionTooLong ? 'border-red-300 focus-visible:ring-red-300' : ''}`}
                 placeholder="Beschreibungstext für Suchmaschinen"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className={`text-xs ${descriptionTooLong ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
                 {seoContent.description.length}/160 Zeichen (Empfohlen: 150-160)
               </p>
             </div>
@@ -166,6 +189,7 @@ const SEOContentEditor = () => {
         <Button 
           onClick={handleSave} 
           className="ml-auto bg-green-600 hover:bg-green-700"
+          disabled={titleTooLong || descriptionTooLong}
         >
           Änderungen speichern
         </Button>

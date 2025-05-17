@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
@@ -8,8 +7,8 @@ import { useLawn } from '@/context/LawnContext';
 import BlogPostList from '@/components/BlogPostList';
 import AiBlogGenerator from '@/components/AiBlogGenerator';
 import { supabase } from '@/lib/supabase';
-import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
+import SEO from '@/components/SEO';
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -42,16 +41,11 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
-      <Helmet>
-        <title>{seoContent?.title || "Rasen-Blog - Tipps und Tricks für Ihren perfekten Rasen"}</title>
-        <meta name="description" content={seoContent?.description || "Entdecken Sie nützliche Tipps und Informationen zur Rasenpflege in unserem Blog"} />
-        <meta name="keywords" content={seoContent?.keywords || "Rasenpflege, Rasen Blog, Rasentipps"} />
-        <link rel="canonical" href="https://rasenpilot.de/blog" />
-        <meta property="og:title" content={seoContent?.title || "Rasen-Blog - Rasenpilot"} />
-        <meta property="og:description" content={seoContent?.description || "Entdecken Sie nützliche Tipps und Informationen zur Rasenpflege in unserem Blog"} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://rasenpilot.de/blog" />
-      </Helmet>
+      <SEO 
+        title={seoContent?.title || "Rasen-Blog - Tipps und Tricks für Ihren perfekten Rasen"}
+        description={seoContent?.description || "Entdecken Sie nützliche Tipps und Informationen zur Rasenpflege in unserem Blog"}
+        canonical="/blog"
+      />
       
       <MainNavigation />
       

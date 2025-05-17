@@ -6,9 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Book, BookOpen } from 'lucide-react';
+import { FileText, Book, BookOpen, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useContent } from '@/hooks/useContent';
+import { Badge } from '@/components/ui/badge';
 
 type BlogPostType = {
   id: number;
@@ -211,6 +212,12 @@ const BlogPostEditor = () => {
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleChange('tags', e.target.value);
   };
+
+  // Check if SEO title exceeds recommended length
+  const seoTitleTooLong = (blogPost.seo.metaTitle || blogPost.title).length > 60;
+  
+  // Check if SEO description exceeds recommended length  
+  const seoDescriptionTooLong = (blogPost.seo.metaDescription || blogPost.excerpt).length > 160;
   
   return (
     <Card className="w-full">
@@ -319,28 +326,45 @@ const BlogPostEditor = () => {
 
         <TabsContent value="seo" className="p-4 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="seo-title">SEO Titel</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="seo-title">SEO Titel</Label>
+              {seoTitleTooLong && (
+                <Badge variant="destructive" className="flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  Zu lang
+                </Badge>
+              )}
+            </div>
             <Input 
               id="seo-title"
               value={blogPost.seo.metaTitle || blogPost.title} 
               onChange={(e) => handleChange('seo.metaTitle', e.target.value)}
               placeholder="SEO-optimierter Titel (oft gleich wie Haupttitel)"
+              className={seoTitleTooLong ? 'border-red-300 focus-visible:ring-red-300' : ''}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className={`text-xs ${seoTitleTooLong ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
               {(blogPost.seo.metaTitle || blogPost.title).length}/60 Zeichen (Empfohlen: 50-60)
             </p>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="seo-description">Meta-Beschreibung</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="seo-description">Meta-Beschreibung</Label>
+              {seoDescriptionTooLong && (
+                <Badge variant="destructive" className="flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  Zu lang
+                </Badge>
+              )}
+            </div>
             <Textarea 
               id="seo-description"
               value={blogPost.seo.metaDescription || blogPost.excerpt} 
               onChange={(e) => handleChange('seo.metaDescription', e.target.value)}
               placeholder="Kurze Beschreibung für Suchmaschinen"
-              className="resize-y h-20"
+              className={`resize-y h-20 ${seoDescriptionTooLong ? 'border-red-300 focus-visible:ring-red-300' : ''}`}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className={`text-xs ${seoDescriptionTooLong ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
               {(blogPost.seo.metaDescription || blogPost.excerpt).length}/160 Zeichen (Empfohlen: 150-160)
             </p>
           </div>
@@ -409,6 +433,7 @@ const BlogPostEditor = () => {
           <Button 
             onClick={handleSave} 
             className="bg-green-600 hover:bg-green-700"
+            disabled={seoTitleTooLong || seoDescriptionTooLong}
           >
             Blogbeitrag speichern
           </Button>

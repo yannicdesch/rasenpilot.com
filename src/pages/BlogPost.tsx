@@ -1,13 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, ArrowRight, Calendar, Tag, Share } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
 import RelatedPosts from '@/components/RelatedPosts';
+import SEO from '@/components/SEO';
 
 interface BlogPostData {
   id: number;
@@ -56,18 +55,11 @@ const BlogPost = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
-      <Helmet>
-        <title>{post.metaTitle}</title>
-        <meta name="description" content={post.metaDescription} />
-        <meta name="keywords" content={post.keywords.join(', ')} />
-        <link rel="canonical" href={`https://rasenpilot.de/blog/${post.slug}`} />
-        <meta property="og:title" content={post.metaTitle} />
-        <meta property="og:description" content={post.metaDescription} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://rasenpilot.de/blog/${post.slug}`} />
-        <meta property="og:image" content={post.image} />
-        <meta property="article:published_time" content={post.date} />
-      </Helmet>
+      <SEO 
+        title={post.metaTitle || post.title}
+        description={post.metaDescription || post.excerpt}
+        canonical={`/blog/${post.slug}`}
+      />
       
       <MainNavigation />
       
