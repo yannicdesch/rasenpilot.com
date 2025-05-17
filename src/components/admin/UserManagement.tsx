@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Users, Search, MoreHorizontal, Mail, Edit, Trash2 } from 'lucide-react';
+import { Users, Search, MoreHorizontal, Mail, Edit, Trash2, RefreshCcw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,62 +15,16 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-
-// Sample data - in a real app this would come from your database
-const sampleUsers = [
-  { 
-    id: 1, 
-    name: 'Max Mustermann', 
-    email: 'max@example.com', 
-    status: 'active', 
-    role: 'user',
-    registerDate: '2025-04-12',
-    lastActive: '2025-05-14'
-  },
-  { 
-    id: 2, 
-    name: 'Lisa Schmidt', 
-    email: 'lisa@example.com', 
-    status: 'active', 
-    role: 'admin',
-    registerDate: '2025-03-28',
-    lastActive: '2025-05-15'
-  },
-  { 
-    id: 3, 
-    name: 'Thomas Weber', 
-    email: 'thomas@example.com', 
-    status: 'inactive', 
-    role: 'user',
-    registerDate: '2025-01-05',
-    lastActive: '2025-03-22'
-  },
-  { 
-    id: 4, 
-    name: 'Julia Meyer', 
-    email: 'julia@example.com', 
-    status: 'active', 
-    role: 'user',
-    registerDate: '2025-05-01',
-    lastActive: '2025-05-10'
-  },
-  { 
-    id: 5, 
-    name: 'Stefan Becker', 
-    email: 'stefan@example.com', 
-    status: 'active', 
-    role: 'user',
-    registerDate: '2025-02-18',
-    lastActive: '2025-05-13'
-  }
-];
+import { useUsers, User } from '@/hooks/useUsers';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 
 const UserManagement = () => {
-  const [users, setUsers] = useState(sampleUsers);
+  const { users, isLoading, error, refreshUsers } = useUsers();
   const [searchTerm, setSearchTerm] = useState('');
   
   const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
@@ -78,25 +32,34 @@ const UserManagement = () => {
     setSearchTerm(e.target.value);
   };
   
-  const handleSendEmail = (userId: number) => {
+  const handleSendEmail = (userId: string) => {
     const user = users.find(u => u.id === userId);
-    toast.success(`E-Mail an ${user?.name} wird vorbereitet...`);
+    toast.success(`E-Mail an ${user?.name || user?.email} wird vorbereitet...`);
     // In a real app, this would open an email composition form
   };
   
-  const handleEditUser = (userId: number) => {
+  const handleEditUser = (userId: string) => {
     const user = users.find(u => u.id === userId);
-    toast.info(`Benutzer ${user?.name} wird bearbeitet...`);
+    toast.info(`Benutzer ${user?.name || user?.email} wird bearbeitet...`);
     // In a real app, this would open a user edit form
   };
   
-  const handleDeleteUser = (userId: number) => {
+  const handleDeleteUser = (userId: string) => {
     const user = users.find(u => u.id === userId);
     // Here we just update the state for demo purposes
-    toast.success(`Benutzer ${user?.name} wurde gelöscht`, {
+    toast.success(`Benutzer ${user?.name || user?.email} wurde gelöscht`, {
       description: "Diese Aktion würde normalerweise einen Bestätigungsdialog zeigen"
     });
-    setUsers(users.filter(user => user.id !== userId));
+    // In a real app, we would call an API to delete the user
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Nie';
+    try {
+      return format(new Date(dateString), 'dd.MM.yyyy', { locale: de });
+    } catch (e) {
+      return dateString;
+    }
   };
   
   return (
@@ -106,16 +69,33 @@ const UserManagement = () => {
           <Users className="h-6 w-6" />
           Benutzerverwaltung
         </h2>
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Benutzer suchen..."
-            className="pl-9 w-[250px]"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={refreshUsers}
+            disabled={isLoading}
+          >
+            <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span className="sr-only">Aktualisieren</span>
+          </Button>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Benutzer suchen..."
+              className="pl-9 w-[250px]"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </div>
         </div>
       </div>
+      
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+          {error}
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -164,10 +144,19 @@ const UserManagement = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center">
+                  <div className="flex justify-center items-center">
+                    <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="ml-2">Benutzer werden geladen...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="font-medium">{user.name || '(Kein Name)'}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     <Badge 
@@ -182,8 +171,8 @@ const UserManagement = () => {
                       {user.role === 'admin' ? 'Administrator' : 'Benutzer'}
                     </Badge>
                   </TableCell>
-                  <TableCell>{user.registerDate}</TableCell>
-                  <TableCell>{user.lastActive}</TableCell>
+                  <TableCell>{formatDate(user.created_at)}</TableCell>
+                  <TableCell>{formatDate(user.last_sign_in_at)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
