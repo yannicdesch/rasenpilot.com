@@ -21,7 +21,6 @@ const BlogOverview = () => {
         description="Entdecken Sie umfassende Expertentipps und Anleitungen für die Rasenpflege. Von Mähen und Düngen bis hin zu Krankheitsbekämpfung."
         canonical="/blog-overview"
         keywords="Rasenpflege,Rasenberatung,Rasenmähen,Rasen düngen,Rasenprobleme,Gartenpflege"
-        ogImage="/placeholder.svg"
       />
       
       <MainNavigation />
@@ -100,4 +99,3 @@ const BlogOverview = () => {
 };
 
 export default BlogOverview;
-
