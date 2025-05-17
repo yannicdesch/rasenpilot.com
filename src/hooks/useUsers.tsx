@@ -30,12 +30,14 @@ export const useUsers = () => {
         throw authError;
       }
 
-      // Transform the data to match our User interface
+      // Transform the data to match our User interface with proper type casting
       const transformedUsers: User[] = authUsers.users.map(user => ({
         id: user.id,
         name: user.user_metadata?.full_name || null,
         email: user.email || '',
+        // Ensure status is either 'active' or 'inactive'
         status: user.banned ? 'inactive' : 'active',
+        // Ensure role is either 'user' or 'admin'
         role: user.role === 'supabase_admin' ? 'admin' : 'user',
         created_at: user.created_at,
         last_sign_in_at: user.last_sign_in_at
