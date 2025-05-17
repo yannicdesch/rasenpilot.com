@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Settings, Save, Globe, Key, Lock, FileText, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,34 +8,67 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
+import { useSettings, SiteSettings as SiteSettingsType } from '@/hooks/useSettings';
 
 const SiteSettings = () => {
-  const [generalSettings, setGeneralSettings] = useState({
-    siteName: 'Rasenpilot',
-    siteTagline: 'Ihr intelligenter Rasenberater',
-    siteEmail: 'info@rasenpilot.de',
-    sitePhone: '+49 123 456789',
-    siteAddress: 'Rasenweg 1, 10115 Berlin',
-    googleAnalyticsId: 'UA-12345678-1',
-    showLovableBadge: true,
+  const { settings, isLoading, saveSettings, clearCache } = useSettings();
+  
+  const [generalSettings, setGeneralSettings] = React.useState({
+    siteName: settings.siteName,
+    siteTagline: settings.siteTagline,
+    siteEmail: settings.siteEmail,
+    sitePhone: settings.sitePhone,
+    siteAddress: settings.siteAddress,
+    googleAnalyticsId: settings.googleAnalyticsId,
+    showLovableBadge: settings.showLovableBadge,
   });
   
-  const [seoSettings, setSeoSettings] = useState({
-    defaultMetaTitle: 'Rasenpilot - Ihr intelligenter Rasenberater',
-    defaultMetaDescription: 'Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen',
-    defaultKeywords: 'Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot',
-    robotsTxt: 'User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\nDisallow: /profile',
+  const [seoSettings, setSeoSettings] = React.useState({
+    defaultMetaTitle: settings.seo.defaultMetaTitle,
+    defaultMetaDescription: settings.seo.defaultMetaDescription,
+    defaultKeywords: settings.seo.defaultKeywords,
+    robotsTxt: settings.seo.robotsTxt,
   });
   
-  const [securitySettings, setSecuritySettings] = useState({
-    enableTwoFactor: false,
-    passwordMinLength: 8,
-    sessionTimeout: 30,
-    blockFailedLogins: true,
-    maxFailedAttempts: 5,
-    blockDuration: 15,
+  const [securitySettings, setSecuritySettings] = React.useState({
+    enableTwoFactor: settings.security.enableTwoFactor,
+    passwordMinLength: settings.security.passwordMinLength,
+    sessionTimeout: settings.security.sessionTimeout,
+    blockFailedLogins: settings.security.blockFailedLogins,
+    maxFailedAttempts: settings.security.maxFailedAttempts,
+    blockDuration: settings.security.blockDuration,
   });
+  
+  // Update the local state when settings are loaded
+  React.useEffect(() => {
+    if (!isLoading) {
+      setGeneralSettings({
+        siteName: settings.siteName,
+        siteTagline: settings.siteTagline,
+        siteEmail: settings.siteEmail,
+        sitePhone: settings.sitePhone,
+        siteAddress: settings.siteAddress,
+        googleAnalyticsId: settings.googleAnalyticsId,
+        showLovableBadge: settings.showLovableBadge,
+      });
+      
+      setSeoSettings({
+        defaultMetaTitle: settings.seo.defaultMetaTitle,
+        defaultMetaDescription: settings.seo.defaultMetaDescription,
+        defaultKeywords: settings.seo.defaultKeywords,
+        robotsTxt: settings.seo.robotsTxt,
+      });
+      
+      setSecuritySettings({
+        enableTwoFactor: settings.security.enableTwoFactor,
+        passwordMinLength: settings.security.passwordMinLength,
+        sessionTimeout: settings.security.sessionTimeout,
+        blockFailedLogins: settings.security.blockFailedLogins,
+        maxFailedAttempts: settings.security.maxFailedAttempts,
+        blockDuration: settings.security.blockDuration,
+      });
+    }
+  }, [isLoading, settings]);
   
   const handleGeneralChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setGeneralSettings({
@@ -74,29 +106,47 @@ const SiteSettings = () => {
     });
   };
   
-  const handleSaveGeneral = () => {
-    toast.success('Allgemeine Einstellungen gespeichert', {
-      description: 'Ihre Änderungen wurden erfolgreich übernommen'
-    });
+  const handleSaveGeneral = async () => {
+    const updatedSettings: SiteSettingsType = {
+      ...settings,
+      ...generalSettings
+    };
+    
+    await saveSettings(updatedSettings);
   };
   
-  const handleSaveSeo = () => {
-    toast.success('SEO-Einstellungen gespeichert', {
-      description: 'Ihre Änderungen wurden erfolgreich übernommen'
-    });
+  const handleSaveSeo = async () => {
+    const updatedSettings: SiteSettingsType = {
+      ...settings,
+      seo: seoSettings
+    };
+    
+    await saveSettings(updatedSettings);
   };
   
-  const handleSaveSecurity = () => {
-    toast.success('Sicherheitseinstellungen gespeichert', {
-      description: 'Ihre Änderungen wurden erfolgreich übernommen'
-    });
+  const handleSaveSecurity = async () => {
+    const updatedSettings: SiteSettingsType = {
+      ...settings,
+      security: securitySettings
+    };
+    
+    await saveSettings(updatedSettings);
   };
   
-  const handleClearCache = () => {
-    toast.success('Cache geleert', {
-      description: 'Der Cache wurde erfolgreich geleert'
-    });
+  const handleClearCache = async () => {
+    await clearCache();
   };
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+          <p className="text-green-600">Einstellungen werden geladen...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">

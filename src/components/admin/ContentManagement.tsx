@@ -10,96 +10,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-
-// Sample data - would come from database in real app
-const sampleBlogPosts = [
-  {
-    id: 1,
-    title: 'Die beste Zeit zum Rasenmähen: Morgens oder abends?',
-    status: 'published',
-    views: 1245,
-    author: 'Max Mustermann',
-    category: 'Rasenpflege',
-    date: '2025-05-10',
-  },
-  {
-    id: 2,
-    title: 'Natürliche Düngemittel für einen gesunden und umweltfreundlichen Rasen',
-    status: 'published',
-    views: 867,
-    author: 'Lisa Schmidt',
-    category: 'Düngemittel',
-    date: '2025-05-05',
-  },
-  {
-    id: 3,
-    title: 'Wie bekämpft man Moos im Rasen? Die 5 besten Methoden',
-    status: 'published',
-    views: 1532,
-    author: 'Thomas Weber',
-    category: 'Probleme',
-    date: '2025-04-28',
-  },
-  {
-    id: 4,
-    title: 'Vorbereitung auf den Winter: So schützen Sie Ihren Rasen',
-    status: 'draft',
-    views: 0,
-    author: 'Lisa Schmidt',
-    category: 'Saisonale Pflege',
-    date: '2025-05-12',
-  },
-  {
-    id: 5,
-    title: 'Die richtige Bewässerung in Trockenperioden',
-    status: 'draft',
-    views: 0,
-    author: 'Max Mustermann',
-    category: 'Bewässerung',
-    date: '2025-05-14',
-  }
-];
-
-const samplePages = [
-  {
-    id: 1,
-    title: 'Startseite',
-    path: '/',
-    lastUpdated: '2025-05-01',
-  },
-  {
-    id: 2,
-    title: 'Über uns',
-    path: '/about',
-    lastUpdated: '2025-04-20',
-  },
-  {
-    id: 3,
-    title: 'Kontakt',
-    path: '/contact',
-    lastUpdated: '2025-03-15',
-  },
-  {
-    id: 4,
-    title: 'Datenschutz',
-    path: '/privacy',
-    lastUpdated: '2025-01-10',
-  },
-  {
-    id: 5,
-    title: 'Impressum',
-    path: '/imprint',
-    lastUpdated: '2025-01-10',
-  }
-];
+import { useContent } from '@/hooks/useContent';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const ContentManagement = () => {
   const navigate = useNavigate();
   const [contentType, setContentType] = useState('blog');
-  const [blogPosts, setBlogPosts] = useState(sampleBlogPosts);
-  const [pages, setPages] = useState(samplePages);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
+  
+  const { blogPosts, pages, isLoading, deleteBlogPost, refreshContent } = useContent();
   
   const filteredBlogPosts = blogPosts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -128,19 +48,25 @@ const ContentManagement = () => {
     toast.info('Diese Aktion würde den Blog-Beitrag in einem neuen Tab öffnen');
   };
   
-  const handleDeletePost = (id: number) => {
-    // Here we just update the state for demo purposes
-    const post = blogPosts.find(post => post.id === id);
-    toast.success(`Blogbeitrag "${post?.title}" wurde gelöscht`, {
-      description: "Diese Aktion würde normalerweise einen Bestätigungsdialog zeigen"
-    });
-    setBlogPosts(blogPosts.filter(post => post.id !== id));
+  const handleDeletePost = async (id: number) => {
+    await deleteBlogPost(id);
   };
   
   const handleEditPage = (id: number) => {
     // In a real app, this would open a page editor
     toast.info('Seiteneditor würde geöffnet werden');
   };
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+          <p className="text-green-600">Inhalte werden geladen...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -241,15 +167,35 @@ const ContentManagement = () => {
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => handleDeletePost(post.id)}
-                              className="text-red-500 hover:text-red-700"
-                              title="Löschen"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-red-500 hover:text-red-700"
+                                  title="Löschen"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Blogbeitrag löschen</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Sind Sie sicher, dass Sie den Blogbeitrag "{post.title}" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeletePost(post.id)}
+                                    className="bg-red-500 hover:bg-red-600"
+                                  >
+                                    Löschen
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>

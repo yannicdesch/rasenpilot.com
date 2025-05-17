@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Book, BookOpen } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
+import { useContent } from '@/hooks/useContent';
 
 type BlogPostType = {
   id: number;
@@ -21,6 +21,9 @@ type BlogPostType = {
   readTime: number;
   tags: string;
   date: string;
+  author: string;
+  status: 'published' | 'draft';
+  views: number;
   seo: {
     metaTitle: string;
     metaDescription: string;
@@ -39,6 +42,9 @@ const initialBlogPost: BlogPostType = {
   readTime: 5,
   tags: '',
   date: new Date().toISOString().split('T')[0],
+  author: 'Admin',
+  status: 'draft',
+  views: 0,
   seo: {
     metaTitle: '',
     metaDescription: '',
@@ -52,10 +58,41 @@ const BlogPostEditor = () => {
   const [previewMode, setPreviewMode] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
+  const { blogPosts, createBlogPost, updateBlogPost } = useContent();
   
   useEffect(() => {
     if (id) {
-      // Try to load from localStorage first
+      // Try to find the post in our content hook data
+      const foundPost = blogPosts.find(post => post.id === parseInt(id));
+      
+      if (foundPost) {
+        // Convert the post to our full BlogPostType format
+        const fullPost: BlogPostType = {
+          id: foundPost.id,
+          title: foundPost.title || '',
+          slug: foundPost.slug || '',
+          excerpt: foundPost.excerpt || '',
+          content: foundPost.content || '',
+          image: '/placeholder.svg',
+          category: foundPost.category || 'Rasenpflege',
+          readTime: 5,
+          tags: foundPost.tags || '',
+          date: foundPost.date || new Date().toISOString().split('T')[0],
+          author: foundPost.author || 'Admin',
+          status: foundPost.status || 'draft',
+          views: foundPost.views || 0,
+          seo: {
+            metaTitle: foundPost.seo?.metaTitle || '',
+            metaDescription: foundPost.seo?.metaDescription || '',
+            keywords: foundPost.seo?.keywords || '',
+          }
+        };
+        
+        setBlogPost(fullPost);
+        return;
+      }
+      
+      // Fallback to localStorage
       const savedPosts = localStorage.getItem('blogPosts');
       if (savedPosts) {
         try {
@@ -72,12 +109,11 @@ const BlogPostEditor = () => {
       
       // Fallback to sample data if ID is 1, 2, or 3
       if (['1', '2', '3'].includes(id)) {
-        // Simulate fetching from API
         console.log(`Loading sample post ${id}`);
         // In a real app, you'd fetch from an API here
       }
     }
-  }, [id]);
+  }, [id, blogPosts]);
   
   const handleChange = (field: keyof BlogPostType | string, value: string | number) => {
     if (field.includes('.')) {
@@ -122,40 +158,47 @@ const BlogPostEditor = () => {
     setSavedStatus(null);
   };
   
-  const handleSave = () => {
+  const handleSave = async () => {
     try {
-      // In a real app, you would save to a database
-      // For now, we'll use localStorage
-      const savedPosts = localStorage.getItem('blogPosts');
-      let posts = savedPosts ? JSON.parse(savedPosts) : [];
+      // Prepare the post data in the format expected by our hooks
+      const postData = {
+        title: blogPost.title,
+        slug: blogPost.slug,
+        excerpt: blogPost.excerpt,
+        content: blogPost.content,
+        category: blogPost.category,
+        tags: blogPost.tags,
+        date: blogPost.date,
+        author: blogPost.author,
+        status: blogPost.status,
+        seo: blogPost.seo
+      };
       
-      // Check if post already exists
-      const existingPostIndex = posts.findIndex((post: BlogPostType) => post.id === blogPost.id);
+      let success;
       
-      if (existingPostIndex >= 0) {
+      if (id) {
         // Update existing post
-        posts[existingPostIndex] = blogPost;
+        success = await updateBlogPost(parseInt(id), postData);
       } else {
-        // Add new post
-        posts.push(blogPost);
+        // Create new post
+        const newId = await createBlogPost(postData);
+        success = !!newId;
+        if (newId) {
+          // Redirect to edit page with the new ID
+          navigate(`/blog/edit/${newId}`);
+        }
       }
       
-      localStorage.setItem('blogPosts', JSON.stringify(posts));
-      
-      setSavedStatus('Blogbeitrag erfolgreich gespeichert!');
-      toast({
-        title: "Erfolgreich gespeichert",
-        description: "Ihr Blogbeitrag wurde erfolgreich gespeichert."
-      });
-      
-      setTimeout(() => {
-        setSavedStatus(null);
-      }, 3000);
+      if (success) {
+        setSavedStatus('Blogbeitrag erfolgreich gespeichert!');
+        
+        setTimeout(() => {
+          setSavedStatus(null);
+        }, 3000);
+      }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Fehler beim Speichern",
-        description: "Der Blogbeitrag konnte nicht gespeichert werden."
+      toast.error('Fehler beim Speichern', {
+        description: 'Der Blogbeitrag konnte nicht gespeichert werden.'
       });
       console.error('Error saving blog post:', error);
     }
