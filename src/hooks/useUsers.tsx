@@ -36,9 +36,9 @@ export const useUsers = () => {
         name: user.user_metadata?.full_name || null,
         email: user.email || '',
         // Ensure status is either 'active' or 'inactive'
-        status: user.banned ? 'inactive' : 'active',
+        status: user.banned ? 'inactive' as const : 'active' as const,
         // Ensure role is either 'user' or 'admin'
-        role: user.role === 'supabase_admin' ? 'admin' : 'user',
+        role: user.role === 'supabase_admin' ? 'admin' as const : 'user' as const,
         created_at: user.created_at,
         last_sign_in_at: user.last_sign_in_at
       }));
