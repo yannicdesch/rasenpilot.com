@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,24 +36,6 @@ const EmailReportSettings = () => {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        // Check if settings table exists first
-        const { data: existingTables, error: tablesError } = await supabase
-          .from('information_schema.tables')
-          .select('table_name')
-          .eq('table_schema', 'public')
-          .eq('table_name', 'site_settings');
-        
-        if (tablesError) {
-          console.error('Error checking for settings table:', tablesError);
-          return;
-        }
-        
-        const hasSettingsTable = existingTables && existingTables.length > 0;
-        
-        if (!hasSettingsTable) {
-          return;
-        }
-        
         const { data: settings, error: settingsError } = await supabase
           .from('site_settings')
           .select('email_reports')

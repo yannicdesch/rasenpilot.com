@@ -21,28 +21,6 @@ export const useEmailReports = () => {
     try {
       setIsLoading(true);
       
-      // Check if settings table exists
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'site_settings');
-      
-      if (tablesError) {
-        console.error('Error checking for settings table:', tablesError);
-        toast.error('Fehler beim Überprüfen der Einstellungstabelle');
-        return false;
-      }
-      
-      const hasSettingsTable = existingTables && existingTables.length > 0;
-      
-      if (!hasSettingsTable) {
-        toast.error('Die Einstellungstabelle existiert nicht in der Datenbank', {
-          description: 'Bitte erstellen Sie die "site_settings" Tabelle in Supabase.'
-        });
-        return false;
-      }
-      
       // Get current settings
       const { data: settings, error: settingsError } = await supabase
         .from('site_settings')
@@ -107,7 +85,6 @@ export const useEmailReports = () => {
       setIsLoading(true);
       
       // In a real implementation with Supabase, we would call an edge function
-      // For now, we'll simulate sending an email
       console.log(`Sending test email to: ${recipientEmail}`);
       
       const { error } = await supabase.functions.invoke('send-email-report', {
@@ -118,6 +95,7 @@ export const useEmailReports = () => {
       });
       
       if (error) {
+        console.error('Error invoking function:', error);
         throw error;
       }
       
@@ -128,7 +106,7 @@ export const useEmailReports = () => {
     } catch (err: any) {
       console.error('Error sending test email:', err);
       toast.error('Fehler beim Senden der Test-E-Mail', {
-        description: 'Bitte überprüfen Sie, ob die Supabase-Funktion korrekt eingerichtet ist.'
+        description: err?.message || 'Bitte überprüfen Sie, ob die Supabase-Funktion korrekt eingerichtet ist.'
       });
       return false;
     } finally {
