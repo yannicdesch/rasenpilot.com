@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Mail, Search, Download, Send, Trash2, Filter, CheckSquare } from 'lucide-react';
+import { Mail, Search, Download, Send, Trash2, Filter, RefreshCcw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,72 +9,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-
-// Sample data - would come from database in real app
-const sampleSubscribers = [
-  {
-    id: 1,
-    email: 'martina.schmidt@example.com',
-    name: 'Martina Schmidt',
-    status: 'active',
-    source: 'Blog',
-    dateSubscribed: '2025-05-01',
-    openRate: 68,
-    interests: ['Rasenmähen', 'Düngen']
-  },
-  {
-    id: 2,
-    email: 'thomas.weber@example.com',
-    name: 'Thomas Weber',
-    status: 'active',
-    source: 'Homepage',
-    dateSubscribed: '2025-04-15',
-    openRate: 92,
-    interests: ['Rasenmähen', 'Bewässerung', 'Unkraut']
-  },
-  {
-    id: 3,
-    email: 'sabine.mueller@example.com',
-    name: 'Sabine Müller',
-    status: 'inactive',
-    source: 'Newsletter',
-    dateSubscribed: '2025-03-22',
-    openRate: 23,
-    interests: ['Bewässerung']
-  },
-  {
-    id: 4,
-    email: 'patrick.schulz@example.com',
-    name: 'Patrick Schulz',
-    status: 'active',
-    source: 'Free Plan',
-    dateSubscribed: '2025-05-10',
-    openRate: 100,
-    interests: ['Rasenmähen', 'Düngen', 'Bewässerung', 'Unkraut']
-  },
-  {
-    id: 5,
-    email: 'julia.becker@example.com',
-    name: 'Julia Becker',
-    status: 'active',
-    source: 'Landing Page',
-    dateSubscribed: '2025-04-28',
-    openRate: 75,
-    interests: ['Düngen', 'Unkraut']
-  }
-];
+import { useSubscribers } from '@/hooks/useSubscribers';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 
 const EmailSubscribers = () => {
-  const [subscribers, setSubscribers] = useState(sampleSubscribers);
+  const { 
+    subscribers, 
+    isLoading, 
+    error, 
+    refreshSubscribers,
+    deleteMultipleSubscribers
+  } = useSubscribers();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
-  const [selectedSubscribers, setSelectedSubscribers] = useState<number[]>([]);
+  const [selectedSubscribers, setSelectedSubscribers] = useState<string[]>([]);
   
   const filteredSubscribers = subscribers.filter(subscriber => {
     const matchesSearch = 
       subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      subscriber.name.toLowerCase().includes(searchTerm.toLowerCase());
+      (subscriber.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || subscriber.status === statusFilter;
     const matchesSource = sourceFilter === 'all' || subscriber.source === sourceFilter;
     return matchesSearch && matchesStatus && matchesSource;
@@ -94,7 +49,7 @@ const EmailSubscribers = () => {
     }
   };
   
-  const handleSelectSubscriber = (subscriberId: number, checked: boolean) => {
+  const handleSelectSubscriber = (subscriberId: string, checked: boolean) => {
     if (checked) {
       setSelectedSubscribers([...selectedSubscribers, subscriberId]);
     } else {
@@ -108,9 +63,22 @@ const EmailSubscribers = () => {
       return;
     }
     
-    toast.success(`${selectedSubscribers.length} Abonnenten exportiert`, {
-      description: 'Die Daten würden als CSV-Datei heruntergeladen werden'
-    });
+    const selectedData = subscribers.filter(sub => selectedSubscribers.includes(sub.id));
+    const csvContent = 'data:text/csv;charset=utf-8,' 
+      + 'Email,Name,Status,Quelle,Abonniert am,Öffnungsrate,Interessen\n'
+      + selectedData.map(sub => 
+          `${sub.email},${sub.name || ''},${sub.status},${sub.source},${sub.dateSubscribed},${sub.openRate}%,"${sub.interests.join(', ')}"`
+        ).join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'subscribers.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success(`${selectedSubscribers.length} Abonnenten exportiert`);
   };
   
   const handleSendEmail = () => {
@@ -130,12 +98,16 @@ const EmailSubscribers = () => {
       return;
     }
     
-    toast.success(`${selectedSubscribers.length} Abonnenten wurden gelöscht`, {
-      description: 'Diese Aktion würde normalerweise einen Bestätigungsdialog zeigen'
-    });
-    
-    setSubscribers(subscribers.filter(sub => !selectedSubscribers.includes(sub.id)));
+    deleteMultipleSubscribers(selectedSubscribers);
     setSelectedSubscribers([]);
+  };
+  
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'dd.MM.yyyy', { locale: de });
+    } catch (e) {
+      return dateString;
+    }
   };
   
   return (
@@ -145,7 +117,22 @@ const EmailSubscribers = () => {
           <Mail className="h-6 w-6" />
           E-Mail-Abonnenten
         </h2>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={refreshSubscribers}
+          disabled={isLoading}
+        >
+          <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <span className="sr-only">Aktualisieren</span>
+        </Button>
       </div>
+      
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+          {error}
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -174,7 +161,9 @@ const EmailSubscribers = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-700">
-              {Math.round(subscribers.reduce((sum, sub) => sum + sub.openRate, 0) / subscribers.length)}%
+              {subscribers.length > 0 
+                ? Math.round(subscribers.reduce((sum, sub) => sum + sub.openRate, 0) / subscribers.length) 
+                : 0}%
             </div>
           </CardContent>
         </Card>
@@ -278,7 +267,16 @@ const EmailSubscribers = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredSubscribers.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
+                  <div className="flex justify-center items-center">
+                    <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="ml-2">Abonnenten werden geladen...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredSubscribers.length > 0 ? (
               filteredSubscribers.map((subscriber) => (
                 <TableRow key={subscriber.id}>
                   <TableCell>
@@ -290,7 +288,7 @@ const EmailSubscribers = () => {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{subscriber.email}</TableCell>
-                  <TableCell>{subscriber.name}</TableCell>
+                  <TableCell>{subscriber.name || '-'}</TableCell>
                   <TableCell>
                     <Badge 
                       variant={subscriber.status === 'active' ? 'default' : 'secondary'}
@@ -300,7 +298,7 @@ const EmailSubscribers = () => {
                     </Badge>
                   </TableCell>
                   <TableCell>{subscriber.source}</TableCell>
-                  <TableCell>{subscriber.dateSubscribed}</TableCell>
+                  <TableCell>{formatDate(subscriber.dateSubscribed)}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={
                       subscriber.openRate > 75 ? 'border-green-500 text-green-700' :
@@ -313,11 +311,13 @@ const EmailSubscribers = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {subscriber.interests.map((interest, idx) => (
+                      {subscriber.interests.length > 0 ? subscriber.interests.map((interest, idx) => (
                         <Badge key={idx} variant="secondary" className="text-xs">
                           {interest}
                         </Badge>
-                      ))}
+                      )) : (
+                        <span className="text-gray-400 text-xs">Keine</span>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
