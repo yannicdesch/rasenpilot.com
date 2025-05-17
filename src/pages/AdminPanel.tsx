@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, Users, FileText, Settings, Mail } from 'lucide-react';
+import { BarChart, Users, FileText, Settings, Mail, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
 import { Helmet } from 'react-helmet-async';
@@ -12,20 +12,15 @@ import ContentManagement from '@/components/admin/ContentManagement';
 import SiteSettings from '@/components/admin/SiteSettings';
 import EmailSubscribers from '@/components/admin/EmailSubscribers';
 import { Card } from '@/components/ui/card';
+import AdminLoginForm from '@/components/admin/AdminLoginForm';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
   const { isAuthenticated, userData } = useLawn();
   const [activeTab, setActiveTab] = useState('analytics');
   
-  // Redirect to auth page if not logged in or not admin
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/auth');
-    } else if (userData?.role !== 'admin') {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, navigate, userData]);
+  // Don't redirect automatically anymore
+  // Instead, we'll show a login form if the user is not authenticated
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
@@ -49,52 +44,67 @@ const AdminPanel = () => {
             </p>
           </div>
 
-          <Card className="p-0 overflow-hidden">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="w-full grid grid-cols-5 rounded-none bg-muted/50">
-                <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-background">
-                  <BarChart className="h-4 w-4" />
-                  <span className="hidden sm:inline">Statistiken</span>
-                </TabsTrigger>
-                <TabsTrigger value="users" className="flex items-center gap-2 data-[state=active]:bg-background">
-                  <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">Benutzer</span>
-                </TabsTrigger>
-                <TabsTrigger value="content" className="flex items-center gap-2 data-[state=active]:bg-background">
-                  <FileText className="h-4 w-4" />
-                  <span className="hidden sm:inline">Inhalte</span>
-                </TabsTrigger>
-                <TabsTrigger value="email" className="flex items-center gap-2 data-[state=active]:bg-background">
-                  <Mail className="h-4 w-4" />
-                  <span className="hidden sm:inline">E-Mail-Abonnenten</span>
-                </TabsTrigger>
-                <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-background">
-                  <Settings className="h-4 w-4" />
-                  <span className="hidden sm:inline">Einstellungen</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="analytics" className="p-4">
-                <SiteAnalytics />
-              </TabsContent>
-              
-              <TabsContent value="users" className="p-4">
-                <UserManagement />
-              </TabsContent>
-              
-              <TabsContent value="content" className="p-4">
-                <ContentManagement />
-              </TabsContent>
-              
-              <TabsContent value="email" className="p-4">
-                <EmailSubscribers />
-              </TabsContent>
-              
-              <TabsContent value="settings" className="p-4">
-                <SiteSettings />
-              </TabsContent>
-            </Tabs>
-          </Card>
+          {isAuthenticated && userData?.role === 'admin' ? (
+            <Card className="p-0 overflow-hidden">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="w-full grid grid-cols-5 rounded-none bg-muted/50">
+                  <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-background">
+                    <BarChart className="h-4 w-4" />
+                    <span className="hidden sm:inline">Statistiken</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="users" className="flex items-center gap-2 data-[state=active]:bg-background">
+                    <Users className="h-4 w-4" />
+                    <span className="hidden sm:inline">Benutzer</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="content" className="flex items-center gap-2 data-[state=active]:bg-background">
+                    <FileText className="h-4 w-4" />
+                    <span className="hidden sm:inline">Inhalte</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="email" className="flex items-center gap-2 data-[state=active]:bg-background">
+                    <Mail className="h-4 w-4" />
+                    <span className="hidden sm:inline">E-Mail-Abonnenten</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-background">
+                    <Settings className="h-4 w-4" />
+                    <span className="hidden sm:inline">Einstellungen</span>
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="analytics" className="p-4">
+                  <SiteAnalytics />
+                </TabsContent>
+                
+                <TabsContent value="users" className="p-4">
+                  <UserManagement />
+                </TabsContent>
+                
+                <TabsContent value="content" className="p-4">
+                  <ContentManagement />
+                </TabsContent>
+                
+                <TabsContent value="email" className="p-4">
+                  <EmailSubscribers />
+                </TabsContent>
+                
+                <TabsContent value="settings" className="p-4">
+                  <SiteSettings />
+                </TabsContent>
+              </Tabs>
+            </Card>
+          ) : (
+            <Card className="p-6">
+              <div className="flex flex-col items-center max-w-md mx-auto">
+                <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                  <Lock className="h-6 w-6 text-amber-600" />
+                </div>
+                <h2 className="text-2xl font-semibold text-center mb-2">Admin Anmeldung</h2>
+                <p className="text-gray-500 text-center mb-6">
+                  Bitte melden Sie sich an, um auf den Administrationsbereich zuzugreifen
+                </p>
+                <AdminLoginForm />
+              </div>
+            </Card>
+          )}
         </div>
       </main>
     </div>

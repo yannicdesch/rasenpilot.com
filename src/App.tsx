@@ -69,6 +69,8 @@ function App() {
           <Route path="/blog/new" element={<ProtectedRoute><NewBlogPost /></ProtectedRoute>} />
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
           <Route path="/season-guide" element={<ProtectedRoute><SeasonGuide /></ProtectedRoute>} />
+          
+          {/* Admin route - Now handled differently in ProtectedRoute */}
           <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           
           {/* Legacy route */}

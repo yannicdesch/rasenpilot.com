@@ -13,6 +13,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // Special handling for admin route
+  const isAdminRoute = location.pathname === '/admin';
 
   useEffect(() => {
     // If auth_initialized is true, user just logged in, so we can immediately show the protected content
@@ -33,7 +36,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
           setIsAuthenticated(false);
           setIsLoading(false);
-          navigate('/auth', { state: { from: location }, replace: true });
+          
+          // Don't navigate away from admin page
+          if (!isAdminRoute) {
+            navigate('/auth', { state: { from: location }, replace: true });
+          }
           return;
         }
 
@@ -46,7 +53,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
           setIsAuthenticated(false);
           setIsLoading(false);
-          navigate('/auth', { state: { from: location }, replace: true });
+          
+          // Don't navigate away from admin page
+          if (!isAdminRoute) {
+            navigate('/auth', { state: { from: location }, replace: true });
+          }
           return;
         }
         
@@ -56,8 +67,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         const isLoggedIn = !!data.session;
         setIsAuthenticated(isLoggedIn);
         
-        // If not authenticated, inform about premium features
-        if (!isLoggedIn) {
+        // If not authenticated and not on admin page, inform about premium features
+        if (!isLoggedIn && !isAdminRoute) {
           toast('Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.', {
             action: {
               label: 'Mehr Info',
@@ -73,7 +84,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         console.error('Error checking authentication:', error);
         setIsAuthenticated(false);
         setIsLoading(false);
-        navigate('/auth', { state: { from: location }, replace: true });
+        
+        // Don't navigate away from admin page
+        if (!isAdminRoute) {
+          navigate('/auth', { state: { from: location }, replace: true });
+        }
       }
     };
 
@@ -89,11 +104,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             const hasSession = !!data.session;
             setIsAuthenticated(hasSession);
             
-            if (!hasSession) {
+            if (!hasSession && !isAdminRoute) {
               navigate('/auth', { state: { from: location }, replace: true });
             }
           }).catch(() => {
-            navigate('/auth', { state: { from: location }, replace: true });
+            if (!isAdminRoute) {
+              navigate('/auth', { state: { from: location }, replace: true });
+            }
           });
         }
       }
@@ -114,7 +131,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         toast.success('Erfolgreich eingeloggt!');
       } else if (event === 'SIGNED_OUT') {
         toast.info('Sie wurden abgemeldet');
-        navigate('/auth', { state: { from: location }, replace: true });
+        if (!isAdminRoute) {
+          navigate('/auth', { state: { from: location }, replace: true });
+        }
       }
     });
   
@@ -124,7 +143,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [navigate, location]);
+  }, [navigate, location, isAdminRoute]);
 
   // Show a better loading state with visual feedback, but only for a very short time
   if (isLoading) {
@@ -136,7 +155,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // If authenticated, render the children (protected content)
+  // For admin route, we always render the children and handle auth within the component
+  if (isAdminRoute) {
+    return <>{children}</>;
+  }
+
+  // For other routes, if authenticated, render the children (protected content)
   return isAuthenticated ? 
     <>{children}</> : 
     <Navigate to="/auth" state={{ from: location }} replace />;
