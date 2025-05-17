@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -48,19 +47,27 @@ export const useAnalytics = () => {
       
       console.log('Fetching analytics data from Supabase...');
       
-      // Check if the required tables exist by directly querying them
-      const { error: pageViewsError } = await supabase
-        .from('page_views')
-        .select('id')
-        .limit(1);
-        
-      const { error: eventsError } = await supabase
-        .from('events')
-        .select('id')
-        .limit(1);
+      // Check if the page_views table exists by directly querying it
+      const { data: pageViewsData, error: pageViewsError } = await supabase.rpc('execute_sql', {
+        sql: `SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public'
+          AND table_name = 'page_views'
+        );`
+      });
       
-      const hasPageViewsTable = !pageViewsError || pageViewsError.message.includes('permission');
-      const hasEventsTable = !eventsError || eventsError.message.includes('permission');
+      const hasPageViewsTable = !pageViewsError && pageViewsData?.[0]?.exists;
+      
+      // Check if the events table exists by directly querying it
+      const { data: eventsData, error: eventsError } = await supabase.rpc('execute_sql', {
+        sql: `SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public'
+          AND table_name = 'events'
+        );`
+      });
+      
+      const hasEventsTable = !eventsError && eventsData?.[0]?.exists;
       
       if (!hasPageViewsTable || !hasEventsTable) {
         console.log('Analytics tables do not exist, using example data');
@@ -103,43 +110,32 @@ export const useAnalytics = () => {
   
   // Generate example data when no real data is available
   const generateExampleData = (): AnalyticsData => {
-    const dailyData = [
-      { name: 'Mo', visitors: 240, signups: 20 },
-      { name: 'Di', visitors: 300, signups: 25 },
-      { name: 'Mi', visitors: 280, signups: 18 },
-      { name: 'Do', visitors: 320, signups: 30 },
-      { name: 'Fr', visitors: 400, signups: 45 },
-      { name: 'Sa', visitors: 380, signups: 38 },
-      { name: 'So', visitors: 290, signups: 22 },
-    ];
-    
-    const weeklyData = [
-      { name: 'KW18', visitors: 1800, signups: 180 },
-      { name: 'KW19', visitors: 2000, signups: 210 },
-      { name: 'KW20', visitors: 2400, signups: 250 },
-      { name: 'KW21', visitors: 1900, signups: 190 },
-    ];
-    
-    const monthlyData = [
-      { name: 'Jan', visitors: 6500, signups: 650 },
-      { name: 'Feb', visitors: 5800, signups: 580 },
-      { name: 'Mär', visitors: 7800, signups: 780 },
-      { name: 'Apr', visitors: 8900, signups: 890 },
-      { name: 'Mai', visitors: 9500, signups: 950 },
-    ];
-    
-    // Calculate example totals
-    const totalVisits = monthlyData.reduce((sum, item) => sum + item.visitors, 0);
-    const totalSignups = monthlyData.reduce((sum, item) => sum + item.signups, 0);
-    const conversionRate = ((totalSignups / totalVisits) * 100);
-    
     return {
-      dailyVisitors: dailyData,
-      weeklyVisitors: weeklyData,
-      monthlyVisitors: monthlyData,
-      totalVisits,
-      totalSignups,
-      conversionRate
+      dailyVisitors: [
+        { name: 'Mo', visitors: 240, signups: 20 },
+        { name: 'Di', visitors: 300, signups: 25 },
+        { name: 'Mi', visitors: 280, signups: 18 },
+        { name: 'Do', visitors: 320, signups: 30 },
+        { name: 'Fr', visitors: 400, signups: 45 },
+        { name: 'Sa', visitors: 380, signups: 38 },
+        { name: 'So', visitors: 290, signups: 22 },
+      ],
+      weeklyVisitors: [
+        { name: 'KW18', visitors: 1800, signups: 180 },
+        { name: 'KW19', visitors: 2000, signups: 210 },
+        { name: 'KW20', visitors: 2400, signups: 250 },
+        { name: 'KW21', visitors: 1900, signups: 190 },
+      ],
+      monthlyVisitors: [
+        { name: 'Jan', visitors: 6500, signups: 650 },
+        { name: 'Feb', visitors: 5800, signups: 580 },
+        { name: 'Mär', visitors: 7800, signups: 780 },
+        { name: 'Apr', visitors: 8900, signups: 890 },
+        { name: 'Mai', visitors: 9500, signups: 950 },
+      ],
+      totalVisits: 38500,
+      totalSignups: 3850,
+      conversionRate: 10
     };
   };
 

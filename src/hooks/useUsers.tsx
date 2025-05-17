@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -25,15 +24,21 @@ export const useUsers = () => {
       
       console.log('Fetching users from Supabase...');
       
-      // Try to directly query the profiles table
-      const { error: profilesError } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1);
+      // Check if profiles table exists using the execute_sql RPC
+      const { data: profilesData, error: profilesError } = await supabase.rpc('execute_sql', {
+        sql: `SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public'
+          AND table_name = 'profiles'
+        );`
+      });
       
-      // If the table doesn't exist or we can't access it
-      if (profilesError && !profilesError.message.includes('permission')) {
-        console.log('Profiles table may not exist:', profilesError);
+      const hasProfilesTable = !profilesError && profilesData?.[0]?.exists;
+      
+      // If the table doesn't exist, use example data
+      if (!hasProfilesTable) {
+        console.log('Profiles table does not exist:', profilesError);
+        
         // Fall back to example data
         setUsers([
           { 
@@ -74,7 +79,7 @@ export const useUsers = () => {
       }
       
       // Fetch user profiles from the profiles table
-      const { data: profilesData, error: fetchError } = await supabase
+      const { data: profilesResultData, error: fetchError } = await supabase
         .from('profiles')
         .select('*');
       
@@ -82,11 +87,11 @@ export const useUsers = () => {
         throw new Error(`Fehler beim Abrufen der Profile: ${fetchError.message}`);
       }
 
-      console.log('Fetched profile data:', profilesData);
+      console.log('Fetched profile data:', profilesResultData);
       
-      if (profilesData && Array.isArray(profilesData)) {
+      if (profilesResultData && Array.isArray(profilesResultData)) {
         // Transform the data to our User format
-        const transformedUsers: User[] = profilesData.map(profile => ({
+        const transformedUsers: User[] = profilesResultData.map(profile => ({
           id: profile.id || '',
           name: profile.full_name || profile.name || null,
           email: profile.email || '',
