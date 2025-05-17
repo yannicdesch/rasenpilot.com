@@ -24,14 +24,15 @@ const SEOManagement = () => {
       <SEO 
         title="SEO Management - Optimieren Sie Ihre Website-Inhalte"
         description="Optimieren Sie Ihre Website-Inhalte für bessere Sichtbarkeit in Suchmaschinen mit Rasenpilot's SEO-Tools."
-        canonical="/seo-management" 
+        canonical="/seo-management"
+        noindex={true}
       />
       
       <MainNavigation />
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-8 flex items-center justify-between">
+          <header className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-green-800 flex items-center gap-2">
                 <Book className="h-8 w-8" />
@@ -58,12 +59,15 @@ const SEOManagement = () => {
                 <FileText className="h-4 w-4" />
               </Button>
             </div>
-          </div>
+          </header>
 
-          <SEOContentEditor />
+          <section aria-labelledby="content-editor">
+            <h2 id="content-editor" className="sr-only">SEO Content Editor</h2>
+            <SEOContentEditor />
+          </section>
 
-          <div className="mt-8 bg-green-50 p-6 rounded-lg border border-green-100">
-            <h2 className="text-xl font-semibold text-green-800 mb-3 flex items-center gap-2">
+          <section aria-labelledby="seo-tips" className="mt-8 bg-green-50 p-6 rounded-lg border border-green-100">
+            <h2 id="seo-tips" className="text-xl font-semibold text-green-800 mb-3 flex items-center gap-2">
               <Globe className="h-5 w-5" />
               SEO-Tipps für Rasen-Inhalte
             </h2>
@@ -76,7 +80,7 @@ const SEOManagement = () => {
               <li>• Nutzen Sie strukturierte Daten für bessere Sichtbarkeit in Suchergebnissen</li>
               <li>• Optimieren Sie Ihre Bilder mit ALT-Text und beschreibenden Dateinamen</li>
             </ul>
-          </div>
+          </section>
         </div>
       </main>
     </div>
@@ -84,3 +88,4 @@ const SEOManagement = () => {
 };
 
 export default SEOManagement;
+

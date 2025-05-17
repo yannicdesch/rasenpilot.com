@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, Calendar, Tag, Share } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Share } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
 import RelatedPosts from '@/components/RelatedPosts';
 import SEO from '@/components/SEO';
@@ -53,12 +54,53 @@ const BlogPost = () => {
     return <div className="min-h-screen flex items-center justify-center">Lade Blogbeitrag...</div>;
   }
   
+  // Format the category name for display
+  const getCategoryName = (category: string) => {
+    switch(category) {
+      case 'mowing': return 'Rasenmähen';
+      case 'fertilizing': return 'Rasendüngen';
+      case 'watering': return 'Bewässerung';
+      case 'problems': return 'Rasenprobleme';
+      case 'seasonal': return 'Saisonale Pflege';
+      case 'Rasenneuanlage': return 'Rasenneuanlage';
+      case 'Rasenplanung': return 'Rasenplanung';
+      case 'Rasenrenovierung': return 'Rasenrenovierung';
+      case 'Rasenpflege': return 'Rasenpflege';
+      default: return category;
+    }
+  };
+
+  // Transform the content to proper HTML with heading structure
+  const renderContent = () => {
+    if (!post.content) return null;
+    
+    // Split content by paragraphs
+    const paragraphs = post.content.split('\n\n');
+    
+    return paragraphs.map((paragraph, index) => {
+      // Check if paragraph is a heading (starts with ###)
+      if (paragraph.startsWith('### ')) {
+        return <h3 key={index} className="text-xl font-semibold text-green-700 mt-6 mb-3">{paragraph.replace('### ', '')}</h3>;
+      }
+      
+      // Check if paragraph is a heading (starts with ##)
+      if (paragraph.startsWith('## ')) {
+        return <h2 key={index} className="text-2xl font-bold text-green-800 mt-8 mb-4">{paragraph.replace('## ', '')}</h2>;
+      }
+      
+      // Regular paragraph
+      return <p key={index} className="mb-4">{paragraph}</p>;
+    });
+  };
+  
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
       <SEO 
         title={post.metaTitle || post.title}
         description={post.metaDescription || post.excerpt}
         canonical={`/blog/${post.slug}`}
+        keywords={post.keywords.join(',')}
+        ogImage={post.image}
       />
       
       <MainNavigation />
@@ -82,11 +124,7 @@ const BlogPost = () => {
           <div className="p-6 md:p-8">
             <div className="flex flex-wrap gap-3 mb-4">
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                {post.category === 'mowing' ? 'Rasenmähen' : 
-                 post.category === 'fertilizing' ? 'Rasendüngen' : 
-                 post.category === 'watering' ? 'Bewässerung' : 
-                 post.category === 'problems' ? 'Rasenprobleme' : 
-                 post.category === 'seasonal' ? 'Saisonale Pflege' : post.category}
+                {getCategoryName(post.category)}
               </Badge>
               
               <div className="text-sm text-gray-500 flex items-center">
@@ -106,14 +144,12 @@ const BlogPost = () => {
             </p>
             
             <div className="prose max-w-none">
-              {post.content.split('\n\n').map((paragraph, index) => (
-                <p key={index} className="mb-4">{paragraph}</p>
-              ))}
+              {renderContent()}
             </div>
             
             <div className="border-t border-gray-200 mt-8 pt-6">
+              <h2 className="text-lg font-medium text-green-800 mb-2">Themen in diesem Artikel</h2>
               <div className="flex flex-wrap gap-2">
-                <span className="text-gray-700 font-medium mr-2">Tags:</span>
                 {post.keywords.map((keyword, index) => (
                   <Badge key={index} variant="secondary" className="bg-gray-100">
                     {keyword}
@@ -137,14 +173,14 @@ const BlogPost = () => {
         </article>
         
         {relatedPosts.length > 0 && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-green-800 mb-6">Das könnte Sie auch interessieren</h2>
+          <section aria-labelledby="related-posts-heading" className="mt-12">
+            <h2 id="related-posts-heading" className="text-2xl font-bold text-green-800 mb-6">Das könnte Sie auch interessieren</h2>
             <RelatedPosts posts={relatedPosts} />
-          </div>
+          </section>
         )}
         
-        <div className="mt-16 bg-green-50 rounded-lg p-6 border border-green-100">
-          <h2 className="text-2xl font-bold text-green-800 mb-4">Erhalten Sie personalisierte Rasenberatung</h2>
+        <section aria-labelledby="cta-heading" className="mt-16 bg-green-50 rounded-lg p-6 border border-green-100">
+          <h2 id="cta-heading" className="text-2xl font-bold text-green-800 mb-4">Erhalten Sie personalisierte Rasenberatung</h2>
           <p className="text-gray-700 mb-4">
             Unsere Rasenpflege-Tools helfen Ihnen, einen maßgeschneiderten Pflegeplan zu erstellen, 
             der perfekt auf Ihren Rasen abgestimmt ist.
@@ -155,10 +191,11 @@ const BlogPost = () => {
           >
             Kostenlos starten <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-        </div>
+        </section>
       </div>
     </div>
   );
 };
 
 export default BlogPost;
+

@@ -1,15 +1,16 @@
 
 import React from 'react';
 import MainNavigation from '@/components/MainNavigation';
-import { Helmet } from 'react-helmet-async';
+import SEO from '@/components/SEO';
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Helmet>
-        <title>Datenschutz | Rasenpilot</title>
-        <meta name="description" content="Datenschutzerklärung von Rasenpilot - Erfahren Sie, wie wir Ihre Daten schützen und verwenden." />
-      </Helmet>
+      <SEO 
+        title="Datenschutz | Rasenpilot"
+        description="Datenschutzerklärung von Rasenpilot - Erfahren Sie, wie wir Ihre Daten schützen und verwenden."
+        canonical="/datenschutz"
+      />
       
       <MainNavigation />
       
@@ -131,3 +132,4 @@ const PrivacyPolicy = () => {
 };
 
 export default PrivacyPolicy;
+

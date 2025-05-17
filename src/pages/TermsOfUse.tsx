@@ -1,15 +1,16 @@
 
 import React from 'react';
 import MainNavigation from '@/components/MainNavigation';
-import { Helmet } from 'react-helmet-async';
+import SEO from '@/components/SEO';
 
 const TermsOfUse = () => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Helmet>
-        <title>Nutzungsbedingungen | Rasenpilot</title>
-        <meta name="description" content="Nutzungsbedingungen für die Verwendung des Rasenpilot-Services - Informieren Sie sich über die rechtlichen Rahmenbedingungen." />
-      </Helmet>
+      <SEO 
+        title="Nutzungsbedingungen | Rasenpilot"
+        description="Nutzungsbedingungen für die Verwendung des Rasenpilot-Services - Informieren Sie sich über die rechtlichen Rahmenbedingungen."
+        canonical="/nutzungsbedingungen"
+      />
       
       <MainNavigation />
       
@@ -134,3 +135,4 @@ const TermsOfUse = () => {
 };
 
 export default TermsOfUse;
+
