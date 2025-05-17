@@ -63,24 +63,24 @@ export const useSettings = () => {
       setIsLoading(true);
       setError(null);
       
-      // Modified approach to check if table exists
+      // Statt information_schema.tables zu verwenden, versuchen wir einen direkteren Ansatz
+      // Versuche, die Tabelle direkt abzufragen
       try {
-        // Attempt to query the site_settings table directly
-        const { data, error } = await supabase
+        const { error: tableCheckError } = await supabase
           .from('site_settings')
-          .select('*')
-          .limit(0);
+          .select('id')
+          .limit(1);
         
-        // If we got an error that's not related to permissions, the table probably doesn't exist
-        if (error && !error.message.includes('permission')) {
-          console.log('Settings table does not exist or cannot be accessed:', error);
+        // Wenn die Tabelle nicht existiert, erhalten wir einen anderen Fehler als bei Berechtigungsproblemen
+        if (tableCheckError && !tableCheckError.message.includes('permission')) {
+          console.log('Settings table does not exist:', tableCheckError);
           toast.warning('Einstellungstabelle existiert nicht in der Datenbank', {
             description: 'Verwende Standardeinstellungen. Erstellen Sie die Tabelle "site_settings" in Supabase.'
           });
           return;
         }
       } catch (err) {
-        console.error('Error checking for settings table:', err);
+        console.error('Error checking for settings table existence:', err);
         return;
       }
       
@@ -130,16 +130,16 @@ export const useSettings = () => {
     try {
       setIsLoading(true);
       
-      // Modified approach to check if table exists
+      // Statt information_schema.tables zu verwenden, versuchen wir einen direkteren Ansatz
+      // Versuche, die Tabelle direkt abzufragen
       try {
-        // Attempt to query the site_settings table directly
-        const { data, error } = await supabase
+        const { error: tableCheckError } = await supabase
           .from('site_settings')
-          .select('*')
-          .limit(0);
+          .select('id')
+          .limit(1);
         
-        // If we got an error that's not related to permissions, the table probably doesn't exist
-        if (error && !error.message.includes('permission')) {
+        // Wenn die Tabelle nicht existiert, erhalten wir einen anderen Fehler als bei Berechtigungsproblemen
+        if (tableCheckError && !tableCheckError.message.includes('permission')) {
           console.log('Settings table does not exist, cannot save settings');
           toast.error('Einstellungstabelle existiert nicht in der Datenbank', {
             description: 'Erstellen Sie die Tabelle "site_settings" in Supabase.'
@@ -147,7 +147,7 @@ export const useSettings = () => {
           return false;
         }
       } catch (err) {
-        console.error('Error checking for settings table:', err);
+        console.error('Error checking for settings table existence:', err);
         return false;
       }
       

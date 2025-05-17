@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -25,22 +24,17 @@ export const useUsers = () => {
       
       console.log('Fetching users from Supabase...');
       
-      // First check if the 'profiles' table exists, if not, create it
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'profiles');
+      // Statt information_schema.tables zu verwenden, direkten Ansatz probieren
+      // Versuche, die profiles-Tabelle direkt abzufragen
+      const { error: profilesError } = await supabase
+        .from('profiles')
+        .select('id')
+        .limit(1);
       
-      if (tablesError) {
-        console.error('Error checking for profiles table:', tablesError);
-      }
-      
-      // If the profiles table doesn't exist or we couldn't check
-      if (!existingTables || existingTables.length === 0) {
-        console.log('Profiles table may not exist, attempting to use auth.users');
-        
-        // Fallback to example data since we can't create the table here
+      // Wenn die Tabelle nicht existiert oder wir nicht zugreifen können
+      if (profilesError && !profilesError.message.includes('permission')) {
+        console.log('Profiles table may not exist:', profilesError);
+        // Fallback zu Beispieldaten
         setUsers([
           { 
             id: '1', 
@@ -71,7 +65,7 @@ export const useUsers = () => {
           }
         ]);
         
-        toast.error('Profilstabelle existiert nicht in der Datenbank', {
+        toast.warning('Profilstabelle existiert nicht in der Datenbank', {
           description: 'Verwende Beispieldaten. Erstellen Sie eine "profiles"-Tabelle in Supabase.'
         });
         
@@ -79,12 +73,12 @@ export const useUsers = () => {
       }
       
       // Fetch user profiles from the profiles table
-      const { data: profilesData, error: profilesError } = await supabase
+      const { data: profilesData, error: fetchError } = await supabase
         .from('profiles')
         .select('*');
       
-      if (profilesError) {
-        throw new Error(`Fehler beim Abrufen der Profile: ${profilesError.message}`);
+      if (fetchError) {
+        throw new Error(`Fehler beim Abrufen der Profile: ${fetchError.message}`);
       }
 
       console.log('Fetched profile data:', profilesData);

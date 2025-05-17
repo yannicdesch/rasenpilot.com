@@ -21,23 +21,19 @@ export const useEmailReports = () => {
     try {
       setIsLoading(true);
       
-      // Check if the site_settings table exists by attempting to query it
-      try {
-        const { error: tableCheckError } = await supabase
-          .from('site_settings')
-          .select('id')
-          .limit(0);
-          
-        if (tableCheckError && !tableCheckError.message.includes('permission')) {
-          console.error('site_settings table does not exist:', tableCheckError);
-          toast.error('Die erforderliche Tabelle existiert nicht', {
-            description: 'Bitte erstellen Sie die Tabelle "site_settings" gemäß der Anleitung in der Dokumentation.'
-          });
-          return false;
-        }
-      } catch (err) {
-        console.error('Error checking for table existence:', err);
-        toast.error('Fehler beim Überprüfen der Tabelle');
+      // Statt information_schema.tables zu verwenden, versuchen wir einen direkteren Ansatz
+      // Versuche, die Tabelle direkt abzufragen
+      const { error: tableCheckError } = await supabase
+        .from('site_settings')
+        .select('id')
+        .limit(1);
+      
+      // Wenn die Tabelle nicht existiert, erhalten wir einen anderen Fehler als bei Berechtigungsproblemen
+      if (tableCheckError && !tableCheckError.message.includes('permission')) {
+        console.error('site_settings table does not exist:', tableCheckError);
+        toast.error('Die erforderliche Tabelle existiert nicht', {
+          description: 'Bitte erstellen Sie die Tabelle "site_settings" gemäß der Anleitung in der Dokumentation.'
+        });
         return false;
       }
       
@@ -107,7 +103,7 @@ export const useEmailReports = () => {
       // Log attempt
       console.log(`Attempting to send test email to: ${recipientEmail}`);
       
-      // Check if the function exists by calling it
+      // Supabase Edge Function aufrufen
       const { error } = await supabase.functions.invoke('send-email-report', {
         body: { 
           recipient: recipientEmail,

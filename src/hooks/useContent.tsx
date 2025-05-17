@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -123,21 +122,20 @@ export const useContent = () => {
       setIsLoading(true);
       setError(null);
       
-      // Check if content tables exist
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .in('table_name', ['blog_posts', 'pages']);
+      // Prüfen, ob die blog_posts-Tabelle existiert
+      const { error: blogTableError } = await supabase
+        .from('blog_posts')
+        .select('id')
+        .limit(1);
       
-      if (tablesError) {
-        console.error('Error checking for content tables:', tablesError);
-        throw new Error('Failed to check for content tables');
-      }
+      // Prüfen, ob die pages-Tabelle existiert
+      const { error: pagesTableError } = await supabase
+        .from('pages')
+        .select('id')
+        .limit(1);
       
-      const tableNames = existingTables?.map(t => t.table_name) || [];
-      const hasBlogTable = tableNames.includes('blog_posts');
-      const hasPagesTable = tableNames.includes('pages');
+      const hasBlogTable = !blogTableError || blogTableError.message.includes('permission');
+      const hasPagesTable = !pagesTableError || pagesTableError.message.includes('permission');
       
       // Fetch blog posts if table exists
       if (hasBlogTable) {

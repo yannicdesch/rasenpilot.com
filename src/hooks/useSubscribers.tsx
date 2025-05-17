@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -26,76 +25,65 @@ export const useSubscribers = () => {
       
       console.log('Fetching email subscribers from Supabase...');
       
-      // First check if the 'subscribers' table exists, if not, create it
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'subscribers');
+      // Statt information_schema.tables zu verwenden, direkten Ansatz probieren
+      // Versuche, die subscribers-Tabelle direkt abzufragen
+      const { error: subscribersError } = await supabase
+        .from('subscribers')
+        .select('id')
+        .limit(1);
       
-      if (tablesError) {
-        console.error('Error checking for subscribers table:', tablesError);
-      }
-      
-      // If the subscribers table doesn't exist or we couldn't check
-      if (!existingTables || existingTables.length === 0) {
-        console.log('Subscribers table may not exist, attempting to create it');
+      // Wenn die Tabelle nicht existiert oder wir nicht zugreifen können
+      if (subscribersError && !subscribersError.message.includes('permission')) {
+        console.log('Subscribers table may not exist:', subscribersError);
         
-        // Try to create the subscribers table
-        const { error: createError } = await supabase.rpc('create_subscribers_table', {});
+        // Fallback zu Beispieldaten
+        setSubscribers([
+          {
+            id: '1',
+            email: 'martina.schmidt@example.com',
+            name: 'Martina Schmidt',
+            status: 'active',
+            source: 'Blog',
+            dateSubscribed: '2025-05-01',
+            openRate: 68,
+            interests: ['Rasenmähen', 'Düngen']
+          },
+          {
+            id: '2',
+            email: 'thomas.weber@example.com',
+            name: 'Thomas Weber',
+            status: 'active',
+            source: 'Homepage',
+            dateSubscribed: '2025-04-15',
+            openRate: 92,
+            interests: ['Rasenmähen', 'Bewässerung', 'Unkraut']
+          },
+          {
+            id: '3',
+            email: 'sabine.mueller@example.com',
+            name: 'Sabine Müller',
+            status: 'inactive',
+            source: 'Newsletter',
+            dateSubscribed: '2025-03-22',
+            openRate: 23,
+            interests: ['Bewässerung']
+          }
+        ]);
         
-        if (createError) {
-          console.error('Error creating subscribers table:', createError);
-          
-          // Fallback to example data since we couldn't create the table
-          setSubscribers([
-            {
-              id: '1',
-              email: 'martina.schmidt@example.com',
-              name: 'Martina Schmidt',
-              status: 'active',
-              source: 'Blog',
-              dateSubscribed: '2025-05-01',
-              openRate: 68,
-              interests: ['Rasenmähen', 'Düngen']
-            },
-            {
-              id: '2',
-              email: 'thomas.weber@example.com',
-              name: 'Thomas Weber',
-              status: 'active',
-              source: 'Homepage',
-              dateSubscribed: '2025-04-15',
-              openRate: 92,
-              interests: ['Rasenmähen', 'Bewässerung', 'Unkraut']
-            },
-            {
-              id: '3',
-              email: 'sabine.mueller@example.com',
-              name: 'Sabine Müller',
-              status: 'inactive',
-              source: 'Newsletter',
-              dateSubscribed: '2025-03-22',
-              openRate: 23,
-              interests: ['Bewässerung']
-            }
-          ]);
-          
-          toast.error('Abonnententabelle existiert nicht in der Datenbank', {
-            description: 'Verwende Beispieldaten. Erstellen Sie eine "subscribers"-Tabelle in Supabase.'
-          });
-          
-          return;
-        }
+        toast.warning('Abonnententabelle existiert nicht in der Datenbank', {
+          description: 'Verwende Beispieldaten. Erstellen Sie eine "subscribers"-Tabelle in Supabase.'
+        });
+        
+        return;
       }
       
       // Fetch subscribers from the subscribers table
-      const { data: subscribersData, error: subscribersError } = await supabase
+      const { data: subscribersData, error: fetchError } = await supabase
         .from('subscribers')
         .select('*');
       
-      if (subscribersError) {
-        throw new Error(`Fehler beim Abrufen der Abonnenten: ${subscribersError.message}`);
+      if (fetchError) {
+        throw new Error(`Fehler beim Abrufen der Abonnenten: ${fetchError.message}`);
       }
 
       console.log('Fetched subscriber data:', subscribersData);
@@ -195,26 +183,6 @@ export const useSubscribers = () => {
           dateSubscribed: '2025-03-22',
           openRate: 23,
           interests: ['Bewässerung']
-        },
-        {
-          id: '4',
-          email: 'patrick.schulz@example.com',
-          name: 'Patrick Schulz',
-          status: 'active',
-          source: 'Free Plan',
-          dateSubscribed: '2025-05-10',
-          openRate: 100,
-          interests: ['Rasenmähen', 'Düngen', 'Bewässerung', 'Unkraut']
-        },
-        {
-          id: '5',
-          email: 'julia.becker@example.com',
-          name: 'Julia Becker',
-          status: 'active',
-          source: 'Landing Page',
-          dateSubscribed: '2025-04-28',
-          openRate: 75,
-          interests: ['Düngen', 'Unkraut']
         }
       ]);
     } finally {
