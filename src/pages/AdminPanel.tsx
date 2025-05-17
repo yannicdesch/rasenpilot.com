@@ -9,7 +9,7 @@ import { Helmet } from 'react-helmet-async';
 import SiteAnalytics from '@/components/admin/SiteAnalytics';
 import UserManagement from '@/components/admin/UserManagement';
 import ContentManagement from '@/components/admin/ContentManagement';
-import SiteSettings from '@/components/admin/SiteSettings';
+import { SiteSettings } from '@/components/admin/SiteSettings';
 import EmailSubscribers from '@/components/admin/EmailSubscribers';
 import { Card } from '@/components/ui/card';
 import AdminLoginForm from '@/components/admin/AdminLoginForm';

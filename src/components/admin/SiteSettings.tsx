@@ -1,11 +1,12 @@
+
 // This is a modified version of the component that will include our database setup tool
 // We're keeping the original imports and structure, just adding our DatabaseSetup component
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GeneralSettings } from './settings/GeneralSettings';
-import { SeoSettings } from './settings/SeoSettings';
-import { SecuritySettings } from './settings/SecuritySettings';
-import { EmailReportSettings } from './EmailReportSettings';
+import GeneralSettings from './settings/GeneralSettings';
+import SeoSettings from './settings/SeoSettings';
+import SecuritySettings from './settings/SecuritySettings';
+import EmailReportSettings from './EmailReportSettings';
 import { DatabaseSetup } from './DatabaseSetup';
 
 export const SiteSettings = () => {
