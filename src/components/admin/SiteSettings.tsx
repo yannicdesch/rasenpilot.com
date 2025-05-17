@@ -1,3 +1,4 @@
+
 // This is a modified version of the component that will include our database setup tool
 // We're keeping the original imports and structure, just adding our DatabaseSetup component
 import React, { useState, useEffect } from 'react';
@@ -12,11 +13,11 @@ import { toast } from 'sonner';
 
 export const SiteSettings = () => {
   const [activeTab, setActiveTab] = useState('general');
-  const { settings, isLoading, updateSettings } = useSettings();
+  const { settings, isLoading, saveSettings, clearCache } = useSettings();
 
   const handleSaveSettings = async (section: string, data: any) => {
     try {
-      const success = await updateSettings(section, data);
+      const success = await saveSettings({ ...settings, [section]: data });
       if (success) {
         toast.success(`${section} settings saved successfully`);
       }
@@ -51,7 +52,7 @@ export const SiteSettings = () => {
             settings={settings} 
             isLoading={isLoading} 
             onSave={(data) => handleSaveSettings('general', data)}
-            onClearCache={() => toast.success('Cache cleared')}
+            onClearCache={() => clearCache()}
           />
         </TabsContent>
         
