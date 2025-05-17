@@ -83,13 +83,14 @@ const AdminLoginForm = () => {
       
       // Set explicit flag in localStorage to help with auth detection
       localStorage.setItem('auth_initialized', 'true');
+      localStorage.setItem('admin_login_success', 'true'); // Add specific admin login flag
       
       toast.success('Erfolgreich eingeloggt!');
       
       // Ensure we complete the progress bar
       setLoginProgress(100);
       
-      // Reload the page to update authentication state
+      // Force reload the page to update authentication state
       setTimeout(() => {
         window.location.reload();
       }, 500);

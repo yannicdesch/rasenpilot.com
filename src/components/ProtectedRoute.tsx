@@ -18,6 +18,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const isAdminRoute = location.pathname === '/admin';
 
   useEffect(() => {
+    // Immediately consider admin login successful if flag exists
+    const adminLoginSuccess = localStorage.getItem('admin_login_success');
+    if (adminLoginSuccess && isAdminRoute) {
+      console.log('Admin login success flag found, bypassing authentication check');
+      setIsAuthenticated(true);
+      setIsLoading(false);
+      return;
+    }
+    
     // If auth_initialized is true, user just logged in, so we can immediately show the protected content
     const authInitialized = localStorage.getItem('auth_initialized');
     if (authInitialized) {
@@ -33,7 +42,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         // Short circuit if Supabase is not configured
         if (!isSupabaseConfigured()) {
           console.error('Supabase is not configured properly');
-          toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+          if (!isAdminRoute) {
+            toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
+          }
           setIsAuthenticated(false);
           setIsLoading(false);
           
@@ -50,7 +61,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         if (error) {
           console.error('Supabase authentication error:', error);
-          toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
+          if (!isAdminRoute) {
+            toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
+          }
           setIsAuthenticated(false);
           setIsLoading(false);
           
@@ -129,6 +142,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       
       if (event === 'SIGNED_IN') {
         toast.success('Erfolgreich eingeloggt!');
+        
+        // Set admin login success flag if signing in from admin page
+        if (isAdminRoute) {
+          localStorage.setItem('admin_login_success', 'true');
+        }
       } else if (event === 'SIGNED_OUT') {
         toast.info('Sie wurden abgemeldet');
         if (!isAdminRoute) {

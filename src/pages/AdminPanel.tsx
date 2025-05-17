@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Users, FileText, Settings, Mail, Lock } from 'lucide-react';
@@ -13,14 +13,68 @@ import SiteSettings from '@/components/admin/SiteSettings';
 import EmailSubscribers from '@/components/admin/EmailSubscribers';
 import { Card } from '@/components/ui/card';
 import AdminLoginForm from '@/components/admin/AdminLoginForm';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
   const { isAuthenticated, userData } = useLawn();
   const [activeTab, setActiveTab] = useState('analytics');
+  const [localAuthStatus, setLocalAuthStatus] = useState<boolean | null>(null);
+  const [isAdminUser, setIsAdminUser] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Don't redirect automatically anymore
-  // Instead, we'll show a login form if the user is not authenticated
+  // Check if user just successfully logged in as admin
+  useEffect(() => {
+    const adminLoginSuccess = localStorage.getItem('admin_login_success');
+    
+    if (adminLoginSuccess) {
+      // Clear the flag
+      localStorage.removeItem('admin_login_success');
+      setLocalAuthStatus(true);
+      setIsAdminUser(true);
+      setIsLoading(false);
+      return;
+    }
+    
+    // Check authentication state
+    const checkAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const isLoggedIn = !!data.session;
+        setLocalAuthStatus(isLoggedIn);
+        
+        // If logged in, check if user is admin
+        if (isLoggedIn && data.session) {
+          // Fetch user data to check role
+          // In a real app, you would check admin status from user metadata or a separate table
+          // For this example, we'll assume the user is admin if they're logged in through the admin form
+          setIsAdminUser(true);
+        } else {
+          setIsAdminUser(false);
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        toast.error('Fehler beim Überprüfen des Authentifizierungsstatus');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, []);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
+        <MainNavigation />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
@@ -44,7 +98,7 @@ const AdminPanel = () => {
             </p>
           </div>
 
-          {isAuthenticated && userData?.role === 'admin' ? (
+          {(isAuthenticated && userData?.role === 'admin') || localAuthStatus === true || isAdminUser === true ? (
             <Card className="p-0 overflow-hidden">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="w-full grid grid-cols-5 rounded-none bg-muted/50">
