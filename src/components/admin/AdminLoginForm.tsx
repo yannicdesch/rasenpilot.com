@@ -81,14 +81,34 @@ const AdminLoginForm = () => {
 
       console.log('Login successful, session established:', !!authData.session);
       
+      // Überprüfen, ob der Benutzer ein Administrator ist
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.session.user.id)
+        .single();
+
+      if (userError) {
+        console.warn('Konnte Benutzerrolle nicht abrufen:', userError);
+        // Wir machen weiter, auch wenn wir die Rolle nicht abrufen können
+      }
+
+      // Benutzerrechte überprüfen (falls wir sie abrufen konnten)
+      if (userData && userData.role !== 'admin') {
+        toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
+        setIsLoading(false);
+        setShowProgress(false);
+        return;
+      }
+      
       // Set explicit flag in localStorage to help with auth detection
       localStorage.setItem('auth_initialized', 'true');
-      localStorage.setItem('admin_login_success', 'true'); // Add specific admin login flag
-      
-      toast.success('Erfolgreich eingeloggt!');
+      localStorage.setItem('admin_login_success', 'true');
       
       // Ensure we complete the progress bar
       setLoginProgress(100);
+      
+      toast.success('Erfolgreich eingeloggt!');
       
       // Force reload the page to update authentication state
       setTimeout(() => {

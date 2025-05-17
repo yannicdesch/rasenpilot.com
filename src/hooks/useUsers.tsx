@@ -23,35 +23,49 @@ export const useUsers = () => {
       setIsLoading(true);
       setError(null);
       
-      // Fetch users from the auth.users table
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      console.log('Fetching users from Supabase...');
       
-      if (authError) {
-        throw authError;
+      // In einem echten Setup würden wir auf die users Tabelle zugreifen
+      // Da wir aber keinen direkten Zugriff auf die admin.listUsers API haben,
+      // holen wir stattdessen Daten aus einer Tabelle "profiles" oder einer ähnlichen
+      const { data, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*');
+      
+      if (fetchError) {
+        throw fetchError;
       }
 
-      // Transform the data to match our User interface with proper type casting
-      const transformedUsers: User[] = authUsers.users.map(user => ({
-        id: user.id,
-        name: user.user_metadata?.full_name || null,
-        email: user.email || '',
-        // Ensure status is either 'active' or 'inactive'
-        status: user.banned ? 'inactive' as const : 'active' as const,
-        // Ensure role is either 'user' or 'admin'
-        role: user.role === 'supabase_admin' ? 'admin' as const : 'user' as const,
-        created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at
-      }));
-
-      setUsers(transformedUsers);
-    } catch (err) {
+      console.log('Fetched user data:', data);
+      
+      if (data && Array.isArray(data)) {
+        // Transformieren der Daten zu unserem User-Format
+        const transformedUsers: User[] = data.map(user => ({
+          id: user.id || '',
+          name: user.full_name || null,
+          email: user.email || '',
+          status: user.is_active ? 'active' as const : 'inactive' as const,
+          role: user.role === 'admin' ? 'admin' as const : 'user' as const,
+          created_at: user.created_at || '',
+          last_sign_in_at: user.last_sign_in_at || null
+        }));
+        
+        setUsers(transformedUsers);
+      } else {
+        // Fallback, wenn keine Daten kommen oder Format nicht stimmt
+        throw new Error('Unerwartetes Datenformat');
+      }
+    } catch (err: any) {
       console.error('Error fetching users:', err);
-      setError('Failed to fetch users. You might not have admin privileges.');
-      toast.error('Failed to fetch users', {
-        description: 'Make sure you have admin privileges to access user data.'
+      
+      const errorMsg = err.message || 'Failed to fetch users';
+      setError(`${errorMsg}. Überprüfen Sie Ihre Administratorrechte.`);
+      
+      toast.error('Fehler beim Abrufen der Benutzerdaten', {
+        description: 'Stellen Sie sicher, dass Sie Administratorrechte haben.'
       });
       
-      // Fall back to sample data if there's an error
+      // Fallback auf Beispieldaten, damit die UI nicht leer ist
       setUsers([
         { 
           id: '1', 

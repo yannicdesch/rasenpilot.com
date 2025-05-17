@@ -42,9 +42,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         // Short circuit if Supabase is not configured
         if (!isSupabaseConfigured()) {
           console.error('Supabase is not configured properly');
-          if (!isAdminRoute) {
-            toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
-          }
           setIsAuthenticated(false);
           setIsLoading(false);
           
@@ -61,16 +58,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         if (error) {
           console.error('Supabase authentication error:', error);
-          if (!isAdminRoute) {
-            toast.error('Authentifizierungsfehler. Bitte später erneut versuchen.');
-          }
           setIsAuthenticated(false);
           setIsLoading(false);
-          
-          // Don't navigate away from admin page
-          if (!isAdminRoute) {
-            navigate('/auth', { state: { from: location }, replace: true });
-          }
           return;
         }
         
@@ -80,7 +69,28 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         const isLoggedIn = !!data.session;
         setIsAuthenticated(isLoggedIn);
         
-        // If not authenticated and not on admin page, inform about premium features
+        // Wenn wir auf der Admin-Route sind und eine Admin-Rolle haben, überprüfen wir die Berechtigung
+        if (isLoggedIn && isAdminRoute && data.session) {
+          try {
+            // Benutzerrolle überprüfen
+            const { data: userData, error: userError } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', data.session.user.id)
+              .single();
+              
+            if (userError) {
+              console.warn('Konnte Benutzerrolle nicht abrufen:', userError);
+            } else if (userData && userData.role !== 'admin') {
+              toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
+              setIsAuthenticated(false);
+            }
+          } catch (roleError) {
+            console.error('Fehler bei der Rollenprüfung:', roleError);
+          }
+        }
+        
+        // Wenn nicht authentifiziert und nicht auf Admin-Seite, über Premium-Funktionen informieren
         if (!isLoggedIn && !isAdminRoute) {
           toast('Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.', {
             action: {
@@ -90,18 +100,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           });
           navigate('/auth', { state: { from: location }, replace: true });
         }
-        
-        // Complete loading state faster
-        setIsLoading(false);
       } catch (error) {
         console.error('Error checking authentication:', error);
         setIsAuthenticated(false);
+      } finally {
         setIsLoading(false);
-        
-        // Don't navigate away from admin page
-        if (!isAdminRoute) {
-          navigate('/auth', { state: { from: location }, replace: true });
-        }
       }
     };
 
@@ -149,6 +152,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         }
       } else if (event === 'SIGNED_OUT') {
         toast.info('Sie wurden abgemeldet');
+        localStorage.removeItem('admin_login_success');
         if (!isAdminRoute) {
           navigate('/auth', { state: { from: location }, replace: true });
         }

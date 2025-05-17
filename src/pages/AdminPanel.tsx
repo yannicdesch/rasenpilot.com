@@ -26,42 +26,74 @@ const AdminPanel = () => {
   
   // Check if user just successfully logged in as admin
   useEffect(() => {
-    const adminLoginSuccess = localStorage.getItem('admin_login_success');
-    
-    if (adminLoginSuccess) {
-      // Clear the flag
-      localStorage.removeItem('admin_login_success');
-      setLocalAuthStatus(true);
-      setIsAdminUser(true);
-      setIsLoading(false);
-      return;
-    }
-    
-    // Check authentication state
-    const checkAuth = async () => {
+    const checkAdminStatus = async () => {
+      setIsLoading(true);
+      
+      // Prüfen auf Admin-Login-Flag
+      const adminLoginSuccess = localStorage.getItem('admin_login_success');
+      
+      if (adminLoginSuccess) {
+        console.log('Admin login success flag found, setting admin status to true');
+        setLocalAuthStatus(true);
+        setIsAdminUser(true);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Sessionüberprüfung
       try {
-        const { data } = await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setLocalAuthStatus(false);
+          setIsAdminUser(false);
+          setIsLoading(false);
+          return;
+        }
+        
         const isLoggedIn = !!data.session;
         setLocalAuthStatus(isLoggedIn);
         
-        // If logged in, check if user is admin
+        // Wenn eingeloggt, Benutzerrolle überprüfen
         if (isLoggedIn && data.session) {
-          // Fetch user data to check role
-          // In a real app, you would check admin status from user metadata or a separate table
-          // For this example, we'll assume the user is admin if they're logged in through the admin form
-          setIsAdminUser(true);
+          try {
+            // Benutzerrolle aus der profiles Tabelle abrufen
+            const { data: userData, error: userError } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', data.session.user.id)
+              .single();
+              
+            if (userError) {
+              console.warn('Konnte Benutzerrolle nicht abrufen:', userError);
+              // Fallback: Behandeln als nicht-Admin
+              setIsAdminUser(false);
+            } else {
+              // Admin-Status basierend auf der Rolle setzen
+              setIsAdminUser(userData?.role === 'admin');
+              
+              if (userData?.role !== 'admin') {
+                toast.error('Sie haben keine Administratorrechte');
+              }
+            }
+          } catch (e) {
+            console.error('Error checking user role:', e);
+            setIsAdminUser(false);
+          }
         } else {
           setIsAdminUser(false);
         }
-      } catch (error) {
-        console.error('Error checking auth status:', error);
-        toast.error('Fehler beim Überprüfen des Authentifizierungsstatus');
+      } catch (e) {
+        console.error('Error in admin status check:', e);
+        setLocalAuthStatus(false);
+        setIsAdminUser(false);
       } finally {
         setIsLoading(false);
       }
     };
     
-    checkAuth();
+    checkAdminStatus();
   }, []);
 
   // Show loading state
@@ -75,6 +107,19 @@ const AdminPanel = () => {
       </div>
     );
   }
+
+  // Admin-Berechtigung von verschiedenen Quellen prüfen
+  const hasAdminAccess = 
+    (isAuthenticated && userData?.role === 'admin') || 
+    localAuthStatus === true && isAdminUser === true;
+    
+  console.log('Admin access check:', {
+    isAuthenticated,
+    userDataRole: userData?.role,
+    localAuthStatus,
+    isAdminUser,
+    hasAdminAccess
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
@@ -98,7 +143,7 @@ const AdminPanel = () => {
             </p>
           </div>
 
-          {(isAuthenticated && userData?.role === 'admin') || localAuthStatus === true || isAdminUser === true ? (
+          {hasAdminAccess ? (
             <Card className="p-0 overflow-hidden">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="w-full grid grid-cols-5 rounded-none bg-muted/50">
