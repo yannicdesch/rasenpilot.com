@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BarChart, Legend, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 import { RefreshCw, BarChart3, Database, AlertTriangle } from 'lucide-react';
 import { checkAnalyticsTables, createAnalyticsTables } from '@/lib/analytics';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
@@ -20,26 +20,39 @@ const SiteAnalytics = () => {
   // Check if tables exist on component mount
   useEffect(() => {
     const checkTables = async () => {
+      console.log("Checking analytics tables...");
       const exist = await checkAnalyticsTables();
+      console.log("Tables exist?", exist);
       setTablesExist(exist);
     };
     
     checkTables();
   }, []);
   
-  // Handle creating tables
+  // Handle creating tables - fixed to properly handle async/await
   const handleCreateTables = async () => {
     console.log('Creating analytics tables...');
     setIsCreatingTables(true);
+    
     try {
+      // Call the createAnalyticsTables function
       const success = await createAnalyticsTables();
+      
       console.log('Table creation result:', success);
+      
+      // Update UI based on result
       if (success) {
         setTablesExist(true);
+        toast.success('Tabellen wurden erfolgreich erstellt');
         refreshAnalytics();
+      } else {
+        toast.error('Fehler beim Erstellen der Tabellen');
       }
     } catch (error) {
       console.error('Error creating tables:', error);
+      toast.error('Fehler beim Erstellen der Tabellen', {
+        description: 'Ein unerwarteter Fehler ist aufgetreten.'
+      });
     } finally {
       setIsCreatingTables(false);
     }
