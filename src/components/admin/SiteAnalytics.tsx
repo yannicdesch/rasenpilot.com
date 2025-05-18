@@ -29,13 +29,13 @@ const SiteAnalytics = () => {
     checkTables();
   }, []);
   
-  // Handle creating tables - fixed to properly handle async/await
+  // Handle creating tables
   const handleCreateTables = async () => {
     console.log('Creating analytics tables...');
     setIsCreatingTables(true);
     
     try {
-      // Call the createAnalyticsTables function
+      // Call the improved createAnalyticsTables function
       const success = await createAnalyticsTables();
       
       console.log('Table creation result:', success);
@@ -44,9 +44,12 @@ const SiteAnalytics = () => {
       if (success) {
         setTablesExist(true);
         toast.success('Tabellen wurden erfolgreich erstellt');
+        // Refresh analytics to show real data
         refreshAnalytics();
       } else {
-        toast.error('Fehler beim Erstellen der Tabellen');
+        toast.error('Fehler beim Erstellen der Tabellen', {
+          description: 'Bitte überprüfen Sie die Konsolenausgabe für Details.'
+        });
       }
     } catch (error) {
       console.error('Error creating tables:', error);
