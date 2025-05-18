@@ -7,13 +7,17 @@ interface SEOProps {
   description?: string;
   canonical?: string;
   noindex?: boolean;
+  ogImage?: string;
+  keywords?: string;
 }
 
 const SEO: React.FC<SEOProps> = ({ 
   title, 
   description,
   canonical,
-  noindex = false 
+  noindex = false,
+  ogImage,
+  keywords
 }) => {
   // Ensure title doesn't exceed 60 characters
   const formattedTitle = title 
@@ -29,21 +33,29 @@ const SEO: React.FC<SEOProps> = ({
   const siteUrl = 'https://rasenpilot.de';
   const canonicalUrl = canonical ? `${siteUrl}${canonical}` : undefined;
 
+  // Default OG image
+  const defaultOgImage = `${siteUrl}/logo.png`;
+  const ogImageUrl = ogImage ? ogImage : defaultOgImage;
+
   return (
     <Helmet>
       <title>{formattedTitle}</title>
       <meta name="description" content={formattedDescription} />
+      
+      {keywords && <meta name="keywords" content={keywords} />}
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content="website" />
       <meta property="og:title" content={formattedTitle} />
       <meta property="og:description" content={formattedDescription} />
       {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-
+      <meta property="og:image" content={ogImageUrl} />
+      
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={formattedTitle} />
       <meta name="twitter:description" content={formattedDescription} />
+      <meta name="twitter:image" content={ogImageUrl} />
       
       {/* Canonical link */}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}

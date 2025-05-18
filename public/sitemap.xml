@@ -8,7 +8,7 @@
   <!-- Main landing page -->
   <url>
     <loc>https://rasenpilot.de/</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -16,21 +16,21 @@
   <!-- Main pages -->
   <url>
     <loc>https://rasenpilot.de/index</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/blog</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/blog-overview</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -38,7 +38,7 @@
   <!-- Free tools and plans (high SEO visibility) -->
   <url>
     <loc>https://rasenpilot.de/free-plan</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -49,7 +49,7 @@
   
   <url>
     <loc>https://rasenpilot.de/free-care-plan</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -60,28 +60,28 @@
   
   <url>
     <loc>https://rasenpilot.de/free-chat</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/free-analysis</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/free-weather</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/features</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -89,21 +89,21 @@
   <!-- Legal pages -->
   <url>
     <loc>https://rasenpilot.de/datenschutz</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/nutzungsbedingungen</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/impressum</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -111,28 +111,28 @@
   <!-- Seasonal guides for SEO content -->
   <url>
     <loc>https://rasenpilot.de/rasenpflege-fruehjahr</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/rasenpflege-sommer</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/rasenpflege-herbst</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://rasenpilot.de/rasenpflege-winter</loc>
-    <lastmod>2025-05-17</lastmod>
+    <lastmod>2025-05-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
