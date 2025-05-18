@@ -5,34 +5,32 @@ import { createExecuteSqlFunction } from './analytics';
 // Helper function to execute SQL directly
 const executeSqlDirectly = async (sql: string): Promise<boolean> => {
   try {
-    // First try with the execute_sql RPC if it exists
-    const { error } = await supabase.rpc('execute_sql', { sql });
+    // First try with a direct POST to the execute_sql RPC endpoint
+    const { error } = await supabase.rest.post('/rpc/execute_sql', {
+      body: { sql }
+    });
     
     if (!error) {
       return true;
     }
     
-    // If that fails, try a fallback approach with raw SQL
+    // If that fails, try a fallback approach with functions
     console.log('Using fallback approach for SQL execution');
-    const { error: directError } = await supabase
-      .from('_')
-      .select('*')
-      .eq('id', 0)
-      .rpc('_', {}, {
-        head: true,
-        modify: () => ({
-          method: "POST",
-          url: "/rest/v1/sql",
-          body: sql
-        })
+    try {
+      const { error: functionError } = await supabase.functions.invoke('execute-sql', {
+        body: { sql }
       });
       
-    if (directError) {
-      console.error('Error with direct SQL execution too:', directError);
+      if (functionError) {
+        console.error('Error with function execution:', functionError);
+        return false;
+      }
+      
+      return true;
+    } catch (fallbackErr) {
+      console.error('Fallback function execution failed:', fallbackErr);
       return false;
     }
-    
-    return true;
   } catch (err) {
     console.error('Error executing SQL directly:', err);
     return false;
