@@ -1,3 +1,4 @@
+
 // Google Analytics setup
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -33,19 +34,31 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Checking if analytics tables exist...');
     
-    // Simple direct query to check table existence
+    // Check if we can access the page_views table
     const { data: pageViewsData, error: pageViewsError } = await supabase
       .from('page_views')
-      .select('id')
-      .limit(1);
+      .select('count(*)')
+      .limit(1)
+      .single();
     
     if (pageViewsError) {
       console.log('Error checking page_views:', pageViewsError.message);
       return false;
     }
     
-    // If we got here without errors, tables likely exist
-    console.log('Analytics tables exist!');
+    // Also check events table
+    const { data: eventsData, error: eventsError } = await supabase
+      .from('events')
+      .select('count(*)')
+      .limit(1)
+      .single();
+    
+    if (eventsError) {
+      console.log('Error checking events table:', eventsError.message);
+      return false;
+    }
+    
+    console.log('Analytics tables exist!', { pageViewsData, eventsData });
     return true;
   } catch (err) {
     console.error('Error in checkAnalyticsTables:', err);
@@ -53,14 +66,15 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
   }
 };
 
-// Create analytics tables if they don't exist
+// Create analytics tables if they don't exist - improved version
 export const createAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Starting to create analytics tables...');
     
-    // Create page_views table with a simpler approach
-    const createPageViewsResult = await supabase.rpc('execute_sql', {
+    // Create page_views table with a simpler approach - one SQL statement for both tables
+    const createTablesResult = await supabase.rpc('execute_sql', {
       sql: `
+        -- Create page_views table
         CREATE TABLE IF NOT EXISTS public.page_views (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           path TEXT NOT NULL,
@@ -68,78 +82,90 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
           referrer TEXT,
           user_agent TEXT
         );
-      `
-    });
-    
-    if (createPageViewsResult.error) {
-      console.error('Error creating page_views table:', createPageViewsResult.error);
-      toast.error('Fehler beim Erstellen der page_views Tabelle', {
-        description: createPageViewsResult.error.message
-      });
-      return false;
-    }
-    
-    console.log('page_views table created successfully');
-    
-    // Create events table
-    const createEventsResult = await supabase.rpc('execute_sql', {
-      sql: `
+
+        -- Create events table
         CREATE TABLE IF NOT EXISTS public.events (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           category TEXT NOT NULL,
-          action TEXT NOT NULL,
+          action TEXT NOT NULL, 
           label TEXT,
           value INTEGER,
           timestamp TIMESTAMPTZ DEFAULT NOW()
         );
+        
+        -- Set permissions (CRITICAL)
+        ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+        
+        -- Allow public insert access
+        CREATE POLICY "Allow public inserts to page_views" 
+          ON public.page_views FOR INSERT TO anon, authenticated
+          WITH CHECK (true);
+          
+        CREATE POLICY "Allow public inserts to events" 
+          ON public.events FOR INSERT TO anon, authenticated
+          WITH CHECK (true);
       `
     });
     
-    if (createEventsResult.error) {
-      console.error('Error creating events table:', createEventsResult.error);
-      toast.error('Fehler beim Erstellen der events Tabelle', {
-        description: createEventsResult.error.message
+    if (createTablesResult.error) {
+      console.error('Error creating analytics tables:', createTablesResult.error);
+      toast.error('Fehler beim Erstellen der Analytiktabellen', {
+        description: `${createTablesResult.error.message}`
       });
       return false;
     }
     
-    console.log('events table created successfully');
+    console.log('Tables and policies created, now verifying...');
     
-    // Allow public access to these tables for insert
-    const grantResult = await supabase.rpc('execute_sql', {
-      sql: `
-        GRANT INSERT ON public.page_views TO anon, authenticated;
-        GRANT INSERT ON public.events TO anon, authenticated;
-      `
-    });
+    // Verify tables were created by trying to insert test records
+    const testPageView = await supabase
+      .from('page_views')
+      .insert({
+        path: '/test-page-view',
+        timestamp: new Date().toISOString(),
+        referrer: 'test-referrer',
+        user_agent: 'test-agent'
+      })
+      .select()
+      .single();
+      
+    const testEvent = await supabase
+      .from('events')
+      .insert({
+        category: 'test',
+        action: 'create-tables-verification',
+        label: 'test-label',
+        timestamp: new Date().toISOString()
+      })
+      .select()
+      .single();
     
-    if (grantResult.error) {
-      console.warn('Warning: Could not set permissions:', grantResult.error);
-      // Continue anyway as tables were created
-    } else {
-      console.log('Table permissions set successfully');
-    }
-    
-    // Verify tables were created
-    const tablesExist = await checkAnalyticsTables();
-    
-    if (tablesExist) {
-      console.log('Successfully created analytics tables!');
-      toast.success('Analytiktabellen wurden erfolgreich erstellt', {
-        description: 'Die Tabellen "page_views" und "events" wurden in der Datenbank angelegt.'
+    // Check if we got any errors during the test insertions
+    if (testPageView.error || testEvent.error) {
+      console.error('Error testing table access:', { 
+        pageViewError: testPageView.error, 
+        eventError: testEvent.error 
       });
-      return true;
-    } else {
-      console.error('Tables were not successfully created');
-      toast.error('Fehler beim Erstellen der Tabellen', {
-        description: 'Die Tabellen konnten nicht erstellt werden.'
+      
+      toast.error('Tabellen wurden erstellt, aber Schreibzugriff fehlgeschlagen', {
+        description: 'Berechtigungen könnten nicht korrekt eingerichtet sein.'
       });
+      
       return false;
     }
+    
+    // If we got here, tables were created and are accessible
+    console.log('Successfully created and verified analytics tables!');
+    toast.success('Analytiktabellen wurden erfolgreich erstellt', {
+      description: 'Die Tabellen "page_views" und "events" wurden erstellt und getestet.'
+    });
+    
+    return true;
   } catch (err: any) {
     console.error('Error creating analytics tables:', err);
     toast.error('Fehler beim Erstellen der Analytiktabellen', {
-      description: err.message || 'Bitte überprüfen Sie die Konsolenausgabe für Details.'
+      description: err.message || 'Ein unerwarteter Fehler ist aufgetreten.'
     });
     return false;
   }
@@ -165,7 +191,7 @@ export const trackPageView = async (path: string): Promise<void> => {
     
     console.log('Tracking page view:', path);
     
-    // Store the page view with object notation
+    // Store the page view with object notation and better error handling
     const { data, error } = await supabase
       .from('page_views')
       .insert({
@@ -185,7 +211,7 @@ export const trackPageView = async (path: string): Promise<void> => {
   }
 };
 
-// Track events
+// Track events 
 export const trackEvent = async (category: string, action: string, label?: string, value?: number): Promise<void> => {
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', action, {

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { checkAnalyticsTables } from '@/lib/analytics';
 import { toast } from 'sonner';
@@ -40,6 +41,7 @@ export const useAnalytics = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tablesExist, setTablesExist] = useState<boolean | null>(null);
 
   const fetchAnalytics = async () => {
     try {
@@ -48,11 +50,12 @@ export const useAnalytics = () => {
       
       console.log('Checking analytics tables and fetching data...');
       
-      // Check if analytics tables exist with simpler method
-      const tablesExist = await checkAnalyticsTables();
-      console.log('Tables exist check result:', tablesExist);
+      // Check if analytics tables exist
+      const exist = await checkAnalyticsTables();
+      console.log('Tables exist check result:', exist);
+      setTablesExist(exist);
       
-      if (!tablesExist) {
+      if (!exist) {
         console.log('Analytics tables do not exist, using example data');
         
         // Return example data
@@ -92,8 +95,8 @@ export const useAnalytics = () => {
   // Improved function to fetch real analytics data from the database
   const fetchRealAnalyticsData = async (): Promise<AnalyticsData> => {
     try {
-      // In a real implementation, we would query the page_views and events tables
-      // For now, we're returning example data while we ensure the tables exist
+      // This is where you would query the database for real analytics data
+      // For now, we'll return example data
       return generateExampleData();
     } catch (error) {
       console.error("Error fetching analytics data:", error);
@@ -140,6 +143,7 @@ export const useAnalytics = () => {
     analyticsData,
     isLoading,
     error,
+    tablesExist,
     refreshAnalytics: fetchAnalytics
   };
 };
