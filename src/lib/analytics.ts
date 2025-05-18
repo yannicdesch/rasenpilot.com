@@ -33,43 +33,44 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
   try {
     console.log('Attempting to create execute_sql function...');
     
-    // Using raw SQL query instead of RPC since the function doesn't exist yet
-    const { error } = await supabase
-      .from('_')
-      .select('*')
-      .eq('id', 0)
-      .then(() => {
-        // Use functions.invoke instead of rest.post
-        return supabase.functions.invoke('execute-sql-creation', {
-          body: {
-            definition: `
-              BEGIN;
-              -- Create the execute_sql function if it doesn't exist
-              CREATE OR REPLACE FUNCTION public.execute_sql(sql text)
-              RETURNS SETOF json
-              LANGUAGE plpgsql
-              SECURITY DEFINER
-              AS $$
-              BEGIN
-                EXECUTE sql;
-                RETURN;
-              END;
-              $$;
-              
-              -- Grant execute permission to authenticated and anon roles
-              GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO authenticated;
-              GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
-              COMMIT;
-            `
-          }
-        });
+    // Check if we can call the edge function directly
+    try {
+      const { error } = await supabase.functions.invoke('execute-sql-creation', {
+        body: {
+          definition: `
+            BEGIN;
+            -- Create the execute_sql function if it doesn't exist
+            CREATE OR REPLACE FUNCTION public.execute_sql(sql text)
+            RETURNS SETOF json
+            LANGUAGE plpgsql
+            SECURITY DEFINER
+            AS $$
+            BEGIN
+              EXECUTE sql;
+              RETURN;
+            END;
+            $$;
+            
+            -- Grant execute permission to authenticated and anon roles
+            GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO authenticated;
+            GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
+            COMMIT;
+          `
+        }
       });
-    
-    if (error) {
-      console.error('Error creating execute_sql function:', error);
-      // Even if there's an error here, try a direct approach as fallback
+      
+      if (error) {
+        console.error('Error creating execute_sql function via edge function:', error);
+        return false;
+      }
+      
+      console.log('execute_sql function created successfully via edge function');
+      return true;
+    } catch (edgeFnError) {
+      console.error('Could not invoke edge function:', edgeFnError);
+      
+      // Try with a direct SQL query to see if we already have access
       try {
-        // Try with a direct SQL query to see if we already have access
         const { data } = await supabase.rpc('execute_sql', {
           sql: 'SELECT 1;'
         });
@@ -81,12 +82,9 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
       } catch (directErr) {
         console.error('Direct SQL execution also failed:', directErr);
       }
+      
       return false;
-    } else {
-      console.log('execute_sql function created or already exists');
     }
-    
-    return true;
   } catch (err) {
     console.error('Error creating execute_sql function:', err);
     return false;
@@ -143,7 +141,7 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     // First ensure the execute_sql function exists
     await createExecuteSqlFunction();
     
-    // Use rpc instead of rest.post
+    // Try using rpc to call the execute_sql function
     try {
       const { error } = await supabase.rpc('execute_sql', {
         sql: `
@@ -193,7 +191,7 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
       if (error) {
         console.error('Error creating analytics tables with execute_sql:', error);
         
-        // Try direct SQL as fallback using a functions.invoke call
+        // Try using the edge function as fallback
         try {
           const { error: directError } = await supabase.functions.invoke('execute-sql', {
             body: {
@@ -243,55 +241,31 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
           });
           
           if (directError) {
-            console.error('Error with direct execute_sql call too:', directError);
+            console.error('Error with execute-sql edge function too:', directError);
             toast.error('Fehler beim Erstellen der Analytiktabellen', {
               description: `${directError.message || 'Unbekannter Fehler'}`
             });
             return false;
           }
+          
+          console.log('Tables created successfully via edge function');
+          toast.success('Analytiktabellen wurden erfolgreich erstellt');
+          return true;
         } catch (fallbackErr) {
           console.error('Fallback execution failed:', fallbackErr);
+          toast.error('Fehler beim Erstellen der Analytiktabellen', {
+            description: 'Die Edge-Funktion konnte nicht aufgerufen werden.'
+          });
           return false;
         }
+      } else {
+        console.log('Tables created successfully via rpc');
+        toast.success('Analytiktabellen wurden erfolgreich erstellt');
+        return true;
       }
     } catch (err) {
       console.error('Error in initial table creation attempt:', err);
-      return false;
-    }
-    
-    // Verify tables with a direct access attempt
-    console.log('Tables and policies created, now verifying...');
-    
-    try {
-      // Try accessing the tables directly
-      const { data: pageViewsData, error: pageViewsError } = await supabase
-        .from('page_views')
-        .select('count')
-        .limit(1);
-        
-      if (pageViewsError) {
-        console.error('Error verifying page_views table:', pageViewsError);
-        return false;
-      }
-      
-      const { data: eventsData, error: eventsError } = await supabase
-        .from('events')
-        .select('count')
-        .limit(1);
-        
-      if (eventsError) {
-        console.error('Error verifying events table:', eventsError);
-        return false;
-      }
-      
-      console.log('Tables verified successfully');
-      toast.success('Analytiktabellen wurden erfolgreich erstellt', {
-        description: 'Die Tabellen "page_views" und "events" wurden erstellt und getestet.'
-      });
-      
-      return true;
-    } catch (testErr: any) {
-      console.error('Error testing table creation:', testErr);
+      toast.error('Fehler beim Erstellen der Analytiktabellen');
       return false;
     }
   } catch (err: any) {

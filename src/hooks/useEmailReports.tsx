@@ -21,14 +21,13 @@ export const useEmailReports = () => {
     try {
       setIsLoading(true);
       
-      // Statt information_schema.tables zu verwenden, versuchen wir einen direkteren Ansatz
-      // Versuche, die Tabelle direkt abzufragen
+      // Check if table exists by querying it directly
       const { error: tableCheckError } = await supabase
         .from('site_settings')
         .select('id')
         .limit(1);
       
-      // Wenn die Tabelle nicht existiert, erhalten wir einen anderen Fehler als bei Berechtigungsproblemen
+      // If the table doesn't exist, we'll get a specific error
       if (tableCheckError && !tableCheckError.message.includes('permission')) {
         console.error('site_settings table does not exist:', tableCheckError);
         toast.error('Die erforderliche Tabelle existiert nicht', {
@@ -103,23 +102,34 @@ export const useEmailReports = () => {
       // Log attempt
       console.log(`Attempting to send test email to: ${recipientEmail}`);
       
-      // Supabase Edge Function aufrufen
-      const { error } = await supabase.functions.invoke('send-email-report', {
-        body: { 
-          recipient: recipientEmail,
-          isTest: true 
+      // Call the Supabase Edge Function
+      try {
+        const { error } = await supabase.functions.invoke('send-email-report', {
+          body: { 
+            recipient: recipientEmail,
+            isTest: true 
+          }
+        });
+        
+        if (error) {
+          console.error('Error invoking send-email-report function:', error);
+          toast.error('Fehler beim Senden der Test-E-Mail', {
+            description: error.message || 'Die Edge-Funktion konnte nicht ausgeführt werden.'
+          });
+          return false;
         }
-      });
-      
-      if (error) {
-        console.error('Error invoking function:', error);
-        throw new Error(`Failed to invoke function: ${error.message}`);
+        
+        toast.success('Test-E-Mail gesendet', {
+          description: `Eine E-Mail wurde an ${recipientEmail} gesendet.`
+        });
+        return true;
+      } catch (err: any) {
+        console.error('Error sending test email:', err);
+        toast.error('Fehler beim Senden der Test-E-Mail', {
+          description: err?.message || 'Die Edge-Funktion konnte nicht aufgerufen werden.'
+        });
+        return false;
       }
-      
-      toast.success('Test-E-Mail gesendet', {
-        description: `Eine E-Mail wurde an ${recipientEmail} gesendet.`
-      });
-      return true;
     } catch (err: any) {
       console.error('Error sending test email:', err);
       toast.error('Fehler beim Senden der Test-E-Mail', {

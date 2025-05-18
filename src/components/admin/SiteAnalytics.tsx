@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { BarChart, Legend, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -7,13 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { RefreshCw, BarChart3, Database, AlertTriangle, Loader2 } from 'lucide-react';
-import { createAnalyticsTables } from '@/lib/analytics';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
   const [metricType, setMetricType] = useState('all');
-  const { analyticsData, isLoading, refreshAnalytics, tablesExist } = useAnalytics();
+  const { analyticsData, isLoading, refreshAnalytics, tablesExist, createTables } = useAnalytics();
   const [isCreatingTables, setIsCreatingTables] = useState(false);
   const [tableCreationError, setTableCreationError] = useState<string | null>(null);
   
@@ -24,8 +22,8 @@ const SiteAnalytics = () => {
     setTableCreationError(null);
     
     try {
-      // Call the improved createAnalyticsTables function
-      const success = await createAnalyticsTables();
+      // Call the createTables function directly from useAnalytics
+      const success = await createTables();
       
       console.log('Table creation result:', success);
       

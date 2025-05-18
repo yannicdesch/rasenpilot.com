@@ -7,12 +7,16 @@ import { createExecuteSqlFunction } from './analytics';
 const executeSqlDirectly = async (sql: string): Promise<boolean> => {
   try {
     // First try with a direct call to the execute_sql RPC
-    const { error } = await supabase.rpc('execute_sql', {
-      sql
-    });
-    
-    if (!error) {
-      return true;
+    try {
+      const { error } = await supabase.rpc('execute_sql', {
+        sql
+      });
+      
+      if (!error) {
+        return true;
+      }
+    } catch (error) {
+      console.error('Error with direct RPC call:', error);
     }
     
     // If that fails, try a fallback approach with functions
