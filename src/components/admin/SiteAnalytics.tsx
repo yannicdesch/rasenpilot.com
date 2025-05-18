@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart, Legend, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -28,13 +29,17 @@ const SiteAnalytics = () => {
   
   // Handle creating tables
   const handleCreateTables = async () => {
+    console.log('Creating analytics tables...');
     setIsCreatingTables(true);
     try {
       const success = await createAnalyticsTables();
+      console.log('Table creation result:', success);
       if (success) {
         setTablesExist(true);
         refreshAnalytics();
       }
+    } catch (error) {
+      console.error('Error creating tables:', error);
     } finally {
       setIsCreatingTables(false);
     }
