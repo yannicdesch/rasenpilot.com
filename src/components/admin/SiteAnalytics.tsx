@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart, Legend, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -5,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { RefreshCw, BarChart3, Database, AlertTriangle } from 'lucide-react';
+import { RefreshCw, BarChart3, Database, AlertTriangle, Loader2 } from 'lucide-react';
 import { checkAnalyticsTables, createAnalyticsTables } from '@/lib/analytics';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
@@ -16,14 +17,20 @@ const SiteAnalytics = () => {
   const { analyticsData, isLoading, refreshAnalytics } = useAnalytics();
   const [tablesExist, setTablesExist] = useState<boolean | null>(null);
   const [isCreatingTables, setIsCreatingTables] = useState(false);
+  const [tableCreationError, setTableCreationError] = useState<string | null>(null);
   
   // Check if tables exist on component mount
   useEffect(() => {
     const checkTables = async () => {
       console.log("Checking analytics tables...");
-      const exist = await checkAnalyticsTables();
-      console.log("Tables exist?", exist);
-      setTablesExist(exist);
+      try {
+        const exist = await checkAnalyticsTables();
+        console.log("Tables exist?", exist);
+        setTablesExist(exist);
+      } catch (error) {
+        console.error("Error checking tables:", error);
+        setTablesExist(false);
+      }
     };
     
     checkTables();
@@ -33,6 +40,7 @@ const SiteAnalytics = () => {
   const handleCreateTables = async () => {
     console.log('Creating analytics tables...');
     setIsCreatingTables(true);
+    setTableCreationError(null);
     
     try {
       // Call the improved createAnalyticsTables function
@@ -43,16 +51,20 @@ const SiteAnalytics = () => {
       // Update UI based on result
       if (success) {
         setTablesExist(true);
-        toast.success('Tabellen wurden erfolgreich erstellt');
+        toast.success('Tabellen wurden erfolgreich erstellt', {
+          description: 'Die Tabellen "page_views" und "events" wurden in der Datenbank angelegt.'
+        });
         // Refresh analytics to show real data
         refreshAnalytics();
       } else {
+        setTableCreationError('Die Tabellenerstellung ist fehlgeschlagen. Bitte überprüfen Sie die Konsolenausgabe für Details.');
         toast.error('Fehler beim Erstellen der Tabellen', {
-          description: 'Bitte überprüfen Sie die Konsolenausgabe für Details.'
+          description: 'Die Tabellenerstellung scheint fehlgeschlagen zu sein. Bitte überprüfen Sie die Konsolenausgabe für Details.'
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating tables:', error);
+      setTableCreationError(error.message || 'Ein unerwarteter Fehler ist aufgetreten');
       toast.error('Fehler beim Erstellen der Tabellen', {
         description: 'Ein unerwarteter Fehler ist aufgetreten.'
       });
@@ -108,13 +120,24 @@ const SiteAnalytics = () => {
           <AlertDescription className="text-amber-700">
             Die erforderlichen Tabellen "page_views" und "events" wurden in Ihrer Supabase-Datenbank nicht gefunden.
             Ohne diese Tabellen können keine Analysedaten gespeichert werden.
+            
+            {tableCreationError && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded text-red-700 text-sm">
+                <strong>Fehler:</strong> {tableCreationError}
+              </div>
+            )}
+            
             <div className="mt-3">
               <Button 
                 onClick={handleCreateTables}
                 disabled={isCreatingTables}
                 className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700"
               >
-                <Database className="h-4 w-4" />
+                {isCreatingTables ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Database className="h-4 w-4" />
+                )}
                 {isCreatingTables ? 'Tabellen werden erstellt...' : 'Tabellen jetzt erstellen'}
               </Button>
             </div>

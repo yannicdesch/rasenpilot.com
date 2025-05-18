@@ -1,4 +1,3 @@
-
 // Google Analytics setup
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -34,29 +33,32 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Checking if analytics tables exist...');
     
-    // Check both tables with a simple direct query approach
-    const { data: pageViewsData, error: pageViewsError } = await supabase
-      .from('page_views')
-      .select('count(*)', { count: 'exact', head: true });
+    // Check if the tables exist using a direct query approach
+    const { data: tablesData, error: tablesError } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_schema', 'public')
+      .in('table_name', ['page_views', 'events']);
       
-    if (pageViewsError) {
-      console.log('page_views table does not exist:', pageViewsError.message);
+    if (tablesError) {
+      console.error('Error checking tables:', tablesError);
       return false;
     }
     
-    const { data: eventsData, error: eventsError } = await supabase
-      .from('events')
-      .select('count(*)', { count: 'exact', head: true });
-    
-    if (eventsError) {
-      console.log('events table does not exist:', eventsError.message);
-      return false;
+    // If we got data back, check if both tables exist
+    if (tablesData) {
+      const tableNames = tablesData.map(t => t.table_name);
+      const pageViewsExists = tableNames.includes('page_views');
+      const eventsExists = tableNames.includes('events');
+      
+      console.log('Table check results:', { pageViewsExists, eventsExists });
+      
+      return pageViewsExists && eventsExists;
     }
     
-    console.log('Both analytics tables exist');
-    return true;
+    return false;
   } catch (err) {
-    console.error('Error checking analytics tables:', err);
+    console.error('Error in checkAnalyticsTables:', err);
     return false;
   }
 };
@@ -64,94 +66,150 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
 // Create analytics tables if they don't exist
 export const createAnalyticsTables = async (): Promise<boolean> => {
   try {
-    console.log('Creating analytics tables...');
+    console.log('Starting to create analytics tables...');
     
-    // Create tables using direct SQL for maximum compatibility
-    // First create the page_views table
-    const { error: pageViewsError } = await supabase
-      .rpc('execute_sql', {
-        sql: `
-          CREATE TABLE IF NOT EXISTS page_views (
-            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-            path TEXT NOT NULL,
-            timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            referrer TEXT,
-            user_agent TEXT,
-            user_id UUID
-          );
-          CREATE INDEX IF NOT EXISTS page_views_path_idx ON page_views (path);
-          CREATE INDEX IF NOT EXISTS page_views_timestamp_idx ON page_views (timestamp);
-        `
-      });
+    // Create page_views table with a direct SQL query
+    const createPageViewsQuery = `
+      CREATE TABLE IF NOT EXISTS page_views (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        path TEXT NOT NULL,
+        timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        referrer TEXT,
+        user_agent TEXT,
+        user_id UUID
+      );
+    `;
+    
+    const { error: pageViewsError } = await supabase.from('_sql').rpc('run', {
+      query: createPageViewsQuery
+    });
     
     if (pageViewsError) {
       console.error('Error creating page_views table:', pageViewsError);
-      
-      // Try alternative approach with simple table creation only
-      const { error: fallbackError } = await supabase
-        .rpc('execute_sql', {
-          sql: `
-            CREATE TABLE IF NOT EXISTS page_views (
-              id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-              path TEXT NOT NULL,
-              timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-              referrer TEXT,
-              user_agent TEXT,
-              user_id UUID
-            );
-          `
-        });
-      
-      if (fallbackError) {
-        console.error('Fallback page_views table creation failed:', fallbackError);
-        return false;
-      }
+      toast.error('Fehler beim Erstellen der page_views Tabelle', {
+        description: pageViewsError.message
+      });
+      return false;
     }
     
-    // Create the events table
-    const { error: eventsError } = await supabase
-      .rpc('execute_sql', {
-        sql: `
+    // Create indexes for page_views table
+    const createPageViewsIndexesQuery = `
+      CREATE INDEX IF NOT EXISTS page_views_path_idx ON page_views (path);
+      CREATE INDEX IF NOT EXISTS page_views_timestamp_idx ON page_views (timestamp);
+    `;
+    
+    // Try to create indexes but continue if it fails
+    try {
+      await supabase.from('_sql').rpc('run', {
+        query: createPageViewsIndexesQuery
+      });
+    } catch (indexError) {
+      console.warn('Could not create indexes for page_views, but continuing:', indexError);
+    }
+    
+    // Create events table with a direct SQL query
+    const createEventsQuery = `
+      CREATE TABLE IF NOT EXISTS events (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        category TEXT NOT NULL,
+        action TEXT NOT NULL,
+        label TEXT,
+        value INTEGER,
+        timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        user_id UUID
+      );
+    `;
+    
+    const { error: eventsError } = await supabase.from('_sql').rpc('run', {
+      query: createEventsQuery
+    });
+    
+    if (eventsError) {
+      console.error('Error creating events table:', eventsError);
+      toast.error('Fehler beim Erstellen der events Tabelle', {
+        description: eventsError.message
+      });
+      return false;
+    }
+    
+    // Create indexes for events table
+    const createEventsIndexesQuery = `
+      CREATE INDEX IF NOT EXISTS events_category_action_idx ON events (category, action);
+      CREATE INDEX IF NOT EXISTS events_timestamp_idx ON events (timestamp);
+    `;
+    
+    // Try to create indexes but continue if it fails
+    try {
+      await supabase.from('_sql').rpc('run', {
+        query: createEventsIndexesQuery
+      });
+    } catch (indexError) {
+      console.warn('Could not create indexes for events, but continuing:', indexError);
+    }
+    
+    // Try alternative approach if the first doesn't work - using raw SQL
+    const tryDirectSqlApproach = async () => {
+      try {
+        // Check if tables exist after creation attempts
+        const tablesExist = await checkAnalyticsTables();
+        
+        if (tablesExist) {
+          console.log('Tables were created successfully!');
+          toast.success('Analytiktabellen wurden erfolgreich erstellt', {
+            description: 'Die Tabellen "page_views" und "events" wurden in der Datenbank angelegt.'
+          });
+          return true;
+        }
+        
+        // If tables don't exist, try a very simple approach with minimal SQL
+        console.log('Trying simplified table creation...');
+        
+        // Simple page_views table
+        const simplePageViewsQuery = `
+          CREATE TABLE IF NOT EXISTS page_views (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            path TEXT NOT NULL,
+            timestamp TIMESTAMPTZ DEFAULT NOW(),
+            referrer TEXT,
+            user_agent TEXT
+          );
+        `;
+        
+        await supabase.from('_sql').rpc('run', { query: simplePageViewsQuery });
+        
+        // Simple events table
+        const simpleEventsQuery = `
           CREATE TABLE IF NOT EXISTS events (
-            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             category TEXT NOT NULL,
             action TEXT NOT NULL,
             label TEXT,
             value INTEGER,
-            timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            user_id UUID
+            timestamp TIMESTAMPTZ DEFAULT NOW()
           );
-          CREATE INDEX IF NOT EXISTS events_category_action_idx ON events (category, action);
-          CREATE INDEX IF NOT EXISTS events_timestamp_idx ON events (timestamp);
-        `
-      });
-    
-    if (eventsError) {
-      console.error('Error creating events table:', eventsError);
-      
-      // Try alternative approach with simple table creation only
-      const { error: fallbackError } = await supabase
-        .rpc('execute_sql', {
-          sql: `
-            CREATE TABLE IF NOT EXISTS events (
-              id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-              category TEXT NOT NULL,
-              action TEXT NOT NULL,
-              label TEXT,
-              value INTEGER,
-              timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-              user_id UUID
-            );
-          `
-        });
-      
-      if (fallbackError) {
-        console.error('Fallback events table creation failed:', fallbackError);
+        `;
+        
+        await supabase.from('_sql').rpc('run', { query: simpleEventsQuery });
+        
+        // Final check
+        const finalCheck = await checkAnalyticsTables();
+        if (finalCheck) {
+          console.log('Tables were created with simplified approach!');
+          toast.success('Analytiktabellen wurden erfolgreich erstellt', {
+            description: 'Die Tabellen wurden mit einem vereinfachten Ansatz erstellt.'
+          });
+          return true;
+        } else {
+          console.error('Failed to create tables with all approaches');
+          return false;
+        }
+      } catch (directError) {
+        console.error('Failed with direct SQL approach:', directError);
         return false;
       }
-    }
+    };
     
-    // Verify both tables were created
+    // Verify tables were created
     const tablesExist = await checkAnalyticsTables();
     
     if (tablesExist) {
@@ -161,16 +219,13 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
       });
       return true;
     } else {
-      console.error('Tables were not created successfully');
-      toast.error('Fehler beim Erstellen der Analytiktabellen', {
-        description: 'Die Tabellenerstellung scheint fehlgeschlagen zu sein.'
-      });
-      return false;
+      // Try the alternative approach
+      return await tryDirectSqlApproach();
     }
   } catch (err) {
     console.error('Error creating analytics tables:', err);
     toast.error('Fehler beim Erstellen der Analytiktabellen', {
-      description: 'Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.'
+      description: 'Bitte überprüfen Sie die Konsolenausgabe für Details.'
     });
     return false;
   }

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { checkAnalyticsTables } from '@/lib/analytics';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 export interface PageView {
   id: string;
@@ -48,8 +49,25 @@ export const useAnalytics = () => {
       
       console.log('Checking analytics tables and fetching data...');
       
-      // Check if the tables exist using our improved function
-      const tablesExist = await checkAnalyticsTables();
+      // First do a hard check of whether the tables exist
+      let tablesExist = false;
+      
+      try {
+        // Direct SQL query to check tables
+        const { data, error } = await supabase.from('information_schema.tables')
+          .select('table_name')
+          .eq('table_schema', 'public')
+          .in('table_name', ['page_views', 'events']);
+        
+        if (data && !error) {
+          const tableNames = data.map(t => t.table_name);
+          tablesExist = tableNames.includes('page_views') && tableNames.includes('events');
+        }
+      } catch (checkErr) {
+        console.error('Error directly checking tables:', checkErr);
+        // Fall back to our standard check function
+        tablesExist = await checkAnalyticsTables();
+      }
       
       if (!tablesExist) {
         console.log('Analytics tables do not exist, using example data');
@@ -60,25 +78,36 @@ export const useAnalytics = () => {
         return;
       }
       
-      // For now we'll still use example data, but in a real implementation
-      // you would fetch actual data from the tables here
-      const exampleData = generateExampleData();
-      setAnalyticsData(exampleData);
+      try {
+        // This is where you would fetch real data from the analytics tables
+        // For now we're still using example data
+        const realData = await fetchRealAnalyticsData();
+        setAnalyticsData(realData);
+      } catch (fetchError) {
+        console.error('Error fetching real analytics data:', fetchError);
+        // Fall back to example data
+        const exampleData = generateExampleData();
+        setAnalyticsData(exampleData);
+      }
       
     } catch (err: any) {
-      console.error('Error fetching analytics:', err);
-      setError(err.message);
+      console.error('Error in useAnalytics:', err);
+      setError(err.message || 'Unknown error');
       
       // Use example data as fallback
       const exampleData = generateExampleData();
       setAnalyticsData(exampleData);
-      
-      toast.error('Fehler beim Abrufen der Analysedaten', {
-        description: 'Verwende Beispieldaten als Fallback.'
-      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to fetch real analytics data from the database
+  // This is a placeholder for actual implementation
+  const fetchRealAnalyticsData = async (): Promise<AnalyticsData> => {
+    // In a real implementation, you would query the page_views and events tables
+    // For now, just return example data
+    return generateExampleData();
   };
 
   useEffect(() => {
