@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BarChart, Legend, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -82,7 +81,7 @@ const SiteAnalytics = () => {
       </div>
       
       {tablesExist === false && (
-        <Alert variant="warning" className="bg-amber-50 border-amber-200">
+        <Alert className="bg-amber-50 border-amber-200">
           <AlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertTitle className="text-amber-800">Analytiktabellen existieren nicht</AlertTitle>
           <AlertDescription className="text-amber-700">
