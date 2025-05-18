@@ -1,6 +1,7 @@
 
 // Google Analytics setup
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface WindowWithGA extends Window {
   dataLayer: any[];
@@ -28,6 +29,100 @@ export const initializeGA = (measurementId: string = 'G-7F24N28JNH'): void => {
   window.gtag('config', measurementId);
 };
 
+// Check if analytics tables exist
+export const checkAnalyticsTables = async (): Promise<boolean> => {
+  try {
+    // First check for page_views table
+    const { data: pageViewsExist, error: pageViewsError } = await supabase
+      .from('page_views')
+      .select('id')
+      .limit(1)
+      .maybeSingle();
+      
+    if (pageViewsError && pageViewsError.code === '42P01') {
+      console.log('page_views table does not exist');
+      return false;
+    }
+    
+    // Then check for events table
+    const { data: eventsExist, error: eventsError } = await supabase
+      .from('events')
+      .select('id')
+      .limit(1)
+      .maybeSingle();
+      
+    if (eventsError && eventsError.code === '42P01') {
+      console.log('events table does not exist');
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Error checking analytics tables:', err);
+    return false;
+  }
+};
+
+// Create analytics tables if they don't exist
+export const createAnalyticsTables = async (): Promise<boolean> => {
+  try {
+    // Create page_views table
+    const { error: pageViewsError } = await supabase.rpc('execute_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS page_views (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          path TEXT NOT NULL,
+          timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          referrer TEXT,
+          user_agent TEXT,
+          user_id UUID REFERENCES auth.users(id)
+        );
+        CREATE INDEX IF NOT EXISTS page_views_path_idx ON page_views (path);
+        CREATE INDEX IF NOT EXISTS page_views_timestamp_idx ON page_views (timestamp);
+      `
+    });
+    
+    if (pageViewsError) {
+      console.error('Error creating page_views table:', pageViewsError);
+      return false;
+    }
+    
+    // Create events table
+    const { error: eventsError } = await supabase.rpc('execute_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS events (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          category TEXT NOT NULL,
+          action TEXT NOT NULL,
+          label TEXT,
+          value INTEGER,
+          timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          user_id UUID REFERENCES auth.users(id)
+        );
+        CREATE INDEX IF NOT EXISTS events_category_action_idx ON events (category, action);
+        CREATE INDEX IF NOT EXISTS events_timestamp_idx ON events (timestamp);
+      `
+    });
+    
+    if (eventsError) {
+      console.error('Error creating events table:', eventsError);
+      return false;
+    }
+    
+    toast.success('Analytiktabellen wurden erfolgreich erstellt', {
+      description: 'Die Tabellen "page_views" und "events" wurden in der Datenbank angelegt.'
+    });
+    
+    return true;
+  } catch (err) {
+    console.error('Error creating analytics tables:', err);
+    toast.error('Fehler beim Erstellen der Analytiktabellen', {
+      description: 'Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.'
+    });
+    return false;
+  }
+};
+
 // Track page views
 export const trackPageView = async (path: string): Promise<void> => {
   if (typeof window.gtag !== 'undefined') {
@@ -38,18 +133,11 @@ export const trackPageView = async (path: string): Promise<void> => {
   
   // Store the page view in our database
   try {
-    // First, check if the table exists by trying to query it directly
-    const { data, error: tableCheckError } = await supabase.rpc('execute_sql', {
-      sql: `SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public'
-        AND table_name = 'page_views'
-      );`
-    });
+    // Check if tables exist first
+    const tablesExist = await checkAnalyticsTables();
     
-    // If there's an error or table doesn't exist, log and return
-    if (tableCheckError || !data) {
-      console.log('page_views table may not exist');
+    if (!tablesExist) {
+      console.log('Analytics tables do not exist, skipping database storage');
       return;
     }
     
@@ -85,18 +173,11 @@ export const trackEvent = async (category: string, action: string, label?: strin
   
   // Store the event in our database
   try {
-    // First, check if the table exists by trying to query it directly
-    const { data, error: tableCheckError } = await supabase.rpc('execute_sql', {
-      sql: `SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public'
-        AND table_name = 'events'
-      );`
-    });
+    // Check if tables exist first
+    const tablesExist = await checkAnalyticsTables();
     
-    // If there's an error or table doesn't exist, log and return
-    if (tableCheckError || !data) {
-      console.log('events table may not exist');
+    if (!tablesExist) {
+      console.log('Analytics tables do not exist, skipping database storage');
       return;
     }
     

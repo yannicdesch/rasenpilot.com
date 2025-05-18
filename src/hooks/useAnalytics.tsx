@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { checkAnalyticsTables } from '@/lib/analytics';
 import { toast } from 'sonner';
 
 export interface PageView {
@@ -45,46 +46,22 @@ export const useAnalytics = () => {
       setIsLoading(true);
       setError(null);
       
-      console.log('Fetching analytics data from Supabase...');
+      console.log('Checking analytics tables and fetching data...');
       
-      // Check if the page_views table exists by directly querying it
-      const { data: pageViewsData, error: pageViewsError } = await supabase.rpc('execute_sql', {
-        sql: `SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public'
-          AND table_name = 'page_views'
-        );`
-      });
+      // Check if the tables exist using our improved function
+      const tablesExist = await checkAnalyticsTables();
       
-      const hasPageViewsTable = !pageViewsError && pageViewsData?.[0]?.exists;
-      
-      // Check if the events table exists by directly querying it
-      const { data: eventsData, error: eventsError } = await supabase.rpc('execute_sql', {
-        sql: `SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public'
-          AND table_name = 'events'
-        );`
-      });
-      
-      const hasEventsTable = !eventsError && eventsData?.[0]?.exists;
-      
-      if (!hasPageViewsTable || !hasEventsTable) {
+      if (!tablesExist) {
         console.log('Analytics tables do not exist, using example data');
         
         // Return example data
         const exampleData = generateExampleData();
         setAnalyticsData(exampleData);
-        
-        toast.warning('Analytiktabellen existieren nicht in der Datenbank', {
-          description: 'Erstellen Sie die Tabellen "page_views" und "events" in Supabase für echte Daten.'
-        });
-        
         return;
       }
       
-      // For a real implementation, we would fetch actual analytics data from Supabase here
-      // Since we're just demonstrating the structure, we'll use example data for now
+      // For now we'll still use example data, but in a real implementation
+      // you would fetch actual data from the tables here
       const exampleData = generateExampleData();
       setAnalyticsData(exampleData);
       

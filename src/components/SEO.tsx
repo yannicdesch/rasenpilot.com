@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { initializeGA } from '@/lib/analytics';
 
 interface SEOProps {
   title?: string;
@@ -19,6 +20,11 @@ const SEO: React.FC<SEOProps> = ({
   ogImage,
   keywords
 }) => {
+  // Initialize Google Analytics on component mount
+  useEffect(() => {
+    initializeGA();
+  }, []);
+
   // Ensure title doesn't exceed 60 characters
   const formattedTitle = title 
     ? (title.length > 60 ? `${title.substring(0, 57)}...` : title) + ' | Rasenpilot'

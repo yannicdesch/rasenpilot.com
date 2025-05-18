@@ -1,17 +1,45 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Legend, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { RefreshCw, BarChart3 } from 'lucide-react';
+import { RefreshCw, BarChart3, Database, AlertTriangle } from 'lucide-react';
+import { checkAnalyticsTables, createAnalyticsTables } from '@/lib/analytics';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
   const [metricType, setMetricType] = useState('all');
   const { analyticsData, isLoading, refreshAnalytics } = useAnalytics();
+  const [tablesExist, setTablesExist] = useState<boolean | null>(null);
+  const [isCreatingTables, setIsCreatingTables] = useState(false);
+  
+  // Check if tables exist on component mount
+  useEffect(() => {
+    const checkTables = async () => {
+      const exist = await checkAnalyticsTables();
+      setTablesExist(exist);
+    };
+    
+    checkTables();
+  }, []);
+  
+  // Handle creating tables
+  const handleCreateTables = async () => {
+    setIsCreatingTables(true);
+    try {
+      const success = await createAnalyticsTables();
+      if (success) {
+        setTablesExist(true);
+        refreshAnalytics();
+      }
+    } finally {
+      setIsCreatingTables(false);
+    }
+  };
   
   // Select data based on timeframe
   const chartData = timeFrame === 'daily' ? analyticsData.dailyVisitors : 
@@ -52,6 +80,27 @@ const SiteAnalytics = () => {
           </Select>
         </div>
       </div>
+      
+      {tablesExist === false && (
+        <Alert variant="warning" className="bg-amber-50 border-amber-200">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="text-amber-800">Analytiktabellen existieren nicht</AlertTitle>
+          <AlertDescription className="text-amber-700">
+            Die erforderlichen Tabellen "page_views" und "events" wurden in Ihrer Supabase-Datenbank nicht gefunden.
+            Ohne diese Tabellen können keine Analysedaten gespeichert werden.
+            <div className="mt-3">
+              <Button 
+                onClick={handleCreateTables}
+                disabled={isCreatingTables}
+                className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700"
+              >
+                <Database className="h-4 w-4" />
+                {isCreatingTables ? 'Tabellen werden erstellt...' : 'Tabellen jetzt erstellen'}
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -130,6 +179,14 @@ const SiteAnalytics = () => {
             </div>
           )}
         </CardContent>
+        {tablesExist === false && (
+          <CardFooter className="bg-green-50 border-t border-green-100">
+            <p className="text-sm text-gray-600">
+              <span className="font-semibold">Hinweis:</span> Aktuell werden Beispieldaten angezeigt. 
+              Um echte Analysedaten zu sammeln, erstellen Sie die erforderlichen Tabellen mit dem Button oben.
+            </p>
+          </CardFooter>
+        )}
       </Card>
       
       <Card className="bg-green-50 p-6 border border-green-100">
@@ -140,10 +197,11 @@ const SiteAnalytics = () => {
           <p className="text-gray-700">
             Diese Statistiken zeigen die Besucherzahlen und Anmeldungen für Ihre Rasenpilot-Website. 
             Die Daten werden in Ihrer Supabase-Datenbank in den Tabellen <code>page_views</code> und <code>events</code> gespeichert.
-            {!analyticsData.dailyVisitors.some(d => d.visitors > 0) && (
+            {!tablesExist && (
               <span className="block mt-2 text-amber-600">
-                Hinweis: Aktuell werden Beispieldaten angezeigt, da noch keine ausreichenden Analysedaten vorhanden sind.
-                Beginnen Sie mit der Erfassung echter Daten, indem Sie die entsprechenden Tabellen in Supabase erstellen.
+                Hinweis: Aktuell werden Beispieldaten angezeigt, da die Analytiktabellen in der Datenbank fehlen.
+                Klicken Sie auf "Tabellen jetzt erstellen", um die erforderlichen Tabellen anzulegen und mit der
+                Erfassung echter Daten zu beginnen.
               </span>
             )}
           </p>
