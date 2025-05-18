@@ -1,4 +1,3 @@
-
 // Google Analytics setup
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -34,36 +33,20 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Checking if analytics tables exist...');
     
-    // Check if page_views table exists by querying it directly
-    const { count: pageViewsCount, error: pageViewsError } = await supabase
+    // Simple direct query to check table existence
+    const { data: pageViewsData, error: pageViewsError } = await supabase
       .from('page_views')
-      .select('*', { count: 'exact', head: true });
+      .select('id')
+      .limit(1);
     
     if (pageViewsError) {
-      if (pageViewsError.code === '42P01') { // Table doesn't exist code
-        console.log('page_views table does not exist');
-        return false;
-      }
-      console.error('Error checking page_views table:', pageViewsError);
+      console.log('Error checking page_views:', pageViewsError.message);
+      return false;
     }
     
-    // Check if events table exists by querying it directly
-    const { count: eventsCount, error: eventsError } = await supabase
-      .from('events')
-      .select('*', { count: 'exact', head: true });
-    
-    if (eventsError) {
-      if (eventsError.code === '42P01') { // Table doesn't exist code
-        console.log('events table does not exist');
-        return false;
-      }
-      console.error('Error checking events table:', eventsError);
-    }
-    
-    // If we get here without errors or with non-42P01 errors, tables likely exist
-    const tablesExist = !pageViewsError || pageViewsError.code !== '42P01';
-    console.log('Tables exist check result:', tablesExist);
-    return tablesExist;
+    // If we got here without errors, tables likely exist
+    console.log('Analytics tables exist!');
+    return true;
   } catch (err) {
     console.error('Error in checkAnalyticsTables:', err);
     return false;
@@ -75,10 +58,10 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Starting to create analytics tables...');
     
-    // Create page_views table
+    // Create page_views table with a simpler approach
     const createPageViewsResult = await supabase.rpc('execute_sql', {
       sql: `
-        CREATE TABLE IF NOT EXISTS page_views (
+        CREATE TABLE IF NOT EXISTS public.page_views (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           path TEXT NOT NULL,
           timestamp TIMESTAMPTZ DEFAULT NOW(),
@@ -101,7 +84,7 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     // Create events table
     const createEventsResult = await supabase.rpc('execute_sql', {
       sql: `
-        CREATE TABLE IF NOT EXISTS events (
+        CREATE TABLE IF NOT EXISTS public.events (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           category TEXT NOT NULL,
           action TEXT NOT NULL,
@@ -121,6 +104,21 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     }
     
     console.log('events table created successfully');
+    
+    // Allow public access to these tables for insert
+    const grantResult = await supabase.rpc('execute_sql', {
+      sql: `
+        GRANT INSERT ON public.page_views TO anon, authenticated;
+        GRANT INSERT ON public.events TO anon, authenticated;
+      `
+    });
+    
+    if (grantResult.error) {
+      console.warn('Warning: Could not set permissions:', grantResult.error);
+      // Continue anyway as tables were created
+    } else {
+      console.log('Table permissions set successfully');
+    }
     
     // Verify tables were created
     const tablesExist = await checkAnalyticsTables();
@@ -165,14 +163,16 @@ export const trackPageView = async (path: string): Promise<void> => {
       return;
     }
     
-    // Store the page view
-    const { error } = await supabase
+    console.log('Tracking page view:', path);
+    
+    // Store the page view with object notation
+    const { data, error } = await supabase
       .from('page_views')
       .insert({
-        path,
+        path: path,
         timestamp: new Date().toISOString(),
         referrer: document.referrer || null,
-        user_agent: navigator.userAgent
+        user_agent: navigator.userAgent || null
       });
       
     if (error) {
@@ -205,14 +205,16 @@ export const trackEvent = async (category: string, action: string, label?: strin
       return;
     }
     
-    // Store the event
-    const { error } = await supabase
+    console.log('Tracking event:', category, action);
+    
+    // Store the event with object notation
+    const { data, error } = await supabase
       .from('events')
       .insert({
-        category,
-        action,
-        label,
-        value,
+        category: category,
+        action: action,
+        label: label || null,
+        value: value || null,
         timestamp: new Date().toISOString()
       });
       
