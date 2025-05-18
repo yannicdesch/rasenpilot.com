@@ -48,7 +48,7 @@ export const useAnalytics = () => {
       
       console.log('Checking analytics tables and fetching data...');
       
-      // Simply use the checkAnalyticsTables function
+      // Check if analytics tables exist
       const tablesExist = await checkAnalyticsTables();
       console.log('Tables exist check result:', tablesExist);
       
@@ -63,7 +63,6 @@ export const useAnalytics = () => {
       
       try {
         // This is where you would fetch real data from the analytics tables
-        // For now we're still using example data
         const realData = await fetchRealAnalyticsData();
         setAnalyticsData(realData);
       } catch (fetchError) {
@@ -86,10 +85,9 @@ export const useAnalytics = () => {
   };
 
   // Function to fetch real analytics data from the database
-  // This is a placeholder for actual implementation
   const fetchRealAnalyticsData = async (): Promise<AnalyticsData> => {
-    // In a real implementation, you would query the page_views and events tables
     // For now, just return example data
+    // In a real implementation, you would query the page_views and events tables
     return generateExampleData();
   };
 

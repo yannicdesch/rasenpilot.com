@@ -1,3 +1,4 @@
+
 // Google Analytics setup
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -167,17 +168,17 @@ export const trackPageView = async (path: string): Promise<void> => {
     // Store the page view
     const { error } = await supabase
       .from('page_views')
-      .insert([
-        { 
-          path,
-          timestamp: new Date().toISOString(),
-          referrer: document.referrer || null,
-          user_agent: navigator.userAgent
-        }
-      ]);
+      .insert({
+        path,
+        timestamp: new Date().toISOString(),
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent
+      });
       
     if (error) {
       console.error('Error recording page view:', error);
+    } else {
+      console.log('Page view recorded successfully:', path);
     }
   } catch (err) {
     console.error('Error logging page view to database:', err);
@@ -207,18 +208,18 @@ export const trackEvent = async (category: string, action: string, label?: strin
     // Store the event
     const { error } = await supabase
       .from('events')
-      .insert([
-        { 
-          category,
-          action,
-          label,
-          value,
-          timestamp: new Date().toISOString()
-        }
-      ]);
+      .insert({
+        category,
+        action,
+        label,
+        value,
+        timestamp: new Date().toISOString()
+      });
       
     if (error) {
       console.error('Error recording event:', error);
+    } else {
+      console.log('Event recorded successfully:', category, action);
     }
   } catch (err) {
     console.error('Error logging event to database:', err);
