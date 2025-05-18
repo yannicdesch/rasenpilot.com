@@ -4,7 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
-import { initializeGA, trackPageView } from './lib/analytics.ts'
+import { initializeGA, trackPageView } from './lib/analytics'
 
 // Initialize Google Analytics
 initializeGA('G-7F24N28JNH');

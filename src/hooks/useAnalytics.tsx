@@ -1,5 +1,10 @@
+
 import { useState, useEffect } from 'react';
-import { checkAnalyticsTables, createExecuteSqlFunction, createAnalyticsTables } from '@/lib/analytics';
+import { 
+  checkAnalyticsTables, 
+  createExecuteSqlFunction, 
+  createAnalyticsTables 
+} from '@/lib/analytics';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 

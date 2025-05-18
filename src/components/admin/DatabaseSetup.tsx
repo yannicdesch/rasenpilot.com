@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
@@ -6,7 +5,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { createRequiredTables } from '@/lib/createTables';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { createAnalyticsTables, checkAnalyticsTables, createExecuteSqlFunction } from '@/lib/analytics';
+import { 
+  createAnalyticsTables, 
+  checkAnalyticsTables, 
+  createExecuteSqlFunction 
+} from '@/lib/analytics';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Database } from 'lucide-react';
 
