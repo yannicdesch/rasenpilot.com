@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { checkAnalyticsTables } from '@/lib/analytics';
+import { checkAnalyticsTables, createExecuteSqlFunction } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 
@@ -42,15 +41,47 @@ export const useAnalytics = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tablesExist, setTablesExist] = useState<boolean | null>(null);
+  const [sqlFunctionExists, setSqlFunctionExists] = useState<boolean | null>(null);
+
+  const checkSqlFunction = async () => {
+    try {
+      const { error } = await supabase.rpc('execute_sql', { 
+        sql: 'SELECT 1 as test;' 
+      });
+      setSqlFunctionExists(!error);
+      return !error;
+    } catch (err) {
+      console.error('Error checking SQL function:', err);
+      setSqlFunctionExists(false);
+      return false;
+    }
+  };
 
   const fetchAnalytics = async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      console.log('Checking analytics tables and fetching data...');
+      console.log('Checking SQL function and analytics tables...');
       
-      // Check if analytics tables exist
+      // First check if the SQL function exists
+      const hasSqlFunction = await checkSqlFunction();
+      if (!hasSqlFunction) {
+        console.log('SQL function does not exist, attempting to create it');
+        const created = await createExecuteSqlFunction();
+        if (!created) {
+          console.error('Could not create SQL function');
+          setTablesExist(false);
+          
+          // Use example data
+          const exampleData = generateExampleData();
+          setAnalyticsData(exampleData);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Now check if analytics tables exist
       const exist = await checkAnalyticsTables();
       console.log('Tables exist check result:', exist);
       setTablesExist(exist);
@@ -95,8 +126,8 @@ export const useAnalytics = () => {
   // Improved function to fetch real analytics data from the database
   const fetchRealAnalyticsData = async (): Promise<AnalyticsData> => {
     try {
-      // This is where you would query the database for real analytics data
-      // For now, we'll return example data
+      // For now, we'll use example data, but in a real implementation
+      // you'd query your analytics tables here
       return generateExampleData();
     } catch (error) {
       console.error("Error fetching analytics data:", error);
@@ -144,6 +175,7 @@ export const useAnalytics = () => {
     isLoading,
     error,
     tablesExist,
+    sqlFunctionExists,
     refreshAnalytics: fetchAnalytics
   };
 };

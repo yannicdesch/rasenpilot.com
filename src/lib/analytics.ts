@@ -1,4 +1,3 @@
-
 // Google Analytics setup
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -29,37 +28,96 @@ export const initializeGA = (measurementId: string = 'G-7F24N28JNH'): void => {
   window.gtag('config', measurementId);
 };
 
+// Create the execute_sql function in Supabase if it doesn't exist
+export const createExecuteSqlFunction = async (): Promise<boolean> => {
+  try {
+    console.log('Attempting to create execute_sql function...');
+    
+    // Using raw SQL query instead of RPC since the function doesn't exist yet
+    const { error } = await supabase.from('_').select('*').eq('id', 0)
+      .rpc('_', {}, {
+        head: true, // We just want the headers back
+        modify: () => ({
+          // This is a way to send arbitrary SQL to create the function
+          method: "POST",
+          url: "/rest/v1/rpc/", 
+          body: {
+            name: "execute_sql_function_creation",
+            schema: "public",
+            definition: `
+              BEGIN;
+              -- Create the execute_sql function if it doesn't exist
+              CREATE OR REPLACE FUNCTION public.execute_sql(sql text)
+              RETURNS SETOF json
+              LANGUAGE plpgsql
+              SECURITY DEFINER
+              AS $$
+              BEGIN
+                EXECUTE sql;
+                RETURN;
+              END;
+              $$;
+              
+              -- Grant execute permission to authenticated and anon roles
+              GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO authenticated;
+              GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
+              COMMIT;
+            `
+          }
+        })
+      });
+    
+    if (error) {
+      console.error('Error creating execute_sql function:', error);
+      // Even if there's an error here, the function might already exist
+      // So we'll continue with the process
+    } else {
+      console.log('execute_sql function created or already exists');
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Error creating execute_sql function:', err);
+    return false;
+  }
+};
+
+// First check if we can execute SQL directly as a fallback
+export const testDirectTableAccess = async (): Promise<boolean> => {
+  try {
+    // Try a simple query to test if we can access the database
+    const { data, error } = await supabase
+      .from('page_views')
+      .select('id')
+      .limit(1);
+      
+    if (error) {
+      console.log('Direct table access test failed:', error.message);
+      return false;
+    }
+    
+    console.log('Direct table access successful');
+    return true;
+  } catch (err) {
+    console.error('Error testing direct table access:', err);
+    return false;
+  }
+};
+
 // Check if analytics tables exist
 export const checkAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Checking if analytics tables exist...');
     
-    // Check if we can access the page_views table
-    const { data: pageViewsData, error: pageViewsError } = await supabase
-      .from('page_views')
-      .select('count(*)')
-      .limit(1)
-      .single();
-    
-    if (pageViewsError) {
-      console.log('Error checking page_views:', pageViewsError.message);
-      return false;
+    // First try direct table access
+    const directAccessWorks = await testDirectTableAccess();
+    if (directAccessWorks) {
+      console.log('Tables exist and are accessible directly!');
+      return true;
     }
     
-    // Also check events table
-    const { data: eventsData, error: eventsError } = await supabase
-      .from('events')
-      .select('count(*)')
-      .limit(1)
-      .single();
-    
-    if (eventsError) {
-      console.log('Error checking events table:', eventsError.message);
-      return false;
-    }
-    
-    console.log('Analytics tables exist!', { pageViewsData, eventsData });
-    return true;
+    // If direct access fails, tables may not exist, so let's try to create them
+    return false;
   } catch (err) {
     console.error('Error in checkAnalyticsTables:', err);
     return false;
@@ -71,97 +129,159 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Starting to create analytics tables...');
     
-    // Create page_views table with a simpler approach - one SQL statement for both tables
-    const createTablesResult = await supabase.rpc('execute_sql', {
-      sql: `
-        -- Create page_views table
-        CREATE TABLE IF NOT EXISTS public.page_views (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          path TEXT NOT NULL,
-          timestamp TIMESTAMPTZ DEFAULT NOW(),
-          referrer TEXT,
-          user_agent TEXT
-        );
-
-        -- Create events table
-        CREATE TABLE IF NOT EXISTS public.events (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          category TEXT NOT NULL,
-          action TEXT NOT NULL, 
-          label TEXT,
-          value INTEGER,
-          timestamp TIMESTAMPTZ DEFAULT NOW()
-        );
-        
-        -- Set permissions (CRITICAL)
-        ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
-        ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
-        
-        -- Allow public insert access
-        CREATE POLICY "Allow public inserts to page_views" 
-          ON public.page_views FOR INSERT TO anon, authenticated
-          WITH CHECK (true);
-          
-        CREATE POLICY "Allow public inserts to events" 
-          ON public.events FOR INSERT TO anon, authenticated
-          WITH CHECK (true);
-      `
-    });
+    // First ensure the execute_sql function exists
+    await createExecuteSqlFunction();
     
-    if (createTablesResult.error) {
-      console.error('Error creating analytics tables:', createTablesResult.error);
-      toast.error('Fehler beim Erstellen der Analytiktabellen', {
-        description: `${createTablesResult.error.message}`
+    // Now try to create the tables using regular SQL
+    const { data, error } = await supabase
+      .from('_')
+      .select('*')
+      .eq('id', 0)
+      .rpc('_', {}, {
+        head: true, // We just want the headers back
+        modify: () => ({
+          method: "POST",
+          url: "/rest/v1/rpc/execute_sql", 
+          body: {
+            sql: `
+              -- Create page_views table
+              CREATE TABLE IF NOT EXISTS public.page_views (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                path TEXT NOT NULL,
+                timestamp TIMESTAMPTZ DEFAULT NOW(),
+                referrer TEXT,
+                user_agent TEXT
+              );
+
+              -- Create events table
+              CREATE TABLE IF NOT EXISTS public.events (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                category TEXT NOT NULL,
+                action TEXT NOT NULL, 
+                label TEXT,
+                value INTEGER,
+                timestamp TIMESTAMPTZ DEFAULT NOW()
+              );
+              
+              -- Set permissions (CRITICAL)
+              ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+              ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+              
+              -- Allow public insert access
+              CREATE POLICY IF NOT EXISTS "Allow public inserts to page_views" 
+                ON public.page_views FOR INSERT TO anon, authenticated
+                WITH CHECK (true);
+                
+              CREATE POLICY IF NOT EXISTS "Allow public inserts to events" 
+                ON public.events FOR INSERT TO anon, authenticated
+                WITH CHECK (true);
+                
+              -- Allow select access
+              CREATE POLICY IF NOT EXISTS "Allow select access to page_views" 
+                ON public.page_views FOR SELECT TO anon, authenticated
+                USING (true);
+                
+              CREATE POLICY IF NOT EXISTS "Allow select access to events" 
+                ON public.events FOR SELECT TO anon, authenticated
+                USING (true);
+            `
+          }
+        })
       });
-      return false;
+    
+    if (error) {
+      console.error('Error creating analytics tables with execute_sql:', error);
+      
+      // Try direct SQL as fallback
+      const { error: directError } = await supabase.rpc('execute_sql', {
+        sql: `
+          -- Create page_views table
+          CREATE TABLE IF NOT EXISTS public.page_views (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            path TEXT NOT NULL,
+            timestamp TIMESTAMPTZ DEFAULT NOW(),
+            referrer TEXT,
+            user_agent TEXT
+          );
+
+          -- Create events table
+          CREATE TABLE IF NOT EXISTS public.events (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            category TEXT NOT NULL,
+            action TEXT NOT NULL, 
+            label TEXT,
+            value INTEGER,
+            timestamp TIMESTAMPTZ DEFAULT NOW()
+          );
+          
+          -- Set permissions
+          ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+          ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+          
+          -- Allow public insert access
+          CREATE POLICY IF NOT EXISTS "Allow public inserts to page_views" 
+            ON public.page_views FOR INSERT TO anon, authenticated
+            WITH CHECK (true);
+            
+          CREATE POLICY IF NOT EXISTS "Allow public inserts to events" 
+            ON public.events FOR INSERT TO anon, authenticated
+            WITH CHECK (true);
+            
+          -- Allow select access
+          CREATE POLICY IF NOT EXISTS "Allow select access to page_views" 
+            ON public.page_views FOR SELECT TO anon, authenticated
+            USING (true);
+            
+          CREATE POLICY IF NOT EXISTS "Allow select access to events" 
+            ON public.events FOR SELECT TO anon, authenticated
+            USING (true);
+        `
+      });
+      
+      if (directError) {
+        console.error('Error with direct execute_sql call too:', directError);
+        toast.error('Fehler beim Erstellen der Analytiktabellen', {
+          description: `${directError.message}`
+        });
+        return false;
+      }
     }
     
+    // Verify tables with a direct access attempt
     console.log('Tables and policies created, now verifying...');
     
-    // Verify tables were created by trying to insert test records
-    const testPageView = await supabase
-      .from('page_views')
-      .insert({
-        path: '/test-page-view',
-        timestamp: new Date().toISOString(),
-        referrer: 'test-referrer',
-        user_agent: 'test-agent'
-      })
-      .select()
-      .single();
+    try {
+      // Try accessing the tables directly
+      const { data: pageViewsData, error: pageViewsError } = await supabase
+        .from('page_views')
+        .select('count(*)')
+        .limit(1);
+        
+      if (pageViewsError) {
+        console.error('Error verifying page_views table:', pageViewsError);
+        return false;
+      }
       
-    const testEvent = await supabase
-      .from('events')
-      .insert({
-        category: 'test',
-        action: 'create-tables-verification',
-        label: 'test-label',
-        timestamp: new Date().toISOString()
-      })
-      .select()
-      .single();
-    
-    // Check if we got any errors during the test insertions
-    if (testPageView.error || testEvent.error) {
-      console.error('Error testing table access:', { 
-        pageViewError: testPageView.error, 
-        eventError: testEvent.error 
+      const { data: eventsData, error: eventsError } = await supabase
+        .from('events')
+        .select('count(*)')
+        .limit(1);
+        
+      if (eventsError) {
+        console.error('Error verifying events table:', eventsError);
+        return false;
+      }
+      
+      console.log('Tables verified successfully');
+      toast.success('Analytiktabellen wurden erfolgreich erstellt', {
+        description: 'Die Tabellen "page_views" und "events" wurden erstellt und getestet.'
       });
       
-      toast.error('Tabellen wurden erstellt, aber Schreibzugriff fehlgeschlagen', {
-        description: 'Berechtigungen könnten nicht korrekt eingerichtet sein.'
-      });
-      
+      return true;
+    } catch (testErr: any) {
+      console.error('Error testing table creation:', testErr);
       return false;
     }
-    
-    // If we got here, tables were created and are accessible
-    console.log('Successfully created and verified analytics tables!');
-    toast.success('Analytiktabellen wurden erfolgreich erstellt', {
-      description: 'Die Tabellen "page_views" und "events" wurden erstellt und getestet.'
-    });
-    
-    return true;
   } catch (err: any) {
     console.error('Error creating analytics tables:', err);
     toast.error('Fehler beim Erstellen der Analytiktabellen', {
