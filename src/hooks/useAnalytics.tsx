@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { checkAnalyticsTables } from '@/lib/analytics';
 import { toast } from 'sonner';
@@ -49,17 +48,9 @@ export const useAnalytics = () => {
       
       console.log('Checking analytics tables and fetching data...');
       
-      // First do a hard check of whether the tables exist
-      let tablesExist = false;
-      
-      try {
-        // Use the checkAnalyticsTables function directly instead of direct SQL
-        tablesExist = await checkAnalyticsTables();
-        console.log('Tables exist check result:', tablesExist);
-      } catch (checkErr) {
-        console.error('Error checking tables:', checkErr);
-        tablesExist = false;
-      }
+      // Simply use the checkAnalyticsTables function
+      const tablesExist = await checkAnalyticsTables();
+      console.log('Tables exist check result:', tablesExist);
       
       if (!tablesExist) {
         console.log('Analytics tables do not exist, using example data');
