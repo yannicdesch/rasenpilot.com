@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import PasswordResetLink from '@/components/auth/PasswordResetLink';
+import { trackPageView, trackRegistrationStart, trackRegistrationStep } from '@/lib/analytics';
 
 interface AuthFormProps {
   redirectTo?: string;
@@ -25,6 +26,16 @@ const AuthForm = ({
   const [activeTab, setActiveTab] = useState<'login' | 'register'>(tabFromUrl || initialTab);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
 
+  // Track auth form view with specific tab
+  useEffect(() => {
+    if (activeTab === 'register') {
+      trackRegistrationStart();
+      trackRegistrationStep('auth_form_register_tab');
+    } else {
+      trackPageView('/auth/login');
+    }
+  }, [activeTab]);
+
   // Update active tab when URL params change
   useEffect(() => {
     if (tabFromUrl && (tabFromUrl === 'login' || tabFromUrl === 'register')) {
@@ -41,7 +52,15 @@ const AuthForm = ({
   };
 
   const handleRegistrationWithEmailConfirmation = () => {
+    trackRegistrationStep('registration_with_email_confirmation');
     setActiveTab('login');
+  };
+
+  const handleTabChange = (value: 'login' | 'register') => {
+    if (value === 'register') {
+      trackRegistrationStep('switched_to_register_tab');
+    }
+    setActiveTab(value);
   };
 
   if (showPasswordReset) {
@@ -54,7 +73,7 @@ const AuthForm = ({
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <Tabs value={activeTab} onValueChange={(value: 'login' | 'register') => setActiveTab(value)}>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Anmelden</TabsTrigger>
           <TabsTrigger value="register">Registrieren</TabsTrigger>

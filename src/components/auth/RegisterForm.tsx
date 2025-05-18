@@ -12,6 +12,7 @@ import { Mail, Lock, UserRoundPlus } from 'lucide-react';
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useLawn } from '@/context/LawnContext';
+import { trackRegistrationStart, trackRegistrationStep, trackRegistrationComplete, trackFormInteraction } from '@/lib/analytics';
 
 const registerSchema = z.object({
   email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -39,6 +40,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   const prefillEmail = location.state?.prefillEmail || '';
 
+  // Track when registration form is viewed
+  useEffect(() => {
+    trackRegistrationStart();
+  }, []);
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -55,8 +61,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     }
   }, [prefillEmail, form]);
 
+  // Track field completion
+  const handleFieldComplete = (fieldName: string) => {
+    trackRegistrationStep('field_complete', fieldName);
+  };
+
   const onSubmit = async (data: RegisterFormValues) => {
+    trackFormInteraction('register', 'submit');
+    
     if (!isSupabaseConfigured()) {
+      trackFormInteraction('register', 'error', 'Supabase not configured');
       toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
       return;
     }
@@ -74,11 +88,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       });
 
       if (error) {
+        trackFormInteraction('register', 'error', error.message);
         throw error;
       }
 
       // Check if we have a session - user is authenticated
       if (authData.session) {
+        trackRegistrationComplete('direct');
         toast.success('Registrierung erfolgreich!');
         
         // If we have temporary profile data, sync it first
@@ -96,10 +112,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         }
       } else {
         // If confirmation is required
+        trackRegistrationStep('email_confirmation_sent');
         toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
         onRegistrationWithEmailConfirmation();
       }
     } catch (error: any) {
+      trackFormInteraction('register', 'error', error.message || 'Unknown error');
       toast.error('Fehler bei der Registrierung: ' + (error.message || 'Unbekannter Fehler'));
     } finally {
       setIsLoading(false);
@@ -120,7 +138,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                   <FormControl>
                     <div className="relative">
                       <UserRoundPlus className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Dein Name" className="pl-10" {...field} />
+                      <Input 
+                        placeholder="Dein Name" 
+                        className="pl-10" 
+                        {...field} 
+                        onBlur={() => handleFieldComplete('name')}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -136,7 +159,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="deine@email.de" className="pl-10" {...field} />
+                      <Input 
+                        placeholder="deine@email.de" 
+                        className="pl-10" 
+                        {...field}
+                        onBlur={() => handleFieldComplete('email')}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -152,7 +180,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input type="password" className="pl-10" {...field} />
+                      <Input 
+                        type="password" 
+                        className="pl-10" 
+                        {...field}
+                        onBlur={() => handleFieldComplete('password')} 
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />

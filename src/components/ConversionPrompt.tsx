@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { trackRegistrationStart, trackRegistrationStep, trackRegistrationComplete, trackRegistrationAbandoned } from '@/lib/analytics';
 
 // Define schema for quick registration
 const quickRegisterSchema = z.object({
@@ -36,6 +36,11 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Track conversion prompt view as a registration step
+    trackRegistrationStep('conversion_prompt_view');
+  }, []);
+
   const form = useForm<QuickRegisterValues>({
     resolver: zodResolver(quickRegisterSchema),
     defaultValues: {
@@ -46,6 +51,8 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
   });
 
   const handleQuickRegister = async (data: QuickRegisterValues) => {
+    trackRegistrationStep('quick_register_attempt');
+    
     if (!isSupabaseConfigured()) {
       toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
       return;
@@ -70,10 +77,12 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
 
       // Check if we have a session - user is authenticated
       if (authData.session) {
+        trackRegistrationComplete('quick_register');
         toast.success('Registrierung erfolgreich!');
         navigate('/free-care-plan');
       } else {
         // If confirmation is required
+        trackRegistrationStep('email_confirmation_sent');
         toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
         navigate('/auth?tab=login');
       }
@@ -82,6 +91,16 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleNavToRegister = () => {
+    trackRegistrationStep('full_register_selected');
+    onRegister();
+  };
+
+  const handleContinueWithoutReg = () => {
+    trackRegistrationAbandoned('conversion_prompt');
+    onContinueWithoutRegistration();
   };
 
   return (
@@ -200,14 +219,14 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button 
                 className="py-6 text-lg bg-green-600 hover:bg-green-700" 
-                onClick={onRegister}
+                onClick={handleNavToRegister}
               >
                 Vollständig registrieren
               </Button>
               <Button 
                 variant="outline"
                 className="border-green-200"
-                onClick={onContinueWithoutRegistration}
+                onClick={handleContinueWithoutReg}
               >
                 Ohne Registrierung fortfahren
               </Button>

@@ -62,6 +62,21 @@ const SEO: React.FC<SEOProps> = ({
       
       {/* Noindex directive if specified */}
       {noindex && <meta name="robots" content="noindex,nofollow" />}
+      
+      {/* Google Site Verification - add if you have a verification code */}
+      {/* <meta name="google-site-verification" content="your-verification-code" /> */}
+      
+      {/* Analytics tracking consent */}
+      <script type="text/javascript">
+        {`
+          // This helps Google Analytics know when a user has given consent
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('consent', 'default', {
+            'analytics_storage': 'granted'
+          });
+        `}
+      </script>
     </Helmet>
   );
 };
