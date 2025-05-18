@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { createExecuteSqlFunction } from './analytics';
@@ -5,9 +6,9 @@ import { createExecuteSqlFunction } from './analytics';
 // Helper function to execute SQL directly
 const executeSqlDirectly = async (sql: string): Promise<boolean> => {
   try {
-    // First try with a direct POST to the execute_sql RPC endpoint
-    const { error } = await supabase.rest.post('/rpc/execute_sql', {
-      body: { sql }
+    // First try with a direct call to the execute_sql RPC
+    const { error } = await supabase.rpc('execute_sql', {
+      sql
     });
     
     if (!error) {

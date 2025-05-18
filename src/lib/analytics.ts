@@ -38,12 +38,10 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
       .from('_')
       .select('*')
       .eq('id', 0)
-      .then((response) => {
-        // Here we execute a direct POST request to create the function
-        return supabase.rest.post('/rpc/', {
+      .then(() => {
+        // Use functions.invoke instead of rest.post
+        return supabase.functions.invoke('execute-sql-creation', {
           body: {
-            name: "execute_sql_function_creation",
-            schema: "public",
             definition: `
               BEGIN;
               -- Create the execute_sql function if it doesn't exist
@@ -69,8 +67,21 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
     
     if (error) {
       console.error('Error creating execute_sql function:', error);
-      // Even if there's an error here, the function might already exist
-      // So we'll continue with the process
+      // Even if there's an error here, try a direct approach as fallback
+      try {
+        // Try with a direct SQL query to see if we already have access
+        const { data } = await supabase.rpc('execute_sql', {
+          sql: 'SELECT 1;'
+        });
+        
+        if (data) {
+          console.log('execute_sql function already exists and works');
+          return true;
+        }
+      } catch (directErr) {
+        console.error('Direct SQL execution also failed:', directErr);
+      }
+      return false;
     } else {
       console.log('execute_sql function created or already exists');
     }
@@ -132,125 +143,120 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     // First ensure the execute_sql function exists
     await createExecuteSqlFunction();
     
-    // Now try to create the tables using a direct POST request instead of RPC
-    // Fixed: Corrected the TypeScript error by using direct POST
-    const { error } = await supabase
-      .from('_')
-      .select('*')
-      .eq('id', 0)
-      .then(() => {
-        // Here we execute a direct POST request to the RPC endpoint
-        return supabase.rest.post('/rpc/execute_sql', {
-          body: {
-            sql: `
-              -- Create page_views table
-              CREATE TABLE IF NOT EXISTS public.page_views (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                path TEXT NOT NULL,
-                timestamp TIMESTAMPTZ DEFAULT NOW(),
-                referrer TEXT,
-                user_agent TEXT
-              );
+    // Use rpc instead of rest.post
+    try {
+      const { error } = await supabase.rpc('execute_sql', {
+        sql: `
+          -- Create page_views table
+          CREATE TABLE IF NOT EXISTS public.page_views (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            path TEXT NOT NULL,
+            timestamp TIMESTAMPTZ DEFAULT NOW(),
+            referrer TEXT,
+            user_agent TEXT
+          );
 
-              -- Create events table
-              CREATE TABLE IF NOT EXISTS public.events (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                category TEXT NOT NULL,
-                action TEXT NOT NULL, 
-                label TEXT,
-                value INTEGER,
-                timestamp TIMESTAMPTZ DEFAULT NOW()
-              );
-              
-              -- Set permissions (CRITICAL)
-              ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
-              ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
-              
-              -- Allow public insert access
-              CREATE POLICY IF NOT EXISTS "Allow public inserts to page_views" 
-                ON public.page_views FOR INSERT TO anon, authenticated
-                WITH CHECK (true);
-                
-              CREATE POLICY IF NOT EXISTS "Allow public inserts to events" 
-                ON public.events FOR INSERT TO anon, authenticated
-                WITH CHECK (true);
-                
-              -- Allow select access
-              CREATE POLICY IF NOT EXISTS "Allow select access to page_views" 
-                ON public.page_views FOR SELECT TO anon, authenticated
-                USING (true);
-                
-              CREATE POLICY IF NOT EXISTS "Allow select access to events" 
-                ON public.events FOR SELECT TO anon, authenticated
-                USING (true);
-            `
-          }
-        });
+          -- Create events table
+          CREATE TABLE IF NOT EXISTS public.events (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            category TEXT NOT NULL,
+            action TEXT NOT NULL, 
+            label TEXT,
+            value INTEGER,
+            timestamp TIMESTAMPTZ DEFAULT NOW()
+          );
+          
+          -- Set permissions (CRITICAL)
+          ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+          ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+          
+          -- Allow public insert access
+          CREATE POLICY IF NOT EXISTS "Allow public inserts to page_views" 
+            ON public.page_views FOR INSERT TO anon, authenticated
+            WITH CHECK (true);
+            
+          CREATE POLICY IF NOT EXISTS "Allow public inserts to events" 
+            ON public.events FOR INSERT TO anon, authenticated
+            WITH CHECK (true);
+            
+          -- Allow select access
+          CREATE POLICY IF NOT EXISTS "Allow select access to page_views" 
+            ON public.page_views FOR SELECT TO anon, authenticated
+            USING (true);
+            
+          CREATE POLICY IF NOT EXISTS "Allow select access to events" 
+            ON public.events FOR SELECT TO anon, authenticated
+            USING (true);
+        `
       });
-    
-    if (error) {
-      console.error('Error creating analytics tables with execute_sql:', error);
       
-      // Try direct SQL as fallback using a proper RPC call
-      try {
-        const { error: directError } = await supabase.functions.invoke('execute-sql', {
-          body: {
-            sql: `
-              -- Create page_views table
-              CREATE TABLE IF NOT EXISTS public.page_views (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                path TEXT NOT NULL,
-                timestamp TIMESTAMPTZ DEFAULT NOW(),
-                referrer TEXT,
-                user_agent TEXT
-              );
-
-              -- Create events table
-              CREATE TABLE IF NOT EXISTS public.events (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                category TEXT NOT NULL,
-                action TEXT NOT NULL, 
-                label TEXT,
-                value INTEGER,
-                timestamp TIMESTAMPTZ DEFAULT NOW()
-              );
-              
-              -- Set permissions
-              ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
-              ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
-              
-              -- Allow public insert access
-              CREATE POLICY IF NOT EXISTS "Allow public inserts to page_views" 
-                ON public.page_views FOR INSERT TO anon, authenticated
-                WITH CHECK (true);
-                
-              CREATE POLICY IF NOT EXISTS "Allow public inserts to events" 
-                ON public.events FOR INSERT TO anon, authenticated
-                WITH CHECK (true);
-                
-              -- Allow select access
-              CREATE POLICY IF NOT EXISTS "Allow select access to page_views" 
-                ON public.page_views FOR SELECT TO anon, authenticated
-                USING (true);
-                
-              CREATE POLICY IF NOT EXISTS "Allow select access to events" 
-                ON public.events FOR SELECT TO anon, authenticated
-                USING (true);
-            `
-          }
-        });
+      if (error) {
+        console.error('Error creating analytics tables with execute_sql:', error);
         
-        if (directError) {
-          console.error('Error with direct execute_sql call too:', directError);
-          toast.error('Fehler beim Erstellen der Analytiktabellen', {
-            description: `${directError.message || 'Unbekannter Fehler'}`
+        // Try direct SQL as fallback using a functions.invoke call
+        try {
+          const { error: directError } = await supabase.functions.invoke('execute-sql', {
+            body: {
+              sql: `
+                -- Create page_views table
+                CREATE TABLE IF NOT EXISTS public.page_views (
+                  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                  path TEXT NOT NULL,
+                  timestamp TIMESTAMPTZ DEFAULT NOW(),
+                  referrer TEXT,
+                  user_agent TEXT
+                );
+
+                -- Create events table
+                CREATE TABLE IF NOT EXISTS public.events (
+                  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                  category TEXT NOT NULL,
+                  action TEXT NOT NULL, 
+                  label TEXT,
+                  value INTEGER,
+                  timestamp TIMESTAMPTZ DEFAULT NOW()
+                );
+                
+                -- Set permissions
+                ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+                ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+                
+                -- Allow public insert access
+                CREATE POLICY IF NOT EXISTS "Allow public inserts to page_views" 
+                  ON public.page_views FOR INSERT TO anon, authenticated
+                  WITH CHECK (true);
+                  
+                CREATE POLICY IF NOT EXISTS "Allow public inserts to events" 
+                  ON public.events FOR INSERT TO anon, authenticated
+                  WITH CHECK (true);
+                  
+                -- Allow select access
+                CREATE POLICY IF NOT EXISTS "Allow select access to page_views" 
+                  ON public.page_views FOR SELECT TO anon, authenticated
+                  USING (true);
+                  
+                CREATE POLICY IF NOT EXISTS "Allow select access to events" 
+                  ON public.events FOR SELECT TO anon, authenticated
+                  USING (true);
+              `
+            }
           });
+          
+          if (directError) {
+            console.error('Error with direct execute_sql call too:', directError);
+            toast.error('Fehler beim Erstellen der Analytiktabellen', {
+              description: `${directError.message || 'Unbekannter Fehler'}`
+            });
+            return false;
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback execution failed:', fallbackErr);
           return false;
         }
-      } catch (fallbackErr) {
-        console.error('Fallback execution failed:', fallbackErr);
-        return false;
       }
+    } catch (err) {
+      console.error('Error in initial table creation attempt:', err);
+      return false;
     }
     
     // Verify tables with a direct access attempt

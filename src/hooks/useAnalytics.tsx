@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { checkAnalyticsTables, createExecuteSqlFunction } from '@/lib/analytics';
 import { toast } from 'sonner';
@@ -46,9 +45,9 @@ export const useAnalytics = () => {
 
   const checkSqlFunction = async () => {
     try {
-      // Use rest.post instead of rpc
-      const { error } = await supabase.rest.post('/rpc/execute_sql', {
-        body: { sql: 'SELECT 1 as test;' }
+      // Use rpc instead of rest.post
+      const { error } = await supabase.rpc('execute_sql', {
+        sql: 'SELECT 1 as test;'
       });
       
       setSqlFunctionExists(!error);
