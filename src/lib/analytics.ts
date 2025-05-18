@@ -1,3 +1,4 @@
+
 // Google Analytics setup
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -80,8 +81,9 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
       );
     `;
     
-    const { error: pageViewsError } = await supabase.from('_sql').rpc('run', {
-      query: createPageViewsQuery
+    // Using execute_sql RPC function instead of from('_sql').rpc
+    const { error: pageViewsError } = await supabase.rpc('execute_sql', {
+      sql: createPageViewsQuery
     });
     
     if (pageViewsError) {
@@ -100,8 +102,8 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     
     // Try to create indexes but continue if it fails
     try {
-      await supabase.from('_sql').rpc('run', {
-        query: createPageViewsIndexesQuery
+      await supabase.rpc('execute_sql', {
+        sql: createPageViewsIndexesQuery
       });
     } catch (indexError) {
       console.warn('Could not create indexes for page_views, but continuing:', indexError);
@@ -120,8 +122,9 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
       );
     `;
     
-    const { error: eventsError } = await supabase.from('_sql').rpc('run', {
-      query: createEventsQuery
+    // Using execute_sql RPC function
+    const { error: eventsError } = await supabase.rpc('execute_sql', {
+      sql: createEventsQuery
     });
     
     if (eventsError) {
@@ -140,8 +143,8 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     
     // Try to create indexes but continue if it fails
     try {
-      await supabase.from('_sql').rpc('run', {
-        query: createEventsIndexesQuery
+      await supabase.rpc('execute_sql', {
+        sql: createEventsIndexesQuery
       });
     } catch (indexError) {
       console.warn('Could not create indexes for events, but continuing:', indexError);
@@ -175,7 +178,9 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
           );
         `;
         
-        await supabase.from('_sql').rpc('run', { query: simplePageViewsQuery });
+        await supabase.rpc('execute_sql', { 
+          sql: simplePageViewsQuery 
+        });
         
         // Simple events table
         const simpleEventsQuery = `
@@ -189,7 +194,9 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
           );
         `;
         
-        await supabase.from('_sql').rpc('run', { query: simpleEventsQuery });
+        await supabase.rpc('execute_sql', { 
+          sql: simpleEventsQuery 
+        });
         
         // Final check
         const finalCheck = await checkAnalyticsTables();

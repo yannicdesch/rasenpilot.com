@@ -53,20 +53,12 @@ export const useAnalytics = () => {
       let tablesExist = false;
       
       try {
-        // Direct SQL query to check tables
-        const { data, error } = await supabase.from('information_schema.tables')
-          .select('table_name')
-          .eq('table_schema', 'public')
-          .in('table_name', ['page_views', 'events']);
-        
-        if (data && !error) {
-          const tableNames = data.map(t => t.table_name);
-          tablesExist = tableNames.includes('page_views') && tableNames.includes('events');
-        }
-      } catch (checkErr) {
-        console.error('Error directly checking tables:', checkErr);
-        // Fall back to our standard check function
+        // Use the checkAnalyticsTables function directly instead of direct SQL
         tablesExist = await checkAnalyticsTables();
+        console.log('Tables exist check result:', tablesExist);
+      } catch (checkErr) {
+        console.error('Error checking tables:', checkErr);
+        tablesExist = false;
       }
       
       if (!tablesExist) {
