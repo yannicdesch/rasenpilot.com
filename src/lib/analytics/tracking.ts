@@ -49,9 +49,10 @@ export const trackPageView = async (path: string): Promise<void> => {
   }
 };
 
-// Track events 
+// Track events with GA4 optimized naming
 export const trackEvent = async (category: string, action: string, label?: string, value?: number): Promise<void> => {
   if (typeof window.gtag !== 'undefined') {
+    // For GA4, we'll use the event name as the action for better categorization
     window.gtag('event', action, {
       event_category: category,
       event_label: label,
