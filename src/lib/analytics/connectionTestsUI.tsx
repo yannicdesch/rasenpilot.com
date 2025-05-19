@@ -1,129 +1,122 @@
 
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Loader2, Check, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { runAllConnectionTests } from './connectionTests';
-import { toast } from 'sonner';
-
-interface TestResults {
-  basicConnection: boolean;
-  sqlFunction: boolean;
-  analyticsTablesExist: boolean;
-  insertPermissions: boolean;
-  [key: string]: boolean;
-}
 
 export const ConnectionTestCard = () => {
-  const [results, setResults] = useState<TestResults | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
+  const [testResults, setTestResults] = useState<{
+    basicConnection: boolean | null;
+    sqlFunction: boolean | null;
+    tablesExist: boolean | null;
+    testing: boolean;
+  }>({
+    basicConnection: null,
+    sqlFunction: null,
+    tablesExist: null,
+    testing: false,
+  });
   
   const runTests = async () => {
-    setIsRunning(true);
+    setTestResults(prev => ({ ...prev, testing: true }));
     try {
-      const testResults = await runAllConnectionTests();
-      setResults(testResults as TestResults);
-      
-      // Show success or warning based on results
-      if (testResults.basicConnection) {
-        if (testResults.sqlFunction && testResults.analyticsTablesExist) {
-          toast.success('Verbindungstest erfolgreich', {
-            description: 'Alle Tests wurden erfolgreich abgeschlossen.'
-          });
-        } else {
-          toast.warning('Verbindung teilweise erfolgreich', {
-            description: 'Einige Tests waren nicht erfolgreich, siehe Details.'
-          });
-        }
-      } else {
-        toast.error('Verbindungstest fehlgeschlagen', {
-          description: 'Die Verbindung zur Datenbank konnte nicht hergestellt werden.'
-        });
-      }
-    } catch (err) {
-      console.error('Error running tests:', err);
-      toast.error('Fehler beim Ausführen der Tests', {
-        description: 'Ein unerwarteter Fehler ist aufgetreten.'
+      const results = await runAllConnectionTests();
+      setTestResults({
+        basicConnection: results.basicConnection,
+        sqlFunction: results.sqlFunction,
+        tablesExist: results.tablesExist || false,
+        testing: false,
       });
-    } finally {
-      setIsRunning(false);
+    } catch (err) {
+      console.error('Error running connection tests:', err);
+      setTestResults({
+        basicConnection: false,
+        sqlFunction: false,
+        tablesExist: false,
+        testing: false,
+      });
     }
   };
   
+  useEffect(() => {
+    // Run tests automatically on mount
+    runTests();
+  }, []);
+  
   return (
     <Card className="border shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-lg">Datenbank-Verbindungstests</CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Verbindungsstatus</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">
-          Führen Sie umfassende Tests durch, um die Verbindung zur Datenbank und die Berechtigungen zu prüfen.
-        </p>
-        
-        {results && (
-          <div className="space-y-3 mt-4">
-            <h3 className="font-medium text-sm">Testergebnisse:</h3>
-            <TestResultItem 
-              label="Grundverbindung" 
-              success={results.basicConnection} 
-              description={results.basicConnection ? "Verbindung zur Datenbank hergestellt" : "Keine Verbindung zur Datenbank"} 
-            />
-            <TestResultItem 
-              label="SQL-Ausführungsfunktion" 
-              success={results.sqlFunction} 
-              description={results.sqlFunction ? "SQL-Funktion verfügbar" : "SQL-Funktion nicht verfügbar"} 
-            />
-            <TestResultItem 
-              label="Analytics-Tabellen" 
-              success={results.analyticsTablesExist} 
-              description={results.analyticsTablesExist ? "Tabellen existieren" : "Tabellen existieren nicht"} 
-            />
-            <TestResultItem 
-              label="Einfüge-Berechtigungen" 
-              success={results.insertPermissions} 
-              description={results.insertPermissions ? "Daten können eingefügt werden" : "Keine Berechtigung zum Einfügen"} 
-            />
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm">Supabase Verbindung:</span>
+            <StatusBadge status={testResults.basicConnection} isLoading={testResults.testing} />
           </div>
-        )}
+          
+          <div className="flex justify-between items-center">
+            <span className="text-sm">SQL-Ausführungsfunktion:</span>
+            <StatusBadge status={testResults.sqlFunction} isLoading={testResults.testing} />
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="text-sm">Analytik-Tabellen:</span>
+            <StatusBadge status={testResults.tablesExist} isLoading={testResults.testing} />
+          </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            disabled={testResults.testing}
+            onClick={runTests}
+            className="w-full mt-2"
+          >
+            {testResults.testing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
+                Verbindung wird getestet...
+              </>
+            ) : (
+              'Verbindung erneut testen'
+            )}
+          </Button>
+        </div>
       </CardContent>
-      <CardFooter>
-        <Button 
-          onClick={runTests}
-          disabled={isRunning}
-          className="w-full"
-        >
-          {isRunning ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
-              Tests werden ausgeführt...
-            </>
-          ) : (
-            'Verbindungstests ausführen'
-          )}
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
 
-interface TestResultItemProps {
-  label: string;
-  success: boolean;
-  description: string;
-}
-
-const TestResultItem = ({ label, success, description }: TestResultItemProps) => {
+const StatusBadge = ({ status, isLoading }: { status: boolean | null, isLoading: boolean }) => {
+  if (isLoading) {
+    return (
+      <Badge variant="outline" className="flex items-center gap-1">
+        <Loader2 className="h-3 w-3 animate-spin" /> Wird geprüft...
+      </Badge>
+    );
+  }
+  
+  if (status === null) {
+    return (
+      <Badge variant="outline" className="bg-gray-50">
+        Ungeprüft
+      </Badge>
+    );
+  }
+  
+  if (status) {
+    return (
+      <Badge variant="outline" className="bg-green-50 text-green-700 flex items-center gap-1">
+        <Check className="h-3 w-3" /> OK
+      </Badge>
+    );
+  }
+  
   return (
-    <div className={`flex items-center p-2 rounded-md ${success ? 'bg-green-50' : 'bg-red-50'}`}>
-      {success ? (
-        <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-      ) : (
-        <XCircle className="h-5 w-5 text-red-500 mr-2" />
-      )}
-      <div>
-        <p className="font-medium text-sm">{label}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-    </div>
+    <Badge variant="outline" className="bg-red-50 text-red-700 flex items-center gap-1">
+      <X className="h-3 w-3" /> Fehler
+    </Badge>
   );
 };

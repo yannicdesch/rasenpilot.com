@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CardFooter } from '@/components/ui/card';
-import { Database, Beaker } from 'lucide-react';
+import { Database, Beaker, Loader2, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { createTestTable, runAllConnectionTests } from '@/lib/analytics';
 import { supabase } from '@/lib/supabase';
@@ -21,6 +21,7 @@ const DatabaseActions = ({
   handleCreateTables 
 }: DatabaseActionsProps) => {
   const [testingConnection, setTestingConnection] = React.useState(false);
+  const [creatingTables, setCreatingTables] = React.useState(false);
   
   const handleTestConnection = async () => {
     setTestingConnection(true);
@@ -51,6 +52,7 @@ const DatabaseActions = ({
   };
   
   const createTablesDirectlyWithEdgeFunction = async () => {
+    setCreatingTables(true);
     try {
       console.log('Creating tables using edge function...');
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
@@ -63,12 +65,21 @@ const DatabaseActions = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${accessToken}`,
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
         },
         body: JSON.stringify({
           action: 'create_analytics_tables'
         })
       });
+      
+      if (!response.ok) {
+        console.error('Edge function HTTP error:', response.status, await response.text());
+        toast.error('Fehler beim Erstellen der Tabellen', {
+          description: `HTTP Status: ${response.status}`
+        });
+        return false;
+      }
       
       const result = await response.json();
       
@@ -76,6 +87,8 @@ const DatabaseActions = ({
         toast.success('Tabellen erfolgreich erstellt', {
           description: 'Die Analytiktabellen wurden erfolgreich erstellt.'
         });
+        // Check tables status after creating them
+        checkTables();
         return true;
       } else {
         console.error('Error creating tables with edge function:', result);
@@ -86,7 +99,12 @@ const DatabaseActions = ({
       }
     } catch (error) {
       console.error('Error using edge function:', error);
+      toast.error('Fehler beim Erstellen der Tabellen', {
+        description: 'Ein unerwarteter Fehler ist aufgetreten.'
+      });
       return false;
+    } finally {
+      setCreatingTables(false);
     }
   };
   
@@ -96,19 +114,26 @@ const DatabaseActions = ({
         <Button 
           variant="outline" 
           onClick={checkTables} 
-          disabled={isLoading || testingConnection}
+          disabled={isLoading || testingConnection || creatingTables}
         >
-          Tabellen prüfen
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Prüfe...
+            </>
+          ) : (
+            'Tabellen prüfen'
+          )}
         </Button>
         <Button
           variant="outline"
           onClick={handleTestConnection}
-          disabled={isLoading || testingConnection}
+          disabled={isLoading || testingConnection || creatingTables}
           className="flex items-center gap-2"
         >
           {testingConnection ? (
             <>
-              <span className="h-4 w-4 border-2 border-t-transparent border-muted-foreground rounded-full animate-spin"></span>
+              <Loader2 className="h-4 w-4 animate-spin" />
               <span>Testing...</span>
             </>
           ) : (
@@ -120,10 +145,21 @@ const DatabaseActions = ({
         </Button>
       </div>
       <Button 
-        onClick={handleCreateTables} 
-        disabled={isLoading || testingConnection}
+        onClick={createTablesDirectlyWithEdgeFunction}
+        disabled={isLoading || testingConnection || creatingTables}
+        className="flex items-center gap-2"
       >
-        Alle Tabellen erstellen
+        {creatingTables ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Erstelle Tabellen...</span>
+          </>
+        ) : (
+          <>
+            <Database className="h-4 w-4 mr-1" />
+            <span>Tabellen mit Edge Function erstellen</span>
+          </>
+        )}
       </Button>
     </CardFooter>
   );

@@ -166,7 +166,13 @@ export const DatabaseSetup = () => {
   };
   
   useEffect(() => {
-    checkExecuteSql();
+    // Check the execute_sql function and then check tables on initial load
+    const initializeChecks = async () => {
+      await checkExecuteSql();
+      await checkTables();
+    };
+    
+    initializeChecks();
   }, []);
   
   return (

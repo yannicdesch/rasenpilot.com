@@ -1,213 +1,122 @@
+
 import { supabase } from '@/lib/supabase';
-import { createExecuteSqlFunction } from './sqlFunctions';
 
-// Test if we can connect to Supabase
+// Test if we can connect to Supabase at all
 export const testSupabaseConnection = async (): Promise<boolean> => {
-  console.log('Testing Supabase connection...');
   try {
-    // We need to handle this differently since .catch() doesn't exist on PostgrestFilterBuilder
-    try {
-      const { data, error } = await supabase.from('_test_connection_').select('*').limit(1);
-      
-      // If we get an error about table not existing, that means the connection worked
-      // If we get a connection error, then we know the connection failed
-      const errorMessage = error?.message?.toLowerCase() || '';
-      const isConnectionError = errorMessage.includes('network') || 
-                               errorMessage.includes('connection') ||
-                               errorMessage.includes('fetch') || 
-                               errorMessage.includes('timeout');
-      
-      // If it's specifically a connection error, return false
-      if (isConnectionError) {
-        console.error('Connection to Supabase failed:', error);
-        return false;
-      }
-      
-      // Otherwise, even if there's an error about the table not existing,
-      // the connection itself worked, so return true
-      console.log('Supabase connection successful');
+    console.log('Testing Supabase connection...');
+    // Simple query to see if we can connect to Supabase
+    const { error } = await supabase.from('_unused_name').select('*').limit(1);
+    
+    // If we get a specific error code, it means we connected but the table doesn't exist
+    if (error && (error.code === '42P01' || error.message.includes('does not exist'))) {
+      console.log('Supabase connection successful (table not found but that\'s ok)');
       return true;
-    } catch (e) {
-      // This happens if the connection fails entirely
-      console.error('Connection to Supabase failed completely:', e);
+    } else if (error) {
+      console.error('Supabase connection error:', error.message);
       return false;
     }
     
-  } catch (e) {
-    console.error('Error testing Supabase connection:', e);
-    return false;
-  }
-};
-
-// Test direct table access to see if we can perform operations
-export const testDirectTableAccess = async (): Promise<boolean> => {
-  console.log('Testing direct table access...');
-  try {
-    // Attempt to create a temporary test table
-    const tempTableName = `_temp_test_${Math.floor(Math.random() * 1000000)}`;
-    
-    // Try to create the table
-    const { error: createError } = await supabase.rpc('execute_sql', {
-      sql: `
-        CREATE TABLE IF NOT EXISTS ${tempTableName} (
-          id SERIAL PRIMARY KEY,
-          test_value TEXT
-        );
-      `
-    });
-    
-    if (createError) {
-      console.error('Error creating test table:', createError);
-      return false;
-    }
-    
-    // Try to insert data
-    const { error: insertError } = await supabase.rpc('execute_sql', {
-      sql: `
-        INSERT INTO ${tempTableName} (test_value) VALUES ('test');
-      `
-    });
-    
-    if (insertError) {
-      console.error('Error inserting into test table:', insertError);
-      return false;
-    }
-    
-    // Try to select data
-    const { error: selectError } = await supabase.rpc('execute_sql', {
-      sql: `
-        SELECT * FROM ${tempTableName} LIMIT 1;
-      `
-    });
-    
-    if (selectError) {
-      console.error('Error selecting from test table:', selectError);
-      return false;
-    }
-    
-    // Clean up - drop the table
-    const { error: dropError } = await supabase.rpc('execute_sql', {
-      sql: `
-        DROP TABLE IF EXISTS ${tempTableName};
-      `
-    });
-    
-    if (dropError) {
-      console.error('Error dropping test table:', dropError);
-      // Continue anyway, as the main tests passed
-    }
-    
-    console.log('Direct table access successful');
+    console.log('Supabase connection successful');
     return true;
-  } catch (e) {
-    console.error('Error testing direct table access:', e);
+  } catch (err) {
+    console.error('Supabase connection exception:', err);
     return false;
   }
 };
 
-// More comprehensive test of all connection aspects
-export const runAllConnectionTests = async (): Promise<{[key: string]: boolean}> => {
-  console.log('Starting comprehensive Supabase connection test...');
-  
-  const results: {[key: string]: boolean} = {
-    basicConnection: false,
-    sqlFunction: false,
-    analyticsTablesExist: false,
-    insertPermissions: false
-  };
-  
-  // Test 1: Basic connection
-  console.log('Testing general database connectivity...');
-  results.basicConnection = await testSupabaseConnection();
-  
-  if (!results.basicConnection) {
-    console.error('Basic connection failed, stopping further tests');
-    return results;
-  }
-  
-  // Test 2: SQL function exists and works
-  console.log('Testing SQL function existence and functionality...');
+// Test if the execute_sql function exists
+export const testExecuteSqlFunction = async (): Promise<boolean> => {
   try {
-    // First check if it exists
-    try {
-      const { error } = await supabase.rpc('execute_sql', {
-        sql: 'SELECT 1 as test;'
-      });
-      
-      if (!error) {
-        results.sqlFunction = true;
-      } else {
-        // Try to create it
-        const created = await createExecuteSqlFunction();
-        results.sqlFunction = created;
-      }
-    } catch (e) {
-      console.error('Error testing SQL function:', e);
-      results.sqlFunction = false;
+    console.log('Testing execute_sql function...');
+    const { error } = await supabase.rpc('execute_sql', {
+      sql: 'SELECT 1 as test;'
+    });
+    
+    if (error) {
+      console.error('execute_sql function error:', error.message);
+      return false;
     }
-  } catch (e) {
-    console.error('Error during SQL function test:', e);
-    results.sqlFunction = false;
+    
+    console.log('execute_sql function exists and works');
+    return true;
+  } catch (err) {
+    console.error('execute_sql function exception:', err);
+    return false;
   }
-  
-  // Test 3: Analytics tables exist
-  console.log('Testing if analytics tables exist...');
+};
+
+// Test if analytics tables exist
+export const testAnalyticsTablesExist = async (): Promise<boolean> => {
   try {
-    // Check page_views - use try-catch instead of catch on the query
-    try {
-      const { error: pvError } = await supabase
-        .from('page_views')
-        .select('count(*)')
-        .limit(1);
-        
-      const pvTableExists = !pvError;
+    console.log('Testing if analytics tables exist...');
+    
+    // Check page_views table
+    const { error: pvError } = await supabase
+      .from('page_views')
+      .select('count(*)')
+      .limit(1);
       
-      // Check events
-      const { error: evError } = await supabase
-        .from('events')
-        .select('count(*)')
-        .limit(1);
-        
-      const evTableExists = !evError;
-      
-      results.analyticsTablesExist = pvTableExists && evTableExists;
-    } catch (e) {
-      console.error('Error querying analytics tables:', e);
-      results.analyticsTablesExist = false;
+    if (pvError) {
+      console.error('page_views table error:', pvError.message);
+      return false;
     }
-  } catch (e) {
-    console.error('Error checking analytics tables:', e);
-    results.analyticsTablesExist = false;
-  }
-  
-  // Test 4: Insert permissions
-  console.log('Testing insert permissions...');
-  if (results.analyticsTablesExist) {
-    try {
-      // Try to insert a test page view
-      const { error: insertError } = await supabase
-        .from('page_views')
-        .insert({
-          path: '/test-connection',
-          timestamp: new Date().toISOString(),
-          referrer: 'connection-test',
-          user_agent: 'connection-test'
-        })
-        .select();
-        
-      results.insertPermissions = !insertError;
+    
+    // Check events table
+    const { error: evError } = await supabase
+      .from('events')
+      .select('count(*)')
+      .limit(1);
       
-      if (insertError) {
-        console.error('Insert permission test failed:', insertError);
-      }
-    } catch (e) {
-      console.error('Error testing insert permissions:', e);
-      results.insertPermissions = false;
+    if (evError) {
+      console.error('events table error:', evError.message);
+      return false;
     }
-  } else {
-    results.insertPermissions = false;
+    
+    console.log('Analytics tables exist');
+    return true;
+  } catch (err) {
+    console.error('Analytics tables check exception:', err);
+    return false;
   }
-  
-  console.log('Connection test results:', results);
-  return results;
+};
+
+// Run all connection tests at once for more efficient checking
+export const runAllConnectionTests = async (): Promise<{
+  basicConnection: boolean;
+  sqlFunction: boolean;
+  tablesExist: boolean | null;
+}> => {
+  try {
+    // Test basic connection first
+    const basicConnection = await testSupabaseConnection();
+    
+    // If basic connection fails, don't try other tests
+    if (!basicConnection) {
+      return {
+        basicConnection: false,
+        sqlFunction: false,
+        tablesExist: null
+      };
+    }
+    
+    // Test SQL function
+    const sqlFunction = await testExecuteSqlFunction();
+    
+    // Test tables existence only if SQL function works
+    const tablesExist = sqlFunction ? await testAnalyticsTablesExist() : null;
+    
+    return {
+      basicConnection,
+      sqlFunction,
+      tablesExist
+    };
+  } catch (err) {
+    console.error('Error running all connection tests:', err);
+    return {
+      basicConnection: false,
+      sqlFunction: false,
+      tablesExist: null
+    };
+  }
 };
