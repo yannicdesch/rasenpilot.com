@@ -25,36 +25,52 @@ export const testDirectTableAccess = async (): Promise<boolean> => {
   }
 };
 
-// Check if analytics tables exist
+// Check if analytics tables exist with more detailed logging
 export const checkAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Checking if analytics tables exist...');
     
     // First try direct table access
     const directAccessWorks = await testDirectTableAccess();
+    
+    // Log detailed information about the connection
+    console.log('Supabase connection details:');
+    console.log('- URL configured:', !!supabase.supabaseUrl);
+    console.log('- API Key configured:', !!supabase.supabaseKey);
+    
     if (directAccessWorks) {
       console.log('Tables exist and are accessible directly!');
       return true;
+    } else {
+      console.log('Tables may not exist or are not accessible directly');
+      return false;
     }
-    
-    // If direct access fails, tables may not exist, so let's try to create them
-    return false;
   } catch (err) {
     console.error('Error in checkAnalyticsTables:', err);
     return false;
   }
 };
 
-// Create analytics tables if they don't exist - improved version
+// Create analytics tables if they don't exist - improved version with much better error handling
 export const createAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Starting to create analytics tables...');
     
     // First ensure the execute_sql function exists
-    await createExecuteSqlFunction();
+    const sqlFunctionCreated = await createExecuteSqlFunction();
+    console.log('SQL function created or exists:', sqlFunctionCreated);
+    
+    if (!sqlFunctionCreated) {
+      console.error('Failed to create SQL execution function');
+      toast.error('SQL-Ausführungsfunktion konnte nicht erstellt werden', {
+        description: 'Bitte stellen Sie sicher, dass Sie Admin-Berechtigungen haben.'
+      });
+      return false;
+    }
     
     // Try using rpc to call the execute_sql function
     try {
+      console.log('Attempting to create tables with execute_sql RPC...');
       const { error } = await supabase.rpc('execute_sql', {
         sql: `
           -- Create page_views table
@@ -102,6 +118,7 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
       
       if (error) {
         console.error('Error creating analytics tables with execute_sql:', error);
+        console.log('Trying direct SQL execution as fallback...');
         
         // Try using the edge function as fallback
         try {

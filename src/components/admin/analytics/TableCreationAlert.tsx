@@ -3,33 +3,55 @@ import React from 'react';
 import { AlertTriangle, Database, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface TableCreationAlertProps {
   isCreatingTables: boolean;
   tableCreationError: string | null;
   handleCreateTables: () => Promise<void>;
+  supabaseInfo: {
+    url: string | null;
+    hasApiKey: boolean;
+  };
 }
 
 const TableCreationAlert = ({ 
   isCreatingTables, 
   tableCreationError, 
-  handleCreateTables 
+  handleCreateTables,
+  supabaseInfo
 }: TableCreationAlertProps) => {
   return (
     <Alert className="bg-amber-50 border-amber-200">
       <AlertTriangle className="h-4 w-4 text-amber-600" />
       <AlertTitle className="text-amber-800">Analytiktabellen existieren nicht</AlertTitle>
       <AlertDescription className="text-amber-700">
-        Die erforderlichen Tabellen "page_views" und "events" wurden in Ihrer Supabase-Datenbank nicht gefunden.
-        Ohne diese Tabellen können keine Analysedaten gespeichert werden.
+        <p>Die erforderlichen Tabellen "page_views" und "events" wurden in Ihrer Supabase-Datenbank nicht gefunden.
+        Ohne diese Tabellen können keine Analysedaten gespeichert werden.</p>
+        
+        <div className="mt-2 space-y-2 p-3 bg-amber-100/50 rounded-md text-sm">
+          <h4 className="font-semibold">Supabase Verbindungsdetails:</h4>
+          <div className="flex items-center gap-2">
+            <span>URL konfiguriert:</span> 
+            <Badge variant={supabaseInfo.url ? "outline" : "destructive"}>
+              {supabaseInfo.url ? "Ja" : "Nein"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>API Key konfiguriert:</span> 
+            <Badge variant={supabaseInfo.hasApiKey ? "outline" : "destructive"}>
+              {supabaseInfo.hasApiKey ? "Ja" : "Nein"}
+            </Badge>
+          </div>
+        </div>
         
         {tableCreationError && (
-          <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded text-red-700 text-sm">
+          <div className="mt-3 p-2 bg-red-50 border border-red-100 rounded text-red-700 text-sm">
             <strong>Fehler:</strong> {tableCreationError}
           </div>
         )}
         
-        <div className="mt-3">
+        <div className="mt-4">
           <Button 
             onClick={handleCreateTables}
             disabled={isCreatingTables}

@@ -9,12 +9,24 @@ interface WindowWithGA extends Window {
 
 declare const window: WindowWithGA;
 
-// Track page views
+// Get Supabase connection info for debugging
+export const getSupabaseConnectionInfo = () => {
+  return {
+    url: supabase.supabaseUrl || null,
+    hasApiKey: !!supabase.supabaseKey
+  };
+};
+
+// Track page views with improved error handling
 export const trackPageView = async (path: string): Promise<void> => {
+  // Google Analytics tracking
   if (typeof window.gtag !== 'undefined') {
     window.gtag('config', 'G-7F24N28JNH', {
       page_path: path
     });
+    console.log('Google Analytics page view tracked:', path);
+  } else {
+    console.log('Google Analytics not available, skipping GA tracking');
   }
   
   // Store the page view in our database
@@ -27,7 +39,7 @@ export const trackPageView = async (path: string): Promise<void> => {
       return;
     }
     
-    console.log('Tracking page view:', path);
+    console.log('Tracking page view in database:', path);
     
     // Store the page view with object notation and better error handling
     const { data, error } = await supabase
@@ -41,6 +53,10 @@ export const trackPageView = async (path: string): Promise<void> => {
       
     if (error) {
       console.error('Error recording page view:', error);
+      // Check if we're getting permission errors which might indicate RLS issues
+      if (error.message.includes('permission') || error.code === 'PGRST301') {
+        console.error('Permission error - check RLS policies on page_views table');
+      }
     } else {
       console.log('Page view recorded successfully:', path);
     }
@@ -49,8 +65,9 @@ export const trackPageView = async (path: string): Promise<void> => {
   }
 };
 
-// Track events with GA4 optimized naming
+// Track events with GA4 optimized naming and improved error handling
 export const trackEvent = async (category: string, action: string, label?: string, value?: number): Promise<void> => {
+  // Google Analytics tracking
   if (typeof window.gtag !== 'undefined') {
     // For GA4, we'll use the event name as the action for better categorization
     window.gtag('event', action, {
@@ -58,6 +75,9 @@ export const trackEvent = async (category: string, action: string, label?: strin
       event_label: label,
       value: value
     });
+    console.log('Google Analytics event tracked:', category, action, label);
+  } else {
+    console.log('Google Analytics not available, skipping GA tracking');
   }
   
   // Store the event in our database
@@ -70,7 +90,7 @@ export const trackEvent = async (category: string, action: string, label?: strin
       return;
     }
     
-    console.log('Tracking event:', category, action);
+    console.log('Tracking event in database:', category, action);
     
     // Store the event with object notation
     const { data, error } = await supabase
@@ -85,6 +105,10 @@ export const trackEvent = async (category: string, action: string, label?: strin
       
     if (error) {
       console.error('Error recording event:', error);
+      // Check if we're getting permission errors which might indicate RLS issues
+      if (error.message.includes('permission') || error.code === 'PGRST301') {
+        console.error('Permission error - check RLS policies on events table');
+      }
     } else {
       console.log('Event recorded successfully:', category, action);
     }

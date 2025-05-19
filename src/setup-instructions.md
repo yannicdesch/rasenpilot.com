@@ -1,109 +1,140 @@
 
-# Einrichtungsanleitung für E-Mail-Berichte
+# Einrichtungsanleitung für Rasenpilot Admin Panel
 
-Um die E-Mail-Berichte zum Laufen zu bringen, müssen Sie die folgenden Schritte ausführen:
+## Übersicht der Probleme und Lösungen
 
-## 1. Erstellen Sie die erforderliche Tabelle in Supabase
+Wenn Ihre Tabellen nicht erstellt werden können oder Sie Probleme mit dem Adminbereich haben, folgen Sie dieser Checkliste:
 
-Öffnen Sie Ihr Supabase-Projekt und führen Sie den folgenden SQL-Code im SQL-Editor aus:
+1. **Prüfen der Supabase-Verbindung**
+   - Haben Sie Supabase erfolgreich mit dem Projekt verbunden?
+   - Sind die Umgebungsvariablen korrekt gesetzt? (VITE_SUPABASE_URL und VITE_SUPABASE_ANON_KEY)
+
+2. **Berechtigungen**
+   - Haben Sie Admin-Berechtigungen in Ihrem Supabase-Projekt?
+   - Wurden die erforderlichen RLS-Richtlinien eingerichtet?
+
+3. **SQL-Funktion**
+   - Die Anwendung benötigt die `execute_sql` Funktion, um Tabellen zu erstellen.
+   - Wenn der automatische Prozess fehlschlägt, können Sie diese manuell erstellen.
+
+## Manuelle Erstellung der Tabellen
+
+Wenn die automatische Tabellenerstellung fehlschlägt, können Sie die Tabellen manuell erstellen:
+
+1. Öffnen Sie den SQL-Editor in Ihrem Supabase-Projekt
+2. Führen Sie diese SQL-Befehle aus:
 
 ```sql
--- Erstellen der site_settings-Tabelle, falls sie noch nicht existiert
+-- Execute SQL Funktion erstellen (wird für Tabellenerstellung benötigt)
+CREATE OR REPLACE FUNCTION public.execute_sql(sql text)
+RETURNS SETOF json
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  EXECUTE sql;
+  RETURN;
+END;
+$$;
+
+-- Berechtigungen gewähren
+GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
+
+-- Analytiktabellen erstellen
+CREATE TABLE IF NOT EXISTS public.page_views (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  path TEXT NOT NULL,
+  timestamp TIMESTAMPTZ DEFAULT NOW(),
+  referrer TEXT,
+  user_agent TEXT
+);
+
+CREATE TABLE IF NOT EXISTS public.events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category TEXT NOT NULL,
+  action TEXT NOT NULL, 
+  label TEXT,
+  value INTEGER,
+  timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Sicherheitseinstellungen
+ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+
+-- Öffentliche Insert-Berechtigungen
+CREATE POLICY "Allow public inserts to page_views" 
+  ON public.page_views FOR INSERT TO anon, authenticated
+  WITH CHECK (true);
+  
+CREATE POLICY "Allow public inserts to events" 
+  ON public.events FOR INSERT TO anon, authenticated
+  WITH CHECK (true);
+  
+-- Select-Berechtigungen
+CREATE POLICY "Allow select access to page_views" 
+  ON public.page_views FOR SELECT TO anon, authenticated
+  USING (true);
+  
+CREATE POLICY "Allow select access to events" 
+  ON public.events FOR SELECT TO anon, authenticated
+  USING (true);
+
+-- Weitere Admin-Tabellen erstellen
 CREATE TABLE IF NOT EXISTS site_settings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  site_name TEXT NOT NULL,
-  site_tagline TEXT NOT NULL,
-  site_email TEXT NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  site_name TEXT NOT NULL DEFAULT 'Rasenpilot',
+  site_tagline TEXT NOT NULL DEFAULT 'Ihr intelligenter Rasenberater',
+  site_email TEXT NOT NULL DEFAULT 'info@rasenpilot.de',
   site_phone TEXT,
   site_address TEXT,
-  google_analytics_id TEXT,
+  google_analytics_id TEXT DEFAULT 'G-7F24N28JNH',
   show_lovable_badge BOOLEAN DEFAULT TRUE,
-  seo JSONB DEFAULT '{"defaultMetaTitle": "", "defaultMetaDescription": "", "defaultKeywords": "", "robotsTxt": ""}',
+  seo JSONB DEFAULT '{"defaultMetaTitle": "Rasenpilot", "defaultMetaDescription": "Ihr intelligenter Rasenberater", "defaultKeywords": "Rasen, Garten", "robotsTxt": "User-agent: *\nAllow: /\nDisallow: /admin"}',
   security JSONB DEFAULT '{"enableTwoFactor": false, "passwordMinLength": 8, "sessionTimeout": 30, "blockFailedLogins": true, "maxFailedAttempts": 5, "blockDuration": 15}',
   email_reports JSONB DEFAULT '{"enabled": false, "recipientEmail": "", "sendTime": "08:00", "lastSent": null, "reportTypes": {"newRegistrations": true, "siteStatistics": true}}',
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Optionale Tabellen für die vollständige Funktionalität der Berichte
-CREATE TABLE IF NOT EXISTS profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id),
-  email TEXT NOT NULL,
-  full_name TEXT,
-  role TEXT DEFAULT 'user',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- RLS für site_settings
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
--- Tabelle für Seitenaufrufe-Analytik
-CREATE TABLE IF NOT EXISTS page_views (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  path TEXT NOT NULL,
-  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  referrer TEXT,
-  user_agent TEXT,
-  user_id UUID REFERENCES auth.users(id)
-);
+CREATE POLICY "Allow any user to select site_settings" 
+  ON site_settings FOR SELECT TO anon, authenticated
+  USING (true);
+  
+CREATE POLICY "Allow authenticated users to insert site_settings" 
+  ON site_settings FOR INSERT TO authenticated
+  WITH CHECK (true);
+  
+CREATE POLICY "Allow authenticated users to update site_settings" 
+  ON site_settings FOR UPDATE TO authenticated
+  USING (true);
 ```
 
-## 2. Stellen Sie sicher, dass die Edge Function bereitgestellt ist
+## Debugging-Tipps
 
-Die Edge Function `send-email-report` muss auf Ihrem Supabase-Projekt bereitgestellt sein. Die Funktion befindet sich in der Datei `supabase/functions/send-email-report/index.ts`.
+Wenn Sie weiterhin Probleme haben:
 
-Um die Funktion bereitzustellen, können Sie die Supabase CLI verwenden:
+1. **Überprüfen der Konsolenausgabe**:
+   - Öffnen Sie die Browser-Konsole (F12)
+   - Suchen Sie nach Fehlermeldungen im Zusammenhang mit Supabase oder SQL
 
-```bash
-supabase functions deploy send-email-report
-```
+2. **Berechtigungsprobleme**:
+   - Überprüfen Sie, ob Sie als Administrator angemeldet sind
+   - Stellen Sie sicher, dass Ihr Benutzer die entsprechenden Berechtigungen hat
 
-## 3. Setzen Sie den API-Schlüssel für den E-Mail-Dienst
+3. **Supabase Edge Functions**:
+   - Wenn Sie Edge Functions verwenden möchten, müssen diese bereitgestellt sein
+   - Überprüfen Sie die Logs in Ihrem Supabase-Dashboard
 
-Sie müssen einen API-Schlüssel für Ihren E-Mail-Dienst (z. B. Resend.com) in den Supabase-Secrets hinzufügen:
+4. **Direkte Tabellenerstellung**:
+   - Verwenden Sie die SQL-Konsole in Supabase, um die Tabellen manuell zu erstellen
+   - Überprüfen Sie anschließend, ob die Anwendung korrekt funktioniert
 
-```bash
-supabase secrets set RESEND_API_KEY=ihr_api_schlüssel
-# ODER
-supabase secrets set EMAIL_API_KEY=ihr_api_schlüssel
-```
+5. **RLS-Richtlinien**:
+   - Stellen Sie sicher, dass die Row Level Security (RLS) korrekt eingerichtet ist
+   - Die Anwendung benötigt Lese- und Schreibzugriff auf die Tabellen
 
-## 4. Testen Sie die Funktion
-
-Nachdem Sie alle Einrichtungsschritte abgeschlossen haben, können Sie die E-Mail-Berichtsfunktion im Admin-Panel testen:
-
-1. Gehen Sie zum Admin-Panel.
-2. Klicken Sie auf den Tab "Einstellungen".
-3. Wählen Sie den Unterreiter "E-Mail Berichte".
-4. Konfigurieren Sie die Einstellungen und speichern Sie sie.
-5. Klicken Sie auf "Test-E-Mail senden".
-
-Wenn alles richtig eingerichtet ist, sollten Sie eine Test-E-Mail erhalten.
-
-## 5. Einrichtung eines täglichen Cron Jobs (optional)
-
-Um die E-Mail-Berichte automatisch zu versenden, können Sie einen Cron Job in Ihrer Supabase-Datenbank erstellen:
-
-```sql
--- Erstellen Sie einen Cron Job, der die Edge Function täglich zu einer bestimmten Zeit aufruft
--- In diesem Beispiel um 8:00 Uhr morgens
-CREATE EXTENSION IF NOT EXISTS pg_cron;
-
-SELECT cron.schedule('daily-email-report', '0 8 * * *', $$
-  SELECT http((
-    'POST',
-    'https://[IHRE_PROJEKT_ID].supabase.co/functions/v1/send-email-report',
-    ARRAY[('Authorization', 'Bearer [ANON_KEY]')],
-    'application/json',
-    '{"isTest": false}'
-  )::http_request);
-$$);
-```
-
-Ersetzen Sie `[IHRE_PROJEKT_ID]` und `[ANON_KEY]` durch Ihre tatsächlichen Werte.
-
-## Fehlerbehebung
-
-Wenn Sie Probleme haben:
-
-1. Überprüfen Sie die Konsolenausgaben auf Fehler.
-2. Vergewissern Sie sich, dass die Tabellen korrekt erstellt wurden.
-3. Stellen Sie sicher, dass die Edge Function erfolgreich bereitgestellt wurde.
-4. Überprüfen Sie, ob der API-Schlüssel für den E-Mail-Dienst korrekt gesetzt ist.
