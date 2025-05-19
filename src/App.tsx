@@ -32,6 +32,7 @@ import LogoGeneratorPage from "@/pages/LogoGeneratorPage";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfUse from "@/pages/TermsOfUse";
 import Imprint from "@/pages/Imprint";
+import ConnectionTestPage from "@/pages/ConnectionTestPage";
 
 function App() {
   return (
@@ -39,7 +40,8 @@ function App() {
       <Router>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<ConnectionTestPage />} />
+          <Route path="/landing" element={<Landing />} />
           <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/get-started" element={<FreePlan />} />
@@ -51,6 +53,9 @@ function App() {
           <Route path="/features" element={<FeaturesBehindRegistration />} />
           <Route path="/blog-overview" element={<BlogOverview />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          
+          {/* Database test route */}
+          <Route path="/db-test" element={<ConnectionTestPage />} />
           
           {/* Legal pages */}
           <Route path="/datenschutz" element={<PrivacyPolicy />} />

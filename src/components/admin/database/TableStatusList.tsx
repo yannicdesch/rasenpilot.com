@@ -7,20 +7,22 @@ import {
   AccordionItem, 
   AccordionTrigger 
 } from '@/components/ui/accordion';
-import { Check, X, Loader2 } from 'lucide-react';
+import { Check, X, Loader2, RefreshCw } from 'lucide-react';
 
 interface TableStatusListProps {
   tablesStatus: Record<string, boolean | null>;
   isLoading: boolean;
   execSqlExists: boolean | null;
   handleCreateAnalyticsTables: () => Promise<void>;
+  onRunConnectionChecks?: () => Promise<void>;
 }
 
 const TableStatusList = ({ 
   tablesStatus, 
   isLoading, 
   execSqlExists,
-  handleCreateAnalyticsTables 
+  handleCreateAnalyticsTables,
+  onRunConnectionChecks
 }: TableStatusListProps) => {
   const [creatingAnalyticsTables, setCreatingAnalyticsTables] = React.useState(false);
   
@@ -63,24 +65,46 @@ const TableStatusList = ({
             ))}
           </div>
           
-          {/* Add specific button for analytics tables */}
-          {(!tablesStatus.page_views || !tablesStatus.events) && (
-            <Button 
-              onClick={handleCreateAnalyticsTablesWithFeedback}
-              disabled={isLoading || execSqlExists === false || creatingAnalyticsTables}
-              variant="outline"
-              className="mt-4 w-full bg-green-50 text-green-700 hover:bg-green-100 flex items-center justify-center"
-            >
-              {creatingAnalyticsTables ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Erstelle Analytik-Tabellen...
-                </>
-              ) : (
-                'Nur Analytik-Tabellen erstellen'
-              )}
-            </Button>
-          )}
+          <div className="mt-4 flex flex-col gap-2">
+            {onRunConnectionChecks && (
+              <Button 
+                onClick={onRunConnectionChecks}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Verbindung wird geprüft...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Verbindung und Tabellen erneut prüfen
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {(!tablesStatus.page_views || !tablesStatus.events) && (
+              <Button 
+                onClick={handleCreateAnalyticsTablesWithFeedback}
+                disabled={isLoading || execSqlExists === false || creatingAnalyticsTables}
+                variant="outline"
+                className="w-full bg-green-50 text-green-700 hover:bg-green-100 flex items-center justify-center"
+              >
+                {creatingAnalyticsTables ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Erstelle Analytik-Tabellen...
+                  </>
+                ) : (
+                  'Nur Analytik-Tabellen erstellen'
+                )}
+              </Button>
+            )}
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>
