@@ -1,14 +1,17 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Check, X, Database, RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Loader2, Check, X, Database, RefreshCw, AlertTriangle } from 'lucide-react';
 import { runAllConnectionTests, testDatabaseConnection, checkAnalyticsTables, runDatabaseDiagnostics } from '@/lib/analytics';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/lib/supabase';
 
 const ConnectionChecker = () => {
   const [isChecking, setIsChecking] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const [results, setResults] = useState<{
     basicConnection: boolean | null;
     sqlFunction: boolean | null;
@@ -23,17 +26,64 @@ const ConnectionChecker = () => {
 
   const runComprehensiveChecks = async () => {
     setIsChecking(true);
+    setConnectionError(null);
+    
     try {
-      // Basic connection tests
+      console.log('Starting comprehensive connection checks...');
+      
+      // Test direct connection to Supabase
+      console.log('Testing basic Supabase connection...');
+      try {
+        // Simple test to check if Supabase client is initialized correctly
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        console.log('Auth session check result:', sessionError ? 'Error' : 'Success');
+        if (sessionError) {
+          console.error('Auth session error:', sessionError);
+          setConnectionError(`Auth API error: ${sessionError.message}`);
+        }
+        
+        // Try a simple query that should work even without special permissions
+        const { data: versionData, error: versionError } = await supabase.rpc('version', {});
+        console.log('Version RPC check:', versionError ? 'Error' : 'Success');
+        
+        if (versionError && versionError.message.includes('not found')) {
+          console.log('Version RPC not found, this is expected. Trying a simple query instead.');
+        }
+        
+      } catch (directError: any) {
+        console.error('Direct Supabase connection error:', directError);
+        setConnectionError(`Direct connection error: ${directError.message || 'Unknown error'}`);
+      }
+      
+      // Run the standard connection tests
       const connectionTests = await runAllConnectionTests();
+      console.log('Connection test results:', connectionTests);
       
-      // Run more detailed diagnostics
-      const diagnostics = await runDatabaseDiagnostics();
+      // Run detailed diagnostics
+      let diagnostics = null;
+      try {
+        diagnostics = await runDatabaseDiagnostics();
+        console.log('Diagnostics test results:', diagnostics);
+      } catch (diagError: any) {
+        console.error('Diagnostics error:', diagError);
+      }
       
+      // Check if tables exist
+      let tablesExist = connectionTests.tablesExist;
+      if (tablesExist === null) {
+        try {
+          tablesExist = await checkAnalyticsTables();
+        } catch (tableError) {
+          console.error('Error checking tables:', tableError);
+        }
+      }
+      
+      // Update the results
       setResults({
         basicConnection: connectionTests.basicConnection,
         sqlFunction: connectionTests.sqlFunction,
-        tablesExist: connectionTests.tablesExist || await checkAnalyticsTables(),
+        tablesExist,
         diagnostics
       });
       
@@ -42,14 +92,18 @@ const ConnectionChecker = () => {
           description: 'Die Grundverbindung zur Datenbank funktioniert.'
         });
       } else {
+        const errorMsg = connectionError || 'Die Datenbank konnte nicht erreicht werden.';
         toast.error('Verbindungstest fehlgeschlagen', {
-          description: 'Die Datenbank konnte nicht erreicht werden.'
+          description: errorMsg
         });
       }
-    } catch (error) {
+      
+    } catch (error: any) {
       console.error('Error running connection checks:', error);
+      setConnectionError(`Connection check error: ${error.message || 'Unknown error'}`);
+      
       toast.error('Fehler bei der Verbindungsprüfung', {
-        description: 'Ein unerwarteter Fehler ist aufgetreten.'
+        description: error.message || 'Ein unerwarteter Fehler ist aufgetreten.'
       });
     } finally {
       setIsChecking(false);
@@ -63,10 +117,26 @@ const ConnectionChecker = () => {
           <Database className="h-5 w-5" />
           Verbindungsdiagnose
         </CardTitle>
+        <CardDescription>
+          Überprüfen Sie die Verbindung zur Supabase-Datenbank und den Status der benötigten Tabellen.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {connectionError && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Verbindungsfehler</AlertTitle>
+            <AlertDescription className="text-sm font-mono break-all">
+              {connectionError}
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="text-sm text-muted-foreground mb-4">
-          Führen Sie eine umfassende Diagnose der Datenbankverbindung und Tabellen durch.
+          Detaillierte Informationen zu Ihrer Datenbankverbindung:
+          <div className="mt-2 text-xs font-mono">
+            URL: {process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co'}
+          </div>
         </div>
         
         <div className="space-y-2">
