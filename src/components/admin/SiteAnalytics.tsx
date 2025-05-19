@@ -6,7 +6,7 @@ import TableCreationAlert from './analytics/TableCreationAlert';
 import StatisticCards from './analytics/StatisticCards';
 import VisitorChart from './analytics/VisitorChart';
 import AnalyticsInfoCard from './analytics/AnalyticsInfoCard';
-import { getSupabaseConnectionInfo } from '@/lib/analytics/tracking';
+import { getSupabaseConnectionInfo, testSupabaseConnection } from '@/lib/analytics/tracking';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
@@ -16,13 +16,27 @@ const SiteAnalytics = () => {
   const [tableCreationError, setTableCreationError] = useState<string | null>(null);
   const [supabaseInfo, setSupabaseInfo] = useState({
     url: null as string | null,
-    hasApiKey: false
+    hasApiKey: false,
+    connectionTested: false,
+    connectionWorking: false
   });
   
-  // Get Supabase connection info
+  // Get Supabase connection info and test the connection
   useEffect(() => {
     const connectionInfo = getSupabaseConnectionInfo();
-    setSupabaseInfo(connectionInfo);
+    setSupabaseInfo(prev => ({ ...prev, ...connectionInfo, connectionTested: false }));
+    
+    // Test the connection
+    const testConnection = async () => {
+      const connected = await testSupabaseConnection();
+      setSupabaseInfo(prev => ({ 
+        ...prev, 
+        connectionTested: true,
+        connectionWorking: connected 
+      }));
+    };
+    
+    testConnection();
   }, []);
   
   // Handle creating tables
@@ -74,7 +88,12 @@ const SiteAnalytics = () => {
           isCreatingTables={isCreatingTables}
           tableCreationError={tableCreationError}
           handleCreateTables={handleCreateTables}
-          supabaseInfo={supabaseInfo}
+          supabaseInfo={{
+            ...supabaseInfo,
+            connectionStatus: supabaseInfo.connectionTested 
+              ? (supabaseInfo.connectionWorking ? 'connected' : 'error') 
+              : 'testing'
+          }}
         />
       )}
       

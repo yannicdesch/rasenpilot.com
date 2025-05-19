@@ -17,6 +17,38 @@ export const getSupabaseConnectionInfo = () => {
   };
 };
 
+// Test Supabase connection with a dummy request
+export const testSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    console.log('Testing Supabase connection with a dummy request...');
+    
+    // Try a simple query that doesn't modify data
+    const { data, error } = await supabase
+      .from('page_views')
+      .select('count(*)')
+      .limit(1)
+      .maybeSingle();
+    
+    if (error) {
+      console.log('Supabase connection test failed:', error.message);
+      
+      // Check if table doesn't exist vs other errors
+      if (error.code === '42P01') {
+        console.log('Table does not exist - this is expected if tables are not created yet');
+        return true; // Connection works, just table missing
+      }
+      
+      return false;
+    }
+    
+    console.log('Supabase connection test succeeded:', data);
+    return true;
+  } catch (err) {
+    console.error('Error testing Supabase connection:', err);
+    return false;
+  }
+};
+
 // Track page views with improved error handling
 export const trackPageView = async (path: string): Promise<void> => {
   // Google Analytics tracking

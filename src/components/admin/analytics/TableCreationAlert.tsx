@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AlertTriangle, Database, Loader2 } from 'lucide-react';
+import { AlertTriangle, Database, Loader2, Check, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ interface TableCreationAlertProps {
   supabaseInfo: {
     url: string | null;
     hasApiKey: boolean;
+    connectionStatus?: 'testing' | 'connected' | 'error';
   };
 }
 
@@ -43,6 +44,24 @@ const TableCreationAlert = ({
               {supabaseInfo.hasApiKey ? "Ja" : "Nein"}
             </Badge>
           </div>
+          <div className="flex items-center gap-2">
+            <span>Verbindungsstatus:</span> 
+            {supabaseInfo.connectionStatus === 'testing' && (
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" /> Wird geprüft...
+              </Badge>
+            )}
+            {supabaseInfo.connectionStatus === 'connected' && (
+              <Badge variant="outline" className="bg-green-50 text-green-700 flex items-center gap-1">
+                <Check className="h-3 w-3" /> Verbunden
+              </Badge>
+            )}
+            {supabaseInfo.connectionStatus === 'error' && (
+              <Badge variant="destructive" className="flex items-center gap-1">
+                <X className="h-3 w-3" /> Verbindungsfehler
+              </Badge>
+            )}
+          </div>
         </div>
         
         {tableCreationError && (
@@ -54,7 +73,7 @@ const TableCreationAlert = ({
         <div className="mt-4">
           <Button 
             onClick={handleCreateTables}
-            disabled={isCreatingTables}
+            disabled={isCreatingTables || supabaseInfo.connectionStatus === 'error'}
             className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700"
           >
             {isCreatingTables ? (

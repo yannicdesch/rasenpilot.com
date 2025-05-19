@@ -14,6 +14,11 @@ export const testDirectTableAccess = async (): Promise<boolean> => {
       
     if (error) {
       console.log('Direct table access test failed:', error.message);
+      // If table doesn't exist, that's expected
+      if (error.code === '42P01') {
+        console.log('Table not found - this is expected if not created yet');
+        return false;
+      }
       return false;
     }
     
@@ -21,6 +26,42 @@ export const testDirectTableAccess = async (): Promise<boolean> => {
     return true;
   } catch (err) {
     console.error('Error testing direct table access:', err);
+    return false;
+  }
+};
+
+// Test general database connectivity (not just specific tables)
+export const testDatabaseConnection = async (): Promise<boolean> => {
+  try {
+    // Try a very simple query that should always work if connected
+    const { data, error } = await supabase
+      .rpc('execute_sql', { 
+        sql: 'SELECT 1 as connection_test;' 
+      });
+      
+    if (error) {
+      console.log('Database connection test failed with RPC:', error.message);
+      
+      // Try a fallback test without RPC
+      try {
+        const { error: rawError } = await supabase
+          .from('_dummy_query_for_testing_')
+          .select('count(*)')
+          .limit(1);
+          
+        // We expect an error, but it should be a table not found error
+        // not a connection error
+        return !rawError || rawError.code === '42P01';
+      } catch (innerErr) {
+        console.error('Fallback connection test failed:', innerErr);
+        return false;
+      }
+    }
+    
+    console.log('Database connection test successful:', data);
+    return true;
+  } catch (err) {
+    console.error('Error in database connection test:', err);
     return false;
   }
 };
@@ -33,6 +74,10 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
     // First try direct table access
     const directAccessWorks = await testDirectTableAccess();
     
+    // Check general database connectivity
+    const dbConnected = await testDatabaseConnection();
+    console.log('Database connection test result:', dbConnected ? 'Connected' : 'Not connected');
+    
     // Log connection status without accessing protected properties
     console.log('Supabase connection details:');
     console.log('- Supabase client initialized:', typeof supabase !== 'undefined');
@@ -42,7 +87,11 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
       console.log('Tables exist and are accessible directly!');
       return true;
     } else {
-      console.log('Tables may not exist or are not accessible directly');
+      if (dbConnected) {
+        console.log('Database is connected, but tables may not exist or are not accessible directly');
+      } else {
+        console.log('Database connection issues detected');
+      }
       return false;
     }
   } catch (err) {
@@ -55,6 +104,16 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
 export const createAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Starting to create analytics tables...');
+    
+    // Test overall database connection first
+    const dbConnected = await testDatabaseConnection();
+    if (!dbConnected) {
+      console.error('Database connection failed, cannot create tables');
+      toast.error('Datenbankverbindung fehlgeschlagen', {
+        description: 'Bitte überprüfen Sie Ihre Supabase-Konfiguration.'
+      });
+      return false;
+    }
     
     // First ensure the execute_sql function exists
     const sqlFunctionCreated = await createExecuteSqlFunction();
