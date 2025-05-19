@@ -55,11 +55,15 @@ const DatabaseActions = ({
       console.log('Creating tables using edge function...');
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
       
+      // Get the current session - fixed to use the new API
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token || '';
+      
       const response = await fetch(`${url}/functions/v1/create-tables`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabase.auth.session()?.access_token || ''}`
+          'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({
           action: 'create_analytics_tables'

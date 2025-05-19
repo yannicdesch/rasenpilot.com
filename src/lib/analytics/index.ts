@@ -24,4 +24,4 @@ export {
 } from './trackingHelpers';
 
 // Export test functions
-export { testSupabaseConnection } from './connectionTests';
+export { testSupabaseConnection, runAllConnectionTests } from './connectionTests';
