@@ -12,8 +12,8 @@ declare const window: WindowWithGA;
 // Get Supabase connection info for debugging - fixed to avoid accessing protected properties
 export const getSupabaseConnectionInfo = () => {
   return {
-    url: supabase.getUrl() || null,
-    hasApiKey: Boolean(supabase.getAuth().getSession() !== null)
+    url: supabase.supabaseUrl || null,
+    hasApiKey: !!supabase.supabaseKey
   };
 };
 

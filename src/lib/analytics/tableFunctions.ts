@@ -35,8 +35,8 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
     
     // Log detailed information about the connection
     console.log('Supabase connection details:');
-    console.log('- URL configured:', Boolean(supabase.getUrl()));
-    console.log('- API Key configured:', Boolean(supabase.getAuth().getSession() !== null));
+    console.log('- URL configured:', Boolean(supabase.supabaseUrl));
+    console.log('- API Key configured:', Boolean(supabase.supabaseKey));
     
     if (directAccessWorks) {
       console.log('Tables exist and are accessible directly!');
