@@ -4,7 +4,7 @@ export { initializeGA } from './initialize';
 export { createExecuteSqlFunction } from './sqlFunctions';
 export { 
   testDirectTableAccess,
-  testDatabaseConnection as testSupabaseConnection,
+  testDatabaseConnection,
   checkAnalyticsTables,
   createAnalyticsTables,
   runDatabaseDiagnostics
