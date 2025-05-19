@@ -1,17 +1,20 @@
+
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { createRequiredTables } from '@/lib/createTables';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { Database } from 'lucide-react';
 import { 
   createAnalyticsTables, 
   checkAnalyticsTables, 
   createExecuteSqlFunction 
 } from '@/lib/analytics';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Database } from 'lucide-react';
+
+// Import the smaller components
+import SqlFunctionStatus from './database/SqlFunctionStatus';
+import TableStatusList from './database/TableStatusList';
+import DatabaseActions from './database/DatabaseActions';
 
 export const DatabaseSetup = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -179,75 +182,26 @@ export const DatabaseSetup = () => {
           und bei Bedarf diese erstellen.
         </p>
         
-        {execSqlExists === false && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>SQL-Ausführungsfunktion fehlt</AlertTitle>
-            <AlertDescription>
-              Die benötigte Funktion 'execute_sql' existiert nicht in Ihrer Datenbank.
-              Diese Funktion ist erforderlich, um Tabellen zu erstellen.
-              <Button 
-                onClick={handleCreateExecuteSql} 
-                variant="outline" 
-                size="sm"
-                className="mt-2 w-full"
-                disabled={isLoading}
-              >
-                SQL-Ausführungsfunktion erstellen
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+        <SqlFunctionStatus 
+          execSqlExists={execSqlExists} 
+          isLoading={isLoading}
+          handleCreateExecuteSql={handleCreateExecuteSql}
+        />
         
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="tables">
-            <AccordionTrigger>Erforderliche Tabellen</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-2">
-                {Object.entries(tablesStatus).map(([table, exists]) => (
-                  <div key={table} className="flex items-center justify-between">
-                    <span className="font-mono text-sm">{table}</span>
-                    <span className={`text-sm ${
-                      exists === null ? 'text-gray-400' : 
-                      exists ? 'text-green-500' : 'text-red-500'
-                    }`}>
-                      {exists === null ? 'Ungeprüft' : 
-                       exists ? 'Vorhanden' : 'Nicht vorhanden'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Add specific button for analytics tables */}
-              {(!tablesStatus.page_views || !tablesStatus.events) && (
-                <Button 
-                  onClick={handleCreateAnalyticsTables}
-                  disabled={isLoading || execSqlExists === false}
-                  variant="outline"
-                  className="mt-4 w-full bg-green-50 text-green-700 hover:bg-green-100"
-                >
-                  Nur Analytik-Tabellen erstellen
-                </Button>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <TableStatusList 
+          tablesStatus={tablesStatus}
+          isLoading={isLoading}
+          execSqlExists={execSqlExists}
+          handleCreateAnalyticsTables={handleCreateAnalyticsTables}
+        />
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={checkTables} 
-          disabled={isLoading}
-        >
-          Tabellen prüfen
-        </Button>
-        <Button 
-          onClick={handleCreateTables} 
-          disabled={isLoading || execSqlExists === false}
-        >
-          Alle Tabellen erstellen
-        </Button>
-      </CardFooter>
+      
+      <DatabaseActions 
+        isLoading={isLoading}
+        execSqlExists={execSqlExists}
+        checkTables={checkTables}
+        handleCreateTables={handleCreateTables}
+      />
     </Card>
   );
 };
