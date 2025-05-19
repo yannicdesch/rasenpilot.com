@@ -45,25 +45,32 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
         GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
       `;
       
-      // First try using supabase REST API directly
-      const { data, error } = await fetch(
-        `${supabase.supabaseUrl}/rest/v1/rpc/execute_sql`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': supabase.supabaseKey,
-            'Authorization': `Bearer ${supabase.supabaseKey}`
-          },
-          body: JSON.stringify({ sql: createFunctionSQL })
-        }
-      ).then(res => res.json());
+      // First try using fetch directly instead of accessing protected properties
+      const url = process.env.SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+      const key = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
       
-      // If no error, the function was created
-      if (!error) {
-        console.log('execute_sql function created successfully via REST API');
-        toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
-        return true;
+      try {
+        const { data, error } = await fetch(
+          `${url}/rest/v1/rpc/execute_sql`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': key,
+              'Authorization': `Bearer ${key}`
+            },
+            body: JSON.stringify({ sql: createFunctionSQL })
+          }
+        ).then(res => res.json());
+        
+        // If no error, the function was created
+        if (!error) {
+          console.log('execute_sql function created successfully via REST API');
+          toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
+          return true;
+        }
+      } catch (directErr) {
+        console.error('Direct REST API call failed:', directErr);
       }
       
       // Try using Supabase's built-in client for RPC

@@ -91,17 +91,52 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
         try {
           // We'll do this by creating each table separately
           console.log('Creating page_views table...');
-          const { error: pvError } = await supabase
-            .from('page_views')
-            .select('*')
-            .limit(1)
-            .catch(() => {
-              // If the table doesn't exist, this will throw
-              return { error: { message: 'Table does not exist' } };
-            });
-            
-          if (pvError) {
-            // Table likely doesn't exist, try to create
+          
+          // Use try-catch instead of .catch()
+          try {
+            const { error: pvError } = await supabase
+              .from('page_views')
+              .select('*')
+              .limit(1);
+              
+            // Table exists if no error
+            if (!pvError) {
+              console.log('page_views table already exists');
+            } else {
+              // Table likely doesn't exist, try to create
+              console.log('Creating page_views table directly...');
+              const { error: createError } = await supabase
+                .rpc('execute_sql', {
+                  sql: `
+                    CREATE TABLE IF NOT EXISTS page_views (
+                      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                      path TEXT NOT NULL,
+                      timestamp TIMESTAMPTZ DEFAULT NOW(),
+                      referrer TEXT,
+                      user_agent TEXT
+                    );
+                    
+                    ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
+                    
+                    CREATE POLICY IF NOT EXISTS "Allow public inserts to page_views" 
+                      ON page_views FOR INSERT TO anon, authenticated
+                      WITH CHECK (true);
+                      
+                    CREATE POLICY IF NOT EXISTS "Allow select access to page_views" 
+                      ON page_views FOR SELECT TO anon, authenticated
+                      USING (true);
+                  `
+                });
+                
+              if (createError) {
+                console.error('Error creating page_views table:', createError);
+              } else {
+                console.log('Successfully created page_views table');
+              }
+            }
+          } catch (e) {
+            // Table doesn't exist, so try to create it
+            console.log('Error querying page_views table, assuming it does not exist:', e);
             console.log('Creating page_views table directly...');
             const { error: createError } = await supabase
               .rpc('execute_sql', {
@@ -134,15 +169,51 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
           }
           
           console.log('Creating events table...');
-          const { error: evError } = await supabase
-            .from('events')
-            .select('*')
-            .limit(1)
-            .catch(() => {
-              return { error: { message: 'Table does not exist' } };
-            });
-            
-          if (evError) {
+          try {
+            const { error: evError } = await supabase
+              .from('events')
+              .select('*')
+              .limit(1);
+              
+            // Table exists if no error
+            if (!evError) {
+              console.log('events table already exists');
+            } else {
+              // Table likely doesn't exist, try to create
+              console.log('Creating events table directly...');
+              const { error: createError } = await supabase
+                .rpc('execute_sql', {
+                  sql: `
+                    CREATE TABLE IF NOT EXISTS events (
+                      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                      category TEXT NOT NULL,
+                      action TEXT NOT NULL, 
+                      label TEXT,
+                      value INTEGER,
+                      timestamp TIMESTAMPTZ DEFAULT NOW()
+                    );
+                    
+                    ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+                    
+                    CREATE POLICY IF NOT EXISTS "Allow public inserts to events" 
+                      ON events FOR INSERT TO anon, authenticated
+                      WITH CHECK (true);
+                      
+                    CREATE POLICY IF NOT EXISTS "Allow select access to events" 
+                      ON events FOR SELECT TO anon, authenticated
+                      USING (true);
+                  `
+                });
+                
+              if (createError) {
+                console.error('Error creating events table:', createError);
+              } else {
+                console.log('Successfully created events table');
+              }
+            }
+          } catch (e) {
+            // Table doesn't exist, so try to create it
+            console.log('Error querying events table, assuming it does not exist:', e);
             console.log('Creating events table directly...');
             const { error: createError } = await supabase
               .rpc('execute_sql', {
@@ -242,24 +313,34 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
 const checkTablesExist = async (): Promise<boolean> => {
   try {
     // Check page_views
-    const { data: pvData, error: pvError } = await supabase
-      .from('page_views')
-      .select('count(*)')
-      .limit(1);
-      
-    if (pvError) {
-      console.error('Error checking page_views:', pvError);
+    try {
+      const { data: pvData, error: pvError } = await supabase
+        .from('page_views')
+        .select('count(*)')
+        .limit(1);
+        
+      if (pvError) {
+        console.error('Error checking page_views:', pvError);
+        return false;
+      }
+    } catch (e) {
+      console.error('Error checking page_views table exists:', e);
       return false;
     }
     
     // Check events
-    const { data: evData, error: evError } = await supabase
-      .from('events')
-      .select('count(*)')
-      .limit(1);
-      
-    if (evError) {
-      console.error('Error checking events:', evError);
+    try {
+      const { data: evData, error: evError } = await supabase
+        .from('events')
+        .select('count(*)')
+        .limit(1);
+        
+      if (evError) {
+        console.error('Error checking events:', evError);
+        return false;
+      }
+    } catch (e) {
+      console.error('Error checking events table exists:', e);
       return false;
     }
     

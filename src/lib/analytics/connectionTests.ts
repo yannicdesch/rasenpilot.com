@@ -5,29 +5,33 @@ import { createExecuteSqlFunction } from './sqlFunctions';
 export const testSupabaseConnection = async (): Promise<boolean> => {
   console.log('Testing Supabase connection...');
   try {
-    const { data, error } = await supabase.from('_test_connection_').select('*').limit(1).catch(e => {
-      // This will likely error (table doesn't exist), but that's fine for testing connection
-      return { data: null, error: e };
-    });
-    
-    // If we get an error about table not existing, that means the connection worked
-    // If we get a connection error, then we know the connection failed
-    const errorMessage = error?.message?.toLowerCase() || '';
-    const isConnectionError = errorMessage.includes('network') || 
-                             errorMessage.includes('connection') ||
-                             errorMessage.includes('fetch') || 
-                             errorMessage.includes('timeout');
-    
-    // If it's specifically a connection error, return false
-    if (isConnectionError) {
-      console.error('Connection to Supabase failed:', error);
+    // We need to handle this differently since .catch() doesn't exist on PostgrestFilterBuilder
+    try {
+      const { data, error } = await supabase.from('_test_connection_').select('*').limit(1);
+      
+      // If we get an error about table not existing, that means the connection worked
+      // If we get a connection error, then we know the connection failed
+      const errorMessage = error?.message?.toLowerCase() || '';
+      const isConnectionError = errorMessage.includes('network') || 
+                               errorMessage.includes('connection') ||
+                               errorMessage.includes('fetch') || 
+                               errorMessage.includes('timeout');
+      
+      // If it's specifically a connection error, return false
+      if (isConnectionError) {
+        console.error('Connection to Supabase failed:', error);
+        return false;
+      }
+      
+      // Otherwise, even if there's an error about the table not existing,
+      // the connection itself worked, so return true
+      console.log('Supabase connection successful');
+      return true;
+    } catch (e) {
+      // This happens if the connection fails entirely
+      console.error('Connection to Supabase failed completely:', e);
       return false;
     }
-    
-    // Otherwise, even if there's an error about the table not existing,
-    // the connection itself worked, so return true
-    console.log('Supabase connection successful');
-    return true;
     
   } catch (e) {
     console.error('Error testing Supabase connection:', e);
@@ -149,21 +153,28 @@ export const runAllConnectionTests = async (): Promise<{[key: string]: boolean}>
   // Test 3: Analytics tables exist
   console.log('Testing if analytics tables exist...');
   try {
-    // Check page_views
-    const { error: pvError } = await supabase
-      .from('page_views')
-      .select('count(*)')
-      .limit(1)
-      .catch(e => ({ error: e }));
+    // Check page_views - use try-catch instead of catch on the query
+    try {
+      const { error: pvError } = await supabase
+        .from('page_views')
+        .select('count(*)')
+        .limit(1);
+        
+      const pvTableExists = !pvError;
       
-    // Check events
-    const { error: evError } = await supabase
-      .from('events')
-      .select('count(*)')
-      .limit(1)
-      .catch(e => ({ error: e }));
+      // Check events
+      const { error: evError } = await supabase
+        .from('events')
+        .select('count(*)')
+        .limit(1);
+        
+      const evTableExists = !evError;
       
-    results.analyticsTablesExist = !pvError && !evError;
+      results.analyticsTablesExist = pvTableExists && evTableExists;
+    } catch (e) {
+      console.error('Error querying analytics tables:', e);
+      results.analyticsTablesExist = false;
+    }
   } catch (e) {
     console.error('Error checking analytics tables:', e);
     results.analyticsTablesExist = false;
