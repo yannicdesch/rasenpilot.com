@@ -9,11 +9,11 @@ interface WindowWithGA extends Window {
 
 declare const window: WindowWithGA;
 
-// Get Supabase connection info for debugging - fixed to avoid accessing protected properties
+// Get Supabase connection info for debugging - using public methods instead of protected properties
 export const getSupabaseConnectionInfo = () => {
   return {
     url: supabase.supabaseUrl || null,
-    hasApiKey: !!supabase.supabaseKey
+    hasApiKey: Boolean(supabase)
   };
 };
 
