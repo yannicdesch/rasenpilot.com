@@ -23,6 +23,11 @@ testSupabaseConnection().then(connected => {
       description: 'Analytics-Funktionen sind möglicherweise eingeschränkt.'
     });
   }
+}).catch(error => {
+  console.error('Error testing Supabase connection:', error);
+  toast.warning('Datenbankverbindung konnte nicht getestet werden', {
+    description: 'Ein Netzwerkfehler ist aufgetreten.'
+  });
 });
 
 // Track initial page view

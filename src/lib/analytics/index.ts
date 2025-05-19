@@ -4,12 +4,14 @@ export { initializeGA } from './initialize';
 export { createExecuteSqlFunction } from './sqlFunctions';
 export { 
   testDirectTableAccess,
+  testDatabaseConnection as testSupabaseConnection,
   checkAnalyticsTables,
   createAnalyticsTables
 } from './tableFunctions';
 export { 
   trackPageView,
-  trackEvent
+  trackEvent,
+  getSupabaseConnectionInfo
 } from './tracking';
 export {
   trackRegistrationStart,
@@ -18,3 +20,4 @@ export {
   trackRegistrationAbandoned,
   trackFormInteraction
 } from './trackingHelpers';
+

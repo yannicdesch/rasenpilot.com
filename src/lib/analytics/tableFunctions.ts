@@ -6,26 +6,36 @@ import { createExecuteSqlFunction } from './sqlFunctions';
 // First check if we can execute SQL directly as a fallback
 export const testDirectTableAccess = async (): Promise<boolean> => {
   try {
+    console.log('Testing direct table access...');
+    
     // Try a simple query to test if we can access the database
     const { data, error } = await supabase
       .from('page_views')
-      .select('id')
+      .select('count(*)')
       .limit(1);
       
     if (error) {
-      console.log('Direct table access test failed:', error.message);
+      console.log('Direct table access test failed with error code:', error.code);
+      console.log('Error message:', error.message);
+      
       // If table doesn't exist, that's expected
       if (error.code === '42P01') {
         console.log('Table not found - this is expected if not created yet');
         return false;
       }
+      
+      // For permission errors, this could indicate a misconfigured RLS policy
+      if (error.code === '42501' || error.message.includes('permission')) {
+        console.log('Permission error - check your RLS policies');
+      }
+      
       return false;
     }
     
     console.log('Direct table access successful');
     return true;
   } catch (err) {
-    console.error('Error testing direct table access:', err);
+    console.error('Exception testing direct table access:', err);
     return false;
   }
 };
@@ -33,33 +43,70 @@ export const testDirectTableAccess = async (): Promise<boolean> => {
 // Test general database connectivity (not just specific tables)
 export const testDatabaseConnection = async (): Promise<boolean> => {
   try {
-    // Try a very simple query that should always work if connected
-    const { data, error } = await supabase
-      .rpc('execute_sql', { 
+    console.log('Testing general database connectivity...');
+    
+    // Method 1: Try to get project configuration (this doesn't require any special permissions)
+    try {
+      const { data, error } = await supabase.rpc('get_project_settings', {});
+      
+      if (!error) {
+        console.log('Database connection test successful with RPC');
+        return true;
+      }
+      
+      console.log('RPC connection test failed, trying fallback method...');
+    } catch (err) {
+      console.log('RPC test failed with exception, trying fallback...');
+    }
+    
+    // Method 2: Try with execute_sql RPC if it exists
+    try {
+      const { data, error } = await supabase.rpc('execute_sql', { 
         sql: 'SELECT 1 as connection_test;' 
       });
       
-    if (error) {
-      console.log('Database connection test failed with RPC:', error.message);
-      
-      // Try a fallback test without RPC
-      try {
-        const { error: rawError } = await supabase
-          .from('_dummy_query_for_testing_')
-          .select('count(*)')
-          .limit(1);
-          
-        // We expect an error, but it should be a table not found error
-        // not a connection error
-        return !rawError || rawError.code === '42P01';
-      } catch (innerErr) {
-        console.error('Fallback connection test failed:', innerErr);
-        return false;
+      if (!error) {
+        console.log('Database connection test successful with execute_sql');
+        return true;
       }
+      
+      console.log('execute_sql test failed, trying next fallback...');
+    } catch (err) {
+      console.log('execute_sql test failed with exception, trying next fallback...');
     }
     
-    console.log('Database connection test successful:', data);
-    return true;
+    // Method 3: Try to access public.users directly
+    try {
+      const { error } = await supabase
+        .from('users')
+        .select('count(*)')
+        .limit(1);
+        
+      // Even if we get a permission error, the connection works
+      if (error && (error.code === '42501' || error.message.includes('permission'))) {
+        console.log('Database connected but permission denied - connection is working');
+        return true;
+      }
+    } catch (err) {
+      console.log('users table test failed, trying final fallback...');
+    }
+    
+    // Method 4: Final fallback - just try any basic operation
+    try {
+      const { error } = await supabase.auth.getSession();
+      
+      // If we can reach the auth API, the connection is working
+      if (!error) {
+        console.log('Database connection test successful via auth API');
+        return true;
+      }
+      
+      console.log('Auth API test failed');
+      return false;
+    } catch (err) {
+      console.error('All connection tests failed');
+      return false;
+    }
   } catch (err) {
     console.error('Error in database connection test:', err);
     return false;
@@ -78,10 +125,10 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
     const dbConnected = await testDatabaseConnection();
     console.log('Database connection test result:', dbConnected ? 'Connected' : 'Not connected');
     
-    // Log connection status without accessing protected properties
+    // Log connection status
     console.log('Supabase connection details:');
     console.log('- Supabase client initialized:', typeof supabase !== 'undefined');
-    console.log('- Connection available:', typeof supabase.auth !== 'undefined');
+    console.log('- Connection available:', dbConnected);
     
     if (directAccessWorks) {
       console.log('Tables exist and are accessible directly!');
@@ -100,7 +147,7 @@ export const checkAnalyticsTables = async (): Promise<boolean> => {
   }
 };
 
-// Create analytics tables if they don't exist - improved version with much better error handling
+// Create analytics tables if they don't exist - improved version with better error handling
 export const createAnalyticsTables = async (): Promise<boolean> => {
   try {
     console.log('Starting to create analytics tables...');
@@ -177,7 +224,7 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
       
       if (error) {
         console.error('Error creating analytics tables with execute_sql:', error);
-        console.log('Trying direct SQL execution as fallback...');
+        console.log('Trying edge function as fallback...');
         
         // Try using the edge function as fallback
         try {
@@ -264,3 +311,78 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     return false;
   }
 };
+
+// Additional helper function for full diagnostics
+export const runDatabaseDiagnostics = async (): Promise<Record<string, boolean>> => {
+  const results: Record<string, boolean> = {
+    connection: false,
+    sqlFunction: false,
+    pageViewsTable: false,
+    eventsTable: false,
+    permissions: false
+  };
+  
+  // Test basic connection
+  results.connection = await testDatabaseConnection();
+  
+  // Test SQL function
+  try {
+    const { error } = await supabase.rpc('execute_sql', { 
+      sql: 'SELECT 1 as test;' 
+    });
+    results.sqlFunction = !error;
+  } catch (err) {
+    results.sqlFunction = false;
+  }
+  
+  // Check if tables exist
+  try {
+    const { error: pageViewsError } = await supabase
+      .from('page_views')
+      .select('count(*)')
+      .limit(1);
+    
+    results.pageViewsTable = !pageViewsError || pageViewsError.code === '42501'; // Table exists but maybe permission denied
+    
+    const { error: eventsError } = await supabase
+      .from('events')
+      .select('count(*)')
+      .limit(1);
+    
+    results.eventsTable = !eventsError || eventsError.code === '42501'; // Table exists but maybe permission denied
+  } catch (err) {
+    results.pageViewsTable = false;
+    results.eventsTable = false;
+  }
+  
+  // Check if we can insert data (permissions)
+  if (results.pageViewsTable && results.eventsTable) {
+    try {
+      const testId = `test-${Date.now()}`;
+      const { error } = await supabase
+        .from('page_views')
+        .insert({
+          id: testId,
+          path: '/test-diagnostic',
+          timestamp: new Date().toISOString()
+        })
+        .select();
+      
+      // If no error, or error is not permission related, then permissions are OK
+      results.permissions = !error || error.code !== '42501';
+      
+      // Try to clean up test data
+      if (!error) {
+        await supabase
+          .from('page_views')
+          .delete()
+          .eq('id', testId);
+      }
+    } catch (err) {
+      results.permissions = false;
+    }
+  }
+  
+  console.log('Database diagnostics results:', results);
+  return results;
+}

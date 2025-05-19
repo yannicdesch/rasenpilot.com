@@ -6,7 +6,10 @@ import TableCreationAlert from './analytics/TableCreationAlert';
 import StatisticCards from './analytics/StatisticCards';
 import VisitorChart from './analytics/VisitorChart';
 import AnalyticsInfoCard from './analytics/AnalyticsInfoCard';
-import { getSupabaseConnectionInfo, testSupabaseConnection } from '@/lib/analytics/tracking';
+import { getSupabaseConnectionInfo } from '@/lib/analytics';
+import { testSupabaseConnection } from '@/lib/analytics';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
@@ -17,23 +20,33 @@ const SiteAnalytics = () => {
   const [supabaseInfo, setSupabaseInfo] = useState({
     url: null as string | null,
     hasApiKey: false,
-    connectionTested: false,
-    connectionWorking: false
+    connectionStatus: 'testing' as 'testing' | 'connected' | 'error'
   });
   
   // Get Supabase connection info and test the connection
   useEffect(() => {
     const connectionInfo = getSupabaseConnectionInfo();
-    setSupabaseInfo(prev => ({ ...prev, ...connectionInfo, connectionTested: false }));
+    setSupabaseInfo(prev => ({ 
+      ...prev, 
+      ...connectionInfo, 
+      connectionStatus: 'testing' 
+    }));
     
     // Test the connection
     const testConnection = async () => {
-      const connected = await testSupabaseConnection();
-      setSupabaseInfo(prev => ({ 
-        ...prev, 
-        connectionTested: true,
-        connectionWorking: connected 
-      }));
+      try {
+        const connected = await testSupabaseConnection();
+        setSupabaseInfo(prev => ({ 
+          ...prev, 
+          connectionStatus: connected ? 'connected' : 'error'
+        }));
+      } catch (err) {
+        console.error('Error testing connection:', err);
+        setSupabaseInfo(prev => ({ 
+          ...prev, 
+          connectionStatus: 'error'
+        }));
+      }
     };
     
     testConnection();
@@ -46,6 +59,13 @@ const SiteAnalytics = () => {
     setTableCreationError(null);
     
     try {
+      // First check if Supabase is connected
+      if (supabaseInfo.connectionStatus === 'error') {
+        setTableCreationError('Keine Verbindung zur Datenbank möglich. Bitte überprüfen Sie Ihre Supabase-Konfiguration.');
+        setIsCreatingTables(false);
+        return;
+      }
+      
       // Call the createTables function directly from useAnalytics
       const success = await createTables();
       
@@ -83,17 +103,23 @@ const SiteAnalytics = () => {
         isLoading={isLoading}
       />
       
-      {tablesExist === false && (
+      {/* Connection error alert */}
+      {supabaseInfo.connectionStatus === 'error' && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Verbindung zur Supabase-Datenbank fehlgeschlagen. Analytics-Daten sind möglicherweise nicht verfügbar.
+            Bitte überprüfen Sie Ihre Supabase-Konfiguration.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {tablesExist === false && supabaseInfo.connectionStatus === 'connected' && (
         <TableCreationAlert 
           isCreatingTables={isCreatingTables}
           tableCreationError={tableCreationError}
           handleCreateTables={handleCreateTables}
-          supabaseInfo={{
-            ...supabaseInfo,
-            connectionStatus: supabaseInfo.connectionTested 
-              ? (supabaseInfo.connectionWorking ? 'connected' : 'error') 
-              : 'testing'
-          }}
+          supabaseInfo={supabaseInfo}
         />
       )}
       
