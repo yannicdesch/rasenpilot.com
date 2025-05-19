@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import AnalyticsHeader from './analytics/AnalyticsHeader';
 import TableCreationAlert from './analytics/TableCreationAlert';
 import StatisticCards from './analytics/StatisticCards';
 import VisitorChart from './analytics/VisitorChart';
 import AnalyticsInfoCard from './analytics/AnalyticsInfoCard';
+import { getSupabaseConnectionInfo } from '@/lib/analytics/tracking';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
@@ -13,6 +14,16 @@ const SiteAnalytics = () => {
   const { analyticsData, isLoading, refreshAnalytics, tablesExist, createTables } = useAnalytics();
   const [isCreatingTables, setIsCreatingTables] = useState(false);
   const [tableCreationError, setTableCreationError] = useState<string | null>(null);
+  const [supabaseInfo, setSupabaseInfo] = useState({
+    url: null as string | null,
+    hasApiKey: false
+  });
+  
+  // Get Supabase connection info
+  useEffect(() => {
+    const connectionInfo = getSupabaseConnectionInfo();
+    setSupabaseInfo(connectionInfo);
+  }, []);
   
   // Handle creating tables
   const handleCreateTables = async () => {
@@ -63,6 +74,7 @@ const SiteAnalytics = () => {
           isCreatingTables={isCreatingTables}
           tableCreationError={tableCreationError}
           handleCreateTables={handleCreateTables}
+          supabaseInfo={supabaseInfo}
         />
       )}
       
