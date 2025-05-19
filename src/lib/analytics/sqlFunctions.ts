@@ -7,42 +7,80 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
   try {
     console.log('Attempting to create execute_sql function...');
     
+    // First check if the function already exists
+    try {
+      console.log('Checking if execute_sql function already exists...');
+      const { data, error } = await supabase.rpc('execute_sql', {
+        sql: 'SELECT 1 as test;'
+      });
+      
+      if (data && !error) {
+        console.log('execute_sql function already exists and works');
+        return true;
+      }
+    } catch (testErr) {
+      console.log('execute_sql function test failed, proceeding with creation');
+    }
+    
     // Try direct SQL execution first - this requires admin privileges
     try {
       console.log('Attempting direct SQL execution to create function...');
       
       // This is a raw SQL query that attempts to create the function
-      // It will only work if the user has admin privileges
-      const { error } = await supabase.rpc('execute_sql', {
-        sql: `
-          CREATE OR REPLACE FUNCTION public.execute_sql(sql text)
-          RETURNS SETOF json
-          LANGUAGE plpgsql
-          SECURITY DEFINER
-          SET search_path = public
-          AS $$
-          BEGIN
-            EXECUTE sql;
-            RETURN;
-          END;
-          $$;
-          
-          -- Grant execute permission to authenticated and anon roles
-          GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO authenticated;
-          GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
-        `
-      });
+      const createFunctionSQL = `
+        CREATE OR REPLACE FUNCTION public.execute_sql(sql text)
+        RETURNS SETOF json
+        LANGUAGE plpgsql
+        SECURITY DEFINER
+        SET search_path = public
+        AS $$
+        BEGIN
+          EXECUTE sql;
+          RETURN;
+        END;
+        $$;
+        
+        -- Grant execute permission to authenticated and anon roles
+        GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO authenticated;
+        GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
+      `;
+      
+      // First try using supabase REST API directly
+      const { data, error } = await fetch(
+        `${supabase.supabaseUrl}/rest/v1/rpc/execute_sql`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabase.supabaseKey,
+            'Authorization': `Bearer ${supabase.supabaseKey}`
+          },
+          body: JSON.stringify({ sql: createFunctionSQL })
+        }
+      ).then(res => res.json());
       
       // If no error, the function was created
       if (!error) {
-        console.log('execute_sql function created successfully');
+        console.log('execute_sql function created successfully via REST API');
+        toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
+        return true;
+      }
+      
+      // Try using Supabase's built-in client for RPC
+      const { error: rpcError } = await supabase.rpc('execute_sql', { 
+        sql: createFunctionSQL 
+      });
+      
+      // If no error, the function was created
+      if (!rpcError) {
+        console.log('execute_sql function created successfully via RPC');
         toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
         return true;
       } else {
-        console.log('Error creating function with direct SQL:', error);
+        console.error('Error creating function with RPC:', rpcError);
       }
     } catch (directErr) {
-      console.log('Direct SQL execution failed:', directErr);
+      console.error('Direct SQL execution failed:', directErr);
     }
     
     // Fallback to edge function if direct execution fails
@@ -77,39 +115,35 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
         toast.error('SQL-Ausführungsfunktion konnte nicht erstellt werden', { 
           description: 'Edge Function fehlgeschlagen: ' + error.message
         });
-        return false;
+      } else {
+        console.log('execute_sql function created successfully via edge function');
+        toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
+        return true;
       }
-      
-      console.log('execute_sql function created successfully via edge function');
-      toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
-      return true;
     } catch (edgeFnError: any) {
       console.error('Could not invoke edge function:', edgeFnError);
+    }
+    
+    // After all attempts, check if the function now exists
+    try {
+      console.log('Final check if execute_sql function exists...');
+      const { data, error } = await supabase.rpc('execute_sql', {
+        sql: 'SELECT 1 as test;'
+      });
       
-      // After both approaches fail, check if the function already exists
-      try {
-        const { data, error } = await supabase.rpc('execute_sql', {
-          sql: 'SELECT 1 as test;'
-        });
-        
-        if (data && !error) {
-          console.log('execute_sql function already exists and works');
-          return true;
-        } else {
-          console.error('execute_sql function test failed:', error);
-          toast.error('SQL-Ausführungsfunktion existiert nicht oder funktioniert nicht', { 
-            description: 'Bitte stellen Sie sicher, dass Sie administrative Berechtigungen haben oder wenden Sie sich an Ihren Datenbankadministrator.'
-          });
-          return false;
-        }
-      } catch (testErr) {
-        console.error('Error testing execute_sql function:', testErr);
-        toast.error('SQL-Ausführungsfunktion konnte nicht erstellt werden', { 
-          description: 'Bitte erstellen Sie die Funktion manuell in der Supabase SQL-Konsole.'
-        });
+      if (data && !error) {
+        console.log('execute_sql function now exists and works');
+        return true;
+      } else {
+        console.error('execute_sql function still doesn\'t work:', error);
         return false;
       }
+    } catch (finalCheckErr) {
+      console.error('Final check failed:', finalCheckErr);
+      return false;
     }
+    
+    return false;
   } catch (err: any) {
     console.error('Error in createExecuteSqlFunction:', err);
     toast.error('Fehler beim Erstellen der SQL-Ausführungsfunktion', {
@@ -122,11 +156,14 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
 // Execute a SQL query with better error handling
 export const executeSqlQuery = async (sql: string): Promise<boolean> => {
   try {
+    console.log('Attempting to execute SQL query:', sql.substring(0, 100) + '...');
+    
     // First, try to use the execute_sql function
     try {
       const { error } = await supabase.rpc('execute_sql', { sql });
       
       if (!error) {
+        console.log('SQL executed successfully with execute_sql function');
         return true;
       }
       
@@ -146,6 +183,7 @@ export const executeSqlQuery = async (sql: string): Promise<boolean> => {
         return false;
       }
       
+      console.log('SQL executed successfully with edge function');
       return true;
     } catch (err) {
       console.error('Failed to execute SQL with edge function:', err);

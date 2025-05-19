@@ -15,6 +15,7 @@ import {
 import SqlFunctionStatus from './database/SqlFunctionStatus';
 import TableStatusList from './database/TableStatusList';
 import DatabaseActions from './database/DatabaseActions';
+import ConnectionTestPanel from './database/ConnectionTestPanel';
 
 export const DatabaseSetup = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -169,39 +170,43 @@ export const DatabaseSetup = () => {
   }, []);
   
   return (
-    <Card className="border shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Database className="h-5 w-5" />
-          Datenbank-Einrichtung
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">
-          Hier können Sie prüfen, ob alle erforderlichen Tabellen in Ihrer Supabase-Datenbank existieren
-          und bei Bedarf diese erstellen.
-        </p>
+    <div className="space-y-6">
+      <ConnectionTestPanel />
+      
+      <Card className="border shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-5 w-5" />
+            Datenbank-Einrichtung
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Hier können Sie prüfen, ob alle erforderlichen Tabellen in Ihrer Supabase-Datenbank existieren
+            und bei Bedarf diese erstellen.
+          </p>
+          
+          <SqlFunctionStatus 
+            execSqlExists={execSqlExists} 
+            isLoading={isLoading}
+            handleCreateExecuteSql={handleCreateExecuteSql}
+          />
+          
+          <TableStatusList 
+            tablesStatus={tablesStatus}
+            isLoading={isLoading}
+            execSqlExists={execSqlExists}
+            handleCreateAnalyticsTables={handleCreateAnalyticsTables}
+          />
+        </CardContent>
         
-        <SqlFunctionStatus 
-          execSqlExists={execSqlExists} 
-          isLoading={isLoading}
-          handleCreateExecuteSql={handleCreateExecuteSql}
-        />
-        
-        <TableStatusList 
-          tablesStatus={tablesStatus}
+        <DatabaseActions 
           isLoading={isLoading}
           execSqlExists={execSqlExists}
-          handleCreateAnalyticsTables={handleCreateAnalyticsTables}
+          checkTables={checkTables}
+          handleCreateTables={handleCreateTables}
         />
-      </CardContent>
-      
-      <DatabaseActions 
-        isLoading={isLoading}
-        execSqlExists={execSqlExists}
-        checkTables={checkTables}
-        handleCreateTables={handleCreateTables}
-      />
-    </Card>
+      </Card>
+    </div>
   );
 };
