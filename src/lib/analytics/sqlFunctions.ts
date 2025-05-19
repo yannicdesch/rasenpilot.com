@@ -45,90 +45,59 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
         GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
       `;
       
-      // First try using fetch directly instead of accessing protected properties
-      const url = process.env.SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
-      const key = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
+      // First try using RPC directly
+      try {
+        const { error } = await supabase.rpc('execute_sql', { 
+          sql: createFunctionSQL 
+        });
+        
+        if (!error) {
+          console.log('execute_sql function created successfully via RPC');
+          toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
+          return true;
+        } else {
+          console.error('Error creating function with RPC:', error);
+        }
+      } catch (rpcErr) {
+        console.error('RPC execution failed:', rpcErr);
+      }
+      
+      // If direct RPC fails, try using a direct SQL API call
+      // Get the URL and key from the environment
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
       
       try {
-        const { data, error } = await fetch(
+        console.log('Trying direct SQL API call...');
+        const response = await fetch(
           `${url}/rest/v1/rpc/execute_sql`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'apikey': key,
-              'Authorization': `Bearer ${key}`
+              'Authorization': `Bearer ${key}`,
+              'Access-Control-Allow-Origin': '*',  // Add CORS headers
+              'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
             },
             body: JSON.stringify({ sql: createFunctionSQL })
           }
-        ).then(res => res.json());
+        );
         
-        // If no error, the function was created
-        if (!error) {
+        const result = await response.json();
+        
+        if (response.ok) {
           console.log('execute_sql function created successfully via REST API');
           toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
           return true;
+        } else {
+          console.error('Direct REST API call failed:', result);
         }
       } catch (directErr) {
         console.error('Direct REST API call failed:', directErr);
       }
-      
-      // Try using Supabase's built-in client for RPC
-      const { error: rpcError } = await supabase.rpc('execute_sql', { 
-        sql: createFunctionSQL 
-      });
-      
-      // If no error, the function was created
-      if (!rpcError) {
-        console.log('execute_sql function created successfully via RPC');
-        toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
-        return true;
-      } else {
-        console.error('Error creating function with RPC:', rpcError);
-      }
     } catch (directErr) {
       console.error('Direct SQL execution failed:', directErr);
-    }
-    
-    // Fallback to edge function if direct execution fails
-    try {
-      console.log('Trying to create function via edge function...');
-      
-      const { error } = await supabase.functions.invoke('execute-sql-creation', {
-        body: { 
-          action: 'create_function',
-          definition: `
-            CREATE OR REPLACE FUNCTION public.execute_sql(sql text)
-            RETURNS SETOF json
-            LANGUAGE plpgsql
-            SECURITY DEFINER
-            SET search_path = public
-            AS $$
-            BEGIN
-              EXECUTE sql;
-              RETURN;
-            END;
-            $$;
-            
-            -- Grant execute permission to authenticated and anon roles
-            GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO authenticated;
-            GRANT EXECUTE ON FUNCTION public.execute_sql(text) TO anon;
-          `
-        }
-      });
-      
-      if (error) {
-        console.error('Error creating execute_sql function via edge function:', error);
-        toast.error('SQL-Ausführungsfunktion konnte nicht erstellt werden', { 
-          description: 'Edge Function fehlgeschlagen: ' + error.message
-        });
-      } else {
-        console.log('execute_sql function created successfully via edge function');
-        toast.success('SQL-Ausführungsfunktion erfolgreich erstellt');
-        return true;
-      }
-    } catch (edgeFnError: any) {
-      console.error('Could not invoke edge function:', edgeFnError);
     }
     
     // After all attempts, check if the function now exists
@@ -179,23 +148,35 @@ export const executeSqlQuery = async (sql: string): Promise<boolean> => {
       console.error('Failed to execute SQL with execute_sql function:', err);
     }
     
-    // If that fails, try the edge function
+    // If RPC fails, try direct API call
     try {
-      const { error } = await supabase.functions.invoke('execute-sql', {
-        body: { sql }
-      });
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
       
-      if (error) {
-        console.error('Error executing SQL with edge function:', error);
-        return false;
+      const response = await fetch(
+        `${url}/rest/v1/rpc/execute_sql`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': key,
+            'Authorization': `Bearer ${key}`,
+          },
+          body: JSON.stringify({ sql })
+        }
+      );
+      
+      if (response.ok) {
+        console.log('SQL executed successfully with direct API call');
+        return true;
+      } else {
+        console.error('Error executing SQL with direct API call:', await response.text());
       }
-      
-      console.log('SQL executed successfully with edge function');
-      return true;
     } catch (err) {
-      console.error('Failed to execute SQL with edge function:', err);
-      return false;
+      console.error('Failed to execute SQL with direct API call:', err);
     }
+    
+    return false;
   } catch (err) {
     console.error('Error in executeSqlQuery:', err);
     return false;

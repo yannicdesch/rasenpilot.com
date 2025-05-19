@@ -21,7 +21,41 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
       return false;
     }
     
-    // First ensure the execute_sql function exists
+    // First try the edge function approach (most reliable)
+    try {
+      console.log('Trying to create tables with edge function...');
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+      
+      const response = await fetch(`${url}/functions/v1/create-tables`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabase.auth.session()?.access_token || ''}`,
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+        },
+        body: JSON.stringify({
+          action: 'create_analytics_tables'
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('Tables created successfully via edge function');
+          toast.success('Analytiktabellen wurden erfolgreich erstellt');
+          return true;
+        } else {
+          console.error('Edge function returned error:', result);
+        }
+      } else {
+        console.error('Edge function HTTP error:', response.status, await response.text());
+      }
+    } catch (edgeErr) {
+      console.error('Error with edge function approach:', edgeErr);
+    }
+    
+    // If edge function fails, ensure the execute_sql function exists
     const sqlFunctionCreated = await createExecuteSqlFunction();
     console.log('SQL function created or exists:', sqlFunctionCreated);
     
@@ -262,37 +296,19 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
         } catch (directErr) {
           console.error('Error with direct table creation approach:', directErr);
         }
-        
-        // If we get here, try the edge function approach as last resort
-        console.log('Trying edge function as last resort...');
-        try {
-          const { error: functionError } = await supabase.functions.invoke('execute-sql', {
-            body: { sql: createTablesSQL }
-          });
-          
-          if (functionError) {
-            console.error('Error with edge function approach:', functionError);
-            toast.error('Fehler beim Erstellen der Analytiktabellen', {
-              description: 'Die Edge-Funktion konnte die Tabellen nicht erstellen.'
-            });
-            return false;
-          }
-          
-          console.log('Tables created successfully via edge function');
-          toast.success('Analytiktabellen wurden erfolgreich erstellt');
-          return true;
-        } catch (functionErr) {
-          console.error('Edge function error:', functionErr);
-          toast.error('Fehler beim Erstellen der Analytiktabellen', {
-            description: 'Alle Ansätze zur Tabellenerstellung sind fehlgeschlagen.'
-          });
-          return false;
-        }
+
+      } else {
+        console.log('Tables created successfully via RPC');
+        toast.success('Analytiktabellen wurden erfolgreich erstellt');
+        return true;
       }
       
-      console.log('Tables created successfully via RPC');
-      toast.success('Analytiktabellen wurden erfolgreich erstellt');
-      return true;
+      console.error('All approaches failed to create tables');
+      toast.error('Fehler beim Erstellen der Analytiktabellen', {
+        description: 'Alle Ansätze zur Tabellenerstellung sind fehlgeschlagen.'
+      });
+      return false;
+      
     } catch (sqlErr) {
       console.error('Error executing SQL:', sqlErr);
       toast.error('Fehler beim Erstellen der Analytiktabellen', {
