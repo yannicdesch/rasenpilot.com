@@ -6,12 +6,14 @@ export {
   testDirectTableAccess,
   testDatabaseConnection as testSupabaseConnection,
   checkAnalyticsTables,
-  createAnalyticsTables
+  createAnalyticsTables,
+  runDatabaseDiagnostics
 } from './tableFunctions';
 export { 
   trackPageView,
   trackEvent,
-  getSupabaseConnectionInfo
+  getSupabaseConnectionInfo,
+  createTestTable
 } from './tracking';
 export {
   trackRegistrationStart,
@@ -20,4 +22,3 @@ export {
   trackRegistrationAbandoned,
   trackFormInteraction
 } from './trackingHelpers';
-
