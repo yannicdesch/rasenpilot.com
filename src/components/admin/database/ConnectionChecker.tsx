@@ -110,6 +110,11 @@ const ConnectionChecker = () => {
     }
   };
 
+  // Get Supabase URL from environment
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
+                     import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 
+                     'https://ugaxwcslhoppflrbuwxv.supabase.co';
+
   return (
     <Card className="border shadow-sm">
       <CardHeader>
@@ -135,7 +140,7 @@ const ConnectionChecker = () => {
         <div className="text-sm text-muted-foreground mb-4">
           Detaillierte Informationen zu Ihrer Datenbankverbindung:
           <div className="mt-2 text-xs font-mono">
-            URL: {process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co'}
+            URL: {supabaseUrl}
           </div>
         </div>
         

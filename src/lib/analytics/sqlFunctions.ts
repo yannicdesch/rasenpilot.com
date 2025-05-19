@@ -64,8 +64,13 @@ export const createExecuteSqlFunction = async (): Promise<boolean> => {
       
       // If direct RPC fails, try using a direct SQL API call
       // Get the URL and key from the environment
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
+      const url = import.meta.env.VITE_SUPABASE_URL || 
+                  import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 
+                  'https://ugaxwcslhoppflrbuwxv.supabase.co';
+                  
+      const key = import.meta.env.VITE_SUPABASE_ANON_KEY || 
+                 import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
       
       try {
         console.log('Trying direct SQL API call...');
@@ -150,8 +155,13 @@ export const executeSqlQuery = async (sql: string): Promise<boolean> => {
     
     // If RPC fails, try direct API call
     try {
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
+      const url = import.meta.env.VITE_SUPABASE_URL || 
+                 import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 
+                 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+                 
+      const key = import.meta.env.VITE_SUPABASE_ANON_KEY || 
+                 import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
       
       const response = await fetch(
         `${url}/rest/v1/rpc/execute_sql`,
