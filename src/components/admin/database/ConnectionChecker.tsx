@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Check, X, Database, RefreshCw, AlertTriangle } from 'lucide-react';
@@ -11,6 +12,7 @@ import { supabase } from '@/lib/supabase';
 const ConnectionChecker = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [connectionDetails, setConnectionDetails] = useState<string | null>(null);
   const [results, setResults] = useState<{
     basicConnection: boolean | null;
     sqlFunction: boolean | null;
@@ -23,9 +25,32 @@ const ConnectionChecker = () => {
     diagnostics: null
   });
 
+  // Check connection immediately on component mount
+  useEffect(() => {
+    // Run a quick basic check on initial load
+    const quickCheck = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        console.log("Initial connection check:", error ? "Error" : "Success");
+        
+        if (!error) {
+          setResults(prev => ({
+            ...prev,
+            basicConnection: true
+          }));
+        }
+      } catch (err) {
+        console.error("Initial connection check error:", err);
+      }
+    };
+    
+    quickCheck();
+  }, []);
+
   const runComprehensiveChecks = async () => {
     setIsChecking(true);
     setConnectionError(null);
+    setConnectionDetails(null);
     
     try {
       console.log('Starting comprehensive connection checks...');
@@ -40,6 +65,8 @@ const ConnectionChecker = () => {
         if (sessionError) {
           console.error('Auth session error:', sessionError);
           setConnectionError(`Auth API error: ${sessionError.message}`);
+        } else {
+          setConnectionDetails("Auth API connection successful");
         }
         
         // Try a simple query that should work even without special permissions
@@ -73,6 +100,7 @@ const ConnectionChecker = () => {
       if (tablesExist === null) {
         try {
           tablesExist = await checkAnalyticsTables();
+          console.log('Tables exist check result:', tablesExist);
         } catch (tableError) {
           console.error('Error checking tables:', tableError);
         }
@@ -90,6 +118,16 @@ const ConnectionChecker = () => {
         toast.success('Verbindungstest erfolgreich', {
           description: 'Die Grundverbindung zur Datenbank funktioniert.'
         });
+        
+        if (tablesExist) {
+          toast.success('Tabellen existieren', {
+            description: 'Alle benötigten Tabellen wurden in der Datenbank gefunden.'
+          });
+        } else {
+          toast.warning('Tabellen fehlen', {
+            description: 'Einige benötigte Tabellen wurden nicht gefunden.'
+          });
+        }
       } else {
         const errorMsg = connectionError || 'Die Datenbank konnte nicht erreicht werden.';
         toast.error('Verbindungstest fehlgeschlagen', {
@@ -132,6 +170,16 @@ const ConnectionChecker = () => {
             <AlertTitle>Verbindungsfehler</AlertTitle>
             <AlertDescription className="text-sm font-mono break-all">
               {connectionError}
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {connectionDetails && !connectionError && (
+          <Alert variant="default" className="bg-green-50 text-green-800 border-green-200">
+            <Check className="h-4 w-4" />
+            <AlertTitle>Verbindungsinfo</AlertTitle>
+            <AlertDescription className="text-sm">
+              {connectionDetails}
             </AlertDescription>
           </Alert>
         )}
