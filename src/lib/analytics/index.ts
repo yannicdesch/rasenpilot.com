@@ -22,3 +22,6 @@ export {
   trackRegistrationAbandoned,
   trackFormInteraction
 } from './trackingHelpers';
+
+// Export test functions
+export { testSupabaseConnection } from './connectionTests';

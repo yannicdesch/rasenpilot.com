@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import AnalyticsHeader from './analytics/AnalyticsHeader';
@@ -6,8 +5,7 @@ import TableCreationAlert from './analytics/TableCreationAlert';
 import StatisticCards from './analytics/StatisticCards';
 import VisitorChart from './analytics/VisitorChart';
 import AnalyticsInfoCard from './analytics/AnalyticsInfoCard';
-import { getSupabaseConnectionInfo } from '@/lib/analytics';
-import { testSupabaseConnection } from '@/lib/analytics';
+import { getSupabaseConnectionInfo, testSupabaseConnection } from '@/lib/analytics';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
