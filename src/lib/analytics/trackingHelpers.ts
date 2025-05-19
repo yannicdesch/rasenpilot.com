@@ -7,7 +7,7 @@ export const trackRegistrationStart = () => {
 };
 
 export const trackRegistrationStep = (step: string, details?: string) => {
-  trackEvent('registration', 'step', `Registration step: ${step}`, details ? undefined : undefined);
+  trackEvent('registration', 'step', `Registration step: ${step}${details ? ` - ${details}` : ''}`);
 };
 
 export const trackRegistrationComplete = (method: string = 'email') => {
