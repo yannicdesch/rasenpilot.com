@@ -40,7 +40,7 @@ function App() {
       <Router>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<ConnectionTestPage />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
