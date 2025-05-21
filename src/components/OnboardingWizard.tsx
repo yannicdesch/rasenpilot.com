@@ -10,6 +10,7 @@ import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { useLawn } from '@/context/LawnContext';
 import { toast } from '@/components/ui/sonner';
 import LawnImageUpload from './LawnImageUpload';
+import LawnAnalyzer from './LawnAnalyzer';
 
 interface OnboardingWizardProps {
   onComplete?: (data: any) => void;
@@ -28,11 +29,16 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     hasChildren: false,
     hasPets: false,
     lawnPicture: '',
+    analysisResults: null,
+    analyzesUsed: 0,
   });
+  
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { temporaryProfile, isAuthenticated, setTemporaryProfile } = useLawn();
   
   const totalSteps = 5; 
   
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | any) => {
     setFormData({
       ...formData,
       [field]: value
@@ -41,13 +47,16 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   
   const handleNext = () => {
     // Validate current step
-    if (step === 1 && !formData.zipCode) {
+    if (step === 1 && !formData.lawnPicture) {
+      toast.error("Bitte lade zuerst ein Foto deines Rasens hoch");
+      return;
+    } else if (step === 2 && !formData.zipCode) {
       toast.error("Bitte gib deine Postleitzahl ein");
       return;
-    } else if (step === 2 && !formData.grassType) {
+    } else if (step === 3 && !formData.grassType) {
       toast.error("Bitte wähle deinen Rasentyp aus");
       return;
-    } else if (step === 3 && !formData.lawnGoal) {
+    } else if (step === 4 && !formData.lawnGoal) {
       toast.error("Bitte wähle dein Rasenziel aus");
       return;
     }
@@ -68,17 +77,6 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     }
   };
   
-  // Force completion if an image is uploaded on step 4
-  useEffect(() => {
-    if (step === 4 && formData.lawnPicture) {
-      // Give a brief delay to allow the image to be processed
-      const timer = setTimeout(() => {
-        handleNext();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [formData.lawnPicture, step]);
-  
   const handleBack = () => {
     if (step > 1) {
       setStep(step - 1);
@@ -93,6 +91,12 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     }
   };
 
+  const handleAnalysisComplete = (results: any) => {
+    handleInputChange('analysisResults', results);
+    handleInputChange('analyzesUsed', 1);
+    handleNext();
+  };
+
   const handleImageSelected = (imageUrl: string) => {
     console.log("Image selected:", imageUrl);
     handleInputChange('lawnPicture', imageUrl);
@@ -101,6 +105,22 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   const renderStep = () => {
     switch (step) {
       case 1:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-green-800">Lade ein Bild deines Rasens hoch</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Dies ist der wichtigste Schritt für eine genaue Analyse und personalisierte Empfehlungen.
+            </p>
+            <div className="mb-4">
+              <LawnAnalyzer 
+                onAnalysisComplete={handleAnalysisComplete}
+                onImageSelected={handleImageSelected}
+                isOnboarding={true}
+              />
+            </div>
+          </div>
+        );
+      case 2:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-green-800">Wo befindet sich dein Rasen?</h3>
@@ -115,7 +135,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
             />
           </div>
         );
-      case 2:
+      case 3:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-green-800">Welchen Rasentyp hast du?</h3>
@@ -142,7 +162,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
             </RadioGroup>
           </div>
         );
-      case 3:
+      case 4:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-green-800">Was ist dein Hauptziel?</h3>
@@ -167,19 +187,6 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
                 <Label htmlFor="drought" className="cursor-pointer flex-grow">Trockenschutz</Label>
               </div>
             </RadioGroup>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-green-800">Lade ein Bild deines Rasens hoch</h3>
-            <p className="text-sm text-gray-600">
-              Ein Foto hilft uns, den Zustand deines Rasens besser zu verstehen.
-            </p>
-            <LawnImageUpload 
-              onImageSelected={handleImageSelected}
-              currentImage={formData.lawnPicture}
-            />
           </div>
         );
       case 5:
@@ -272,20 +279,26 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
             </Button>
           )}
         </div>
-        <Button 
-          onClick={handleNext}
-          className="bg-green-600 hover:bg-green-700 flex items-center"
-        >
-          {step === totalSteps ? (
-            <>
-              Fertigstellen <Check className="ml-1 h-4 w-4" />
-            </>
-          ) : (
-            <>
-              Weiter <ArrowRight className="ml-1 h-4 w-4" />
-            </>
-          )}
-        </Button>
+        {step === 1 ? (
+          <p className="text-sm text-gray-600 italic">
+            Lade ein Foto hoch und analysiere deinen Rasen, um fortzufahren
+          </p>
+        ) : (
+          <Button 
+            onClick={handleNext}
+            className="bg-green-600 hover:bg-green-700 flex items-center"
+          >
+            {step === totalSteps ? (
+              <>
+                Fertigstellen <Check className="ml-1 h-4 w-4" />
+              </>
+            ) : (
+              <>
+                Weiter <ArrowRight className="ml-1 h-4 w-4" />
+              </>
+            )}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

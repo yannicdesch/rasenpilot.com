@@ -43,7 +43,17 @@ const mockAnalysisResults = [
   }
 ];
 
-const LawnAnalyzer = () => {
+interface LawnAnalyzerProps {
+  onAnalysisComplete?: (results: any) => void;
+  onImageSelected?: (imageUrl: string) => void;
+  isOnboarding?: boolean;
+}
+
+const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
+  onAnalysisComplete,
+  onImageSelected,
+  isOnboarding = false
+}) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -56,7 +66,13 @@ const LawnAnalyzer = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      const newPreviewUrl = URL.createObjectURL(file);
+      setPreviewUrl(newPreviewUrl);
+      
+      if (onImageSelected) {
+        onImageSelected(newPreviewUrl);
+      }
+      
       // Reset any previous analysis
       setAnalysisResults(null);
     }
@@ -68,8 +84,8 @@ const LawnAnalyzer = () => {
       return;
     }
 
-    // Check if free analyze is already used
-    if (analyzesUsed >= 1 && !isAuthenticated) {
+    // Check if free analyze is already used and not in onboarding mode
+    if (!isOnboarding && analyzesUsed >= 1 && !isAuthenticated) {
       toast("Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.");
       return;
     }
@@ -118,6 +134,11 @@ const LawnAnalyzer = () => {
       }
       
       toast("Die KI hat deinen Rasen analysiert und Empfehlungen erstellt.");
+      
+      // Call the onAnalysisComplete callback if provided
+      if (onAnalysisComplete) {
+        onAnalysisComplete(mockAnalysisResults);
+      }
     } catch (error) {
       console.error("Error analyzing image:", error);
       toast("Bei der Analyse ist ein Fehler aufgetreten.");
@@ -134,33 +155,37 @@ const LawnAnalyzer = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Camera className="h-5 w-5" />
-              <CardTitle>Rasen-Analyzer</CardTitle>
+      <Card className={isOnboarding ? "border-green-100" : ""}>
+        {!isOnboarding && (
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Camera className="h-5 w-5" />
+                <CardTitle>Rasen-Analyzer</CardTitle>
+              </div>
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                {isAuthenticated ? 'Unbegrenzt' : analyzesUsed === 0 ? '1 kostenlos' : 'Limit erreicht'}
+              </Badge>
             </div>
-            <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-              {isAuthenticated ? 'Unbegrenzt' : analyzesUsed === 0 ? '1 kostenlos' : 'Limit erreicht'}
-            </Badge>
-          </div>
-          <CardDescription>
-            Lade ein Foto deines Rasens hoch und erhalte eine KI-basierte Analyse und Pflegeempfehlungen
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+            <CardDescription>
+              Lade ein Foto deines Rasens hoch und erhalte eine KI-basierte Analyse und Pflegeempfehlungen
+            </CardDescription>
+          </CardHeader>
+        )}
+        <CardContent className={isOnboarding ? "" : "p-6"}>
           <div className="space-y-4">
-            <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
-              <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <AlertTitle className="text-blue-800 dark:text-blue-400">KI-Analyse</AlertTitle>
-              <AlertDescription className="text-blue-700 dark:text-blue-300">
-                Unsere KI erkennt Probleme wie Krankheiten, Nährstoffmangel und Schädlingsbefall und gibt dir personalisierte Empfehlungen.
-              </AlertDescription>
-            </Alert>
+            {!isOnboarding && (
+              <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+                <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertTitle className="text-blue-800 dark:text-blue-400">KI-Analyse</AlertTitle>
+                <AlertDescription className="text-blue-700 dark:text-blue-300">
+                  Unsere KI erkennt Probleme wie Krankheiten, Nährstoffmangel und Schädlingsbefall und gibt dir personalisierte Empfehlungen.
+                </AlertDescription>
+              </Alert>
+            )}
             
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center relative">
-              {analyzesUsed >= 1 && !isAuthenticated && (
+              {analyzesUsed >= 1 && !isAuthenticated && !isOnboarding && (
                 <div className="absolute inset-0 bg-gray-100/80 dark:bg-gray-900/80 flex flex-col items-center justify-center z-10 rounded-lg">
                   <Lock className="h-12 w-12 text-gray-500 mb-2" />
                   <h3 className="text-lg font-semibold mb-2">Analyse-Limit erreicht</h3>
@@ -206,7 +231,7 @@ const LawnAnalyzer = () => {
             
             <Button
               onClick={analyzeImage}
-              disabled={!selectedFile || isAnalyzing || (analyzesUsed >= 1 && !isAuthenticated)}
+              disabled={!selectedFile || isAnalyzing || (!isOnboarding && analyzesUsed >= 1 && !isAuthenticated)}
               className="w-full bg-green-600 hover:bg-green-700"
             >
               {isAnalyzing ? (
@@ -222,7 +247,7 @@ const LawnAnalyzer = () => {
               )}
             </Button>
             
-            {!isAuthenticated && (
+            {!isOnboarding && !isAuthenticated && (
               <p className="text-xs text-gray-500 text-center">
                 {analyzesUsed === 0 ? '1 kostenlose Analyse verfügbar' : 'Kostenlose Analyse bereits genutzt'} • 
                 <Button variant="link" className="text-xs p-0 h-auto" onClick={() => navigate('/auth')}>
@@ -256,14 +281,14 @@ const LawnAnalyzer = () => {
                   </div>
                   <h4 className="text-sm font-medium mb-2">Empfehlungen:</h4>
                   <ul className="space-y-1">
-                    {result.recommendations.slice(0, isAuthenticated ? 4 : 2).map((rec, recIndex) => (
+                    {result.recommendations.slice(0, isAuthenticated || isOnboarding ? 4 : 2).map((rec, recIndex) => (
                       <li key={recIndex} className="flex items-start text-sm">
                         <Sparkles className="h-4 w-4 text-green-600 mr-2 mt-0.5 shrink-0" />
                         <span>{rec}</span>
                       </li>
                     ))}
                     
-                    {!isAuthenticated && result.recommendations.length > 2 && (
+                    {!isAuthenticated && !isOnboarding && result.recommendations.length > 2 && (
                       <li className="pt-1 pl-6">
                         <Button 
                           variant="link" 
@@ -279,17 +304,19 @@ const LawnAnalyzer = () => {
               ))}
             </div>
           </CardContent>
-          <CardFooter className="flex-col items-start border-t pt-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Für detailliertere Analysen und fortlaufende Überwachung registriere dich für den Pro-Plan.
-            </p>
-            <Button 
-              onClick={() => navigate('/auth')} 
-              className="bg-green-600 hover:bg-green-700"
-            >
-              Pro-Plan für nur €4.99/Monat
-            </Button>
-          </CardFooter>
+          {!isOnboarding && (
+            <CardFooter className="flex-col items-start border-t pt-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Für detailliertere Analysen und fortlaufende Überwachung registriere dich für den Pro-Plan.
+              </p>
+              <Button 
+                onClick={() => navigate('/auth')} 
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Pro-Plan für nur €4.99/Monat
+              </Button>
+            </CardFooter>
+          )}
         </Card>
       )}
     </div>

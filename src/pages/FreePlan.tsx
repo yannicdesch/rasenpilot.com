@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -54,6 +55,8 @@ const FreePlan = () => {
 
   // Handle navigation to free care plan when user chooses to continue without registration
   const handleContinueWithoutRegistration = () => {
+    // Store the fact that they've used their one-time free analysis
+    localStorage.setItem('freeAnalysisUsed', 'true');
     navigate('/free-care-plan');
   };
 
@@ -78,11 +81,15 @@ const FreePlan = () => {
       hasChildren: data.hasChildren,
       hasPets: data.hasPets,
       lawnPicture: data.lawnPicture,
+      analysisResults: data.analysisResults,
     });
     
     toast.success("Rasendaten gespeichert", {
       description: "Ihre Daten wurden erfolgreich gespeichert."
     });
+    
+    // Store that they've used their one-time free analysis
+    localStorage.setItem('freeAnalysisUsed', 'true');
     
     // If user is already authenticated, sync profile with Supabase immediately
     if (isAuthenticated) {
@@ -114,6 +121,16 @@ const FreePlan = () => {
       } 
     });
   };
+
+  // Check if free analysis has already been used
+  useEffect(() => {
+    const freeAnalysisUsed = localStorage.getItem('freeAnalysisUsed') === 'true';
+    if (freeAnalysisUsed && !isAuthenticated) {
+      toast.info("Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für mehr Funktionen.", {
+        duration: 5000,
+      });
+    }
+  }, [isAuthenticated]);
 
   // For mobile devices, render only the onboarding wizard
   if (isMobile) {
