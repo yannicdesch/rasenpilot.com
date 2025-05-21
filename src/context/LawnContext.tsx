@@ -1,21 +1,22 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { toast } from "sonner";
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { toast } from 'sonner';
 
+// Define the LawnProfile type to include all properties we're using
 export interface LawnProfile {
+  id?: string;
+  userId?: string;
   zipCode: string;
   grassType: string;
   lawnSize: string;
   lawnGoal: string;
-  name?: string;
-  lastMowed?: string;
-  lastFertilized?: string;
-  soilType?: string;
-  id?: string;
   hasChildren?: boolean;
   hasPets?: boolean;
-  lawnPicture?: string; // Add lawn picture URL
+  lawnPicture?: string;
+  analysisResults?: any; // Added this property to fix the TypeScript error
+  analyzesUsed?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface LawnTask {
@@ -200,6 +201,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Convert from snake_case to camelCase
         const newProfile: LawnProfile = {
           id: profileData.id,
+          userId: profileData.user_id,
           zipCode: profileData.zip_code,
           grassType: profileData.grass_type,
           lawnSize: profileData.lawn_size,

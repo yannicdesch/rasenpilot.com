@@ -74,14 +74,15 @@ const FreePlan = () => {
     
     // Ensure we set the temporary profile with ALL the onboarding data
     setTemporaryProfile({
-      zipCode: data.zipCode,
-      grassType: data.grassType,
-      lawnSize: data.lawnSize,
-      lawnGoal: data.lawnGoal,
-      hasChildren: data.hasChildren,
-      hasPets: data.hasPets,
-      lawnPicture: data.lawnPicture,
-      analysisResults: data.analysisResults,
+      zipCode: data.zipCode || '',
+      grassType: data.grassType || '',
+      lawnSize: data.lawnSize || '',
+      lawnGoal: data.lawnGoal || '',
+      hasChildren: data.hasChildren || false,
+      hasPets: data.hasPets || false,
+      lawnPicture: data.lawnPicture || '',
+      analysisResults: data.analysisResults || null,
+      analyzesUsed: data.analyzesUsed || 1
     });
     
     toast.success("Rasendaten gespeichert", {
