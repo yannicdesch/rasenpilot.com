@@ -1,70 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-
-// Define the LawnProfile type to include all properties we're using
-export interface LawnProfile {
-  id?: string;
-  userId?: string;
-  zipCode: string;
-  grassType: string;
-  lawnSize: string;
-  lawnGoal: string;
-  name?: string;
-  lastMowed?: string;
-  lastFertilized?: string;
-  soilType?: string;
-  hasChildren?: boolean;
-  hasPets?: boolean;
-  lawnPicture?: string;
-  analysisResults?: any;
-  analyzesUsed?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface LawnTask {
-  id: string;
-  title: string;
-  description?: string;
-  completed: boolean;
-  dueDate?: string;
-  category?: string;
-}
-
-export interface UserData {
-  id: string;
-  email: string;
-  role?: 'user' | 'admin';
-  createdAt?: string;
-  lastSignIn?: string;
-}
-
-export interface SubscriptionDetails {
-  isSubscribed: boolean;
-  plan: 'free' | 'monthly' | 'yearly' | 'lifetime' | null;
-  expiresAt: string | null;
-  analyzesRemaining?: number;
-}
-
-interface LawnContextType {
-  profile: LawnProfile | null;
-  setProfile: (profile: LawnProfile) => void;
-  clearProfile: () => void;
-  isProfileComplete: boolean;
-  temporaryProfile: LawnProfile | null;
-  setTemporaryProfile: (profile: LawnProfile) => void; 
-  clearTemporaryProfile: () => void;
-  syncProfileWithSupabase: () => Promise<void>;
-  tasks: LawnTask[];
-  setTasks: (tasks: LawnTask[]) => void;
-  isAuthenticated: boolean;
-  checkAuthentication: () => Promise<boolean>;
-  subscriptionDetails: SubscriptionDetails;
-  updateSubscriptionDetails: (details: Partial<SubscriptionDetails>) => void;
-  checkSubscriptionStatus: () => Promise<void>;
-  userData: UserData | null;
-}
+import { 
+  LawnProfile, 
+  LawnTask, 
+  UserData, 
+  SubscriptionDetails,
+  LawnContextType
+} from '../types/lawn';
+import { 
+  fetchUserData, 
+  fetchProfileFromSupabase, 
+  syncProfileWithSupabase as syncProfile,
+  checkAuthentication as checkAuth
+} from '../utils/lawnProfileUtils';
+import { checkSubscriptionStatus as checkStatus } from '../utils/subscriptionUtils';
 
 const LawnContext = createContext<LawnContextType | undefined>(undefined);
 
@@ -105,36 +55,26 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
   
-  // Check subscription status
-  const checkSubscriptionStatus = async (): Promise<void> => {
-    if (!isAuthenticated) return;
-    
-    try {
-      // In a real app, this would call a Supabase function to check subscription status
-      // For now we'll simulate a check
-      console.log("Checking subscription status...");
-      
-      // For demo purposes, we'll just maintain the current subscription state
-      // In a real app, you would update this based on the response from your backend
-    } catch (error) {
-      console.error("Error checking subscription:", error);
-    }
-  };
-  
   // Check authentication status and fetch user data
   const checkAuthentication = async (): Promise<boolean> => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const isLoggedIn = !!session;
+      const isLoggedIn = await checkAuth();
       setIsAuthenticated(isLoggedIn);
       
       // If user is logged in, fetch user data
       if (isLoggedIn) {
-        await fetchUserData();
+        const userData = await fetchUserData();
+        if (userData) {
+          setUserData(userData);
+        }
         
         // If user is logged in but no profile exists, check for profile in Supabase
         if (!profile) {
-          await fetchProfileFromSupabase();
+          const fetchedProfile = await fetchProfileFromSupabase();
+          if (fetchedProfile) {
+            setProfileState(fetchedProfile);
+            localStorage.setItem('lawnProfile', JSON.stringify(fetchedProfile));
+          }
         }
       }
       
@@ -145,230 +85,15 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
-  // Fetch user data from Supabase
-  const fetchUserData = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      
-      console.log("Fetching user data for:", session.user.id);
-      
-      // Get user information from Supabase auth
-      const { data: user, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) {
-        console.error("Error fetching user data:", userError);
-        return;
-      }
-      
-      if (user) {
-        // In a real application, you would fetch the user role from a users table
-        // For demo purposes, we'll create mock admin users
-        const isAdmin = user.user?.email?.includes('admin') || false;
-        
-        const newUserData: UserData = {
-          id: user.user?.id || '',
-          email: user.user?.email || '',
-          role: isAdmin ? 'admin' : 'user',
-          createdAt: user.user?.created_at,
-          lastSignIn: session.user.last_sign_in_at
-        };
-        
-        setUserData(newUserData);
-        console.log("User data loaded:", newUserData);
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
-  
-  // Fetch profile from Supabase
-  const fetchProfileFromSupabase = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      
-      console.log("Fetching profile from Supabase for user:", session.user.id);
-      
-      const { data: profileData, error } = await supabase
-        .from('lawn_profiles')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
-        
-      if (error) {
-        console.error("Error fetching profile:", error);
-        return;
-      }
-        
-      if (profileData) {
-        // Convert from snake_case to camelCase
-        const newProfile: LawnProfile = {
-          id: profileData.id,
-          userId: profileData.user_id,
-          zipCode: profileData.zip_code,
-          grassType: profileData.grass_type,
-          lawnSize: profileData.lawn_size,
-          lawnGoal: profileData.lawn_goal,
-          name: profileData.name,
-          lastMowed: profileData.last_mowed,
-          lastFertilized: profileData.last_fertilized,
-          soilType: profileData.soil_type,
-          hasChildren: profileData.has_children,
-          hasPets: profileData.has_pets,
-          lawnPicture: profileData.lawn_picture
-        };
-        
-        setProfileState(newProfile);
-        localStorage.setItem('lawnProfile', JSON.stringify(newProfile));
-        console.log("Profile loaded from Supabase:", newProfile);
-      }
-    } catch (error) {
-      console.error("Error fetching profile from Supabase:", error);
-    }
-  };
-  
   // Sync profile with Supabase
   const syncProfileWithSupabase = async () => {
-    try {
-      const isLoggedIn = await checkAuthentication();
-      
-      if (!isLoggedIn) {
-        console.log("User not logged in, can't sync profile");
-        return;
-      }
-      
-      // If there's no profile to sync, check if we have a temporary profile to use
-      if (!profile && temporaryProfile) {
-        console.log("No profile found, using temporary profile for syncing:", temporaryProfile);
-        setProfileState(temporaryProfile);
-        localStorage.setItem('lawnProfile', JSON.stringify(temporaryProfile));
-        
-        // Continue with the newly set profile
-      } else if (!profile) {
-        console.log("No profile or temporary profile found, nothing to sync");
-        return;
-      }
-      
-      // At this point we should have a profile to sync
-      const currentProfile = profile || temporaryProfile;
-      if (!currentProfile) {
-        console.log("Still no profile to sync after checks");
-        return;
-      }
-      
-      console.log("Syncing profile with Supabase:", currentProfile);
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log("No session found, can't sync profile");
-        return;
-      }
-      
-      // Check if profile already exists in Supabase
-      const { data: existingProfiles } = await supabase
-        .from('lawn_profiles')
-        .select('*')
-        .eq('user_id', session.user.id);
-        
-      if (existingProfiles && existingProfiles.length > 0) {
-        // Update existing profile
-        console.log("Updating existing profile with ID:", existingProfiles[0].id);
-        
-        const { error } = await supabase
-          .from('lawn_profiles')
-          .update({
-            zip_code: currentProfile.zipCode,
-            grass_type: currentProfile.grassType,
-            lawn_size: currentProfile.lawnSize,
-            lawn_goal: currentProfile.lawnGoal,
-            name: currentProfile.name,
-            last_mowed: currentProfile.lastMowed,
-            last_fertilized: currentProfile.lastFertilized,
-            soil_type: currentProfile.soilType,
-            has_children: currentProfile.hasChildren,
-            has_pets: currentProfile.hasPets,
-            lawn_picture: currentProfile.lawnPicture,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingProfiles[0].id);
-          
-        if (error) {
-          console.error("Error updating profile in Supabase:", error);
-          toast.error("Fehler", {
-            description: "Ihre Rasendaten konnten nicht aktualisiert werden."
-          });
-          return;
-        }
-          
-        // Update local profile with id
-        const updatedProfile = {
-          ...currentProfile,
-          id: existingProfiles[0].id
-        };
-        
-        setProfileState(updatedProfile);
-        localStorage.setItem('lawnProfile', JSON.stringify(updatedProfile));
-        
-        toast.success("Profil gespeichert", {
-          description: "Ihre Rasendaten wurden erfolgreich aktualisiert."
-        });
-      } else {
-        // Create new profile
-        console.log("Creating new profile for user:", session.user.id);
-        
-        const { data: newProfile, error } = await supabase
-          .from('lawn_profiles')
-          .insert({
-            user_id: session.user.id,
-            zip_code: currentProfile.zipCode,
-            grass_type: currentProfile.grassType,
-            lawn_size: currentProfile.lawnSize,
-            lawn_goal: currentProfile.lawnGoal,
-            name: currentProfile.name,
-            last_mowed: currentProfile.lastMowed,
-            last_fertilized: currentProfile.lastFertilized,
-            soil_type: currentProfile.soilType,
-            has_children: currentProfile.hasChildren,
-            has_pets: currentProfile.hasPets,
-            lawn_picture: currentProfile.lawnPicture,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .select()
-          .single();
-          
-        if (error) {
-          console.error("Error creating profile:", error);
-          toast.error("Fehler", {
-            description: "Ihre Rasendaten konnten nicht gespeichert werden."
-          });
-          return;
-        }
-          
-        if (newProfile) {
-          // Update local profile with id
-          const updatedProfile = {
-            ...currentProfile,
-            id: newProfile.id
-          };
-          
-          setProfileState(updatedProfile);
-          localStorage.setItem('lawnProfile', JSON.stringify(updatedProfile));
-          
-          toast.success("Profil erstellt", {
-            description: "Ihre Rasendaten wurden erfolgreich gespeichert."
-          });
-        }
-      }
+    const updatedProfile = await syncProfile(profile, temporaryProfile, isAuthenticated);
+    if (updatedProfile) {
+      setProfileState(updatedProfile);
+      localStorage.setItem('lawnProfile', JSON.stringify(updatedProfile));
       
       // Clear temporary profile after successful sync
       clearTemporaryProfile();
-    } catch (error) {
-      console.error("Error syncing profile with Supabase:", error);
-      toast.error("Fehler", {
-        description: "Ihre Rasendaten konnten nicht gespeichert werden."
-      });
     }
   };
 
@@ -397,6 +122,11 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isProfileComplete = !!profile && !!profile.zipCode && !!profile.grassType && !!profile.lawnSize;
 
+  // Check subscription status
+  const checkSubscriptionStatus = async (): Promise<void> => {
+    await checkStatus(isAuthenticated);
+  };
+
   useEffect(() => {
     // Check authentication status on mount
     checkAuthentication();
@@ -410,7 +140,10 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // If user just signed in, fetch user data and sync profile
       if (event === 'SIGNED_IN') {
-        await fetchUserData();
+        const userData = await fetchUserData();
+        if (userData) {
+          setUserData(userData);
+        }
         
         if (profile) {
           // If there's already a profile in local storage, sync it
@@ -421,7 +154,11 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await syncProfileWithSupabase();
         } else {
           // Otherwise, try to fetch profile from Supabase
-          await fetchProfileFromSupabase();
+          const fetchedProfile = await fetchProfileFromSupabase();
+          if (fetchedProfile) {
+            setProfileState(fetchedProfile);
+            localStorage.setItem('lawnProfile', JSON.stringify(fetchedProfile));
+          }
         }
       } else if (event === 'SIGNED_OUT') {
         // Clear user data on sign out
@@ -470,3 +207,6 @@ export const useLawn = () => {
   }
   return context;
 };
+
+// Re-export types for easier imports elsewhere
+export * from '../types/lawn';
