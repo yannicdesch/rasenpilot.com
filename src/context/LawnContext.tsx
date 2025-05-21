@@ -10,10 +10,14 @@ export interface LawnProfile {
   grassType: string;
   lawnSize: string;
   lawnGoal: string;
+  name?: string;
+  lastMowed?: string;
+  lastFertilized?: string;
+  soilType?: string;
   hasChildren?: boolean;
   hasPets?: boolean;
   lawnPicture?: string;
-  analysisResults?: any; // Added this property to fix the TypeScript error
+  analysisResults?: any;
   analyzesUsed?: number;
   createdAt?: string;
   updatedAt?: string;
