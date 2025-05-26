@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { analyzeImageWithAI, getMockAnalysis, AIAnalysisResult } from '@/services/aiAnalysisService';
 
 // Mock analysis results for the demo version
 const mockAnalysisResults = [
@@ -57,8 +57,9 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResults, setAnalysisResults] = useState<typeof mockAnalysisResults | null>(null);
+  const [analysisResults, setAnalysisResults] = useState<AIAnalysisResult | null>(null);
   const [analyzesUsed, setAnalyzesUsed] = useState(0);
+  const [useAI, setUseAI] = useState(true); // Toggle for AI vs mock analysis
   const { temporaryProfile, isAuthenticated, setTemporaryProfile, profile, syncProfileWithSupabase } = useLawn();
   const navigate = useNavigate();
 
@@ -93,12 +94,34 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
     setIsAnalyzing(true);
 
     try {
-      // In a real implementation, this would be an API call to an image analysis service
-      // For this demo, we'll simulate an API call with a timeout
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // For demo purposes, we'll return mock results
-      setAnalysisResults(mockAnalysisResults);
+      let analysisResult: AIAnalysisResult;
+
+      if (useAI && isAuthenticated) {
+        // Use real AI analysis for authenticated users
+        console.log("Using AI analysis...");
+        const result = await analyzeImageWithAI(
+          selectedFile,
+          temporaryProfile?.grassType || profile?.grassType,
+          temporaryProfile?.lawnGoal || profile?.lawnGoal
+        );
+
+        if (result.success && result.analysis) {
+          analysisResult = result.analysis;
+          toast("KI-Analyse erfolgreich abgeschlossen!");
+        } else {
+          console.warn("AI analysis failed, falling back to mock:", result.error);
+          analysisResult = getMockAnalysis();
+          toast("Analyse abgeschlossen (Fallback-Modus).");
+        }
+      } else {
+        // Use mock analysis for free users or when AI is disabled
+        console.log("Using mock analysis...");
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
+        analysisResult = getMockAnalysis();
+        toast("Demo-Analyse abgeschlossen. Registriere dich für KI-basierte Analysen.");
+      }
+
+      setAnalysisResults(analysisResult);
       setAnalyzesUsed(prevCount => prevCount + 1);
       
       // Store the lawn picture in the profile or temporary profile
@@ -106,23 +129,17 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
         console.log("Saving lawn picture to profile from analyzer:", previewUrl);
         
         if (isAuthenticated && profile) {
-          // Update the main profile with the lawn picture
           const updatedProfile = {
             ...profile,
             lawnPicture: previewUrl
           };
           
-          // Use the context function to update the profile
           setTemporaryProfile(updatedProfile);
-          
-          // Sync the updated profile with Supabase
           await syncProfileWithSupabase();
         } else {
-          // Store in temporary profile
           const newTempProfile = {
             ...(temporaryProfile || {}),
             lawnPicture: previewUrl,
-            // Set some default values if they don't exist
             zipCode: temporaryProfile?.zipCode || "",
             grassType: temporaryProfile?.grassType || "",
             lawnSize: temporaryProfile?.lawnSize || "",
@@ -133,11 +150,8 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
         }
       }
       
-      toast("Die KI hat deinen Rasen analysiert und Empfehlungen erstellt.");
-      
-      // Call the onAnalysisComplete callback if provided
       if (onAnalysisComplete) {
-        onAnalysisComplete(mockAnalysisResults);
+        onAnalysisComplete(analysisResult);
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
@@ -163,12 +177,14 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
                 <Camera className="h-5 w-5" />
                 <CardTitle>Rasen-Analyzer</CardTitle>
               </div>
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                {isAuthenticated ? 'Unbegrenzt' : analyzesUsed === 0 ? '1 kostenlos' : 'Limit erreicht'}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                  {isAuthenticated ? 'KI-Analyse' : analyzesUsed === 0 ? '1 kostenlos' : 'Limit erreicht'}
+                </Badge>
+              </div>
             </div>
             <CardDescription>
-              Lade ein Foto deines Rasens hoch und erhalte eine KI-basierte Analyse und Pflegeempfehlungen
+              Lade ein Foto deines Rasens hoch und erhalte eine {isAuthenticated ? 'KI-basierte' : 'Demo'} Analyse und Pflegeempfehlungen
             </CardDescription>
           </CardHeader>
         )}
@@ -177,9 +193,14 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
             {!isOnboarding && (
               <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
                 <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <AlertTitle className="text-blue-800 dark:text-blue-400">KI-Analyse</AlertTitle>
+                <AlertTitle className="text-blue-800 dark:text-blue-400">
+                  {isAuthenticated ? 'KI-Analyse' : 'Demo-Analyse'}
+                </AlertTitle>
                 <AlertDescription className="text-blue-700 dark:text-blue-300">
-                  Unsere KI erkennt Probleme wie Krankheiten, Nährstoffmangel und Schädlingsbefall und gibt dir personalisierte Empfehlungen.
+                  {isAuthenticated 
+                    ? 'Unsere KI erkennt Probleme wie Krankheiten, Nährstoffmangel und Schädlingsbefall mit fortschrittlicher Bildanalyse.'
+                    : 'Diese Demo zeigt beispielhafte Analyseergebnisse. Registriere dich für echte KI-basierte Analysen.'
+                  }
                 </AlertDescription>
               </Alert>
             )}
@@ -237,21 +258,21 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               {isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analysiere Rasen...
+                  {isAuthenticated ? 'KI analysiert Rasen...' : 'Analysiere Rasen...'}
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Rasen analysieren
+                  {isAuthenticated ? 'KI-Analyse starten' : 'Demo-Analyse starten'}
                 </>
               )}
             </Button>
             
             {!isOnboarding && !isAuthenticated && (
               <p className="text-xs text-gray-500 text-center">
-                {analyzesUsed === 0 ? '1 kostenlose Analyse verfügbar' : 'Kostenlose Analyse bereits genutzt'} • 
+                {analyzesUsed === 0 ? '1 kostenlose Demo-Analyse verfügbar' : 'Demo-Analyse bereits genutzt'} • 
                 <Button variant="link" className="text-xs p-0 h-auto" onClick={() => navigate('/auth')}>
-                  Pro-Plan für unbegrenzte Analysen
+                  Für echte KI-Analysen registrieren
                 </Button>
               </p>
             )}
@@ -264,24 +285,49 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
           <CardHeader>
             <CardTitle>Analyse-Ergebnisse</CardTitle>
             <CardDescription>
-              Basierend auf deinem Foto wurden folgende Probleme erkannt
+              {isAuthenticated 
+                ? 'KI-basierte Analyse deines Rasens'
+                : 'Demo-Analyseergebnisse (Registriere dich für echte KI-Analysen)'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {analysisResults.map((result, index) => (
+              {/* Overall Health Score */}
+              {analysisResults.overallHealth && (
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                  <h3 className="font-semibold text-lg mb-2">Gesamtgesundheit</h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-green-600 h-3 rounded-full" 
+                        style={{ width: `${analysisResults.overallHealth * 10}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-medium">{analysisResults.overallHealth}/10</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Issues */}
+              {analysisResults.issues?.map((result, index) => (
                 <div key={index} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-lg">{result.issue}</h3>
-                    <span 
-                      className={`px-2 py-1 rounded text-xs font-medium ${getConfidenceBadgeColor(result.confidence)}`}
-                    >
-                      {Math.round(result.confidence * 100)}% Wahrscheinlichkeit
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span 
+                        className={`px-2 py-1 rounded text-xs font-medium ${getConfidenceBadgeColor(result.confidence)}`}
+                      >
+                        {Math.round(result.confidence * 100)}% Sicherheit
+                      </span>
+                      <Badge variant={result.severity === 'high' ? 'destructive' : result.severity === 'medium' ? 'default' : 'secondary'}>
+                        {result.severity === 'high' ? 'Hoch' : result.severity === 'medium' ? 'Mittel' : 'Niedrig'}
+                      </Badge>
+                    </div>
                   </div>
                   <h4 className="text-sm font-medium mb-2">Empfehlungen:</h4>
                   <ul className="space-y-1">
-                    {result.recommendations.slice(0, isAuthenticated || isOnboarding ? 4 : 2).map((rec, recIndex) => (
+                    {result.recommendations.slice(0, isAuthenticated || isOnboarding ? undefined : 2).map((rec, recIndex) => (
                       <li key={recIndex} className="flex items-start text-sm">
                         <Sparkles className="h-4 w-4 text-green-600 mr-2 mt-0.5 shrink-0" />
                         <span>{rec}</span>
@@ -295,26 +341,46 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
                           className="text-green-700 p-0 h-auto text-sm"
                           onClick={() => navigate('/auth')}
                         >
-                          + {result.recommendations.length - 2} weitere Empfehlungen mit Pro-Plan
+                          + {result.recommendations.length - 2} weitere Empfehlungen mit Registrierung
                         </Button>
                       </li>
                     )}
                   </ul>
                 </div>
               ))}
+
+              {/* General Recommendations */}
+              {analysisResults.generalRecommendations && analysisResults.generalRecommendations.length > 0 && (
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                  <h3 className="font-semibold text-lg mb-2">Allgemeine Empfehlungen</h3>
+                  <ul className="space-y-1">
+                    {analysisResults.generalRecommendations.map((rec, index) => (
+                      <li key={index} className="flex items-start text-sm">
+                        <Sparkles className="h-4 w-4 text-green-600 mr-2 mt-0.5 shrink-0" />
+                        <span>{rec}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </CardContent>
           {!isOnboarding && (
             <CardFooter className="flex-col items-start border-t pt-4">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Für detailliertere Analysen und fortlaufende Überwachung registriere dich für den Pro-Plan.
+                {isAuthenticated 
+                  ? 'Für kontinuierliche Überwachung empfehlen wir regelmäßige Analysen.'
+                  : 'Für echte KI-basierte Analysen und detailliertere Empfehlungen registriere dich jetzt.'
+                }
               </p>
-              <Button 
-                onClick={() => navigate('/auth')} 
-                className="bg-green-600 hover:bg-green-700"
-              >
-                Pro-Plan für nur €4.99/Monat
-              </Button>
+              {!isAuthenticated && (
+                <Button 
+                  onClick={() => navigate('/auth')} 
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Kostenlos registrieren für KI-Analysen
+                </Button>
+              )}
             </CardFooter>
           )}
         </Card>
