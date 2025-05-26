@@ -34,6 +34,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   });
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisCompleted, setAnalysisCompleted] = useState(false);
   const { temporaryProfile, isAuthenticated, setTemporaryProfile } = useLawn();
   
   const totalSteps = 5; 
@@ -49,6 +50,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     // Validate current step
     if (step === 1 && !formData.lawnPicture) {
       toast.error("Bitte lade zuerst ein Foto deines Rasens hoch");
+      return;
+    } else if (step === 1 && formData.lawnPicture && !analysisCompleted) {
+      toast.error("Bitte warte bis die Analyse abgeschlossen ist oder führe die Analyse durch");
       return;
     } else if (step === 2 && !formData.zipCode) {
       toast.error("Bitte gib deine Postleitzahl ein");
@@ -94,12 +98,14 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   const handleAnalysisComplete = (results: any) => {
     handleInputChange('analysisResults', results);
     handleInputChange('analyzesUsed', 1);
-    handleNext();
+    setAnalysisCompleted(true);
+    // Don't automatically proceed to next step - let user review results first
   };
 
   const handleImageSelected = (imageUrl: string) => {
     console.log("Image selected:", imageUrl);
     handleInputChange('lawnPicture', imageUrl);
+    setAnalysisCompleted(false); // Reset analysis completion when new image is selected
   };
   
   const renderStep = () => {
@@ -118,6 +124,13 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
                 isOnboarding={true}
               />
             </div>
+            {analysisCompleted && (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800 font-medium">
+                  ✓ Analyse abgeschlossen! Du kannst jetzt zum nächsten Schritt.
+                </p>
+              </div>
+            )}
           </div>
         );
       case 2:
@@ -280,9 +293,24 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
           )}
         </div>
         {step === 1 ? (
-          <p className="text-sm text-gray-600 italic">
-            Lade ein Foto hoch und analysiere deinen Rasen, um fortzufahren
-          </p>
+          <div className="text-center">
+            {!formData.lawnPicture ? (
+              <p className="text-sm text-gray-600 italic">
+                Lade ein Foto hoch und analysiere deinen Rasen, um fortzufahren
+              </p>
+            ) : !analysisCompleted ? (
+              <p className="text-sm text-amber-600 italic">
+                Bitte warte bis die Analyse abgeschlossen ist
+              </p>
+            ) : (
+              <Button 
+                onClick={handleNext}
+                className="bg-green-600 hover:bg-green-700 flex items-center"
+              >
+                Weiter <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            )}
+          </div>
         ) : (
           <Button 
             onClick={handleNext}
