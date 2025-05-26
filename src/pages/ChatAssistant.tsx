@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -292,7 +293,7 @@ const ChatAssistant = () => {
                       <Button 
                         key={index}
                         variant="ghost" 
-                        className="w-full justify-start text-left h-auto py-2"
+                        className="w-full justify-start text-left h-auto py-3 px-3 whitespace-normal leading-relaxed text-sm"
                         onClick={() => handleSuggestedQuestion(question)}
                       >
                         {question}
