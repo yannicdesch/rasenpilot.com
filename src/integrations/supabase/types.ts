@@ -93,6 +93,66 @@ export type Database = {
         }
         Relationships: []
       }
+      lawn_profiles: {
+        Row: {
+          analysis_results: Json | null
+          analyzes_used: number | null
+          created_at: string
+          grass_type: string
+          has_children: boolean | null
+          has_pets: boolean | null
+          id: string
+          last_fertilized: string | null
+          last_mowed: string | null
+          lawn_goal: string
+          lawn_picture: string | null
+          lawn_size: string
+          name: string | null
+          soil_type: string | null
+          updated_at: string
+          user_id: string
+          zip_code: string
+        }
+        Insert: {
+          analysis_results?: Json | null
+          analyzes_used?: number | null
+          created_at?: string
+          grass_type: string
+          has_children?: boolean | null
+          has_pets?: boolean | null
+          id?: string
+          last_fertilized?: string | null
+          last_mowed?: string | null
+          lawn_goal: string
+          lawn_picture?: string | null
+          lawn_size: string
+          name?: string | null
+          soil_type?: string | null
+          updated_at?: string
+          user_id: string
+          zip_code: string
+        }
+        Update: {
+          analysis_results?: Json | null
+          analyzes_used?: number | null
+          created_at?: string
+          grass_type?: string
+          has_children?: boolean | null
+          has_pets?: boolean | null
+          id?: string
+          last_fertilized?: string | null
+          last_mowed?: string | null
+          lawn_goal?: string
+          lawn_picture?: string | null
+          lawn_size?: string
+          name?: string | null
+          soil_type?: string | null
+          updated_at?: string
+          user_id?: string
+          zip_code?: string
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           id: string

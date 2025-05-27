@@ -1,5 +1,5 @@
 
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { LawnProfile, UserData } from '../types/lawn';
 import { toast } from 'sonner';
 
@@ -186,10 +186,10 @@ export const syncProfileWithSupabase = async (
         .from('lawn_profiles')
         .insert({
           user_id: session.user.id,
-          zip_code: currentProfile.zipCode,
-          grass_type: currentProfile.grassType,
-          lawn_size: currentProfile.lawnSize,
-          lawn_goal: currentProfile.lawnGoal,
+          zip_code: currentProfile.zipCode || '',
+          grass_type: currentProfile.grassType || '',
+          lawn_size: currentProfile.lawnSize || '',
+          lawn_goal: currentProfile.lawnGoal || '',
           name: currentProfile.name,
           last_mowed: currentProfile.lastMowed,
           last_fertilized: currentProfile.lastFertilized,
