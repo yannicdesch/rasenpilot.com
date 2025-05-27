@@ -24,6 +24,7 @@ import FreeCarePlan from "@/pages/FreeCarePlan";
 import FreeChat from "@/pages/FreeChat";
 import FreeLawnAnalysis from "@/pages/FreeLawnAnalysis";
 import FreeWeather from "@/pages/FreeWeather";
+import OnboardingPage from "@/pages/OnboardingPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminPanel from "@/pages/AdminPanel";
 import BlogOverview from "@/pages/BlogOverview";
@@ -44,6 +45,7 @@ function App() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/get-started" element={<FreePlan />} />
           <Route path="/free-plan" element={<FreePlan />} />
           <Route path="/free-care-plan" element={<FreeCarePlan />} />
