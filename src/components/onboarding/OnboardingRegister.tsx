@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useLawn } from '@/context/LawnContext';
 import { OnboardingData } from './OnboardingFlow';
 
 interface OnboardingRegisterProps {
@@ -23,6 +25,8 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
   onComplete, 
   onBack 
 }) => {
+  const navigate = useNavigate();
+  const { setProfile, setTemporaryProfile } = useLawn();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [dsgvoConsent, setDsgvoConsent] = useState(false);
@@ -48,6 +52,22 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
     setLoading(true);
     
     try {
+      // Update consent data
+      updateData({ consent_ai_training: aiTrainingConsent });
+      
+      // Create the profile from onboarding data
+      const profileData = {
+        zipCode: data.standort,
+        grassType: data.rasentyp || 'weiss-nicht',
+        lawnSize: data.rasenfläche.toString(),
+        lawnGoal: data.rasenziel,
+        analysisResults: null,
+        analyzesUsed: 0,
+      };
+
+      // Set as temporary profile first
+      setTemporaryProfile(profileData);
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -64,10 +84,11 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       if (error) {
         toast.error(error.message);
       } else {
-        updateData({ consent_ai_training: aiTrainingConsent });
-        toast.success('Registrierung erfolgreich! Du wirst weitergeleitet...');
+        toast.success('Registrierung erfolgreich! Du wirst zum Dashboard weitergeleitet...');
+        
+        // Navigate to dashboard - the auth listener will handle profile syncing
         setTimeout(() => {
-          onComplete();
+          navigate('/dashboard');
         }, 1000);
       }
     } catch (error) {
@@ -78,8 +99,19 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
   };
 
   const handleSkipRegistration = () => {
+    // Create temporary profile from onboarding data
+    const profileData = {
+      zipCode: data.standort,
+      grassType: data.rasentyp || 'weiss-nicht', 
+      lawnSize: data.rasenfläche.toString(),
+      lawnGoal: data.rasenziel,
+      analysisResults: null,
+      analyzesUsed: 0,
+    };
+    
+    setTemporaryProfile(profileData);
     toast.success('Du kannst dich später registrieren. Weiter zum Dashboard...');
-    onComplete();
+    navigate('/dashboard');
   };
 
   return (

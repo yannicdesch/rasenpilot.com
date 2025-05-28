@@ -38,6 +38,7 @@ const OnboardingFlow: React.FC = () => {
   const progress = (currentStep / totalSteps) * 100;
 
   useEffect(() => {
+    // If user is already authenticated, redirect to dashboard
     if (isAuthenticated) {
       navigate('/dashboard');
     }
@@ -60,10 +61,11 @@ const OnboardingFlow: React.FC = () => {
   };
 
   const handleComplete = () => {
-    // Save as temporary profile for non-registered users
+    // This is called when skipping registration
+    // Create temporary profile from onboarding data
     const tempProfile = {
       zipCode: onboardingData.standort,
-      grassType: onboardingData.rasentyp || 'unknown',
+      grassType: onboardingData.rasentyp || 'weiss-nicht',
       lawnSize: onboardingData.rasenfläche.toString(),
       lawnGoal: onboardingData.rasenziel,
       analysisResults: null,
