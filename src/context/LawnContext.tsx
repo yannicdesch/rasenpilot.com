@@ -16,21 +16,6 @@ import {
 } from '../utils/lawnProfileUtils';
 import { checkSubscriptionStatus as checkStatus } from '../utils/subscriptionUtils';
 
-// Update the temporary profile type to include the new fields
-interface TemporaryProfile {
-  zipCode: string;
-  grassType: string;
-  lawnSize: string;
-  lawnGoal: string;
-  rasenproblem?: string;
-  rasenbild?: string;
-  hasChildren?: boolean;
-  hasPets?: boolean;
-  lawnPicture?: string;
-  analysisResults?: any;
-  analyzesUsed?: number;
-}
-
 const LawnContext = createContext<LawnContextType | undefined>(undefined);
 
 export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -40,7 +25,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   
   // Temporary profile for non-registered users
-  const [temporaryProfile, setTemporaryProfileState] = useState<TemporaryProfile | null>(() => {
+  const [temporaryProfile, setTemporaryProfileState] = useState<LawnProfile | null>(() => {
     const savedTemporary = localStorage.getItem('temporaryLawnProfile');
     return savedTemporary ? JSON.parse(savedTemporary) : null;
   });
@@ -123,7 +108,7 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('lawnProfile');
   };
   
-  const setTemporaryProfile = (newProfile: TemporaryProfile) => {
+  const setTemporaryProfile = (newProfile: LawnProfile) => {
     console.log("Setting temporary profile:", newProfile);
     setTemporaryProfileState(newProfile);
     localStorage.setItem('temporaryLawnProfile', JSON.stringify(newProfile));

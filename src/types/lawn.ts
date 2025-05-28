@@ -17,6 +17,8 @@ export interface LawnProfile {
   lawnPicture?: string;
   analysisResults?: any;
   analyzesUsed?: number;
+  rasenproblem?: string;
+  rasenbild?: string;
   createdAt?: string;
   updatedAt?: string;
 }
