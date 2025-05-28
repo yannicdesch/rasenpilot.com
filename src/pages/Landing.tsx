@@ -39,7 +39,7 @@ const Landing = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
-                onClick={() => navigate('/free-plan')} 
+                onClick={() => navigate('/onboarding')} 
                 size="lg"
                 className="bg-green-600 hover:bg-green-700 text-lg"
               >
@@ -184,7 +184,7 @@ const Landing = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button 
-              onClick={() => navigate('/auth')} 
+              onClick={() => navigate('/onboarding')} 
               size="lg"
               className="bg-white text-green-700 hover:bg-green-100 text-lg"
             >
@@ -207,7 +207,7 @@ const Landing = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Produkt</h3>
                 <ul className="space-y-2">
-                  <li><Button variant="link" onClick={() => navigate('/free-plan')} className="p-0 h-auto text-gray-600">Kostenloser Plan</Button></li>
+                  <li><Button variant="link" onClick={() => navigate('/onboarding')} className="p-0 h-auto text-gray-600">Kostenloser Plan</Button></li>
                   <li><Button variant="link" onClick={() => navigate('/auth')} className="p-0 h-auto text-gray-600">Anmelden</Button></li>
                 </ul>
               </div>
