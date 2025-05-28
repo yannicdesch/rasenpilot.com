@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -61,6 +60,8 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
         grassType: data.rasentyp || 'weiss-nicht',
         lawnSize: data.rasenfläche.toString(),
         lawnGoal: data.rasenziel,
+        rasenproblem: data.rasenproblem,
+        rasenbild: data.rasenbild,
         analysisResults: null,
         analyzesUsed: 0,
       };
@@ -84,11 +85,15 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Registrierung erfolgreich! Du wirst zum Dashboard weitergeleitet...');
+        toast.success('Registrierung erfolgreich! Deine Rasenanalyse wird erstellt...');
         
-        // Navigate to dashboard - the auth listener will handle profile syncing
+        // Navigate to analysis results if there's a problem description
         setTimeout(() => {
-          navigate('/dashboard');
+          if (data.rasenproblem) {
+            navigate('/analysis-results');
+          } else {
+            navigate('/dashboard');
+          }
         }, 1000);
       }
     } catch (error) {
@@ -105,13 +110,21 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       grassType: data.rasentyp || 'weiss-nicht', 
       lawnSize: data.rasenfläche.toString(),
       lawnGoal: data.rasenziel,
+      rasenproblem: data.rasenproblem,
+      rasenbild: data.rasenbild,
       analysisResults: null,
       analyzesUsed: 0,
     };
     
     setTemporaryProfile(profileData);
-    toast.success('Du kannst dich später registrieren. Weiter zum Dashboard...');
-    navigate('/dashboard');
+    toast.success('Du kannst dich später registrieren. Rasenanalyse wird erstellt...');
+    
+    // Navigate to analysis results if there's a problem description
+    if (data.rasenproblem) {
+      navigate('/analysis-results');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (

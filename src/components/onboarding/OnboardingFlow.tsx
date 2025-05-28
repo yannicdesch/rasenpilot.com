@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
@@ -72,12 +71,20 @@ const OnboardingFlow: React.FC = () => {
       grassType: onboardingData.rasentyp || 'weiss-nicht',
       lawnSize: onboardingData.rasenfläche.toString(),
       lawnGoal: onboardingData.rasenziel,
+      rasenproblem: onboardingData.rasenproblem,
+      rasenbild: onboardingData.rasenbild,
       analysisResults: null,
       analyzesUsed: 0,
     };
     
     setTemporaryProfile(tempProfile);
-    navigate('/dashboard');
+    
+    // If there's a problem description, go to analysis results
+    if (onboardingData.rasenproblem) {
+      navigate('/analysis-results');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const renderStep = () => {
