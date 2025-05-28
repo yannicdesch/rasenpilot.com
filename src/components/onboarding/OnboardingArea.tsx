@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, ArrowRight, Smile, Frown, AlertTriangle, Droplets, HelpCircle } from 'lucide-react';
 import { OnboardingData } from './OnboardingFlow';
+import LawnImageUpload from '@/components/LawnImageUpload';
 
 interface OnboardingAreaProps {
   data: OnboardingData;
@@ -22,6 +24,8 @@ const OnboardingArea: React.FC<OnboardingAreaProps> = ({
 }) => {
   const [area, setArea] = useState([data.rasenfläche]);
   const [condition, setCondition] = useState(data.rasenzustand);
+  const [problem, setProblem] = useState(data.rasenproblem);
+  const [image, setImage] = useState(data.rasenbild);
 
   const conditions = [
     {
@@ -68,9 +72,15 @@ const OnboardingArea: React.FC<OnboardingAreaProps> = ({
     
     updateData({ 
       rasenfläche: area[0],
-      rasenzustand: condition
+      rasenzustand: condition,
+      rasenproblem: problem,
+      rasenbild: image
     });
     onNext();
+  };
+
+  const handleImageSelected = (imageUrl: string) => {
+    setImage(imageUrl);
   };
 
   return (
@@ -126,6 +136,37 @@ const OnboardingArea: React.FC<OnboardingAreaProps> = ({
               </Button>
             ))}
           </div>
+        </div>
+
+        {/* Problem Description */}
+        <div>
+          <Label htmlFor="problem" className="text-sm font-medium mb-2 block">
+            Rasenproblem beschreiben
+          </Label>
+          <Textarea
+            id="problem"
+            placeholder="Beispiel: Gelbe Stellen in der Mitte trotz regelmäßigem Gießen"
+            value={problem}
+            onChange={(e) => setProblem(e.target.value)}
+            className="min-h-[100px]"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Beschreibe dein Problem so detailliert wie möglich
+          </p>
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <Label className="text-sm font-medium mb-2 block">
+            Bild vom Rasen hochladen (optional)
+          </Label>
+          <LawnImageUpload 
+            onImageSelected={handleImageSelected}
+            currentImage={image}
+          />
+          <p className="text-xs text-gray-500 mt-2">
+            Optional: Lade ein Bild deines Rasens hoch (Nahaufnahme)
+          </p>
         </div>
 
         {condition === 'weiss-nicht' && (

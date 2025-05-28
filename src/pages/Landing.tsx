@@ -32,18 +32,18 @@ const Landing = () => {
               Neu: KI-gestützte Rasenpflege
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-              Ihr perfekter Rasen mit <span className="text-green-600">KI-Unterstützung</span>
+              Was ist los mit deinem Rasen? Unsere KI sagt es dir – <span className="text-green-600">in nur 60 Sekunden.</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-700 max-w-2xl">
-              Rasenpilot analysiert Ihren Rasen und erstellt einen personalisierten Pflegeplan basierend auf Wetter, Bodentyp und Ihren Zielen.
-            </p>
+            <h2 className="text-lg md:text-xl text-gray-700 max-w-2xl">
+              Lade ein Foto hoch oder beschreibe dein Problem – LawnAnalyzer gibt dir sofort eine Einschätzung und zeigt dir, was du tun kannst.
+            </h2>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
                 onClick={() => navigate('/onboarding')} 
                 size="lg"
                 className="bg-green-600 hover:bg-green-700 text-lg"
               >
-                Gratis Pflegeplan erstellen <ArrowRight className="ml-2 h-5 w-5" />
+                Jetzt Rasen analysieren <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button 
                 onClick={() => navigate('/auth')} 

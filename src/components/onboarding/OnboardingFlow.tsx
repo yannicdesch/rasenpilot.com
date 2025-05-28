@@ -16,6 +16,8 @@ export interface OnboardingData {
   rasenzustand: string;
   rasenfläche: number;
   rasentyp: string;
+  rasenproblem: string;
+  rasenbild: string;
   consent_ai_training: boolean;
 }
 
@@ -31,6 +33,8 @@ const OnboardingFlow: React.FC = () => {
     rasenzustand: '',
     rasenfläche: 100,
     rasentyp: '',
+    rasenproblem: '',
+    rasenbild: '',
     consent_ai_training: false,
   });
 
