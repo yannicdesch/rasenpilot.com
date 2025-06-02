@@ -108,6 +108,8 @@ export type Database = {
           lawn_picture: string | null
           lawn_size: string
           name: string | null
+          rasenbild: string | null
+          rasenproblem: string | null
           soil_type: string | null
           updated_at: string
           user_id: string
@@ -127,6 +129,8 @@ export type Database = {
           lawn_picture?: string | null
           lawn_size: string
           name?: string | null
+          rasenbild?: string | null
+          rasenproblem?: string | null
           soil_type?: string | null
           updated_at?: string
           user_id: string
@@ -146,6 +150,8 @@ export type Database = {
           lawn_picture?: string | null
           lawn_size?: string
           name?: string | null
+          rasenbild?: string | null
+          rasenproblem?: string | null
           soil_type?: string | null
           updated_at?: string
           user_id?: string

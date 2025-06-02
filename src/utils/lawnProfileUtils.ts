@@ -79,7 +79,9 @@ export const fetchProfileFromSupabase = async (): Promise<LawnProfile | null> =>
         hasPets: profileData.has_pets,
         lawnPicture: profileData.lawn_picture,
         analysisResults: profileData.analysis_results,
-        analyzesUsed: profileData.analyzes_used
+        analyzesUsed: profileData.analyzes_used,
+        rasenproblem: profileData.rasenproblem,
+        rasenbild: profileData.rasenbild
       };
       
       console.log("Profile loaded from Supabase:", profile);
@@ -157,6 +159,8 @@ export const syncProfileWithSupabase = async (
           lawn_picture: currentProfile.lawnPicture,
           analysis_results: currentProfile.analysisResults,
           analyzes_used: currentProfile.analyzesUsed,
+          rasenproblem: currentProfile.rasenproblem,
+          rasenbild: currentProfile.rasenbild,
           updated_at: new Date().toISOString()
         })
         .eq('id', existingProfiles[0].id);
@@ -199,6 +203,8 @@ export const syncProfileWithSupabase = async (
           lawn_picture: currentProfile.lawnPicture,
           analysis_results: currentProfile.analysisResults,
           analyzes_used: currentProfile.analyzesUsed,
+          rasenproblem: currentProfile.rasenproblem,
+          rasenbild: currentProfile.rasenbild,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
