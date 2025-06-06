@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { ArrowRight, Loader2, Sparkles, UserPlus } from 'lucide-react';
 import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -84,8 +84,15 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
 - pH-Teststreifen für regelmäßige Kontrollen`;
   };
 
-  const handleContinueToDashboard = () => {
-    console.log('Continuing to dashboard');
+  const handleContinueToRegistration = () => {
+    console.log('Redirecting to registration');
+    navigate('/auth?tab=register');
+  };
+
+  const handleSkipRegistration = () => {
+    console.log('Skipping registration, going to dashboard');
+    // Mark free analysis as used
+    localStorage.setItem('freeAnalysisUsed', 'true');
     navigate('/dashboard');
   };
 
@@ -120,7 +127,7 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
               <div className="flex items-center justify-center mb-2">
                 <Sparkles className="h-6 w-6 text-green-600 mr-2" />
                 <CardTitle className="text-2xl text-green-800">
-                  Deine Rasenanalyse
+                  Deine kostenlose Rasenanalyse
                 </CardTitle>
               </div>
               <p className="text-gray-600">
@@ -144,19 +151,79 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
             </CardContent>
           </Card>
 
+          {!isAuthenticated && (
+            <Card className="border-green-200 bg-green-50 mb-6">
+              <CardContent className="pt-6">
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center mb-4">
+                    <UserPlus className="h-8 w-8 text-green-600 mr-2" />
+                    <h3 className="text-xl font-semibold text-green-800">
+                      Möchtest du weitere Analysen und Premium-Features?
+                    </h3>
+                  </div>
+                  
+                  <p className="text-gray-700 mb-6">
+                    Registriere dich kostenlos für unbegrenzte KI-Analysen, personalisierte Pflegepläne 
+                    und exklusive Rasenpflege-Tools.
+                  </p>
+
+                  <div className="grid md:grid-cols-2 gap-4 mb-6">
+                    <div className="bg-white rounded-lg p-4 border border-green-200">
+                      <h4 className="font-semibold text-green-800 mb-2">Mit Registrierung:</h4>
+                      <ul className="text-sm text-gray-700 space-y-1 text-left">
+                        <li>• Unbegrenzte KI-Rasenanalysen</li>
+                        <li>• Personalisierte Pflegepläne</li>
+                        <li>• Fortschritts-Tracking</li>
+                        <li>• Wetterbasierte Empfehlungen</li>
+                        <li>• Premium-Support</li>
+                      </ul>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border border-gray-200">
+                      <h4 className="font-semibold text-gray-600 mb-2">Ohne Registrierung:</h4>
+                      <ul className="text-sm text-gray-600 space-y-1 text-left">
+                        <li>• Nur 1 kostenlose Analyse</li>
+                        <li>• Begrenzte Funktionen</li>
+                        <li>• Keine Fortschritts-Speicherung</li>
+                        <li>• Basis-Empfehlungen</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button 
+                      onClick={handleContinueToRegistration}
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <UserPlus className="mr-2 h-5 w-5" />
+                      Kostenlos registrieren
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={handleSkipRegistration}
+                      size="lg"
+                    >
+                      Später registrieren
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="text-center">
             <Button 
-              onClick={handleContinueToDashboard}
+              onClick={() => navigate('/dashboard')}
               size="lg"
               className="bg-green-600 hover:bg-green-700"
             >
-              Weiter zum Dashboard
+              Zum Dashboard
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <p className="text-sm text-gray-600 mt-3">
               {isAuthenticated 
                 ? 'Im Dashboard findest du weitere Tools und deinen personalisierten Pflegeplan.'
-                : 'Als registrierter Nutzer erhältst du Zugang zu weiteren Funktionen.'
+                : 'Entdecke weitere Funktionen in unserem Dashboard.'
               }
             </p>
           </div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,40 +9,6 @@ import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { analyzeImageWithAI, getMockAnalysis, AIAnalysisResult } from '@/services/aiAnalysisService';
-
-// Mock analysis results for the demo version
-const mockAnalysisResults = [
-  {
-    issue: "Rasenkrankheit",
-    confidence: 0.85,
-    recommendations: [
-      "Überprüfe deinen Rasen auf braune oder gelbe Flecken, die sich ausbreiten.",
-      "Entferne infizierte Bereiche, um die Ausbreitung zu verhindern.",
-      "Verwende ein Fungizid, das für Rasen geeignet ist.",
-      "Vermeide übermäßiges Wässern, insbesondere am Abend."
-    ]
-  },
-  {
-    issue: "Nährstoffmangel",
-    confidence: 0.72,
-    recommendations: [
-      "Führe einen Bodentest durch, um festzustellen, welche Nährstoffe fehlen.",
-      "Verwende einen ausgewogenen Rasendünger mit NPK-Verhältnis 3-1-2.",
-      "Dünge während der Hauptwachstumsperiode alle 6-8 Wochen.",
-      "Bei Eisenmangel (gelbe Blätter) verwende einen eisenhaltigen Dünger."
-    ]
-  },
-  {
-    issue: "Unkrautbefall",
-    confidence: 0.68,
-    recommendations: [
-      "Identifiziere die Unkrautart, um die geeignete Bekämpfungsmethode zu wählen.",
-      "Verwende selektive Herbizide für Gräser-Unkraut oder händisches Entfernen.",
-      "Mähe regelmäßig, um die Samenbildung zu verhindern.",
-      "Stärke deinen Rasen durch richtige Pflege, um Unkraut natürlich zu unterdrücken."
-    ]
-  }
-];
 
 interface LawnAnalyzerProps {
   onAnalysisComplete?: (results: any) => void;
@@ -59,7 +26,6 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AIAnalysisResult | null>(null);
   const [analyzesUsed, setAnalyzesUsed] = useState(0);
-  const [useAI, setUseAI] = useState(true); // Toggle for AI vs mock analysis
   const { temporaryProfile, isAuthenticated, setTemporaryProfile, profile, syncProfileWithSupabase } = useLawn();
   const navigate = useNavigate();
 
@@ -86,7 +52,8 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
     }
 
     // Check if free analyze is already used and not in onboarding mode
-    if (!isOnboarding && analyzesUsed >= 1 && !isAuthenticated) {
+    const freeAnalysisUsed = localStorage.getItem('freeAnalysisUsed') === 'true';
+    if (!isOnboarding && freeAnalysisUsed && !isAuthenticated) {
       toast("Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.");
       return;
     }
@@ -96,7 +63,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
     try {
       let analysisResult: AIAnalysisResult;
 
-      if (useAI && isAuthenticated) {
+      if (isAuthenticated) {
         // Use real AI analysis for authenticated users
         console.log("Using AI analysis...");
         const result = await analyzeImageWithAI(
@@ -114,11 +81,16 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
           toast("Analyse abgeschlossen (Fallback-Modus).");
         }
       } else {
-        // Use mock analysis for free users or when AI is disabled
-        console.log("Using mock analysis...");
+        // Use mock analysis for free users
+        console.log("Using mock analysis for free user...");
         await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
         analysisResult = getMockAnalysis();
-        toast("Demo-Analyse abgeschlossen. Registriere dich für KI-basierte Analysen.");
+        toast("Kostenlose Demo-Analyse abgeschlossen!");
+        
+        // Mark free analysis as used for non-onboarding flows
+        if (!isOnboarding) {
+          localStorage.setItem('freeAnalysisUsed', 'true');
+        }
       }
 
       setAnalysisResults(analysisResult);
@@ -167,6 +139,8 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
     return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
   };
 
+  const freeAnalysisUsed = localStorage.getItem('freeAnalysisUsed') === 'true';
+
   return (
     <div className="space-y-6">
       <Card className={isOnboarding ? "border-green-100" : ""}>
@@ -179,7 +153,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                  {isAuthenticated ? 'KI-Analyse' : analyzesUsed === 0 ? '1 kostenlos' : 'Limit erreicht'}
+                  {isAuthenticated ? 'KI-Analyse' : !freeAnalysisUsed ? '1 kostenlos' : 'Limit erreicht'}
                 </Badge>
               </div>
             </div>
@@ -206,18 +180,18 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
             )}
             
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center relative">
-              {analyzesUsed >= 1 && !isAuthenticated && !isOnboarding && (
+              {!isOnboarding && freeAnalysisUsed && !isAuthenticated && (
                 <div className="absolute inset-0 bg-gray-100/80 dark:bg-gray-900/80 flex flex-col items-center justify-center z-10 rounded-lg">
                   <Lock className="h-12 w-12 text-gray-500 mb-2" />
                   <h3 className="text-lg font-semibold mb-2">Analyse-Limit erreicht</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-xs text-center">
-                    Du hast deine kostenlose Analyse bereits genutzt. Upgrade auf Pro für unbegrenzte Analysen.
+                    Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.
                   </p>
                   <Button
                     onClick={() => navigate('/auth')}
                     className="bg-green-600 hover:bg-green-700"
                   >
-                    Pro-Plan für €4.99/Monat
+                    Kostenlos registrieren
                   </Button>
                 </div>
               )}
@@ -252,7 +226,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
             
             <Button
               onClick={analyzeImage}
-              disabled={!selectedFile || isAnalyzing || (!isOnboarding && analyzesUsed >= 1 && !isAuthenticated)}
+              disabled={!selectedFile || isAnalyzing || (!isOnboarding && freeAnalysisUsed && !isAuthenticated)}
               className="w-full bg-green-600 hover:bg-green-700"
             >
               {isAnalyzing ? (
@@ -263,14 +237,14 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  {isAuthenticated ? 'KI-Analyse starten' : 'Demo-Analyse starten'}
+                  {isAuthenticated ? 'KI-Analyse starten' : isOnboarding ? 'Kostenlose Analyse starten' : 'Demo-Analyse starten'}
                 </>
               )}
             </Button>
             
             {!isOnboarding && !isAuthenticated && (
               <p className="text-xs text-gray-500 text-center">
-                {analyzesUsed === 0 ? '1 kostenlose Demo-Analyse verfügbar' : 'Demo-Analyse bereits genutzt'} • 
+                {!freeAnalysisUsed ? '1 kostenlose Demo-Analyse verfügbar' : 'Demo-Analyse bereits genutzt'} • 
                 <Button variant="link" className="text-xs p-0 h-auto" onClick={() => navigate('/auth')}>
                   Für echte KI-Analysen registrieren
                 </Button>
@@ -280,7 +254,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
         </CardContent>
       </Card>
 
-      {analysisResults && (
+      {analysisResults && !isOnboarding && (
         <Card>
           <CardHeader>
             <CardTitle>Analyse-Ergebnisse</CardTitle>
@@ -327,14 +301,14 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
                   </div>
                   <h4 className="text-sm font-medium mb-2">Empfehlungen:</h4>
                   <ul className="space-y-1">
-                    {result.recommendations.slice(0, isAuthenticated || isOnboarding ? undefined : 2).map((rec, recIndex) => (
+                    {result.recommendations.slice(0, isAuthenticated ? undefined : 2).map((rec, recIndex) => (
                       <li key={recIndex} className="flex items-start text-sm">
                         <Sparkles className="h-4 w-4 text-green-600 mr-2 mt-0.5 shrink-0" />
                         <span>{rec}</span>
                       </li>
                     ))}
                     
-                    {!isAuthenticated && !isOnboarding && result.recommendations.length > 2 && (
+                    {!isAuthenticated && result.recommendations.length > 2 && (
                       <li className="pt-1 pl-6">
                         <Button 
                           variant="link" 
@@ -365,24 +339,22 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               )}
             </div>
           </CardContent>
-          {!isOnboarding && (
-            <CardFooter className="flex-col items-start border-t pt-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                {isAuthenticated 
-                  ? 'Für kontinuierliche Überwachung empfehlen wir regelmäßige Analysen.'
-                  : 'Für echte KI-basierte Analysen und detailliertere Empfehlungen registriere dich jetzt.'
-                }
-              </p>
-              {!isAuthenticated && (
-                <Button 
-                  onClick={() => navigate('/auth')} 
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Kostenlos registrieren für KI-Analysen
-                </Button>
-              )}
-            </CardFooter>
-          )}
+          <CardFooter className="flex-col items-start border-t pt-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              {isAuthenticated 
+                ? 'Für kontinuierliche Überwachung empfehlen wir regelmäßige Analysen.'
+                : 'Für echte KI-basierte Analysen und detailliertere Empfehlungen registriere dich jetzt.'
+              }
+            </p>
+            {!isAuthenticated && (
+              <Button 
+                onClick={() => navigate('/auth')} 
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Kostenlos registrieren für KI-Analysen
+              </Button>
+            )}
+          </CardFooter>
         </Card>
       )}
     </div>

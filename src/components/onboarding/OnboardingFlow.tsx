@@ -19,6 +19,7 @@ export interface OnboardingData {
   rasenproblem: string;
   rasenbild: string;
   consent_ai_training: boolean;
+  analysisCompleted?: boolean;
 }
 
 const OnboardingFlow: React.FC = () => {
@@ -36,6 +37,7 @@ const OnboardingFlow: React.FC = () => {
     rasenproblem: '',
     rasenbild: '',
     consent_ai_training: false,
+    analysisCompleted: false,
   });
 
   const totalSteps = 5;
@@ -64,6 +66,13 @@ const OnboardingFlow: React.FC = () => {
     }
   };
 
+  const handleAnalysisComplete = () => {
+    console.log('Analysis completed, moving to registration');
+    updateOnboardingData({ analysisCompleted: true });
+    // Skip to registration step (step 5)
+    setCurrentStep(5);
+  };
+
   const handleComplete = () => {
     // This is called when skipping registration
     // Create temporary profile from onboarding data
@@ -75,17 +84,15 @@ const OnboardingFlow: React.FC = () => {
       rasenproblem: onboardingData.rasenproblem,
       rasenbild: onboardingData.rasenbild,
       analysisResults: null,
-      analyzesUsed: 0,
+      analyzesUsed: 1, // They used their free analysis
     };
     
     setTemporaryProfile(tempProfile);
     
-    // If there's a problem description, go to analysis results
-    if (onboardingData.rasenproblem) {
-      navigate('/analysis-results');
-    } else {
-      navigate('/dashboard');
-    }
+    // Mark free analysis as used
+    localStorage.setItem('freeAnalysisUsed', 'true');
+    
+    navigate('/dashboard');
   };
 
   const renderStep = () => {
@@ -96,6 +103,7 @@ const OnboardingFlow: React.FC = () => {
             data={onboardingData}
             updateData={updateOnboardingData}
             onNext={nextStep}
+            onAnalysisComplete={handleAnalysisComplete}
             isPhotoUpload={true}
           />
         );
