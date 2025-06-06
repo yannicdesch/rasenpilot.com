@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,19 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
   const [aiTrainingConsent, setAiTrainingConsent] = useState(data.consent_ai_training);
   const [loading, setLoading] = useState(false);
 
+  const createProfileFromOnboardingData = () => {
+    return {
+      zipCode: data.standort || '',
+      grassType: data.rasentyp || 'weiss-nicht',
+      lawnSize: data.rasenfläche?.toString() || '100',
+      lawnGoal: data.rasenziel || '',
+      rasenproblem: data.rasenproblem || '',
+      rasenbild: data.rasenbild || '',
+      analysisResults: null,
+      analyzesUsed: 0,
+    };
+  };
+
   const handleRegister = async () => {
     if (!email || !password) {
       toast.error('Bitte fülle alle Felder aus');
@@ -55,21 +69,13 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       updateData({ consent_ai_training: aiTrainingConsent });
       
       // Create the profile from onboarding data
-      const profileData = {
-        zipCode: data.standort,
-        grassType: data.rasentyp || 'weiss-nicht',
-        lawnSize: data.rasenfläche.toString(),
-        lawnGoal: data.rasenziel,
-        rasenproblem: data.rasenproblem,
-        rasenbild: data.rasenbild,
-        analysisResults: null,
-        analyzesUsed: 0,
-      };
+      const profileData = createProfileFromOnboardingData();
+      console.log('Creating profile with data:', profileData);
 
       // Set as temporary profile first
       setTemporaryProfile(profileData);
 
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -83,20 +89,25 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       });
 
       if (error) {
+        console.error('Registration error:', error);
         toast.error(error.message);
       } else {
+        console.log('Registration successful:', authData);
         toast.success('Registrierung erfolgreich! Deine Rasenanalyse wird erstellt...');
         
         // Navigate to analysis results if there's a problem description
         setTimeout(() => {
           if (data.rasenproblem) {
+            console.log('Navigating to analysis results with problem:', data.rasenproblem);
             navigate('/analysis-results');
           } else {
+            console.log('No problem description, navigating to dashboard');
             navigate('/dashboard');
           }
         }, 1000);
       }
     } catch (error) {
+      console.error('Registration error:', error);
       toast.error('Ein Fehler ist aufgetreten');
     } finally {
       setLoading(false);
@@ -104,27 +115,25 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
   };
 
   const handleSkipRegistration = () => {
+    console.log('Skipping registration, creating temporary profile');
+    
     // Create temporary profile from onboarding data
-    const profileData = {
-      zipCode: data.standort,
-      grassType: data.rasentyp || 'weiss-nicht', 
-      lawnSize: data.rasenfläche.toString(),
-      lawnGoal: data.rasenziel,
-      rasenproblem: data.rasenproblem,
-      rasenbild: data.rasenbild,
-      analysisResults: null,
-      analyzesUsed: 0,
-    };
+    const profileData = createProfileFromOnboardingData();
+    console.log('Temporary profile data:', profileData);
     
     setTemporaryProfile(profileData);
     toast.success('Du kannst dich später registrieren. Rasenanalyse wird erstellt...');
     
     // Navigate to analysis results if there's a problem description
-    if (data.rasenproblem) {
-      navigate('/analysis-results');
-    } else {
-      navigate('/dashboard');
-    }
+    setTimeout(() => {
+      if (data.rasenproblem) {
+        console.log('Navigating to analysis results with problem:', data.rasenproblem);
+        navigate('/analysis-results');
+      } else {
+        console.log('No problem description, navigating to dashboard');
+        navigate('/dashboard');
+      }
+    }, 500);
   };
 
   return (

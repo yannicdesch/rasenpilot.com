@@ -16,14 +16,23 @@ const AnalysisResults = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('AnalysisResults mounted');
+    console.log('temporaryProfile:', temporaryProfile);
+    console.log('isAuthenticated:', isAuthenticated);
+    
     const performAnalysis = async () => {
       if (!temporaryProfile?.rasenproblem) {
+        console.error('No problem description found in temporaryProfile');
         toast.error('Keine Problembeschreibung gefunden');
         navigate('/onboarding');
         return;
       }
 
+      console.log('Starting analysis for problem:', temporaryProfile.rasenproblem);
+      console.log('Has image:', !!temporaryProfile.rasenbild);
+
       try {
+        console.log('Calling analyze-lawn-problem edge function...');
         const { data, error } = await supabase.functions.invoke('analyze-lawn-problem', {
           body: {
             problem: temporaryProfile.rasenproblem,
@@ -32,14 +41,18 @@ const AnalysisResults = () => {
         });
 
         if (error) {
+          console.error('Edge function error:', error);
           throw error;
         }
 
+        console.log('Analysis response:', data);
         setAnalysis(data.analysis);
       } catch (error) {
         console.error('Analysis error:', error);
+        console.log('Falling back to mock analysis');
         // Fallback to mock analysis
         setAnalysis(getMockAnalysis(temporaryProfile.rasenproblem));
+        toast.info('KI-Analyse nicht verfügbar, zeige Beispielanalyse');
       } finally {
         setIsLoading(false);
       }
@@ -72,6 +85,7 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
   };
 
   const handleContinueToDashboard = () => {
+    console.log('Continuing to dashboard');
     navigate('/dashboard');
   };
 
