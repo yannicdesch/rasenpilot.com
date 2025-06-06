@@ -1,11 +1,14 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowRight, Upload, Leaf, Sparkles } from 'lucide-react';
+import { ArrowRight, Upload, Leaf, Sparkles, Loader2 } from 'lucide-react';
 import { OnboardingData } from './OnboardingFlow';
 import LawnAnalyzer from '@/components/LawnAnalyzer';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface OnboardingStartProps {
   data: OnboardingData;
@@ -22,8 +25,9 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
   onAnalysisComplete,
   isPhotoUpload = false
 }) => {
-  const [analysisResults, setAnalysisResults] = useState(null);
+  const [analysisResults, setAnalysisResults] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleNext = () => {
     updateData({ 
@@ -33,11 +37,61 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
     onNext();
   };
 
-  const handleAnalysisComplete = (results: any) => {
-    console.log('Analysis completed with results:', results);
-    setAnalysisResults(results);
-    setShowAnalysis(true);
-    updateData({ analysisCompleted: true });
+  const handleAnalysisComplete = async (results: any) => {
+    console.log('Analysis completed, starting AI analysis...');
+    setIsAnalyzing(true);
+    
+    try {
+      // Call the analyze-lawn-problem edge function with the problem description
+      const { data: analysisData, error } = await supabase.functions.invoke('analyze-lawn-problem', {
+        body: {
+          problem: data.rasenproblem || 'Allgemeine Rasenanalyse basierend auf hochgeladenem Bild',
+          hasImage: !!data.rasenbild
+        }
+      });
+
+      if (error) {
+        console.error('Analysis error:', error);
+        throw error;
+      }
+
+      console.log('AI Analysis response:', analysisData);
+      setAnalysisResults(analysisData.analysis);
+      setShowAnalysis(true);
+      updateData({ analysisCompleted: true });
+    } catch (error) {
+      console.error('Error getting AI analysis:', error);
+      // Fallback to mock analysis
+      const mockAnalysis = getMockAnalysis();
+      setAnalysisResults(mockAnalysis);
+      setShowAnalysis(true);
+      updateData({ analysisCompleted: true });
+      toast.info('Demo-Analyse wird angezeigt');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const getMockAnalysis = () => {
+    return `🌱 **Rasenanalyse Ergebnisse**
+
+Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir folgende Erkenntnisse:
+
+🛠️ **Erkannte Probleme**
+• Ungleichmäßiges Wachstum in verschiedenen Bereichen
+• Möglicher Nährstoffmangel erkennbar
+• Einzelne kahle Stellen sichtbar
+
+💡 **Empfohlene Maßnahmen**
+• Bodentest durchführen zur genauen Nährstoffbestimmung
+• Gezielte Nachsaat in kahlen Bereichen
+• Regelmäßige Düngung mit Langzeitdünger
+• Bewässerung optimieren - morgens und abends
+
+🛒 **Produktempfehlungen**
+• Rasendünger mit Langzeitwirkung
+• Nachsaatmischung für deinen Rasentyp
+• pH-Teststreifen für Bodenanalyse`;
   };
 
   const handleContinueToRegistration = () => {
@@ -85,6 +139,20 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
                   isOnboarding={true}
                 />
               </div>
+
+              {isAnalyzing && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <div className="flex items-center justify-center mb-4">
+                    <Loader2 className="h-6 w-6 text-blue-600 mr-2 animate-spin" />
+                    <h3 className="text-lg font-semibold text-blue-800">
+                      KI analysiert dein Rasenbild...
+                    </h3>
+                  </div>
+                  <p className="text-blue-700 text-center">
+                    Bitte warte einen Moment, während unsere KI dein Bild analysiert und personalisierte Empfehlungen erstellt.
+                  </p>
+                </div>
+              )}
             </>
           ) : (
             <>
@@ -96,19 +164,27 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
                     Deine kostenlose Rasenanalyse ist fertig!
                   </h3>
                 </div>
-                <p className="text-gray-700 mb-4">
-                  Wir haben dein Rasenbild analysiert und personalisierte Empfehlungen erstellt. 
-                  Um die vollständigen Ergebnisse zu sehen und weitere Analysen zu nutzen, registriere dich kostenlos.
-                </p>
-                <div className="bg-white rounded-md p-4 border border-green-100">
-                  <h4 className="font-medium text-green-800 mb-2">Vorschau deiner Analyse:</h4>
-                  <ul className="text-sm text-gray-700 space-y-1">
-                    <li>• Erkannte Problembereiche identifiziert</li>
-                    <li>• Spezifische Behandlungsempfehlungen</li>
-                    <li>• Personalisierte Pflegetipps</li>
-                    <li>• Produktempfehlungen für deinen Rasen</li>
-                  </ul>
+                
+                {/* Display the actual analysis results */}
+                <div className="bg-white rounded-md p-4 border border-green-100 mb-4">
+                  <div 
+                    className="prose prose-green max-w-none text-sm"
+                    dangerouslySetInnerHTML={{ 
+                      __html: analysisResults?.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/^🌱/gm, '<div class="mb-3">🌱')
+                        .replace(/^🛠️/gm, '</div><div class="mb-3">🛠️')
+                        .replace(/^💡/gm, '</div><div class="mb-3">💡')
+                        .replace(/^🛒/gm, '</div><div class="mb-3">🛒')
+                        .replace(/\n• /g, '<br>• ')
+                        .replace(/\n/g, '<br>')
+                        + '</div>' || ''
+                    }}
+                  />
                 </div>
+                
+                <p className="text-gray-700 text-sm">
+                  Registriere dich kostenlos für weitere Analysen, detaillierte Pflegepläne und unbegrenzte Nutzung aller Features.
+                </p>
               </div>
 
               <div className="flex justify-center pt-4">
@@ -116,7 +192,7 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
                   onClick={handleContinueToRegistration}
                   className="bg-green-600 hover:bg-green-700 text-lg px-8 py-3"
                 >
-                  Vollständige Analyse anzeigen
+                  Jetzt kostenlos registrieren
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
