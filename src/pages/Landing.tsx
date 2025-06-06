@@ -35,7 +35,7 @@ const Landing = () => {
               Was ist los mit deinem Rasen? Unsere KI sagt es dir – <span className="text-green-600">in nur 60 Sekunden.</span>
             </h1>
             <h2 className="text-lg md:text-xl text-gray-700 max-w-2xl">
-              Lade ein Foto hoch oder beschreibe dein Problem – LawnAnalyzer gibt dir sofort eine Einschätzung und zeigt dir, was du tun kannst.
+              Lade ein Foto hoch oder beschreibe dein Problem – LawnAnalyzer gibt dir sofort eine Einschätzung.
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
@@ -75,7 +75,7 @@ const Landing = () => {
               So funktioniert's
             </h2>
             <p className="text-lg text-gray-700">
-              Rasenpilot vereinfacht die Rasenpflege mit maßgeschneiderten Empfehlungen in nur drei einfachen Schritten.
+              Drei einfache Schritte zu deinem perfekten Rasen.
             </p>
           </div>
 
@@ -84,9 +84,9 @@ const Landing = () => {
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-6">
                 <span className="text-green-700 text-2xl font-bold">1</span>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Profil erstellen</h3>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">Foto hochladen</h3>
               <p className="text-gray-600">
-                Beantworten Sie einige einfache Fragen zu Ihrem Rasen, wie Größe, Grassorte und gewünschtes Ergebnis.
+                Lade ein Foto deines Rasens hoch und unsere KI analysiert sofort den Zustand.
               </p>
             </div>
 
@@ -94,9 +94,9 @@ const Landing = () => {
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-6">
                 <span className="text-green-700 text-2xl font-bold">2</span>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Foto hochladen</h3>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">Ergebnisse erhalten</h3>
               <p className="text-gray-600">
-                Laden Sie ein Foto Ihres Rasens hoch und unsere KI analysiert den Zustand und erkennt potenzielle Probleme.
+                Erhalte eine detaillierte Analyse mit Problemerkennung und Behandlungsempfehlungen.
               </p>
             </div>
 
@@ -104,9 +104,9 @@ const Landing = () => {
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-6">
                 <span className="text-green-700 text-2xl font-bold">3</span>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Plan befolgen</h3>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">Plan umsetzen</h3>
               <p className="text-gray-600">
-                Erhalten Sie einen maßgeschneiderten Pflegeplan mit täglichen Aufgaben basierend auf Ihrem Rasen und lokalem Wetter.
+                Befolge den maßgeschneiderten Pflegeplan für deinen Traumrasen.
               </p>
             </div>
           </div>
@@ -118,31 +118,31 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Alle Funktionen im Überblick
+              Kostenlose KI-Rasenanalyse
             </h2>
             <p className="text-lg text-gray-700">
-              Entdecken Sie, was Rasenpilot zu Ihrem persönlichen Rasenexperten macht
+              Starte mit einer kostenlosen Analyse deines Rasens
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="border-green-100 overflow-hidden">
               <div className="bg-green-50 p-4 flex items-center">
-                <Leaf className="h-6 w-6 text-green-600 mr-3" />
-                <h3 className="text-xl font-bold text-gray-900">14-Tage Pflegeplan</h3>
+                <Camera className="h-6 w-6 text-green-600 mr-3" />
+                <h3 className="text-xl font-bold text-gray-900">KI-Bildanalyse</h3>
               </div>
               <CardContent className="p-6">
                 <p className="text-gray-600 mb-4">
-                  Beginnen Sie kostenlos mit einem personalisierten 14-Tage Pflegeplan, der auf Ihren Rasentyp und Ihre Ziele abgestimmt ist.
+                  Lade ein Foto hoch und erhalte sofort eine detaillierte Analyse deines Rasens.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-2 mt-0.5 shrink-0" />
-                    <span>Tägliche Aufgaben für eine optimale Pflege</span>
+                    <span>Problemerkennung in Sekunden</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-2 mt-0.5 shrink-0" />
-                    <span>Wetterbasierte Empfehlungen</span>
+                    <span>Personalisierte Behandlungsempfehlungen</span>
                   </li>
                 </ul>
               </CardContent>
@@ -150,21 +150,21 @@ const Landing = () => {
 
             <Card className="border-green-100 overflow-hidden">
               <div className="bg-green-50 p-4 flex items-center">
-                <Camera className="h-6 w-6 text-green-600 mr-3" />
-                <h3 className="text-xl font-bold text-gray-900">KI-Rasenanalyse</h3>
+                <Leaf className="h-6 w-6 text-green-600 mr-3" />
+                <h3 className="text-xl font-bold text-gray-900">Expertenwissen</h3>
               </div>
               <CardContent className="p-6">
                 <p className="text-gray-600 mb-4">
-                  Laden Sie ein Foto Ihres Rasens hoch und erhalten Sie eine detaillierte Analyse der Gesundheit und Problemzonen.
+                  Profitiere von jahrelanger Rasenpflege-Expertise, verpackt in unserer KI.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-2 mt-0.5 shrink-0" />
-                    <span>Erkennung von Krankheiten und Schädlingen</span>
+                    <span>Wetterbasierte Empfehlungen</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-2 mt-0.5 shrink-0" />
-                    <span>Personalisierte Behandlungsempfehlungen</span>
+                    <span>Einfache Schritt-für-Schritt Anleitungen</span>
                   </li>
                 </ul>
               </CardContent>
@@ -177,10 +177,10 @@ const Landing = () => {
       <section className="py-20 bg-green-600">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Erstellen Sie jetzt Ihr kostenloses Konto
+            Starte jetzt deine kostenlose Rasenanalyse
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Registrieren Sie sich kostenlos und erhalten Sie Zugang zu allen Funktionen von Rasenpilot.
+            Lade ein Foto hoch und erhalte sofort Empfehlungen für deinen Rasen.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button 
@@ -188,7 +188,7 @@ const Landing = () => {
               size="lg"
               className="bg-white text-green-700 hover:bg-green-100 text-lg"
             >
-              Kostenlos registrieren
+              Kostenlos analysieren
             </Button>
           </div>
         </div>
