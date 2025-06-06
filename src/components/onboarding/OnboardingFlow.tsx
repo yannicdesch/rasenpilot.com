@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
@@ -95,6 +96,7 @@ const OnboardingFlow: React.FC = () => {
             data={onboardingData}
             updateData={updateOnboardingData}
             onNext={nextStep}
+            isPhotoUpload={true}
           />
         );
       case 2:
