@@ -35,8 +35,8 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
     setIsAnalyzing(true);
     
     try {
-      // First, check if we have an image URL in the data
-      const imageUrl = updateData.rasenbild || localStorage.getItem('currentImageUrl');
+      // Get the image URL from localStorage
+      const imageUrl = localStorage.getItem('currentImageUrl');
       
       if (!imageUrl) {
         console.log('No image URL found, using text-based analysis');
