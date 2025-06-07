@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +28,7 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
   const [analysisResults, setAnalysisResults] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [hasImage, setHasImage] = useState(false);
 
   const handleNext = () => {
     updateData({ 
@@ -39,10 +41,11 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
   const handleImageSelected = (imageUrl: string) => {
     console.log('Image selected:', imageUrl);
     updateData({ rasenbild: imageUrl });
+    setHasImage(true);
   };
 
   const handleAnalyzeImage = async () => {
-    if (!data.rasenbild) {
+    if (!hasImage && !data.rasenbild) {
       toast.error('Bitte lade zuerst ein Bild hoch');
       return;
     }
@@ -158,7 +161,7 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
               </div>
 
               {/* Analyze Button */}
-              {data.rasenbild && (
+              {hasImage && (
                 <Button
                   onClick={handleAnalyzeImage}
                   disabled={isAnalyzing}
