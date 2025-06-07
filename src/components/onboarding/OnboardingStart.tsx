@@ -21,7 +21,7 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
   onAnalysisComplete,
   isPhotoUpload = false
 }) => {
-  const [hasImage, setHasImage] = useState(false);
+  const [hasImage, setHasImage] = useState(!!data.rasenbild);
   const { analysisResults, showAnalysis, isAnalyzing, handleAnalyzeImage } = useAnalysis();
 
   const handleNext = () => {
@@ -43,7 +43,12 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
       toast.error('Bitte lade zuerst ein Bild hoch');
       return;
     }
-    await handleAnalyzeImage(data.rasenproblem, updateData);
+    
+    // Pass the current data to the analysis function
+    const dataWithImage = { ...data, rasenbild: data.rasenbild || localStorage.getItem('currentImageUrl') };
+    await handleAnalyzeImage(data.rasenproblem, (updates) => {
+      updateData({ ...updates, ...dataWithImage });
+    });
   };
 
   const handleContinueToRegistration = () => {

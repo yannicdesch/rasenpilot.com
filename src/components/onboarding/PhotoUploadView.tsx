@@ -33,6 +33,13 @@ const PhotoUploadView: React.FC<PhotoUploadViewProps> = ({
   onAnalyzeImage,
   onContinueToRegistration
 }) => {
+  const handleImageSelected = (imageUrl: string) => {
+    console.log('Image selected in PhotoUploadView:', imageUrl);
+    // Store the image URL for analysis
+    localStorage.setItem('currentImageUrl', imageUrl);
+    onImageSelected(imageUrl);
+  };
+
   return (
     <Card className="border-green-100">
       <CardHeader className="text-center">
@@ -69,13 +76,13 @@ const PhotoUploadView: React.FC<PhotoUploadViewProps> = ({
                 Rasenbild hochladen
               </Label>
               <LawnImageUpload
-                onImageSelected={onImageSelected}
+                onImageSelected={handleImageSelected}
                 currentImage={data.rasenbild}
               />
             </div>
 
             {/* Analyze Button */}
-            {hasImage && (
+            {(hasImage || data.rasenbild) && (
               <Button
                 onClick={onAnalyzeImage}
                 disabled={isAnalyzing}
