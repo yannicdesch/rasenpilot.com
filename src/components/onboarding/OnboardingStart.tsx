@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowRight, Upload, Leaf, Sparkles, Loader2 } from 'lucide-react';
 import { OnboardingData } from './OnboardingFlow';
-import LawnAnalyzer from '@/components/LawnAnalyzer';
+import LawnImageUpload from '@/components/LawnImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -37,16 +36,26 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
     onNext();
   };
 
-  const handleAnalysisComplete = async (results: any) => {
-    console.log('Analysis completed, starting AI analysis...');
+  const handleImageSelected = (imageUrl: string) => {
+    console.log('Image selected:', imageUrl);
+    updateData({ rasenbild: imageUrl });
+  };
+
+  const handleAnalyzeImage = async () => {
+    if (!data.rasenbild) {
+      toast.error('Bitte lade zuerst ein Bild hoch');
+      return;
+    }
+
+    console.log('Starting analysis...');
     setIsAnalyzing(true);
     
     try {
-      // Call the analyze-lawn-problem edge function with the problem description
+      // Call the analyze-lawn-problem edge function
       const { data: analysisData, error } = await supabase.functions.invoke('analyze-lawn-problem', {
         body: {
           problem: data.rasenproblem || 'Allgemeine Rasenanalyse basierend auf hochgeladenem Bild',
-          hasImage: !!data.rasenbild
+          hasImage: true
         }
       });
 
@@ -56,9 +65,15 @@ const OnboardingStart: React.FC<OnboardingStartProps> = ({
       }
 
       console.log('AI Analysis response:', analysisData);
-      setAnalysisResults(analysisData.analysis);
-      setShowAnalysis(true);
-      updateData({ analysisCompleted: true });
+      
+      if (analysisData && analysisData.analysis) {
+        setAnalysisResults(analysisData.analysis);
+        setShowAnalysis(true);
+        updateData({ analysisCompleted: true });
+        toast.success('Analyse erfolgreich abgeschlossen!');
+      } else {
+        throw new Error('Keine Analysedaten erhalten');
+      }
     } catch (error) {
       console.error('Error getting AI analysis:', error);
       // Fallback to mock analysis
@@ -131,14 +146,37 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
                 />
               </div>
 
-              {/* Lawn Analyzer */}
+              {/* Image Upload */}
               <div>
-                <LawnAnalyzer 
-                  onAnalysisComplete={handleAnalysisComplete}
-                  onImageSelected={(imageUrl) => updateData({ rasenbild: imageUrl })}
-                  isOnboarding={true}
+                <Label className="text-sm font-medium mb-2 block">
+                  Rasenbild hochladen
+                </Label>
+                <LawnImageUpload
+                  onImageSelected={handleImageSelected}
+                  currentImage={data.rasenbild}
                 />
               </div>
+
+              {/* Analyze Button */}
+              {data.rasenbild && (
+                <Button
+                  onClick={handleAnalyzeImage}
+                  disabled={isAnalyzing}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      KI analysiert dein Rasenbild...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Kostenlose Analyse starten
+                    </>
+                  )}
+                </Button>
+              )}
 
               {isAnalyzing && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
