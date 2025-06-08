@@ -11,14 +11,7 @@ import { toast } from 'sonner'
 initializeGA('G-7F24N28JNH');
 
 // Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
+const queryClient = new QueryClient()
 
 // Test Supabase connection on startup
 testSupabaseConnection().then(connected => {
@@ -52,12 +45,7 @@ window.addEventListener('popstate', () => {
   trackPageView(window.location.pathname);
 });
 
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-  throw new Error("Root element not found");
-}
-
-createRoot(rootElement).render(
+createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <App />

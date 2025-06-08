@@ -35,7 +35,6 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfUse from "@/pages/TermsOfUse";
 import Imprint from "@/pages/Imprint";
 import ConnectionTestPage from "@/pages/ConnectionTestPage";
-import DebugPage from "@/pages/DebugPage";
 
 function App() {
   return (
@@ -59,8 +58,7 @@ function App() {
           <Route path="/blog-overview" element={<BlogOverview />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           
-          {/* Debug and test routes */}
-          <Route path="/debug" element={<DebugPage />} />
+          {/* Database test route */}
           <Route path="/db-test" element={<ConnectionTestPage />} />
           
           {/* Legal pages */}
@@ -68,7 +66,7 @@ function App() {
           <Route path="/nutzungsbedingungen" element={<TermsOfUse />} />
           <Route path="/impressum" element={<Imprint />} />
           
-          {/* Protected Routes */}
+          {/* Protected Routes - Fixed to properly check authentication */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/care-plan" element={<ProtectedRoute><CarePlan /></ProtectedRoute>} />
@@ -81,13 +79,13 @@ function App() {
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
           <Route path="/season-guide" element={<ProtectedRoute><SeasonGuide /></ProtectedRoute>} />
           
-          {/* Admin route */}
+          {/* Admin route - Now handled differently in ProtectedRoute */}
           <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           
           {/* Legacy route */}
           <Route path="/home" element={<Index />} />
           
-          {/* Logo generator route */}
+          {/* Add the LogoGenerator route */}
           <Route path="/logo-generator" element={<LogoGeneratorPage />} />
           
           {/* Catch all */}
