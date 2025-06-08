@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Zap, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useLawn } from '@/context/LawnContext';
@@ -93,17 +93,11 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
         toast.error(error.message);
       } else {
         console.log('Registration successful:', authData);
-        toast.success('Registrierung erfolgreich! Deine Rasenanalyse wird erstellt...');
+        toast.success('Registrierung erfolgreich! Dein 14-Tage-Pflegeplan wird erstellt...');
         
-        // Navigate to analysis results if there's a problem description
+        // Navigate to dashboard to show 14-day plan
         setTimeout(() => {
-          if (data.rasenproblem) {
-            console.log('Navigating to analysis results with problem:', data.rasenproblem);
-            navigate('/analysis-results');
-          } else {
-            console.log('No problem description, navigating to dashboard');
-            navigate('/dashboard');
-          }
+          navigate('/dashboard');
         }, 1000);
       }
     } catch (error) {
@@ -122,31 +116,47 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
     console.log('Temporary profile data:', profileData);
     
     setTemporaryProfile(profileData);
-    toast.success('Du kannst dich später registrieren. Rasenanalyse wird erstellt...');
+    toast.success('Du kannst dich später registrieren. Dein Pflegeplan wird erstellt...');
     
-    // Navigate to analysis results if there's a problem description
+    // Navigate to dashboard
     setTimeout(() => {
-      if (data.rasenproblem) {
-        console.log('Navigating to analysis results with problem:', data.rasenproblem);
-        navigate('/analysis-results');
-      } else {
-        console.log('No problem description, navigating to dashboard');
-        navigate('/dashboard');
-      }
+      navigate('/dashboard');
     }, 500);
   };
 
   return (
     <Card className="border-green-100">
       <CardHeader className="text-center">
+        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="h-8 w-8 text-green-600" />
+        </div>
         <CardTitle className="text-2xl text-green-800">
-          Jetzt registrieren
+          👉 Dein individueller Pflegeplan ist bereit – jetzt kostenlos speichern
         </CardTitle>
         <p className="text-gray-600">
-          Sichere dir deinen personalisierten Rasenpflegeplan
+          Sichere dir deinen personalisierten 14-Tage-Rasenpflegeplan
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Benefits Preview */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <h3 className="font-semibold text-green-800 mb-3">Nach der Registrierung erhältst du:</h3>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-green-700">
+              <Calendar className="h-4 w-4" />
+              <span>Deinen kompletten 14-Tage-Pflegeplan</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-green-700">
+              <Zap className="h-4 w-4" />
+              <span>Pro-Features: Unbegrenzte Analysen & Wetter-Kalender</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-green-700">
+              <CheckCircle className="h-4 w-4" />
+              <span>Persönliche Empfehlungen basierend auf deiner Analyse</span>
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <div>
             <Label htmlFor="email">E-Mail-Adresse</Label>
@@ -209,17 +219,17 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
           <Button 
             onClick={handleRegister}
             disabled={loading || !dsgvoConsent}
-            className="w-full bg-green-600 hover:bg-green-700"
+            className="w-full bg-green-600 hover:bg-green-700 text-lg py-3"
           >
             {loading ? (
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Registriere...</span>
+                <span>Pflegeplan wird erstellt...</span>
               </div>
             ) : (
               <>
-                Kostenlos starten
-                <ArrowRight className="ml-2 h-4 w-4" />
+                14-Tage-Plan jetzt kostenlos sichern
+                <ArrowRight className="ml-2 h-5 w-5" />
               </>
             )}
           </Button>

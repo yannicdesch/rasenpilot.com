@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
@@ -40,7 +39,7 @@ const OnboardingFlow: React.FC = () => {
     analysisCompleted: false,
   });
 
-  const totalSteps = 5;
+  const totalSteps = 2; // Nur Photo Upload + Registration
   const progress = (currentStep / totalSteps) * 100;
 
   useEffect(() => {
@@ -69,8 +68,8 @@ const OnboardingFlow: React.FC = () => {
   const handleAnalysisComplete = () => {
     console.log('Analysis completed, moving to registration');
     updateOnboardingData({ analysisCompleted: true });
-    // Skip to registration step (step 5)
-    setCurrentStep(5);
+    // Move to registration step (step 2)
+    setCurrentStep(2);
   };
 
   const handleComplete = () => {
@@ -108,33 +107,6 @@ const OnboardingFlow: React.FC = () => {
           />
         );
       case 2:
-        return (
-          <OnboardingLocation
-            data={onboardingData}
-            updateData={updateOnboardingData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 3:
-        return (
-          <OnboardingArea
-            data={onboardingData}
-            updateData={updateOnboardingData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 4:
-        return (
-          <OnboardingType
-            data={onboardingData}
-            updateData={updateOnboardingData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 5:
         return (
           <OnboardingRegister
             data={onboardingData}
