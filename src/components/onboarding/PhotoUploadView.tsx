@@ -34,10 +34,20 @@ const PhotoUploadView: React.FC<PhotoUploadViewProps> = ({
   onContinueToRegistration
 }) => {
   const handleImageSelected = (imageUrl: string) => {
-    console.log('Image selected in PhotoUploadView:', imageUrl);
+    console.log('=== Image selected in PhotoUploadView ===');
+    console.log('Image URL:', imageUrl);
     // Store the image URL for analysis
     localStorage.setItem('currentImageUrl', imageUrl);
+    console.log('Stored in localStorage:', localStorage.getItem('currentImageUrl'));
     onImageSelected(imageUrl);
+  };
+
+  const handleAnalyzeClick = () => {
+    console.log('=== Analyze button clicked ===');
+    console.log('Has image:', hasImage);
+    console.log('Data rasenbild:', data.rasenbild);
+    console.log('localStorage image:', localStorage.getItem('currentImageUrl'));
+    onAnalyzeImage();
   };
 
   return (
@@ -84,7 +94,7 @@ const PhotoUploadView: React.FC<PhotoUploadViewProps> = ({
             {/* Analyze Button */}
             {(hasImage || data.rasenbild) && (
               <Button
-                onClick={onAnalyzeImage}
+                onClick={handleAnalyzeClick}
                 disabled={isAnalyzing}
                 className="w-full bg-green-600 hover:bg-green-700"
               >

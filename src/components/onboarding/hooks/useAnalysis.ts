@@ -31,12 +31,14 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
   };
 
   const handleAnalyzeImage = async (rasenproblem: string, updateData: (updates: any) => void) => {
-    console.log('Starting image analysis...');
+    console.log('=== Starting image analysis ===');
+    console.log('Problem description:', rasenproblem);
     setIsAnalyzing(true);
     
     try {
       // Get the image URL from localStorage
       const imageUrl = localStorage.getItem('currentImageUrl');
+      console.log('Image URL from localStorage:', imageUrl);
       
       if (!imageUrl) {
         console.log('No image URL found, using text-based analysis');
@@ -60,7 +62,13 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
           toast.success('Analyse erfolgreich abgeschlossen!');
         }
       } else {
-        console.log('Image URL found, using image analysis:', imageUrl);
+        console.log('=== Calling analyze-lawn-image function ===');
+        console.log('Payload:', {
+          imageUrl: imageUrl,
+          grassType: 'unknown',
+          lawnGoal: rasenproblem || 'Allgemeine Rasenanalyse'
+        });
+
         // Use image analysis
         const { data: analysisData, error } = await supabase.functions.invoke('analyze-lawn-image', {
           body: {
@@ -70,14 +78,17 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
           }
         });
 
+        console.log('=== Edge function response ===');
+        console.log('Error:', error);
+        console.log('Data:', analysisData);
+
         if (error) {
           console.error('Image analysis error:', error);
           throw error;
         }
 
-        console.log('Image Analysis response:', analysisData);
-        
         if (analysisData && analysisData.success && analysisData.analysis) {
+          console.log('=== Processing successful analysis ===');
           // Convert structured analysis to formatted text
           const structuredAnalysis = analysisData.analysis;
           let formattedAnalysis = `🌱 **Rasenanalyse Ergebnisse**\n\n`;
@@ -105,22 +116,27 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
             });
           }
           
+          console.log('Formatted analysis:', formattedAnalysis);
           setAnalysisResults(formattedAnalysis);
           setShowAnalysis(true);
           updateData({ analysisCompleted: true });
           toast.success('KI-Bildanalyse erfolgreich abgeschlossen!');
         } else {
-          throw new Error('Keine Analysedaten erhalten');
+          console.log('=== Analysis failed, using fallback ===');
+          console.log('Analysis data structure:', analysisData);
+          throw new Error('Keine gültigen Analysedaten erhalten');
         }
       }
     } catch (error) {
-      console.error('Error getting AI analysis:', error);
+      console.error('=== Error in analysis ===');
+      console.error('Error details:', error);
       // Fallback to mock analysis
       const mockAnalysis = getMockAnalysis();
+      console.log('Using mock analysis as fallback');
       setAnalysisResults(mockAnalysis);
       setShowAnalysis(true);
       updateData({ analysisCompleted: true });
-      toast.info('Demo-Analyse wird angezeigt');
+      toast.info('Demo-Analyse wird angezeigt (KI-Service nicht verfügbar)');
     } finally {
       setIsAnalyzing(false);
     }
