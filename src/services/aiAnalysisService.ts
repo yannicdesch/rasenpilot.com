@@ -18,17 +18,35 @@ export interface AnalysisResponse {
   error?: string;
 }
 
+// New function to handle blob URL to File conversion
+const blobUrlToFile = async (blobUrl: string, filename: string = 'lawn-image.jpg'): Promise<File> => {
+  const response = await fetch(blobUrl);
+  const blob = await response.blob();
+  return new File([blob], filename, { type: blob.type });
+};
+
 export const analyzeImageWithAI = async (
-  imageFile: File,
+  imageInput: File | string, // Can be File or blob URL
   grassType?: string,
   lawnGoal?: string
 ): Promise<AnalysisResponse> => {
   try {
     console.log('Starting AI image analysis with OpenAI...');
     
-    // First, upload the image to Supabase Storage
+    let imageFile: File;
+    
+    // If imageInput is a string (blob URL), convert it to File
+    if (typeof imageInput === 'string') {
+      console.log('Converting blob URL to File:', imageInput);
+      imageFile = await blobUrlToFile(imageInput);
+    } else {
+      imageFile = imageInput;
+    }
+    
+    // Upload the image to Supabase Storage
     const fileName = `lawn-analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${imageFile.name.split('.').pop()}`;
     
+    console.log('Uploading image to Supabase Storage:', fileName);
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('lawn-images')
       .upload(fileName, imageFile);

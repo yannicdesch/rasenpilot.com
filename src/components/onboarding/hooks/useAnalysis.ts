@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { analyzeImageWithAI } from '@/services/aiAnalysisService';
 import { toast } from 'sonner';
 
 export const useAnalysis = () => {
@@ -41,91 +41,60 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
       console.log('Image URL from localStorage:', imageUrl);
       
       if (!imageUrl) {
-        console.log('No image URL found, using text-based analysis');
-        // Fall back to text-based analysis
-        const { data: analysisData, error } = await supabase.functions.invoke('analyze-lawn-problem', {
-          body: {
-            problem: rasenproblem || 'Allgemeine Rasenanalyse',
-            hasImage: false
-          }
-        });
+        console.log('No image URL found');
+        throw new Error('Kein Bild gefunden. Bitte lade zuerst ein Bild hoch.');
+      }
 
-        if (error) {
-          console.error('Text analysis error:', error);
-          throw error;
-        }
+      console.log('=== Calling analyzeImageWithAI with blob URL ===');
+      
+      // Call the updated function that can handle blob URLs
+      const result = await analyzeImageWithAI(
+        imageUrl, // This will be converted from blob URL to File
+        'unknown',
+        rasenproblem || 'Allgemeine Rasenanalyse'
+      );
 
-        if (analysisData && analysisData.analysis) {
-          setAnalysisResults(analysisData.analysis);
-          setShowAnalysis(true);
-          updateData({ analysisCompleted: true });
-          toast.success('Analyse erfolgreich abgeschlossen!');
+      console.log('=== AI Analysis response ===');
+      console.log('Result:', result);
+
+      if (result.success && result.analysis) {
+        console.log('=== Processing successful analysis ===');
+        // Convert structured analysis to formatted text
+        const structuredAnalysis = result.analysis;
+        let formattedAnalysis = `🌱 **Rasenanalyse Ergebnisse**\n\n`;
+        
+        if (structuredAnalysis.overallHealth) {
+          formattedAnalysis += `**Gesamtgesundheit:** ${structuredAnalysis.overallHealth}/10\n\n`;
         }
+        
+        if (structuredAnalysis.issues && structuredAnalysis.issues.length > 0) {
+          formattedAnalysis += `🛠️ **Erkannte Probleme**\n`;
+          structuredAnalysis.issues.forEach(issue => {
+            formattedAnalysis += `• ${issue.issue} (${Math.round(issue.confidence * 100)}% Sicherheit)\n`;
+            formattedAnalysis += `  Empfehlungen:\n`;
+            issue.recommendations.forEach(rec => {
+              formattedAnalysis += `  - ${rec}\n`;
+            });
+          });
+          formattedAnalysis += `\n`;
+        }
+        
+        if (structuredAnalysis.generalRecommendations && structuredAnalysis.generalRecommendations.length > 0) {
+          formattedAnalysis += `💡 **Allgemeine Empfehlungen**\n`;
+          structuredAnalysis.generalRecommendations.forEach(rec => {
+            formattedAnalysis += `• ${rec}\n`;
+          });
+        }
+        
+        console.log('Formatted analysis:', formattedAnalysis);
+        setAnalysisResults(formattedAnalysis);
+        setShowAnalysis(true);
+        updateData({ analysisCompleted: true });
+        toast.success('KI-Bildanalyse erfolgreich abgeschlossen!');
       } else {
-        console.log('=== Calling analyze-lawn-image function ===');
-        console.log('Payload:', {
-          imageUrl: imageUrl,
-          grassType: 'unknown',
-          lawnGoal: rasenproblem || 'Allgemeine Rasenanalyse'
-        });
-
-        // Use image analysis
-        const { data: analysisData, error } = await supabase.functions.invoke('analyze-lawn-image', {
-          body: {
-            imageUrl: imageUrl,
-            grassType: 'unknown',
-            lawnGoal: rasenproblem || 'Allgemeine Rasenanalyse'
-          }
-        });
-
-        console.log('=== Edge function response ===');
-        console.log('Error:', error);
-        console.log('Data:', analysisData);
-
-        if (error) {
-          console.error('Image analysis error:', error);
-          throw error;
-        }
-
-        if (analysisData && analysisData.success && analysisData.analysis) {
-          console.log('=== Processing successful analysis ===');
-          // Convert structured analysis to formatted text
-          const structuredAnalysis = analysisData.analysis;
-          let formattedAnalysis = `🌱 **Rasenanalyse Ergebnisse**\n\n`;
-          
-          if (structuredAnalysis.overallHealth) {
-            formattedAnalysis += `**Gesamtgesundheit:** ${structuredAnalysis.overallHealth}/10\n\n`;
-          }
-          
-          if (structuredAnalysis.issues && structuredAnalysis.issues.length > 0) {
-            formattedAnalysis += `🛠️ **Erkannte Probleme**\n`;
-            structuredAnalysis.issues.forEach(issue => {
-              formattedAnalysis += `• ${issue.issue} (${Math.round(issue.confidence * 100)}% Sicherheit)\n`;
-              formattedAnalysis += `  Empfehlungen:\n`;
-              issue.recommendations.forEach(rec => {
-                formattedAnalysis += `  - ${rec}\n`;
-              });
-            });
-            formattedAnalysis += `\n`;
-          }
-          
-          if (structuredAnalysis.generalRecommendations && structuredAnalysis.generalRecommendations.length > 0) {
-            formattedAnalysis += `💡 **Allgemeine Empfehlungen**\n`;
-            structuredAnalysis.generalRecommendations.forEach(rec => {
-              formattedAnalysis += `• ${rec}\n`;
-            });
-          }
-          
-          console.log('Formatted analysis:', formattedAnalysis);
-          setAnalysisResults(formattedAnalysis);
-          setShowAnalysis(true);
-          updateData({ analysisCompleted: true });
-          toast.success('KI-Bildanalyse erfolgreich abgeschlossen!');
-        } else {
-          console.log('=== Analysis failed, using fallback ===');
-          console.log('Analysis data structure:', analysisData);
-          throw new Error('Keine gültigen Analysedaten erhalten');
-        }
+        console.log('=== Analysis failed ===');
+        console.log('Error:', result.error);
+        throw new Error(result.error || 'Analyse fehlgeschlagen');
       }
     } catch (error) {
       console.error('=== Error in analysis ===');
