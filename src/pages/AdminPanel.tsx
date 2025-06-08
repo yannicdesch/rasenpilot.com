@@ -13,7 +13,9 @@ import { SiteSettings } from '@/components/admin/SiteSettings';
 import EmailSubscribers from '@/components/admin/EmailSubscribers';
 import { Card } from '@/components/ui/card';
 import AdminLoginForm from '@/components/admin/AdminLoginForm';
-import { supabase } from '@/lib/supabase';
+import { supabase, validateAdminRole } from '@/lib/supabase';
+import { trackAdminAction } from '@/utils/auditLogger';
+import { getSecurityMetaTags } from '@/utils/securityHeaders';
 import { toast } from 'sonner';
 
 const AdminPanel = () => {
@@ -24,24 +26,31 @@ const AdminPanel = () => {
   const [isAdminUser, setIsAdminUser] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
+  const securityMetaTags = getSecurityMetaTags();
+  
   // Check if user just successfully logged in as admin
   useEffect(() => {
     const checkAdminStatus = async () => {
       setIsLoading(true);
       
-      // Prüfen auf Admin-Login-Flag
-      const adminLoginSuccess = localStorage.getItem('admin_login_success');
-      
-      if (adminLoginSuccess) {
-        console.log('Admin login success flag found, setting admin status to true');
-        setLocalAuthStatus(true);
-        setIsAdminUser(true);
-        setIsLoading(false);
-        return;
-      }
-      
-      // Sessionüberprüfung
       try {
+        const adminLoginSuccess = localStorage.getItem('admin_login_success');
+        
+        if (adminLoginSuccess) {
+          const isValid = await validateAdminRole();
+          if (isValid) {
+            setLocalAuthStatus(true);
+            setIsAdminUser(true);
+            await trackAdminAction('panel_access_granted');
+            setIsLoading(false);
+            return;
+          } else {
+            // Remove invalid flag
+            localStorage.removeItem('admin_login_success');
+          }
+        }
+        
+        // Standard session check
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -55,31 +64,20 @@ const AdminPanel = () => {
         const isLoggedIn = !!data.session;
         setLocalAuthStatus(isLoggedIn);
         
-        // Wenn eingeloggt, Benutzerrolle überprüfen
         if (isLoggedIn && data.session) {
-          try {
-            // Benutzerrolle aus der profiles Tabelle abrufen
-            const { data: userData, error: userError } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', data.session.user.id)
-              .single();
-              
-            if (userError) {
-              console.warn('Konnte Benutzerrolle nicht abrufen:', userError);
-              // Fallback: Behandeln als nicht-Admin
-              setIsAdminUser(false);
-            } else {
-              // Admin-Status basierend auf der Rolle setzen
-              setIsAdminUser(userData?.role === 'admin');
-              
-              if (userData?.role !== 'admin') {
-                toast.error('Sie haben keine Administratorrechte');
-              }
-            }
-          } catch (e) {
-            console.error('Error checking user role:', e);
-            setIsAdminUser(false);
+          const isValidAdmin = await validateAdminRole();
+          setIsAdminUser(isValidAdmin);
+          
+          if (!isValidAdmin) {
+            await trackAdminAction('panel_access_denied', undefined, {
+              reason: 'insufficient_privileges',
+              userId: data.session.user.id
+            });
+            toast.error('Sie haben keine Administratorrechte');
+          } else {
+            await trackAdminAction('panel_access_granted', undefined, {
+              userId: data.session.user.id
+            });
           }
         } else {
           setIsAdminUser(false);
@@ -108,18 +106,10 @@ const AdminPanel = () => {
     );
   }
 
-  // Admin-Berechtigung von verschiedenen Quellen prüfen
+  // Admin access check with enhanced security
   const hasAdminAccess = 
     (isAuthenticated && userData?.role === 'admin') || 
-    localAuthStatus === true && isAdminUser === true;
-    
-  console.log('Admin access check:', {
-    isAuthenticated,
-    userDataRole: userData?.role,
-    localAuthStatus,
-    isAdminUser,
-    hasAdminAccess
-  });
+    (localAuthStatus === true && isAdminUser === true);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
@@ -127,6 +117,9 @@ const AdminPanel = () => {
         <title>Admin Panel - Rasenpilot</title>
         <meta name="description" content="Administrationsbereich für Rasenpilot - Verwalten Sie Ihre Website, Inhalte und Benutzer" />
         <meta name="robots" content="noindex, nofollow" />
+        {securityMetaTags.map((tag, index) => (
+          <meta key={index} httpEquiv={tag.httpEquiv} content={tag.content} />
+        ))}
       </Helmet>
       
       <MainNavigation />

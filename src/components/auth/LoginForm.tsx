@@ -1,195 +1,142 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
-import { Mail, Lock } from 'lucide-react';
-import { toast } from "sonner";
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { Progress } from '@/components/ui/progress';
-
-const loginSchema = z.object({
-  email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
-  password: z.string().min(6, 'Das Passwort muss mindestens 6 Zeichen lang sein'),
-});
-
-export type LoginFormValues = z.infer<typeof loginSchema>;
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { supabase, checkAuthRateLimit } from '@/lib/supabase';
+import { validateEmail } from '@/utils/inputValidation';
+import { trackFailedLogin, trackSuccessfulLogin } from '@/utils/auditLogger';
+import { toast } from 'sonner';
 
 interface LoginFormProps {
-  redirectTo: string;
-  onForgotPassword: () => void;
+  onSuccess?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ redirectTo, onForgotPassword }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  
-  // Add login timeout handling
-  const [loginProgress, setLoginProgress] = useState(0);
-  const [showProgress, setShowProgress] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
-    if (!isSupabaseConfigured()) {
-      toast.error('Supabase-Konfiguration fehlt. Bitte verwenden Sie gültige Anmeldedaten.');
-      return;
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors([]);
     setIsLoading(true);
-    setShowProgress(true);
-    
-    // Set up progress animation
-    let progressInterval = setInterval(() => {
-      setLoginProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + 10;
-      });
-    }, 300);
-    
-    // Set timeout to prevent infinite loading
-    const loginTimeout = setTimeout(() => {
-      setIsLoading(false);
-      setShowProgress(false);
-      clearInterval(progressInterval);
-      toast.error('Anmeldung fehlgeschlagen. Zeitüberschreitung bei der Verbindung zum Server.');
-    }, 10000);
 
     try {
-      console.log('Attempting to sign in with:', data.email);
-      
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+      // Input validation
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        setErrors(emailValidation.errors);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!password.trim()) {
+        setErrors(['Passwort ist erforderlich']);
+        setIsLoading(false);
+        return;
+      }
+
+      // Rate limiting check
+      if (!checkAuthRateLimit(email)) {
+        setErrors(['Zu viele Anmeldeversuche. Bitte versuchen Sie es später erneut.']);
+        setIsLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: emailValidation.sanitizedValue!,
+        password: password.trim()
       });
 
-      clearTimeout(loginTimeout);
-      clearInterval(progressInterval);
-
       if (error) {
-        console.error('Login error:', error);
-        throw error;
-      }
-
-      if (!authData.session) {
-        throw new Error('Keine Sitzung zurückgegeben');
-      }
-
-      console.log('Login successful, session established:', !!authData.session);
-      
-      // Set explicit flag in localStorage to help with auth detection
-      localStorage.setItem('auth_initialized', 'true');
-      
-      toast.success('Erfolgreich eingeloggt!');
-      
-      // Ensure we complete the progress bar before redirecting
-      setLoginProgress(100);
-      
-      // Use navigate directly instead of a hard redirect
-      setTimeout(() => {
-        navigate(redirectTo, { replace: true });
-      }, 500);
-      
-    } catch (error: any) {
-      clearTimeout(loginTimeout);
-      clearInterval(progressInterval);
-      
-      console.error('Login error details:', error);
-      let errorMessage = 'Unbekannter Fehler';
-      
-      if (error.message) {
+        await trackFailedLogin(email, error.message);
+        
         if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Falsche E-Mail oder Passwort';
+          setErrors(['Ungültige E-Mail-Adresse oder Passwort']);
         } else {
-          errorMessage = error.message;
+          setErrors([error.message]);
         }
+        return;
       }
-      
-      toast.error('Fehler beim Einloggen: ' + errorMessage);
+
+      if (data.user) {
+        await trackSuccessfulLogin(data.user.email || email);
+        toast.success('Erfolgreich angemeldet!');
+        onSuccess?.();
+      }
+
+    } catch (error) {
+      await trackFailedLogin(email, 'Unexpected error during login');
+      setErrors(['Ein unerwarteter Fehler ist aufgetreten']);
     } finally {
       setIsLoading(false);
-      setShowProgress(false);
     }
   };
 
   return (
-    <>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>E-Mail</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="deine@email.de" className="pl-10" {...field} disabled={isLoading} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Passwort</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input type="password" className="pl-10" {...field} disabled={isLoading} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {showProgress && (
-              <div className="py-2">
-                <Progress value={loginProgress} className="h-2" />
-              </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {errors.length > 0 && (
+        <Alert className="border-red-200 bg-red-50">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            {errors.map((error, index) => (
+              <div key={index}>{error}</div>
+            ))}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="email">E-Mail-Adresse</Label>
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          disabled={isLoading}
+          autoComplete="email"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">Passwort</Label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
+            autoComplete="current-password"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            onClick={() => setShowPassword(!showPassword)}
+            disabled={isLoading}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
             )}
-            <div className="text-right">
-              <Button
-                variant="link"
-                className="p-0 h-auto text-sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onForgotPassword();
-                }}
-                disabled={isLoading}
-              >
-                Passwort vergessen?
-              </Button>
-            </div>
-            <CardFooter className="px-0 pt-2">
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </CardContent>
-    </>
+          </Button>
+        </div>
+      </div>
+
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? 'Anmeldung läuft...' : 'Anmelden'}
+      </Button>
+    </form>
   );
 };
 

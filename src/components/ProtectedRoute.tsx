@@ -1,7 +1,9 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { supabase, validateAdminRole, logSecurityEvent } from '@/lib/supabase';
+import { supabase, validateAdminRole, validateSession } from '@/lib/supabase';
+import { trackAdminAction } from '@/utils/auditLogger';
+import { sessionSecurity } from '@/utils/securityHeaders';
 import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
@@ -24,6 +26,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     try {
       setIsLoading(true);
       
+      // Check session validity first
+      const sessionValid = await validateSession();
+      if (!sessionValid) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // Check session timeout
+      const lastActivity = sessionSecurity.getLastActivity();
+      if (lastActivity && !sessionSecurity.isSessionValid(lastActivity)) {
+        await supabase.auth.signOut();
+        sessionSecurity.clearSession();
+        toast.info('Sitzung aufgrund von Inaktivität beendet');
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.getSession();
       
       if (error) {
@@ -36,14 +57,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       const isLoggedIn = !!data.session;
       setIsAuthenticated(isLoggedIn);
       
+      // Update session activity
+      if (isLoggedIn) {
+        sessionSecurity.updateLastActivity();
+      }
+      
       if (isLoggedIn && requireAdmin) {
         const adminStatus = await validateAdminRole();
         setIsAdmin(adminStatus);
         
         if (!adminStatus) {
-          await logSecurityEvent('unauthorized_admin_access_attempt', {
+          await trackAdminAction('unauthorized_access_attempt', undefined, {
             path: location.pathname,
-            userId: data.session.user.id
+            userId: data.session?.user.id
           });
           toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
         }
@@ -58,17 +84,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     }
   };
 
-  // Set up auth listener
+  // Set up auth listener with security enhancements
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setIsAuthenticated(!!session);
       
-      if (event === 'SIGNED_IN') {
+      if (event === 'SIGNED_IN' && session) {
+        sessionSecurity.updateLastActivity();
         toast.success('Erfolgreich eingeloggt!');
       } else if (event === 'SIGNED_OUT') {
+        sessionSecurity.clearSession();
         toast.info('Sie wurden abgemeldet');
         setIsAdmin(false);
         navigate('/auth', { state: { from: location }, replace: true });
+      } else if (event === 'TOKEN_REFRESHED') {
+        sessionSecurity.updateLastActivity();
       }
     });
   
@@ -78,6 +108,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       }
     };
   }, [navigate, location]);
+
+  // Session timeout checker
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const checkSessionTimeout = () => {
+      const lastActivity = sessionSecurity.getLastActivity();
+      if (lastActivity && !sessionSecurity.isSessionValid(lastActivity)) {
+        supabase.auth.signOut();
+      }
+    };
+
+    const interval = setInterval(checkSessionTimeout, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   if (isLoading) {
     return (

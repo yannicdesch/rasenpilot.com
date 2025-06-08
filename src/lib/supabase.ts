@@ -1,197 +1,133 @@
 
 import { createClient } from '@supabase/supabase-js';
+import { auditLogger, trackSecurityViolation } from '@/utils/auditLogger';
 
-// Get URL and key from environment variables with fallbacks for development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
+// Use environment variables instead of hardcoded values
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Validate environment configuration
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase configuration. Please check your environment variables.');
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-// Create the Supabase client with proper security configuration
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'rasenpilot-app'
-    }
-  }
-});
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Helper to check if Supabase is properly configured
-export const isSupabaseConfigured = () => {
-  const hasUrl = !!supabaseUrl && supabaseUrl !== 'your-supabase-url';
-  const hasKey = !!supabaseAnonKey && supabaseAnonKey !== 'your-anon-key';
-  return hasUrl && hasKey;
-};
-
-// Security helper to validate admin role
+// Enhanced admin role validation with security logging
 export const validateAdminRole = async (): Promise<boolean> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return false;
-
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-
-    if (error) {
-      console.error('Error validating admin role:', error);
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError) {
+      await auditLogger.security('admin_validation_auth_error', { error: authError.message });
       return false;
     }
 
-    return profile?.role === 'admin';
+    if (!user) {
+      await auditLogger.security('admin_validation_no_user');
+      return false;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      await auditLogger.security('admin_validation_profile_error', { 
+        userId: user.id, 
+        error: profileError.message 
+      });
+      return false;
+    }
+
+    const isAdmin = profile?.role === 'admin';
+    
+    if (isAdmin) {
+      await auditLogger.security('admin_validation_success', { userId: user.id });
+    } else {
+      await auditLogger.security('admin_validation_insufficient_role', { 
+        userId: user.id, 
+        actualRole: profile?.role 
+      });
+    }
+
+    return isAdmin;
   } catch (error) {
-    console.error('Error in admin role validation:', error);
+    await auditLogger.security('admin_validation_exception', { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
     return false;
   }
 };
 
-// Security logging function
-export const logSecurityEvent = async (event: string, details?: any) => {
+// Enhanced security event logging
+export const logSecurityEvent = async (action: string, details?: Record<string, any>) => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    await supabase.from('events').insert({
-      category: 'security',
-      action: event,
-      label: session?.user?.email || 'anonymous',
-      value: details ? JSON.stringify(details) : null
-    });
+    await auditLogger.security(action, details);
   } catch (error) {
-    console.error('Failed to log security event:', error);
+    // Fallback logging if audit logger fails
+    console.error('Security event logging failed:', error);
   }
 };
 
-// Email template configuration (moved from previous implementation)
-export const emailTemplates = {
-  // Template for email confirmation
-  confirmSignUp: {
-    subject: 'Willkommen bei Rasenpilot: Bitte bestätigen Sie Ihre E-Mail',
-    content: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #2E7D32; border: 1px solid #8BC34A; border-radius: 8px; background-color: #FAFAFA;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://rasenpilot.com/logo.png" alt="Rasenpilot Logo" style="max-width: 150px;">
-        </div>
-        
-        <h1 style="color: #2E7D32; text-align: center; font-size: 24px;">Willkommen bei Rasenpilot!</h1>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Vielen Dank für Ihre Registrierung. Bitte bestätigen Sie Ihre E-Mail-Adresse, um Zugriff auf alle Funktionen zu erhalten:</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="{{ .ConfirmationURL }}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">E-Mail-Adresse bestätigen</a>
-        </div>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Mit Rasenpilot erhalten Sie:</p>
-        <ul style="color: #333; line-height: 1.6; font-size: 16px;">
-          <li>Personalisierte Pflegepläne für Ihren Rasen</li>
-          <li>Echtzeit-Wetteranalysen und Bewässerungsempfehlungen</li>
-          <li>Expertentipps für einen gesunden, grünen Rasen</li>
-        </ul>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Falls Sie den Link nicht angeklickt haben, ignorieren Sie diese E-Mail einfach.</p>
-        
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #8BC34A; color: #666; font-size: 14px; text-align: center;">
-          <p>© 2025 Rasenpilot. Alle Rechte vorbehalten.</p>
-          <p>Sie haben diese E-Mail erhalten, weil Sie sich bei Rasenpilot registriert haben.</p>
-        </div>
-      </div>
-    `,
-  },
-  
-  // Template for magic link login
-  magicLink: {
-    subject: 'Ihr Login-Link für Rasenpilot',
-    content: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #2E7D32; border: 1px solid #8BC34A; border-radius: 8px; background-color: #FAFAFA;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://rasenpilot.com/logo.png" alt="Rasenpilot Logo" style="max-width: 150px;">
-        </div>
-        
-        <h1 style="color: #2E7D32; text-align: center; font-size: 24px;">Ihr Login-Link für Rasenpilot</h1>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Sie haben einen Link zum Einloggen angefordert. Klicken Sie bitte auf den Button unten, um sich in Ihr Konto einzuloggen:</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="{{ .ConfirmationURL }}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Bei Rasenpilot einloggen</a>
-        </div>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Dieser Link ist 24 Stunden gültig und kann nur einmal verwendet werden.</p>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Falls Sie diesen Login-Link nicht angefordert haben, können Sie ihn ignorieren.</p>
-        
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #8BC34A; color: #666; font-size: 14px; text-align: center;">
-          <p>© 2025 Rasenpilot. Alle Rechte vorbehalten.</p>
-          <p>Sie haben diese E-Mail erhalten, weil Sie sich bei Rasenpilot anmelden möchten.</p>
-        </div>
-      </div>
-    `,
-  },
-  
-  // Template for reset password
-  resetPassword: {
-    subject: 'Passwort bei Rasenpilot zurücksetzen',
-    content: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #2E7D32; border: 1px solid #8BC34A; border-radius: 8px; background-color: #FAFAFA;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://rasenpilot.com/logo.png" alt="Rasenpilot Logo" style="max-width: 150px;">
-        </div>
-        
-        <h1 style="color: #2E7D32; text-align: center; font-size: 24px;">Passwort zurücksetzen</h1>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Sie haben eine Anfrage zum Zurücksetzen Ihres Passworts gestellt. Bitte klicken Sie auf den Button unten, um ein neues Passwort festzulegen:</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="{{ .ConfirmationURL }}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Neues Passwort festlegen</a>
-        </div>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Dieser Link ist 24 Stunden gültig und kann nur einmal verwendet werden.</p>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Falls Sie kein neues Passwort angefordert haben, ignorieren Sie diese E-Mail bitte.</p>
-        
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #8BC34A; color: #666; font-size: 14px; text-align: center;">
-          <p>© 2025 Rasenpilot. Alle Rechte vorbehalten.</p>
-          <p>Sie haben diese E-Mail erhalten, weil jemand versucht hat, das Passwort für Ihr Rasenpilot-Konto zurückzusetzen.</p>
-        </div>
-      </div>
-    `,
-  },
-  
-  // Template for email change
-  changeEmail: {
-    subject: 'Bestätigen Sie Ihre neue E-Mail-Adresse bei Rasenpilot',
-    content: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #2E7D32; border: 1px solid #8BC34A; border-radius: 8px; background-color: #FAFAFA;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://rasenpilot.com/logo.png" alt="Rasenpilot Logo" style="max-width: 150px;">
-        </div>
-        
-        <h1 style="color: #2E7D32; text-align: center; font-size: 24px;">E-Mail-Adresse ändern</h1>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Sie haben eine Anfrage gestellt, Ihre E-Mail-Adresse bei Rasenpilot zu ändern. Bitte bestätigen Sie Ihre neue E-Mail-Adresse, indem Sie auf den Button unten klicken:</p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="{{ .ConfirmationURL }}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">E-Mail-Adresse bestätigen</a>
-        </div>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Dieser Link ist 24 Stunden gültig und kann nur einmal verwendet werden.</p>
-        
-        <p style="color: #333; line-height: 1.6; font-size: 16px;">Falls Sie diese Änderung nicht vorgenommen haben, kontaktieren Sie uns bitte umgehend.</p>
-        
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #8BC34A; color: #666; font-size: 14px; text-align: center;">
-          <p>© 2025 Rasenpilot. Alle Rechte vorbehalten.</p>
-          <p>Sie haben diese E-Mail erhalten, weil Sie Ihre E-Mail-Adresse bei Rasenpilot ändern möchten.</p>
-        </div>
-      </div>
-    `,
+// Rate limiting for authentication attempts
+const authRateLimiter = new Map<string, { attempts: number; lastAttempt: number }>();
+
+export const checkAuthRateLimit = (identifier: string, maxAttempts = 5, windowMs = 300000): boolean => {
+  const now = Date.now();
+  const userAttempts = authRateLimiter.get(identifier);
+
+  if (!userAttempts) {
+    authRateLimiter.set(identifier, { attempts: 1, lastAttempt: now });
+    return true;
+  }
+
+  // Reset if window has passed
+  if (now - userAttempts.lastAttempt > windowMs) {
+    authRateLimiter.set(identifier, { attempts: 1, lastAttempt: now });
+    return true;
+  }
+
+  // Check if rate limit exceeded
+  if (userAttempts.attempts >= maxAttempts) {
+    trackSecurityViolation('auth_rate_limit_exceeded', { identifier, attempts: userAttempts.attempts });
+    return false;
+  }
+
+  // Increment attempts
+  authRateLimiter.set(identifier, { 
+    attempts: userAttempts.attempts + 1, 
+    lastAttempt: now 
+  });
+
+  return true;
+};
+
+// Secure session management
+export const validateSession = async (): Promise<boolean> => {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (error || !session) {
+      return false;
+    }
+
+    // Check session expiration
+    const expiresAt = new Date(session.expires_at * 1000);
+    const now = new Date();
+    
+    if (now >= expiresAt) {
+      await logSecurityEvent('session_expired', { userId: session.user.id });
+      await supabase.auth.signOut();
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    await logSecurityEvent('session_validation_error', { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+    return false;
   }
 };

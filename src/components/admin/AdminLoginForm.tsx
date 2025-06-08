@@ -1,208 +1,171 @@
 
 import React, { useState } from 'react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
-import { Mail, Lock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { CardContent } from '@/components/ui/card';
+import { supabase, checkAuthRateLimit } from '@/lib/supabase';
+import { validateEmail } from '@/utils/inputValidation';
+import { trackFailedLogin, trackSuccessfulLogin, trackAdminAction } from '@/utils/auditLogger';
 import { toast } from 'sonner';
-import { supabase, validateAdminRole, logSecurityEvent } from '@/lib/supabase';
-import { Progress } from '@/components/ui/progress';
-
-const loginSchema = z.object({
-  email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein'),
-  password: z.string().min(8, 'Das Passwort muss mindestens 8 Zeichen lang sein'),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 interface AdminLoginFormProps {
   onLoginSuccess?: () => void;
 }
 
 const AdminLoginForm: React.FC<AdminLoginFormProps> = ({ onLoginSuccess }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loginProgress, setLoginProgress] = useState(0);
-  const [showProgress, setShowProgress] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors([]);
     setIsLoading(true);
-    setShowProgress(true);
-    
-    // Set up progress animation
-    let progressInterval = setInterval(() => {
-      setLoginProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + 10;
-      });
-    }, 300);
-    
-    // Set timeout to prevent infinite loading
-    const loginTimeout = setTimeout(() => {
-      setIsLoading(false);
-      setShowProgress(false);
-      clearInterval(progressInterval);
-      toast.error('Anmeldung fehlgeschlagen. Zeitüberschreitung bei der Verbindung zum Server.');
-    }, 10000);
 
     try {
-      // Log login attempt
-      await logSecurityEvent('admin_login_attempt', {
-        email: data.email,
-        timestamp: new Date().toISOString()
-      });
-      
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
+      // Input validation
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        setErrors(emailValidation.errors);
+        setIsLoading(false);
+        return;
+      }
 
-      clearTimeout(loginTimeout);
-      clearInterval(progressInterval);
+      if (!password.trim()) {
+        setErrors(['Passwort ist erforderlich']);
+        setIsLoading(false);
+        return;
+      }
+
+      // Rate limiting for admin login attempts
+      if (!checkAuthRateLimit(`admin_${email}`, 3, 900000)) { // 3 attempts per 15 minutes
+        setErrors(['Zu viele Admin-Anmeldeversuche. Bitte warten Sie 15 Minuten.']);
+        await trackAdminAction('login_rate_limited', email);
+        setIsLoading(false);
+        return;
+      }
+
+      // Attempt authentication
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: emailValidation.sanitizedValue!,
+        password: password.trim()
+      });
 
       if (error) {
-        await logSecurityEvent('admin_login_failed', {
-          email: data.email,
-          error: error.message
-        });
-        throw error;
-      }
-
-      if (!authData.session) {
-        throw new Error('Keine Sitzung zurückgegeben');
-      }
-
-      // Validate admin role after successful authentication
-      const isAdmin = await validateAdminRole();
-      
-      if (!isAdmin) {
-        await logSecurityEvent('admin_login_denied', {
-          email: data.email,
-          reason: 'insufficient_role'
-        });
+        await trackFailedLogin(email, `Admin login failed: ${error.message}`);
         
-        // Sign out the non-admin user
-        await supabase.auth.signOut();
-        throw new Error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
+        if (error.message.includes('Invalid login credentials')) {
+          setErrors(['Ungültige Admin-Anmeldedaten']);
+        } else {
+          setErrors([error.message]);
+        }
+        setIsLoading(false);
+        return;
       }
 
-      await logSecurityEvent('admin_login_success', {
-        email: data.email,
-        sessionId: authData.session.access_token.substring(0, 10) + '...'
-      });
-      
-      setLoginProgress(100);
-      toast.success('Erfolgreich als Administrator eingeloggt!');
-      
-      if (onLoginSuccess) {
-        onLoginSuccess();
-      }
-      
-    } catch (error: any) {
-      clearTimeout(loginTimeout);
-      clearInterval(progressInterval);
-      
-      let errorMessage = 'Unbekannter Fehler';
-      
-      if (error.message) {
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Falsche E-Mail oder Passwort';
-        } else {
-          errorMessage = error.message;
+      if (data.user) {
+        // Verify admin role
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profile?.role !== 'admin') {
+          await trackAdminAction('login_insufficient_privileges', data.user.email || email);
+          await supabase.auth.signOut();
+          setErrors(['Keine Administrator-Berechtigung']);
+          setIsLoading(false);
+          return;
         }
+
+        // Successful admin login
+        await trackSuccessfulLogin(data.user.email || email);
+        await trackAdminAction('login_successful', data.user.email || email);
+        
+        // Set admin flag for the session
+        localStorage.setItem('admin_login_success', 'true');
+        
+        toast.success('Admin-Anmeldung erfolgreich!');
+        onLoginSuccess?.();
       }
-      
-      toast.error('Fehler beim Einloggen: ' + errorMessage);
+
+    } catch (error) {
+      await trackFailedLogin(email, 'Admin login exception');
+      setErrors(['Ein unerwarteter Fehler ist aufgetreten']);
     } finally {
       setIsLoading(false);
-      setShowProgress(false);
     }
   };
 
   return (
-    <>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>E-Mail</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        placeholder="admin@example.com" 
-                        className="pl-10" 
-                        {...field} 
-                        disabled={isLoading}
-                        autoComplete="email"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+    <CardContent className="space-y-6">
+      {errors.length > 0 && (
+        <Alert className="border-red-200 bg-red-50">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            {errors.map((error, index) => (
+              <div key={index}>{error}</div>
+            ))}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="admin-email">Admin E-Mail</Label>
+          <Input
+            id="admin-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={isLoading}
+            autoComplete="email"
+            placeholder="admin@example.com"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="admin-password">Admin Passwort</Label>
+          <div className="relative">
+            <Input
+              id="admin-password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              autoComplete="current-password"
             />
-            
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Passwort</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        type="password" 
-                        className="pl-10" 
-                        {...field} 
-                        disabled={isLoading}
-                        autoComplete="current-password"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
               )}
-            />
-            
-            {showProgress && (
-              <div className="py-2">
-                <Progress value={loginProgress} className="h-2" />
-              </div>
-            )}
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter>
-        <Button 
-          onClick={form.handleSubmit(onSubmit)}
-          type="submit" 
-          className="w-full" 
-          disabled={isLoading}
-        >
-          {isLoading ? 'Wird angemeldet...' : 'Admin Login'}
+            </Button>
+          </div>
+        </div>
+
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          <Shield className="mr-2 h-4 w-4" />
+          {isLoading ? 'Anmeldung läuft...' : 'Als Administrator anmelden'}
         </Button>
-      </CardFooter>
-    </>
+      </form>
+    </CardContent>
   );
 };
 
