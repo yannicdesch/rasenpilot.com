@@ -92,20 +92,26 @@ Basierend auf deinem hochgeladenen Bild und der Problembeschreibung haben wir fo
         updateData({ analysisCompleted: true });
         toast.success('KI-Bildanalyse erfolgreich abgeschlossen!');
       } else {
-        console.log('=== Analysis failed ===');
+        console.log('=== Analysis failed, using fallback ===');
         console.log('Error:', result.error);
-        throw new Error(result.error || 'Analyse fehlgeschlagen');
+        // Fallback to mock analysis
+        const mockAnalysis = getMockAnalysis();
+        console.log('Using mock analysis as fallback');
+        setAnalysisResults(mockAnalysis);
+        setShowAnalysis(true);
+        updateData({ analysisCompleted: true });
+        toast.info('Demo-Analyse wird angezeigt (KI-Service vorübergehend nicht verfügbar)');
       }
     } catch (error) {
       console.error('=== Error in analysis ===');
       console.error('Error details:', error);
       // Fallback to mock analysis
       const mockAnalysis = getMockAnalysis();
-      console.log('Using mock analysis as fallback');
+      console.log('Using mock analysis as fallback due to error');
       setAnalysisResults(mockAnalysis);
       setShowAnalysis(true);
       updateData({ analysisCompleted: true });
-      toast.info('Demo-Analyse wird angezeigt (KI-Service nicht verfügbar)');
+      toast.info('Demo-Analyse wird angezeigt (Fehler bei KI-Analyse)');
     } finally {
       setIsAnalyzing(false);
     }

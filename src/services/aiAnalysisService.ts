@@ -49,7 +49,10 @@ export const analyzeImageWithAI = async (
     console.log('Uploading image to Supabase Storage:', fileName);
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('lawn-images')
-      .upload(fileName, imageFile);
+      .upload(fileName, imageFile, {
+        cacheControl: '3600',
+        upsert: false
+      });
 
     if (uploadError) {
       console.error('Image upload failed:', uploadError);
@@ -70,6 +73,7 @@ export const analyzeImageWithAI = async (
     console.log('Image URL obtained:', urlData.publicUrl);
 
     // Call the Edge Function for AI analysis
+    console.log('Calling analyze-lawn-image edge function...');
     const { data, error } = await supabase.functions.invoke('analyze-lawn-image', {
       body: {
         imageUrl: urlData.publicUrl,
@@ -83,6 +87,14 @@ export const analyzeImageWithAI = async (
     if (error) {
       console.error('Edge function error:', error);
       throw new Error(`Analysis failed: ${error.message}`);
+    }
+
+    // Clean up uploaded image after analysis
+    try {
+      await supabase.storage.from('lawn-images').remove([fileName]);
+      console.log('Temporary image cleaned up');
+    } catch (cleanupError) {
+      console.warn('Failed to cleanup temporary image:', cleanupError);
     }
 
     return data as AnalysisResponse;
