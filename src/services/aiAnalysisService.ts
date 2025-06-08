@@ -134,6 +134,7 @@ export const analyzeLawnProblem = async (
 ): Promise<{ success: boolean; analysis?: string; error?: string }> => {
   try {
     console.log('Analyzing lawn problem with AI:', problem);
+    console.log('Calling Supabase function: analyze-lawn-problem');
     
     const { data, error } = await supabase.functions.invoke('analyze-lawn-problem', {
       body: {
@@ -147,6 +148,11 @@ export const analyzeLawnProblem = async (
     if (error) {
       console.error('Lawn problem analysis error:', error);
       throw new Error(`Analysis failed: ${error.message}`);
+    }
+
+    if (!data || !data.analysis) {
+      console.error('No analysis data received:', data);
+      throw new Error('No analysis data received from API');
     }
 
     return {

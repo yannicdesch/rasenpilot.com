@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -161,19 +160,34 @@ const ChatAssistant = () => {
     }
 
     try {
-      console.log('Sending question to AI:', currentInput);
+      console.log('=== ChatAssistant: Sending question to AI ===');
+      console.log('Question:', currentInput);
+      console.log('Has image:', !!imageAttachment);
       
       // Use the AI analysis service
       const result = await analyzeLawnProblem(currentInput, !!imageAttachment);
+      
+      console.log('=== ChatAssistant: AI Analysis Result ===');
+      console.log('Success:', result.success);
+      console.log('Analysis:', result.analysis);
+      console.log('Error:', result.error);
       
       let responseText = "Entschuldigung, ich konnte Ihre Frage nicht verarbeiten. Bitte versuchen Sie es erneut oder formulieren Sie Ihre Frage anders.";
       
       if (result.success && result.analysis) {
         responseText = result.analysis;
         console.log('AI analysis successful:', result.analysis);
+        toast({
+          title: "KI-Analyse abgeschlossen",
+          description: "Ihre Frage wurde erfolgreich analysiert."
+        });
       } else {
         console.error('AI analysis failed:', result.error);
-        responseText = result.error || responseText;
+        responseText = `Fehler bei der KI-Analyse: ${result.error || 'Unbekannter Fehler'}`;
+        toast({
+          title: "Fehler bei der Analyse",
+          description: result.error || "Unbekannter Fehler ist aufgetreten."
+        });
       }
       
       // Personalize response if we have profile data
@@ -211,6 +225,11 @@ const ChatAssistant = () => {
       if (isAuthenticated) {
         saveMessage(errorMessage, 'ai');
       }
+      
+      toast({
+        title: "Verbindungsfehler",
+        description: "Fehler bei der Kommunikation mit der KI. Bitte versuchen Sie es erneut."
+      });
     } finally {
       setIsLoading(false);
     }
