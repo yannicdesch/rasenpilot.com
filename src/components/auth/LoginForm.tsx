@@ -12,9 +12,11 @@ import { toast } from 'sonner';
 
 interface LoginFormProps {
   onSuccess?: () => void;
+  redirectTo?: string;
+  onForgotPassword?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPassword }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -132,6 +134,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           </Button>
         </div>
       </div>
+
+      {onForgotPassword && (
+        <div className="text-center">
+          <Button
+            type="button"
+            variant="link"
+            onClick={onForgotPassword}
+            className="text-sm text-green-600 hover:text-green-800"
+          >
+            Passwort vergessen?
+          </Button>
+        </div>
+      )}
 
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? 'Anmeldung läuft...' : 'Anmelden'}

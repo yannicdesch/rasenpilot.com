@@ -12,6 +12,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Check if Supabase is properly configured
+export const isSupabaseConfigured = (): boolean => {
+  return !!(supabaseUrl && supabaseAnonKey);
+};
+
 // Enhanced admin role validation with security logging
 export const validateAdminRole = async (): Promise<boolean> => {
   try {
