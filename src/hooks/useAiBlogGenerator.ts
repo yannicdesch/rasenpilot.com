@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export type BlogPost = {
@@ -22,17 +21,27 @@ export type BlogPost = {
 export type BlogScheduleSettings = {
   isEnabled: boolean;
   interval: number; 
+  postsPerInterval: number; // New: number of posts per interval
   topics: string[];
   lastGenerated: string | null;
   nextScheduled: string | null;
+  generatedToday: number; // New: track daily posts
 };
 
 const DEFAULT_SETTINGS: BlogScheduleSettings = {
   isEnabled: false,
-  interval: 2,
-  topics: ['Rasenpflege', 'Rasenmähen', 'Düngen', 'Bewässerung', 'Rasenkrankheiten'],
+  interval: 1, // Daily
+  postsPerInterval: 2, // 2 posts per day
+  topics: [
+    'Rasenpflege im Frühling', 'Rasenpflege im Sommer', 'Rasenpflege im Herbst', 'Rasenpflege im Winter',
+    'Rasenmähen Tipps', 'Rasen düngen', 'Rasenbewässerung', 'Rasenkrankheiten erkennen',
+    'Unkraut bekämpfen', 'Moos im Rasen', 'Rasen vertikutieren', 'Rasen nachsäen',
+    'Rollrasen verlegen', 'Rasen kalken', 'Rasenpflege für Anfänger', 'Profi Rasenpflege',
+    'Rasen im Schatten', 'Strapazierfähiger Rasen', 'Englischer Rasen', 'Mediterrane Rasenpflege'
+  ],
   lastGenerated: null,
-  nextScheduled: null
+  nextScheduled: null,
+  generatedToday: 0
 };
 
 export const useAiBlogGenerator = () => {
@@ -192,7 +201,106 @@ export const useAiBlogGenerator = () => {
     }
   };
   
-  // Helper functions
+  const generateMultipleBlogPosts = async () => {
+    try {
+      if (settings.topics.length === 0) {
+        throw new Error('No topics available for generating content');
+      }
+      
+      const posts = [];
+      const postsToGenerate = settings.postsPerInterval;
+      
+      for (let i = 0; i < postsToGenerate; i++) {
+        // Select unique topics for each post
+        const availableTopics = settings.topics.filter(topic => 
+          !posts.some(post => post.category === topic)
+        );
+        
+        if (availableTopics.length === 0) break;
+        
+        const randomTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+        const content = await simulateAiGeneration(randomTopic);
+        
+        const title = generateVariedTitle(randomTopic, i);
+        
+        const newPost: BlogPost = {
+          id: Date.now() + i,
+          title,
+          slug: title
+            .toLowerCase()
+            .replace(/[äöüß]/g, match => {
+              if (match === 'ä') return 'ae';
+              if (match === 'ö') return 'oe';
+              if (match === 'ü') return 'ue';
+              if (match === 'ß') return 'ss';
+              return match;
+            })
+            .replace(/[^\w\s]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-'),
+          excerpt: content.substring(0, 150) + '...',
+          content,
+          image: '/placeholder.svg',
+          category: randomTopic,
+          readTime: Math.floor(content.length / 1000) + 2,
+          tags: generateRandomTags(randomTopic).join(', '),
+          date: new Date().toISOString().split('T')[0],
+          seo: {
+            metaTitle: title,
+            metaDescription: content.substring(0, 150) + '...',
+            keywords: randomTopic + ', Rasen, Gartenpflege, ' + generateRandomTags(randomTopic).join(', ')
+          }
+        };
+        
+        posts.push(newPost);
+        saveBlogPost(newPost);
+        
+        // Add delay between generations to seem more natural
+        if (i < postsToGenerate - 1) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+      
+      // Update settings
+      const now = new Date();
+      const nextDate = new Date(now);
+      nextDate.setDate(now.getDate() + settings.interval);
+      
+      setSettings({
+        ...settings,
+        lastGenerated: now.toISOString(),
+        nextScheduled: settings.isEnabled ? nextDate.toISOString() : null,
+        generatedToday: settings.generatedToday + posts.length
+      });
+      
+      return {
+        success: true,
+        posts
+      };
+    } catch (error) {
+      console.error('Error generating blog posts:', error);
+      return {
+        success: false,
+        error
+      };
+    }
+  };
+
+  const generateVariedTitle = (topic: string, index: number): string => {
+    const titleVariations = [
+      `${topic}: Die ultimative Anleitung für perfekte Ergebnisse`,
+      `Profi-Tipps für ${topic} - So machen Sie es richtig`,
+      `${topic} leicht gemacht: Schritt-für-Schritt Guide`,
+      `Die häufigsten Fehler bei ${topic} und wie Sie sie vermeiden`,
+      `${topic}: Alles was Sie wissen müssen`,
+      `Experten-Geheimnisse für erfolgreiche ${topic}`,
+      `${topic} im Detail: Von Grundlagen bis Profi-Tricks`,
+      `Die besten Methoden für ${topic} in Deutschland`
+    ];
+    
+    return titleVariations[index % titleVariations.length];
+  };
+
   const saveBlogPost = (post: BlogPost) => {
     try {
       const savedPosts = localStorage.getItem('blogPosts');
@@ -251,10 +359,42 @@ export const useAiBlogGenerator = () => {
   
   return {
     settings,
-    updateSettings,
-    toggleScheduler,
-    addTopic,
-    removeTopic,
-    generateBlogPost
+    updateSettings: (newSettings: Partial<BlogScheduleSettings>) => {
+      setSettings(prev => ({ ...prev, ...newSettings }));
+    },
+    toggleScheduler: (enabled: boolean) => {
+      const now = new Date();
+      const nextDate = new Date(now);
+      nextDate.setDate(now.getDate() + settings.interval);
+      
+      setSettings({
+        ...settings,
+        isEnabled: enabled,
+        nextScheduled: enabled ? nextDate.toISOString() : null
+      });
+      
+      return {
+        isEnabled: enabled,
+        nextDate: enabled ? nextDate : null
+      };
+    },
+    addTopic: (topic: string) => {
+      if (!topic.trim()) return false;
+      if (settings.topics.includes(topic.trim())) return false;
+      
+      setSettings({
+        ...settings,
+        topics: [...settings.topics, topic.trim()]
+      });
+      
+      return true;
+    },
+    removeTopic: (topicToRemove: string) => {
+      setSettings({
+        ...settings,
+        topics: settings.topics.filter(t => t !== topicToRemove)
+      });
+    },
+    generateBlogPost: generateMultipleBlogPosts
   };
 };
