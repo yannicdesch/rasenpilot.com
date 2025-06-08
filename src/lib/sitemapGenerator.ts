@@ -1,0 +1,144 @@
+
+interface SitemapUrl {
+  loc: string;
+  lastmod?: string;
+  changefreq?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+  priority?: number;
+  images?: Array<{
+    loc: string;
+    caption?: string;
+    title?: string;
+  }>;
+}
+
+export const generateSitemap = (urls: SitemapUrl[]): string => {
+  const siteUrl = 'https://rasenpilot.de';
+  
+  const urlsXml = urls.map(url => {
+    const images = url.images?.map(img => `
+    <image:image>
+      <image:loc>${img.loc}</image:loc>
+      ${img.caption ? `<image:caption>${img.caption}</image:caption>` : ''}
+      ${img.title ? `<image:title>${img.title}</image:title>` : ''}
+    </image:image>`).join('') || '';
+    
+    return `
+  <url>
+    <loc>${siteUrl}${url.loc}</loc>
+    ${url.lastmod ? `<lastmod>${url.lastmod}</lastmod>` : ''}
+    ${url.changefreq ? `<changefreq>${url.changefreq}</changefreq>` : ''}
+    ${url.priority ? `<priority>${url.priority}</priority>` : ''}${images}
+  </url>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">${urlsXml}
+</urlset>`;
+};
+
+export const getDefaultSitemapUrls = (): SitemapUrl[] => {
+  const today = new Date().toISOString().split('T')[0];
+  
+  return [
+    // High priority pages
+    {
+      loc: '/',
+      lastmod: today,
+      changefreq: 'daily',
+      priority: 1.0,
+      images: [{
+        loc: 'https://rasenpilot.de/logo.png',
+        caption: 'Rasenpilot - Intelligenter KI-Rasenberater'
+      }]
+    },
+    
+    // Free tools (high SEO value)
+    {
+      loc: '/onboarding',
+      lastmod: today,
+      changefreq: 'weekly',
+      priority: 0.9,
+      images: [{
+        loc: 'https://rasenpilot.de/free-analysis-preview.jpg',
+        caption: 'Kostenlose KI-Rasenanalyse'
+      }]
+    },
+    
+    {
+      loc: '/free-plan',
+      lastmod: today,
+      changefreq: 'weekly',
+      priority: 0.9,
+      images: [{
+        loc: 'https://rasenpilot.de/free-plan-preview.jpg',
+        caption: 'Kostenloser Rasenpflegeplan erstellen'
+      }]
+    },
+    
+    {
+      loc: '/free-care-plan',
+      lastmod: today,
+      changefreq: 'daily',
+      priority: 0.8,
+      images: [{
+        loc: 'https://rasenpilot.de/free-care-plan-preview.jpg',
+        caption: '14-Tage Rasenpflegeplan'
+      }]
+    },
+    
+    // Content pages
+    {
+      loc: '/blog-overview',
+      lastmod: today,
+      changefreq: 'daily',
+      priority: 0.8
+    },
+    
+    {
+      loc: '/features',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.7
+    },
+    
+    // Free tools
+    {
+      loc: '/free-chat',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.7
+    },
+    
+    {
+      loc: '/free-weather',
+      lastmod: today,
+      changefreq: 'daily',
+      priority: 0.7
+    },
+    
+    // Legal pages
+    {
+      loc: '/datenschutz',
+      lastmod: today,
+      changefreq: 'yearly',
+      priority: 0.3
+    },
+    
+    {
+      loc: '/nutzungsbedingungen',
+      lastmod: today,
+      changefreq: 'yearly',
+      priority: 0.3
+    },
+    
+    {
+      loc: '/impressum',
+      lastmod: today,
+      changefreq: 'yearly',
+      priority: 0.3
+    }
+  ];
+};

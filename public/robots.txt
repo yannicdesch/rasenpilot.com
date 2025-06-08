@@ -3,15 +3,26 @@
 User-agent: *
 Allow: /
 
+# Enhanced crawling directives for better SEO
 # Main search engines
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
+
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 2
+
 User-agent: Twitterbot
 Allow: /
+
 User-agent: facebookexternalhit
 Allow: /
+
+# Yandex (for international reach)
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 3
 
 # Private or admin areas
 Disallow: /dashboard
@@ -20,20 +31,46 @@ Disallow: /blog/new
 Disallow: /blog/edit/
 Disallow: /seo-management
 Disallow: /admin
+Disallow: /auth
+Disallow: /db-test
 
 # Allow API endpoints to be crawled
 Allow: /api/public/
 
-# Important lawn care pages - explicitly allow
+# Important lawn care pages - explicitly allow for better indexing
 Allow: /free-plan
 Allow: /free-care-plan
 Allow: /free-chat
 Allow: /free-analysis
 Allow: /free-weather
 Allow: /features
+Allow: /onboarding
+Allow: /blog
+Allow: /blog-overview
 
-# Sitemap
+# SEO-optimized seasonal content
+Allow: /rasenpflege-fruehjahr
+Allow: /rasenpflege-sommer
+Allow: /rasenpflege-herbst
+Allow: /rasenpflege-winter
+
+# Legal pages
+Allow: /datenschutz
+Allow: /nutzungsbedingungen
+Allow: /impressum
+
+# Sitemap location
 Sitemap: https://rasenpilot.de/sitemap.xml
 
-# Crawl delay for bots
-Crawl-delay: 3
+# Crawl delay for better server performance
+Crawl-delay: 2
+
+# Block common bot spam
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
