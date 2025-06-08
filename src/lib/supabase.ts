@@ -1,25 +1,78 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Use the provided URL and anon key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
-                   import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 
-                   'https://ugaxwcslhoppflrbuwxv.supabase.co';
+// Get URL and key from environment variables with fallbacks for development
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
 
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
-                       import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
-                       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ';
+// Validate environment configuration
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase configuration. Please check your environment variables.');
+}
 
-// Create the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create the Supabase client with proper security configuration
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: localStorage,
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'rasenpilot-app'
+    }
+  }
+});
 
 // Helper to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-  return true; // Since we're now using fixed values, we can return true
+  const hasUrl = !!supabaseUrl && supabaseUrl !== 'your-supabase-url';
+  const hasKey = !!supabaseAnonKey && supabaseAnonKey !== 'your-anon-key';
+  return hasUrl && hasKey;
 };
 
-// Email template configuration - these need to be set in the Supabase Dashboard
-// This serves as documentation for what the templates should look like
+// Security helper to validate admin role
+export const validateAdminRole = async (): Promise<boolean> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return false;
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error) {
+      console.error('Error validating admin role:', error);
+      return false;
+    }
+
+    return profile?.role === 'admin';
+  } catch (error) {
+    console.error('Error in admin role validation:', error);
+    return false;
+  }
+};
+
+// Security logging function
+export const logSecurityEvent = async (event: string, details?: any) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    await supabase.from('events').insert({
+      category: 'security',
+      action: event,
+      label: session?.user?.email || 'anonymous',
+      value: details ? JSON.stringify(details) : null
+    });
+  } catch (error) {
+    console.error('Failed to log security event:', error);
+  }
+};
+
+// Email template configuration (moved from previous implementation)
 export const emailTemplates = {
   // Template for email confirmation
   confirmSignUp: {

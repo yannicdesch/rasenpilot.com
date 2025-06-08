@@ -1,173 +1,84 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, validateAdminRole, logSecurityEvent } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  requireAdmin?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Special handling for admin route
-  const isAdminRoute = location.pathname === '/admin';
 
   useEffect(() => {
-    // Immediately consider admin login successful if flag exists
-    const adminLoginSuccess = localStorage.getItem('admin_login_success');
-    if (adminLoginSuccess && isAdminRoute) {
-      console.log('Admin login success flag found, bypassing authentication check');
-      setIsAuthenticated(true);
-      setIsLoading(false);
-      return;
-    }
-    
-    // If auth_initialized is true, user just logged in, so we can immediately show the protected content
-    const authInitialized = localStorage.getItem('auth_initialized');
-    if (authInitialized) {
-      console.log('Auth initialized flag found, bypassing authentication check');
-      setIsAuthenticated(true);
-      setIsLoading(false);
-      localStorage.removeItem('auth_initialized');
-      return;
-    }
-
-    const checkAuth = async () => {
-      try {
-        // Short circuit if Supabase is not configured
-        if (!isSupabaseConfigured()) {
-          console.error('Supabase is not configured properly');
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          
-          // Don't navigate away from admin page
-          if (!isAdminRoute) {
-            navigate('/auth', { state: { from: location }, replace: true });
-          }
-          return;
-        }
-
-        // Get the current session
-        console.log('Checking for session in ProtectedRoute');
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Supabase authentication error:', error);
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          return;
-        }
-        
-        console.log('Auth session check:', data.session ? 'Session found' : 'No session found');
-        
-        // Update authentication state based on session presence
-        const isLoggedIn = !!data.session;
-        setIsAuthenticated(isLoggedIn);
-        
-        // Wenn wir auf der Admin-Route sind und eine Admin-Rolle haben, überprüfen wir die Berechtigung
-        if (isLoggedIn && isAdminRoute && data.session) {
-          try {
-            // Benutzerrolle überprüfen
-            const { data: userData, error: userError } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', data.session.user.id)
-              .single();
-              
-            if (userError) {
-              console.warn('Konnte Benutzerrolle nicht abrufen:', userError);
-            } else if (userData && userData.role !== 'admin') {
-              toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
-              setIsAuthenticated(false);
-            }
-          } catch (roleError) {
-            console.error('Fehler bei der Rollenprüfung:', roleError);
-          }
-        }
-        
-        // Wenn nicht authentifiziert und nicht auf Admin-Seite, über Premium-Funktionen informieren
-        if (!isLoggedIn && !isAdminRoute) {
-          toast('Diese Funktion erfordert eine Anmeldung. Sehen Sie sich unsere Premium-Funktionen an.', {
-            action: {
-              label: 'Mehr Info',
-              onClick: () => navigate('/features')
-            }
-          });
-          navigate('/auth', { state: { from: location }, replace: true });
-        }
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Set shorter timeout for loading state (150ms max)
-    const timeout = setTimeout(() => {
-      if (isLoading) {
-        console.log('Auth check timeout reached, forcing completion');
-        setIsLoading(false);
-        
-        // If we're still not sure of the auth state after timeout, try to check one more time
-        if (isAuthenticated === null) {
-          supabase.auth.getSession().then(({ data }) => {
-            const hasSession = !!data.session;
-            setIsAuthenticated(hasSession);
-            
-            if (!hasSession && !isAdminRoute) {
-              navigate('/auth', { state: { from: location }, replace: true });
-            }
-          }).catch(() => {
-            if (!isAdminRoute) {
-              navigate('/auth', { state: { from: location }, replace: true });
-            }
-          });
-        }
-      }
-    }, 150); // Reduced timeout to 150ms for faster UX
-
-    // Start auth check process
     checkAuth();
+  }, [requireAdmin]);
 
-    // Set up auth listener to respond to auth state changes in real-time
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed in ProtectedRoute:', event, !!session);
+  const checkAuth = async () => {
+    try {
+      setIsLoading(true);
       
-      // Update authentication state immediately when auth state changes
-      setIsAuthenticated(!!session);
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Supabase authentication error:', error);
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+      
+      const isLoggedIn = !!data.session;
+      setIsAuthenticated(isLoggedIn);
+      
+      if (isLoggedIn && requireAdmin) {
+        const adminStatus = await validateAdminRole();
+        setIsAdmin(adminStatus);
+        
+        if (!adminStatus) {
+          await logSecurityEvent('unauthorized_admin_access_attempt', {
+            path: location.pathname,
+            userId: data.session.user.id
+          });
+          toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error checking authentication:', error);
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+    } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Set up auth listener
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
       
       if (event === 'SIGNED_IN') {
         toast.success('Erfolgreich eingeloggt!');
-        
-        // Set admin login success flag if signing in from admin page
-        if (isAdminRoute) {
-          localStorage.setItem('admin_login_success', 'true');
-        }
       } else if (event === 'SIGNED_OUT') {
         toast.info('Sie wurden abgemeldet');
-        localStorage.removeItem('admin_login_success');
-        if (!isAdminRoute) {
-          navigate('/auth', { state: { from: location }, replace: true });
-        }
+        setIsAdmin(false);
+        navigate('/auth', { state: { from: location }, replace: true });
       }
     });
   
     return () => {
-      clearTimeout(timeout);
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [navigate, location, isAdminRoute]);
+  }, [navigate, location]);
 
-  // Show a better loading state with visual feedback, but only for a very short time
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
@@ -177,15 +88,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // For admin route, we always render the children and handle auth within the component
-  if (isAdminRoute) {
-    return <>{children}</>;
+  // Check authentication
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // For other routes, if authenticated, render the children (protected content)
-  return isAuthenticated ? 
-    <>{children}</> : 
-    <Navigate to="/auth" state={{ from: location }} replace />;
-}
+  // Check admin privileges if required
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
 
 export default ProtectedRoute;
