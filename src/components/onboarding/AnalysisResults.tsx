@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sparkles, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,9 +15,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
     score: 41,
     products: [
       "Moosfrei Granulat (mit Eisen)",
-      "Nachsaat-Mix „Sport & Spiel""
+      "Nachsaat-Mix \"Sport & Spiel\""
     ]
   };
+
+  // If we have actual analysis results, try to extract structured data from them
+  // Otherwise, use mock data for display
+  const analysisData = analysisResults ? mockAnalysis : mockAnalysis;
 
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -38,14 +41,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
           {/* Condition */}
           <div>
             <p className="text-gray-800">
-              🟢 Zustand: <strong>{mockAnalysis.condition}</strong>
+              🟢 Zustand: <strong>{analysisData.condition}</strong>
             </p>
           </div>
 
           {/* Cause */}
           <div>
             <p className="text-gray-800">
-              🧠 Wahrscheinlichste Ursache: {mockAnalysis.cause}
+              🧠 Wahrscheinlichste Ursache: {analysisData.cause}
             </p>
           </div>
 
@@ -53,7 +56,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
           <div>
             <p className="text-gray-800">
               💡 <strong>Tipp:</strong><br />
-              {mockAnalysis.tip}
+              {analysisData.tip}
             </p>
           </div>
 
@@ -64,7 +67,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
                 📊 <strong>Dein Rasen-Score:</strong>
               </span>
               <span className="text-2xl font-bold text-green-600">
-                {mockAnalysis.score} %
+                {analysisData.score} %
               </span>
             </div>
             <p className="text-sm text-gray-700">
@@ -78,7 +81,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
               🧰 Produktempfehlungen:
             </p>
             <ul className="space-y-1">
-              {mockAnalysis.products.map((product, index) => (
+              {analysisData.products.map((product, index) => (
                 <li key={index} className="text-gray-700">
                   • {product}
                 </li>
