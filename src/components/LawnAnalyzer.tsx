@@ -25,7 +25,6 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AIAnalysisResult | null>(null);
-  const [analyzesUsed, setAnalyzesUsed] = useState(0);
   const { temporaryProfile, isAuthenticated, setTemporaryProfile, profile, syncProfileWithSupabase } = useLawn();
   const navigate = useNavigate();
 
@@ -65,7 +64,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
 
       if (isAuthenticated) {
         // Use real AI analysis for authenticated users
-        console.log("Using AI analysis...");
+        console.log("Using AI analysis for authenticated user...");
         const result = await analyzeImageWithAI(
           selectedFile,
           temporaryProfile?.grassType || profile?.grassType,
@@ -75,6 +74,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
         if (result.success && result.analysis) {
           analysisResult = result.analysis;
           toast("KI-Analyse erfolgreich abgeschlossen!");
+          console.log("AI analysis successful:", analysisResult);
         } else {
           console.warn("AI analysis failed, falling back to mock:", result.error);
           analysisResult = getMockAnalysis();
@@ -94,7 +94,6 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
       }
 
       setAnalysisResults(analysisResult);
-      setAnalyzesUsed(prevCount => prevCount + 1);
       
       // Store the lawn picture in the profile or temporary profile
       if (previewUrl) {
@@ -127,7 +126,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
-      toast("Bei der Analyse ist ein Fehler aufgetreten.");
+      toast("Bei der Analyse ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -168,7 +167,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
                 <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <AlertTitle className="text-blue-800 dark:text-blue-400">
-                  {isAuthenticated ? 'KI-Analyse' : 'Demo-Analyse'}
+                  {isAuthenticated ? 'KI-Analyse verfügbar' : 'Demo-Analyse'}
                 </AlertTitle>
                 <AlertDescription className="text-blue-700 dark:text-blue-300">
                   {isAuthenticated 

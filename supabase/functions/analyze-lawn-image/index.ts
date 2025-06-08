@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,25 +15,30 @@ serve(async (req) => {
   try {
     const { imageUrl, grassType, lawnGoal } = await req.json()
     
+    console.log('Analyzing image:', imageUrl, 'with grass type:', grassType, 'and goal:', lawnGoal);
+    
     // Get OpenAI API key from Supabase secrets
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
+      console.error('OpenAI API key not found in environment');
       throw new Error('OpenAI API key not configured')
     }
 
+    console.log('OpenAI API key found, making request...');
+
     // Prepare the prompt for lawn analysis
-    const prompt = `Analyze this lawn image and provide a detailed assessment. Consider the following context:
-    - Grass type: ${grassType || 'Unknown'}
-    - Lawn goal: ${lawnGoal || 'General health'}
+    const prompt = `Analysiere dieses Rasenfoto und erstelle eine detaillierte Bewertung. Kontext:
+    - Rasensorte: ${grassType || 'Unbekannt'}
+    - Rasenziel: ${lawnGoal || 'Allgemeine Gesundheit'}
     
-    Please identify:
-    1. Overall lawn health (scale 1-10)
-    2. Visible problems (diseases, pests, nutrient deficiencies, weeds)
-    3. Soil condition indicators
-    4. Specific recommendations for improvement
-    5. Confidence level for each diagnosis
+    Bitte identifiziere:
+    1. Allgemeine Rasengesundheit (Skala 1-10)
+    2. Sichtbare Probleme (Krankheiten, Schädlinge, Nährstoffmängel, Unkraut)
+    3. Bodenzustandsindikatoren
+    4. Spezifische Verbesserungsempfehlungen
+    5. Vertrauensgrad für jede Diagnose
     
-    Return your analysis in this JSON format:
+    Gib deine Analyse in diesem JSON-Format zurück:
     {
       "overallHealth": number,
       "issues": [
@@ -45,7 +50,7 @@ serve(async (req) => {
         }
       ],
       "generalRecommendations": ["string array"]
-    }`
+    }`;
 
     // Call OpenAI Vision API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -59,7 +64,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert lawn care specialist with years of experience in diagnosing lawn problems from images. Provide detailed, actionable advice.'
+            content: 'Du bist ein Experte für Rasenpflege mit jahrelanger Erfahrung in der Diagnose von Rasenproblemen anhand von Bildern. Gib detaillierte, umsetzbare Ratschläge auf Deutsch.'
           },
           {
             role: 'user',
@@ -77,45 +82,60 @@ serve(async (req) => {
             ]
           }
         ],
-        max_tokens: 1000,
+        max_tokens: 1500,
         temperature: 0.3
       }),
-    })
+    });
+
+    console.log('OpenAI response status:', response.status);
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`)
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json()
-    const analysisText = data.choices[0].message.content
+    const data = await response.json();
+    console.log('OpenAI response received successfully');
+    
+    const analysisText = data.choices[0].message.content;
+    console.log('Analysis text:', analysisText);
 
     // Try to parse JSON response, fallback to text processing
-    let analysisResult
+    let analysisResult;
     try {
-      analysisResult = JSON.parse(analysisText)
-    } catch {
+      // Extract JSON from the response if it's wrapped in text
+      const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysisResult = JSON.parse(jsonMatch[0]);
+      } else {
+        analysisResult = JSON.parse(analysisText);
+      }
+      console.log('Successfully parsed JSON analysis:', analysisResult);
+    } catch (parseError) {
+      console.log('Failed to parse JSON, creating fallback structure:', parseError);
       // Fallback: convert text response to structured format
       analysisResult = {
         overallHealth: 7,
         issues: [
           {
-            issue: "AI Analysis Result",
+            issue: "KI-Analyse Ergebnis",
             confidence: 0.8,
             severity: "medium",
             recommendations: analysisText.split('\n').filter(line => line.trim().length > 0).slice(0, 4)
           }
         ],
-        generalRecommendations: ["Follow the detailed analysis provided above"]
-      }
+        generalRecommendations: ["Folge der detaillierten Analyse oben"]
+      };
     }
 
     return new Response(
       JSON.stringify({ success: true, analysis: analysisResult }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    );
 
   } catch (error) {
-    console.error('Error analyzing lawn image:', error)
+    console.error('Error analyzing lawn image:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
@@ -125,6 +145,6 @@ serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
-    )
+    );
   }
-})
+});

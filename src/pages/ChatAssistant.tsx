@@ -10,6 +10,7 @@ import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 import ChatHistory from '@/components/ChatHistory';
+import { analyzeLawnProblem } from '@/services/aiAnalysisService';
 
 interface Message {
   id: number;
@@ -20,30 +21,15 @@ interface Message {
 
 // Mock suggested questions
 const suggestedQuestions = [
-  "Wie oft sollte ich meinen Bermuda-Rasen gießen?",
+  "Wie oft sollte ich meinen Rasen gießen?",
   "Was ist der beste Weg, um Löwenzahn loszuwerden?",
   "Wann ist die beste Zeit zum Düngen?",
   "Wie kann ich kahle Stellen im Rasen reparieren?",
-  "Welche Höhe sollte ich mein Gras schneiden?"
+  "Welche Höhe sollte ich mein Gras schneiden?",
+  "Mein Rasen hat braune Flecken, was kann das sein?",
+  "Wie bekämpfe ich Moos im Rasen?",
+  "Welcher Dünger ist am besten für meinen Rasen?"
 ];
-
-// Mock responses for demo (would use OpenAI in production)
-const mockResponses: Record<string, string> = {
-  "Wie oft sollte ich meinen Bermuda-Rasen gießen?": 
-    "Für Bermuda-Rasen sollten Sie tief, aber nicht zu häufig gießen, um tiefes Wurzelwachstum zu fördern. Während der Sommermonate streben Sie etwa 2,5 bis 3 cm Wasser pro Woche an, entweder durch Niederschlag oder Bewässerung. In kühleren Monaten reduzieren Sie auf 1,5-2 cm pro Woche. Bewässern Sie immer früh morgens (zwischen 4-10 Uhr), um Verdunstung und Pilzwachstum zu minimieren.",
-  
-  "Was ist der beste Weg, um Löwenzahn loszuwerden?": 
-    "Für eine effektive Löwenzahnkontrolle haben Sie mehrere Möglichkeiten:\n\n1. Manuelle Entfernung - Ziehen Sie Löwenzahn von Hand heraus und achten Sie darauf, die gesamte Pfahlwurzel zu entfernen\n2. Punktuelle Behandlung mit selektiven Herbiziden, die Breitblattunkräuter bekämpfen, ohne dem Gras zu schaden\n3. Verbessern Sie die allgemeine Rasengesundheit durch richtiges Mähen, Düngen und Bewässern, um neues Unkraut zu verhindern\n4. Verwenden Sie im Frühjahr Vorauflauf-Herbizide, um das Keimen von Löwenzahnsamen zu verhindern\n\nFür einen organischen Ansatz können Sie auf Essig basierende Herbizide oder Maisklebermehl als natürliches Vorauflaufmittel verwenden.",
-  
-  "Wann ist die beste Zeit zum Düngen?": 
-    "Die beste Zeit zum Düngen hängt von Ihrer Grasart und dem Klima ab. Bei Warmjahreszeitgräsern wie Bermuda, St. Augustine und Zoysia bringen Sie den ersten Dünger im späten Frühling aus, wenn das Gras aktiv wächst. Bei Kaltjahreszeitgräsern wie Blaugras und Schwingel ist der frühe Herbst ideal für die Hauptanwendung. Düngen Sie immer, wenn das Gras trocken, der Boden aber feucht ist, und folgen Sie mit leichter Bewässerung, damit die Nährstoffe die Wurzeln erreichen, ohne das Gras zu verbrennen.",
-  
-  "Wie kann ich kahle Stellen im Rasen reparieren?": 
-    "Um kahle Stellen in Ihrem Rasen zu reparieren:\n\n1. Entfernen Sie Schutt und lockern Sie die obersten 2-5 cm Erde\n2. Tragen Sie eine dünne Schicht Kompost oder Oberboden auf\n3. Streuen Sie Grassamen, die für Ihren Rasentyp geeignet sind, und sorgen Sie für guten Samen-Boden-Kontakt\n4. Rechen Sie die Samen leicht in den Boden ein\n5. Bewässern Sie leicht aber häufig, bis die Keimung erfolgt (normalerweise 7-21 Tage)\n6. Sobald etabliert, wechseln Sie zu tieferer, weniger häufiger Bewässerung\n\nFür schnellere Ergebnisse können Sie Rasensoden für sofortige Deckung verwenden. Die beste Zeit zum Reparieren ist während der Hauptwachstumszeit Ihrer Grasart - Frühling/Sommer für Warmjahreszeitgräser und Herbst für Kaltjahreszeitgräser.",
-  
-  "Welche Höhe sollte ich mein Gras schneiden?": 
-    "Die optimale Schnitthöhe variiert je nach Grasart:\n\n• Bermuda: 2,5-5 cm\n• Kentucky Bluegrass: 6-9 cm\n• Schwingel: 7,5-10 cm\n• St. Augustine: 6-10 cm\n• Zoysia: 2,5-5 cm\n• Raigras: 4-6 cm\n\nBefolgen Sie die 1/3-Regel: Entfernen Sie nie mehr als ein Drittel der Grashalmhöhe bei einem Mähdurchgang. Bei Sommerhitze oder Trockenstress schneiden Sie am oberen Ende des empfohlenen Bereichs. Halten Sie die Klingen des Mähers scharf für sauberere Schnitte, die dazu beitragen, Krankheiten zu vermeiden."
-};
 
 const ChatAssistant = () => {
   const { profile } = useLawn();
@@ -144,7 +130,7 @@ const ChatAssistant = () => {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() === '' && !imageAttachment) return;
     
     // Create new user message
@@ -155,18 +141,18 @@ const ChatAssistant = () => {
       timestamp: new Date()
     };
     
-    setMessages([...messages, newUserMessage]);
+    setMessages(prev => [...prev, newUserMessage]);
     
     // Save user message if authenticated
     if (isAuthenticated) {
       saveMessage(input, 'user');
     }
     
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
     
     if (imageAttachment) {
-      // Handle image upload logic here
       toast({
         title: "Bild empfangen",
         description: "Unsere KI analysiert Ihr Rasenfoto."
@@ -174,21 +160,25 @@ const ChatAssistant = () => {
       setImageAttachment(null);
     }
 
-    // Simulate AI response delay (would use OpenAI API in production)
-    setTimeout(() => {
-      let responseText = "Ich muss diese Frage genauer recherchieren. Für speziellere Beratung zu Ihrer Situation empfehle ich, einen lokalen Rasenexperten zu konsultieren.";
+    try {
+      console.log('Sending question to AI:', currentInput);
       
-      // Check if we have a mock response for this question
-      for (const question in mockResponses) {
-        if (input.toLowerCase().includes(question.toLowerCase().slice(0, 10))) {
-          responseText = mockResponses[question];
-          break;
-        }
+      // Use the AI analysis service
+      const result = await analyzeLawnProblem(currentInput, !!imageAttachment);
+      
+      let responseText = "Entschuldigung, ich konnte Ihre Frage nicht verarbeiten. Bitte versuchen Sie es erneut oder formulieren Sie Ihre Frage anders.";
+      
+      if (result.success && result.analysis) {
+        responseText = result.analysis;
+        console.log('AI analysis successful:', result.analysis);
+      } else {
+        console.error('AI analysis failed:', result.error);
+        responseText = result.error || responseText;
       }
       
       // Personalize response if we have profile data
       if (profile && profile.grassType) {
-        responseText = responseText.replace(/Bermuda/g, profile.grassType);
+        responseText = responseText.replace(/Rasen/g, `${profile.grassType}-Rasen`);
       }
       
       const newAiMessage: Message = {
@@ -205,8 +195,25 @@ const ChatAssistant = () => {
         saveMessage(responseText, 'ai');
       }
       
+    } catch (error) {
+      console.error('Error in chat:', error);
+      const errorMessage = "Es tut mir leid, aber es gab ein Problem bei der Verarbeitung Ihrer Anfrage. Bitte versuchen Sie es später erneut.";
+      
+      const newAiMessage: Message = {
+        id: messages.length + 2,
+        content: errorMessage,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prevMessages => [...prevMessages, newAiMessage]);
+      
+      if (isAuthenticated) {
+        saveMessage(errorMessage, 'ai');
+      }
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -228,45 +235,6 @@ const ChatAssistant = () => {
 
   const handleSuggestedQuestion = (question: string) => {
     setInput(question);
-    setMessages([...messages, {
-      id: messages.length + 1,
-      content: question,
-      sender: 'user',
-      timestamp: new Date()
-    }]);
-    
-    // Save user message if authenticated
-    if (isAuthenticated) {
-      saveMessage(question, 'user');
-    }
-    
-    setIsLoading(true);
-    
-    // Simulate AI response delay
-    setTimeout(() => {
-      let responseText = mockResponses[question] || "Ich muss das genauer recherchieren.";
-      
-      // Personalize response if we have profile data
-      if (profile && profile.grassType) {
-        responseText = responseText.replace(/Bermuda/g, profile.grassType);
-      }
-      
-      const newAiMessage: Message = {
-        id: messages.length + 2,
-        content: responseText,
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prevMessages => [...prevMessages, newAiMessage]);
-      
-      // Save AI response if authenticated
-      if (isAuthenticated) {
-        saveMessage(responseText, 'ai');
-      }
-      
-      setIsLoading(false);
-    }, 1000);
   };
 
   return (
@@ -317,6 +285,11 @@ const ChatAssistant = () => {
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Leaf className="text-green-600 dark:text-green-500" size={20} />
                     Rasenpilot-KI Assistent
+                    {isAuthenticated && (
+                      <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        KI-Powered
+                      </span>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 
@@ -417,7 +390,10 @@ const ChatAssistant = () => {
               </Card>
               
               <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Rasenpilot-KI ist entwickelt, um allgemeine Rasenberatung zu bieten, berücksichtigt jedoch möglicherweise nicht alle lokalen Bedingungen. Ziehen Sie bei speziellen Problemen immer lokale Experten hinzu.
+                {isAuthenticated 
+                  ? "Rasenpilot-KI nutzt fortschrittliche KI-Technologie für präzise Rasenberatung."
+                  : "Registrieren Sie sich für erweiterte KI-Features und personalisierte Beratung."
+                }
               </div>
             </div>
           </div>

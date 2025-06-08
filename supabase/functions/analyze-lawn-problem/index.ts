@@ -1,7 +1,6 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,6 +15,8 @@ serve(async (req) => {
 
   try {
     const { problem, hasImage } = await req.json();
+
+    console.log('Analyzing lawn problem:', problem, 'with image:', hasImage);
 
     if (!problem) {
       return new Response(
@@ -39,8 +40,10 @@ serve(async (req) => {
       );
     }
 
+    console.log('OpenAI API key found, making request...');
+
     const systemPrompt = `Du bist ein Rasenexperte und hilfst Gartenbesitzern bei der Diagnose und Behandlung von Rasenproblemen. 
-    Analysiere das beschriebene Problem und gib praktische, umsetzbare Ratschläge.
+    Analysiere das beschriebene Problem und gib praktische, umsetzbare Ratschläge auf Deutsch.
     
     Strukturiere deine Antwort folgendermaßen:
     🌱 **Vermutete Diagnose**
@@ -74,20 +77,23 @@ serve(async (req) => {
       }),
     });
 
+    console.log('OpenAI response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('OpenAI response received');
+    console.log('OpenAI response received successfully');
 
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
       throw new Error('Invalid response from OpenAI API');
     }
 
     const analysis = data.choices[0].message.content;
+    console.log('Analysis completed successfully');
 
     return new Response(
       JSON.stringify({ analysis }),
