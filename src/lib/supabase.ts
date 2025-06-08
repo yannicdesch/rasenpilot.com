@@ -2,13 +2,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { auditLogger, trackSecurityViolation } from '@/utils/auditLogger';
 
-// Use environment variables instead of hardcoded values
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
+// Use the actual Supabase values
+const supabaseUrl = "https://ugaxwcslhoppflrbuwxv.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
