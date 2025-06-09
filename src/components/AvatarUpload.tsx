@@ -2,8 +2,8 @@
 import React, { useState, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { Camera, Loader2 } from 'lucide-react';
 
 interface AvatarUploadProps {
@@ -31,6 +31,17 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
       const fileExt = file.name.split('.').pop();
       const filePath = `${uid}/avatar.${fileExt}`;
 
+      console.log('Uploading avatar to path:', filePath);
+
+      // First, try to delete existing avatar if it exists
+      try {
+        await supabase.storage
+          .from('avatars')
+          .remove([filePath]);
+      } catch (deleteError) {
+        console.log('No existing avatar to delete, continuing...');
+      }
+
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, { upsert: true });
@@ -45,6 +56,8 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
 
       const publicUrl = data.publicUrl;
       
+      console.log('Avatar uploaded successfully, public URL:', publicUrl);
+      
       // Update avatar URL in user metadata
       const { error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
@@ -58,6 +71,7 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
       onAvatarUpdate(publicUrl);
       toast.success('Profilbild erfolgreich aktualisiert');
     } catch (error: any) {
+      console.error('Avatar upload error:', error);
       toast.error(`Fehler beim Upload: ${error.message}`);
     } finally {
       setUploading(false);
@@ -70,7 +84,7 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
 
   return (
     <div className="flex flex-col items-center">
-      <Avatar className="h-24 w-24 cursor-pointer border-2 border-white shadow-md hover:opacity-90" 
+      <Avatar className="h-24 w-24 cursor-pointer border-2 border-green-200 shadow-md hover:opacity-90" 
         onClick={handleButtonClick}>
         <AvatarImage src={avatarUrl || ''} />
         <AvatarFallback className="bg-green-100 text-green-800 text-xl">
@@ -89,7 +103,7 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
       <Button 
         variant="outline" 
         size="sm"
-        className="mt-2 text-xs"
+        className="mt-2 text-xs border-green-200 text-green-700 hover:bg-green-50"
         onClick={handleButtonClick}
         disabled={uploading}
       >

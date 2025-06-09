@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -55,57 +56,62 @@ const Profile = () => {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      
-      if (error || !data?.user) {
-        console.log("No authenticated user found, redirecting to auth");
-        navigate('/auth');
-        return;
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        
+        if (error || !data?.user) {
+          console.log("No authenticated user found, redirecting to auth");
+          navigate('/auth');
+          return;
+        }
+        
+        setUser({
+          id: data.user.id,
+          email: data.user.email || '',
+          name: data.user.user_metadata?.name,
+          avatar_url: data.user.user_metadata?.avatar_url,
+        });
+        
+        form.reset({
+          name: data.user.user_metadata?.name || '',
+          email: data.user.email || '',
+        });
+        
+        // If there's temporary profile data, save it to the user profile
+        if (temporaryProfile) {
+          console.log('Temporary profile found in Profile page, saving to user profile:', temporaryProfile);
+          
+          // Create a merged profile by combining existing profile with temporary profile
+          const updatedProfile = {
+            ...(profile || {}),
+            ...temporaryProfile,
+            zipCode: temporaryProfile.zipCode || profile?.zipCode || '',
+            grassType: temporaryProfile.grassType || profile?.grassType || '',
+            lawnSize: temporaryProfile.lawnSize || profile?.lawnSize || '',
+            lawnGoal: temporaryProfile.lawnGoal || profile?.lawnGoal || '',
+            lawnPicture: temporaryProfile.lawnPicture || profile?.lawnPicture || '',
+            hasChildren: temporaryProfile.hasChildren !== undefined ? temporaryProfile.hasChildren : profile?.hasChildren,
+            hasPets: temporaryProfile.hasPets !== undefined ? temporaryProfile.hasPets : profile?.hasPets,
+          };
+          
+          console.log("Updated profile to be set:", updatedProfile);
+          
+          // Update profile in LawnContext
+          setProfile(updatedProfile);
+          
+          // Clear temporary profile after merging to avoid reapplying
+          clearTemporaryProfile();
+          
+          // Sync with Supabase
+          await syncProfileWithSupabase();
+        }
+        
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        toast.error('Fehler beim Laden der Benutzerdaten');
+      } finally {
+        setLoading(false);
       }
-      
-      setUser({
-        id: data.user.id,
-        email: data.user.email || '',
-        name: data.user.user_metadata?.name,
-        avatar_url: data.user.user_metadata?.avatar_url,
-      });
-      
-      form.reset({
-        name: data.user.user_metadata?.name || '',
-        email: data.user.email || '',
-      });
-      
-      // If there's temporary profile data, save it to the user profile
-      if (temporaryProfile) {
-        console.log('Temporary profile found in Profile page, saving to user profile:', temporaryProfile);
-        
-        // Create a merged profile by combining existing profile with temporary profile
-        const updatedProfile = {
-          ...(profile || {}), // Ensure we have an object even if profile is null
-          ...temporaryProfile,
-          // Ensure these fields are included from temporaryProfile if they exist
-          zipCode: temporaryProfile.zipCode || profile?.zipCode || '',
-          grassType: temporaryProfile.grassType || profile?.grassType || '',
-          lawnSize: temporaryProfile.lawnSize || profile?.lawnSize || '',
-          lawnGoal: temporaryProfile.lawnGoal || profile?.lawnGoal || '',
-          lawnPicture: temporaryProfile.lawnPicture || profile?.lawnPicture || '',
-          hasChildren: temporaryProfile.hasChildren !== undefined ? temporaryProfile.hasChildren : profile?.hasChildren,
-          hasPets: temporaryProfile.hasPets !== undefined ? temporaryProfile.hasPets : profile?.hasPets,
-        };
-        
-        console.log("Updated profile to be set:", updatedProfile);
-        
-        // Update profile in LawnContext
-        setProfile(updatedProfile);
-        
-        // Clear temporary profile after merging to avoid reapplying
-        clearTemporaryProfile();
-        
-        // Sync with Supabase
-        await syncProfileWithSupabase();
-      }
-      
-      setLoading(false);
     };
 
     getUser();
@@ -159,12 +165,12 @@ const Profile = () => {
 
   if (loading && !user) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#1A1F2C] text-white">
+      <div className="flex min-h-screen flex-col bg-white">
         <MainNavigation />
         <div className="flex-1 flex items-center justify-center">
           <div className="space-y-4">
-            <Skeleton className="h-12 w-48 bg-gray-700" />
-            <Skeleton className="h-32 w-64 bg-gray-700" />
+            <Skeleton className="h-12 w-48" />
+            <Skeleton className="h-32 w-64" />
           </div>
         </div>
       </div>
@@ -172,20 +178,20 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#1A1F2C] text-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <MainNavigation />
       <div className="container max-w-5xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-green-400">Mein Profil</h1>
+          <h1 className="text-3xl font-bold text-green-600">Mein Profil</h1>
           <ThemeToggle />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Sidebar Card */}
-          <Card className="col-span-1 bg-gray-800/70 border-gray-700">
+          <Card className="col-span-1 bg-white border-gray-200">
             <CardHeader>
-              <CardTitle className="text-green-400">Mein Account</CardTitle>
-              <CardDescription className="text-gray-300">Verwalte deine persönlichen Daten</CardDescription>
+              <CardTitle className="text-green-600">Mein Account</CardTitle>
+              <CardDescription className="text-gray-600">Verwalte deine persönlichen Daten</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               {user && (
@@ -197,13 +203,13 @@ const Profile = () => {
                   email={user.email}
                 />
               )}
-              <p className="mt-4 font-medium text-lg text-white">{user?.name || 'Kein Name'}</p>
-              <p className="text-sm text-gray-300">{user?.email}</p>
+              <p className="mt-4 font-medium text-lg text-gray-800">{user?.name || 'Kein Name'}</p>
+              <p className="text-sm text-gray-600">{user?.email}</p>
             </CardContent>
             <CardFooter>
               <Button 
                 variant="outline" 
-                className="w-full flex items-center gap-2 border-gray-600 text-gray-200 hover:bg-gray-700"
+                className="w-full flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
                 onClick={handleSignOut}
               >
                 <LogOut size={16} />
@@ -213,14 +219,14 @@ const Profile = () => {
           </Card>
           
           {/* Main Content Card with Tabs */}
-          <Card className="col-span-1 lg:col-span-2 bg-gray-800/70 border-gray-700">
+          <Card className="col-span-1 lg:col-span-2 bg-white border-gray-200">
             <CardHeader>
-              <CardTitle className="text-green-400">Profileinstellungen</CardTitle>
-              <CardDescription className="text-gray-300">Verwalte deine Einstellungen und Präferenzen</CardDescription>
+              <CardTitle className="text-green-600">Profileinstellungen</CardTitle>
+              <CardDescription className="text-gray-600">Verwalte deine Einstellungen und Präferenzen</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-5 w-full bg-gray-700">
+                <TabsList className="grid grid-cols-5 w-full bg-gray-100">
                   <TabsTrigger value="account" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Profil</TabsTrigger>
                   <TabsTrigger value="password" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Passwort</TabsTrigger>
                   <TabsTrigger value="notifications" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Benachrichtigungen</TabsTrigger>
@@ -236,11 +242,11 @@ const Profile = () => {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-gray-200">Name</FormLabel>
+                            <FormLabel className="text-gray-700">Name</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <UserRound className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                <Input placeholder="Dein Name" className="pl-10 bg-gray-700 border-gray-600 text-white" {...field} />
+                                <Input placeholder="Dein Name" className="pl-10 bg-white border-gray-300 text-gray-800" {...field} />
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -252,13 +258,13 @@ const Profile = () => {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-gray-200">E-Mail</FormLabel>
+                            <FormLabel className="text-gray-700">E-Mail</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                                 <Input 
                                   placeholder="deine@email.de" 
-                                  className="pl-10 bg-gray-700 border-gray-600 text-white" 
+                                  className="pl-10 bg-gray-100 border-gray-300 text-gray-600" 
                                   disabled 
                                   {...field} 
                                 />
@@ -277,14 +283,14 @@ const Profile = () => {
                 
                 <TabsContent value="password" className="p-4 mt-4 space-y-6">
                   <PasswordChange />
-                  <div className="border-t border-gray-700 pt-6">
+                  <div className="border-t border-gray-200 pt-6">
                     <AccountDeletion />
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="notifications" className="p-4 mt-4">
                   <NotificationSettings />
-                  <div className="mt-6 pt-6 border-t border-gray-700">
+                  <div className="mt-6 pt-6 border-t border-gray-200">
                     <ActivityHistory />
                   </div>
                 </TabsContent>
@@ -292,7 +298,7 @@ const Profile = () => {
                 <TabsContent value="preferences" className="p-4 mt-4">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="font-medium mb-2 text-gray-200">Sprache</h3>
+                      <h3 className="font-medium mb-2 text-gray-700">Sprache</h3>
                       <LanguageSelector />
                     </div>
                   </div>
@@ -307,59 +313,59 @@ const Profile = () => {
 
           {/* Lawn Data Card */}
           {profile && (
-            <Card className="col-span-1 lg:col-span-3 bg-gray-800/70 border-gray-700">
+            <Card className="col-span-1 lg:col-span-3 bg-white border-gray-200">
               <CardHeader>
-                <CardTitle className="text-green-400">Meine Rasendaten</CardTitle>
-                <CardDescription className="text-gray-300">Deine gespeicherten Raseneinstellungen</CardDescription>
+                <CardTitle className="text-green-600">Meine Rasendaten</CardTitle>
+                <CardDescription className="text-gray-600">Deine gespeicherten Raseneinstellungen</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   <div>
-                    <Label className="text-gray-300">PLZ</Label>
-                    <p className="font-medium text-white">{profile.zipCode}</p>
+                    <Label className="text-gray-600">PLZ</Label>
+                    <p className="font-medium text-gray-800">{profile.zipCode}</p>
                   </div>
                   <div>
-                    <Label className="text-gray-300">Grassorte</Label>
-                    <p className="font-medium text-white">{profile.grassType}</p>
+                    <Label className="text-gray-600">Grassorte</Label>
+                    <p className="font-medium text-gray-800">{profile.grassType}</p>
                   </div>
                   <div>
-                    <Label className="text-gray-300">Rasengröße</Label>
-                    <p className="font-medium text-white">{profile.lawnSize}</p>
+                    <Label className="text-gray-600">Rasengröße</Label>
+                    <p className="font-medium text-gray-800">{profile.lawnSize}</p>
                   </div>
                   <div>
-                    <Label className="text-gray-300">Rasenziel</Label>
-                    <p className="font-medium text-white">{profile.lawnGoal}</p>
+                    <Label className="text-gray-600">Rasenziel</Label>
+                    <p className="font-medium text-gray-800">{profile.lawnGoal}</p>
                   </div>
                   {profile.soilType && (
                     <div>
-                      <Label className="text-gray-300">Bodentyp</Label>
-                      <p className="font-medium text-white">{profile.soilType}</p>
+                      <Label className="text-gray-600">Bodentyp</Label>
+                      <p className="font-medium text-gray-800">{profile.soilType}</p>
                     </div>
                   )}
                   {profile.lastMowed && (
                     <div>
-                      <Label className="text-gray-300">Zuletzt gemäht</Label>
-                      <p className="font-medium text-white">{profile.lastMowed}</p>
+                      <Label className="text-gray-600">Zuletzt gemäht</Label>
+                      <p className="font-medium text-gray-800">{profile.lastMowed}</p>
                     </div>
                   )}
                   {profile.hasChildren !== undefined && (
                     <div>
-                      <Label className="text-gray-300">Kinder nutzen den Rasen</Label>
-                      <p className="font-medium text-white">{profile.hasChildren ? 'Ja' : 'Nein'}</p>
+                      <Label className="text-gray-600">Kinder nutzen den Rasen</Label>
+                      <p className="font-medium text-gray-800">{profile.hasChildren ? 'Ja' : 'Nein'}</p>
                     </div>
                   )}
                   {profile.hasPets !== undefined && (
                     <div>
-                      <Label className="text-gray-300">Haustiere nutzen den Rasen</Label>
-                      <p className="font-medium text-white">{profile.hasPets ? 'Ja' : 'Nein'}</p>
+                      <Label className="text-gray-600">Haustiere nutzen den Rasen</Label>
+                      <p className="font-medium text-gray-800">{profile.hasPets ? 'Ja' : 'Nein'}</p>
                     </div>
                   )}
                 </div>
                 
                 {profile.lawnPicture && (
                   <div className="mt-6">
-                    <Label className="text-gray-300 mb-2 block">Dein Rasen</Label>
-                    <div className="rounded-lg overflow-hidden border border-gray-700 max-w-md">
+                    <Label className="text-gray-600 mb-2 block">Dein Rasen</Label>
+                    <div className="rounded-lg overflow-hidden border border-gray-200 max-w-md">
                       <img 
                         src={profile.lawnPicture} 
                         alt="Dein Rasen" 
@@ -372,7 +378,7 @@ const Profile = () => {
               <CardFooter>
                 <Button 
                   variant="outline" 
-                  className="w-full border-gray-600 text-gray-200 hover:bg-gray-700" 
+                  className="w-full border-gray-300 text-gray-700 hover:bg-gray-50" 
                   onClick={() => navigate('/')}
                 >
                   Rasendaten aktualisieren
