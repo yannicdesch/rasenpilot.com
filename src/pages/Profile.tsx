@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,16 +8,11 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useLawn } from '@/context/LawnContext';
 import MainNavigation from '@/components/MainNavigation';
-import { LogOut } from 'lucide-react';
+import { LogOut, User, Settings } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AvatarUpload from '@/components/AvatarUpload';
 import PasswordChange from '@/components/PasswordChange';
 import AccountDeletion from '@/components/AccountDeletion';
-import NotificationSettings from '@/components/NotificationSettings';
-import ActivityHistory from '@/components/ActivityHistory';
-import ThemeToggle from '@/components/ThemeToggle';
-import LanguageSelector from '@/components/LanguageSelector';
-import SocialConnections from '@/components/SocialConnections';
 import ProfileForm from '@/components/profile/ProfileForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -24,7 +20,7 @@ import { useProfileData } from '@/hooks/useProfileData';
 const Profile = () => {
   const navigate = useNavigate();
   const { profile, setProfile, temporaryProfile, clearTemporaryProfile } = useLawn();
-  const [activeTab, setActiveTab] = useState('account');
+  const [activeTab, setActiveTab] = useState('profile');
   const { user, loading, error, updateUserProfile, updateAvatar } = useProfileData();
 
   // Handle temporary profile data merge
@@ -65,10 +61,9 @@ const Profile = () => {
     return (
       <div className="flex min-h-screen flex-col bg-white">
         <MainNavigation />
-        <div className="container max-w-5xl mx-auto px-4 py-8">
+        <div className="container max-w-4xl mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-8">
             <Skeleton className="h-8 w-32" />
-            <Skeleton className="h-8 w-8" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Skeleton className="h-64 w-full" />
@@ -87,18 +82,21 @@ const Profile = () => {
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <MainNavigation />
-      <div className="container max-w-5xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+      <div className="container max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-8">
           <h1 className="text-3xl font-bold text-green-600">Mein Profil</h1>
-          <ThemeToggle />
+          <p className="text-gray-600 mt-2">Verwalten Sie Ihre persönlichen Daten und Raseneinstellungen</p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Sidebar Card */}
+          {/* Profile Info Card */}
           <Card className="col-span-1 bg-white border-gray-200">
             <CardHeader>
-              <CardTitle className="text-green-600">Mein Account</CardTitle>
-              <CardDescription className="text-gray-600">Verwalte deine persönlichen Daten</CardDescription>
+              <CardTitle className="text-green-600 flex items-center gap-2">
+                <User size={20} />
+                Mein Account
+              </CardTitle>
+              <CardDescription className="text-gray-600">Ihre persönlichen Informationen</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <AvatarUpload 
@@ -123,23 +121,27 @@ const Profile = () => {
             </CardFooter>
           </Card>
           
-          {/* Main Content Card with Tabs */}
+          {/* Settings Card */}
           <Card className="col-span-1 lg:col-span-2 bg-white border-gray-200">
             <CardHeader>
-              <CardTitle className="text-green-600">Profileinstellungen</CardTitle>
-              <CardDescription className="text-gray-600">Verwalte deine Einstellungen und Präferenzen</CardDescription>
+              <CardTitle className="text-green-600 flex items-center gap-2">
+                <Settings size={20} />
+                Einstellungen
+              </CardTitle>
+              <CardDescription className="text-gray-600">Verwalten Sie Ihre Profil- und Sicherheitseinstellungen</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-5 w-full bg-gray-100">
-                  <TabsTrigger value="account" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Profil</TabsTrigger>
-                  <TabsTrigger value="password" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Passwort</TabsTrigger>
-                  <TabsTrigger value="notifications" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Benachrichtigungen</TabsTrigger>
-                  <TabsTrigger value="preferences" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Präferenzen</TabsTrigger>
-                  <TabsTrigger value="connections" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Verbindungen</TabsTrigger>
+                <TabsList className="grid grid-cols-2 w-full bg-gray-100">
+                  <TabsTrigger value="profile" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+                    Profildaten
+                  </TabsTrigger>
+                  <TabsTrigger value="security" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+                    Sicherheit
+                  </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="account" className="p-4 mt-4">
+                <TabsContent value="profile" className="p-4 mt-4">
                   <ProfileForm 
                     user={user}
                     onSubmit={updateUserProfile}
@@ -147,31 +149,11 @@ const Profile = () => {
                   />
                 </TabsContent>
                 
-                <TabsContent value="password" className="p-4 mt-4 space-y-6">
+                <TabsContent value="security" className="p-4 mt-4 space-y-6">
                   <PasswordChange />
                   <div className="border-t border-gray-200 pt-6">
                     <AccountDeletion />
                   </div>
-                </TabsContent>
-                
-                <TabsContent value="notifications" className="p-4 mt-4">
-                  <NotificationSettings />
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <ActivityHistory />
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="preferences" className="p-4 mt-4">
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="font-medium mb-2 text-gray-700">Sprache</h3>
-                      <LanguageSelector />
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="connections" className="p-4 mt-4">
-                  <SocialConnections />
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -182,7 +164,7 @@ const Profile = () => {
             <Card className="col-span-1 lg:col-span-3 bg-white border-gray-200">
               <CardHeader>
                 <CardTitle className="text-green-600">Meine Rasendaten</CardTitle>
-                <CardDescription className="text-gray-600">Deine gespeicherten Raseneinstellungen</CardDescription>
+                <CardDescription className="text-gray-600">Ihre gespeicherten Raseneinstellungen</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
