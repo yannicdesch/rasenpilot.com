@@ -109,7 +109,7 @@ const Auth = () => {
 
     checkExistingAuth();
   
-    // Set up auth listener with proper profile syncing
+    // Set up auth listener with proper profile syncing and redirect handling
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, !!session);
       
@@ -133,9 +133,9 @@ const Auth = () => {
         
         toast.success('Erfolgreich eingeloggt!');
         
-        // Navigate to dashboard
+        // Navigate to dashboard - this handles both regular login and email confirmation
         setTimeout(() => {
-          navigate(from, { replace: true });
+          navigate('/dashboard', { replace: true });
         }, 500);
         
       } else if (event === 'SIGNED_OUT') {

@@ -73,12 +73,18 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       console.log('Setting temporary profile before registration:', profileData);
       setTemporaryProfile(profileData);
 
+      // Use the current window location for redirect, but ensure it points to dashboard
+      const baseUrl = window.location.origin;
+      const redirectUrl = `${baseUrl}/dashboard`;
+
+      console.log('Using redirect URL:', redirectUrl);
+
       // Register user with Supabase
       const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: redirectUrl,
           data: {
             onboarding_completed: true,
             consent_ai_training: aiTrainingConsent
@@ -99,7 +105,7 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
         // Check if email confirmation is required
         if (!authData.session) {
           toast.success('Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse.', {
-            description: 'Ein Bestätigungslink wurde an deine E-Mail gesendet.'
+            description: 'Ein Bestätigungslink wurde an deine E-Mail gesendet. Nach der Bestätigung wirst du automatisch zum Dashboard weitergeleitet.'
           });
           setLoading(false);
           return;
