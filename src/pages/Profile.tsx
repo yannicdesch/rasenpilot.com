@@ -42,16 +42,12 @@ const Profile = () => {
     }
   }, [loading, user, temporaryProfile, profile, setProfile, clearTemporaryProfile]);
 
-  // Redirect if not authenticated - wait a bit longer to avoid premature redirects
+  // Handle authentication errors - redirect to auth
   useEffect(() => {
-    const redirectTimeout = setTimeout(() => {
-      if (!loading && (error || !user)) {
-        console.log('Profile: No authenticated user after timeout, redirecting to auth');
-        navigate('/auth');
-      }
-    }, 1000); // Wait 1 second before redirecting
-
-    return () => clearTimeout(redirectTimeout);
+    if (!loading && (error || !user)) {
+      console.log('Profile: Authentication issue detected, redirecting to /auth');
+      navigate('/auth', { replace: true });
+    }
   }, [loading, error, user, navigate]);
 
   const handleSignOut = async () => {
@@ -64,7 +60,7 @@ const Profile = () => {
     }
   };
 
-  // Show loading with better UX
+  // Show loading state
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col bg-white">
@@ -83,27 +79,9 @@ const Profile = () => {
     );
   }
 
-  // Show error state with action button
+  // Don't render anything if there's an error or no user - the useEffect will handle redirect
   if (error || !user) {
-    return (
-      <div className="flex min-h-screen flex-col bg-white">
-        <MainNavigation />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center max-w-md mx-auto">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">Fehler beim Laden des Profils</h2>
-            <p className="text-gray-600 mb-4">{error || 'Unbekannter Fehler'}</p>
-            <div className="space-y-2">
-              <Button onClick={() => window.location.reload()} variant="default">
-                Seite neu laden
-              </Button>
-              <Button onClick={() => navigate('/auth')} variant="outline">
-                Zur Anmeldung
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

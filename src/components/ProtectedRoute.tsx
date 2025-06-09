@@ -20,10 +20,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
   useEffect(() => {
     let mounted = true;
+    let authCheckTimeout: NodeJS.Timeout;
     
     const checkAuth = async () => {
       try {
-        console.log('ProtectedRoute: Starting auth check...');
+        console.log('ProtectedRoute: Starting auth check for path:', location.pathname);
+        
+        // Set a timeout to prevent infinite loading
+        authCheckTimeout = setTimeout(() => {
+          if (mounted) {
+            console.log('ProtectedRoute: Auth check timeout, assuming not authenticated');
+            setIsAuthenticated(false);
+            setIsLoading(false);
+          }
+        }, 2000);
         
         // Quick session check first
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -31,6 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         if (error) {
           console.error('ProtectedRoute: Session error:', error);
           if (mounted) {
+            clearTimeout(authCheckTimeout);
             setIsAuthenticated(false);
             setIsLoading(false);
           }
@@ -41,6 +52,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         console.log('ProtectedRoute: Session check result:', isLoggedIn);
         
         if (mounted) {
+          clearTimeout(authCheckTimeout);
           setIsAuthenticated(isLoggedIn);
           
           if (isLoggedIn) {
@@ -73,6 +85,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       } catch (error) {
         console.error('ProtectedRoute: Auth check error:', error);
         if (mounted) {
+          clearTimeout(authCheckTimeout);
           setIsAuthenticated(false);
           setIsAdmin(false);
           setIsLoading(false);
@@ -94,10 +107,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       if (event === 'SIGNED_IN' && session) {
         sessionSecurity.updateLastActivity();
         console.log('ProtectedRoute: User signed in, auth should be complete');
+        setIsLoading(false);
       } else if (event === 'SIGNED_OUT') {
         sessionSecurity.clearSession();
         setIsAdmin(false);
-        navigate('/auth', { state: { from: location }, replace: true });
+        setIsLoading(false);
+        // Don't navigate here - let the component handle it
       } else if (event === 'TOKEN_REFRESHED') {
         sessionSecurity.updateLastActivity();
       }
@@ -106,11 +121,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     // Cleanup function
     return () => {
       mounted = false;
+      if (authCheckTimeout) {
+        clearTimeout(authCheckTimeout);
+      }
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [requireAdmin, location, navigate]);
+  }, [requireAdmin, location.pathname]);
 
   // Session timeout checker
   useEffect(() => {
@@ -127,7 +145,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  // Show loading only for a very short time
+  // Show loading only briefly
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
@@ -137,16 +155,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     );
   }
 
-  // Check authentication
-  if (!isAuthenticated) {
+  // Check authentication - redirect to auth if not authenticated
+  if (isAuthenticated === false) {
+    console.log('ProtectedRoute: Not authenticated, redirecting to /auth');
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   // Check admin privileges if required
   if (requireAdmin && !isAdmin) {
+    console.log('ProtectedRoute: Admin required but user is not admin, redirecting to /auth');
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  // User is authenticated, render the protected content
   return <>{children}</>;
 };
 

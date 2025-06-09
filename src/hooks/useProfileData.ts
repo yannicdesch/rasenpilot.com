@@ -17,60 +17,59 @@ export const useProfileData = () => {
 
   useEffect(() => {
     let isMounted = true;
-    let timeoutId: NodeJS.Timeout;
+    let loadingTimeout: NodeJS.Timeout;
 
     const loadUserData = async () => {
       try {
         console.log('useProfileData: Starting to load user data...');
         
-        // Set a timeout to prevent infinite loading
-        timeoutId = setTimeout(() => {
+        // Set a shorter timeout to prevent hanging
+        loadingTimeout = setTimeout(() => {
           if (isMounted && loading) {
             console.log('useProfileData: Loading timeout reached');
-            setError('Authentication timeout');
+            setError('Authentifizierung fehlgeschlagen');
             setLoading(false);
           }
-        }, 3000);
+        }, 2000);
         
         const { data: authData, error: authError } = await supabase.auth.getUser();
         
+        if (!isMounted) return;
+        
         if (authError) {
           console.error('useProfileData: Auth error:', authError);
-          if (isMounted) {
-            setError('Authentication failed');
-            setUser(null);
-            setLoading(false);
-          }
+          clearTimeout(loadingTimeout);
+          setError('Authentifizierung fehlgeschlagen');
+          setUser(null);
+          setLoading(false);
           return;
         }
 
         if (!authData?.user) {
           console.log('useProfileData: No user found');
-          if (isMounted) {
-            setError('No authenticated user found');
-            setUser(null);
-            setLoading(false);
-          }
+          clearTimeout(loadingTimeout);
+          setError('Kein angemeldeter Benutzer gefunden');
+          setUser(null);
+          setLoading(false);
           return;
         }
         
-        if (isMounted) {
-          console.log('useProfileData: User data loaded successfully:', authData.user.email);
-          clearTimeout(timeoutId);
-          setUser({
-            id: authData.user.id,
-            email: authData.user.email || '',
-            name: authData.user.user_metadata?.name,
-            avatar_url: authData.user.user_metadata?.avatar_url,
-          });
-          setError(null);
-          setLoading(false);
-        }
+        console.log('useProfileData: User data loaded successfully:', authData.user.email);
+        clearTimeout(loadingTimeout);
+        setUser({
+          id: authData.user.id,
+          email: authData.user.email || '',
+          name: authData.user.user_metadata?.name,
+          avatar_url: authData.user.user_metadata?.avatar_url,
+        });
+        setError(null);
+        setLoading(false);
         
       } catch (err) {
         console.error('useProfileData: Error loading user data:', err);
         if (isMounted) {
-          setError('Failed to load user data');
+          clearTimeout(loadingTimeout);
+          setError('Fehler beim Laden der Benutzerdaten');
           setLoading(false);
         }
       }
@@ -80,19 +79,19 @@ export const useProfileData = () => {
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('useProfileData: Auth state changed:', event, session?.user?.email || 'no user');
         
         if (!isMounted) return;
         
         if (event === 'SIGNED_OUT') {
-          clearTimeout(timeoutId);
+          clearTimeout(loadingTimeout);
           setUser(null);
-          setError('No authenticated user found');
+          setError('Kein angemeldeter Benutzer gefunden');
           setLoading(false);
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user) {
-            clearTimeout(timeoutId);
+            clearTimeout(loadingTimeout);
             setUser({
               id: session.user.id,
               email: session.user.email || '',
@@ -108,8 +107,8 @@ export const useProfileData = () => {
 
     return () => {
       isMounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
       }
       subscription.unsubscribe();
     };
