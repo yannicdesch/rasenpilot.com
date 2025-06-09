@@ -9,7 +9,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="bg-gradient-to-br from-green-50 via-white to-green-50 py-20">
+    <section className="bg-gradient-to-br from-green-50 via-white to-green-50 py-8 md:py-12">
       <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
         <div className="flex-1 space-y-6">
           <div className="inline-block bg-gradient-to-r from-green-100 to-blue-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium border border-green-200">
@@ -19,10 +19,9 @@ const HeroSection = () => {
             Deutschlands <span className="text-green-600">intelligentester</span> KI-Rasenberater.<br/>
             <span className="text-blue-600">Perfekte Ergebnisse</span> in 60 Sekunden.
           </h1>
-          <h2 className="text-xl md:text-2xl text-gray-700 max-w-2xl leading-relaxed">
-            <span className="hidden md:inline">Revolutionäre Künstliche Intelligenz analysiert Ihren Rasen, erkennt Probleme sofort und erstellt einen 
-            <strong> wissenschaftlich fundierten Pflegeplan</strong> - maßgeschneidert für deutsche Klimabedingungen.</span>
-            <span className="md:hidden">KI analysiert Ihren Rasen und erstellt einen <strong>wissenschaftlich fundierten Pflegeplan</strong> für perfekte Ergebnisse.</span>
+          <h2 className="text-lg md:text-xl text-gray-700 max-w-2xl leading-relaxed">
+            <span className="hidden md:inline">KI analysiert Ihren Rasen und erstellt einen <strong>wissenschaftlich fundierten Pflegeplan</strong> - maßgeschneidert für deutsche Klimabedingungen.</span>
+            <span className="md:hidden">KI analysiert Ihren Rasen und erstellt einen <strong>wissenschaftlich fundierten Pflegeplan</strong>.</span>
           </h2>
           
           {/* Unique Selling Points - Simplified for mobile */}
@@ -31,13 +30,13 @@ const HeroSection = () => {
               <div className="w-6 h-6 md:w-8 md:h-8 bg-green-100 rounded-full flex items-center justify-center">
                 <Zap className="w-3 h-3 md:w-4 md:h-4 text-green-600" />
               </div>
-              <span className="text-sm md:text-base text-gray-700 font-medium">60 Sekunden Analyse</span>
+              <span className="text-sm md:text-base text-gray-700 font-medium">60 Sek. Analyse</span>
             </div>
             <div className="flex items-center space-x-2 md:space-x-3">
               <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <Shield className="w-3 h-3 md:w-4 md:h-4 text-blue-600" />
               </div>
-              <span className="text-sm md:text-base text-gray-700 font-medium">Wissenschaftlich fundiert</span>
+              <span className="text-sm md:text-base text-gray-700 font-medium">Wissenschaftlich</span>
             </div>
             <div className="flex items-center space-x-2 md:space-x-3">
               <div className="w-6 h-6 md:w-8 md:h-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -78,7 +77,7 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-600 pt-2">
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
-              <span>Keine Kreditkarte erforderlich</span>
+              <span>Keine Kreditkarte</span>
             </div>
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
