@@ -27,7 +27,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('account');
   const { user, loading, error, updateUserProfile, updateAvatar } = useProfileData();
 
-  // Handle temporary profile data merge - simplified to prevent circular dependencies
+  // Handle temporary profile data merge
   useEffect(() => {
     if (!loading && user && temporaryProfile && !profile) {
       console.log('Profile: Merging temporary profile data');
@@ -44,11 +44,11 @@ const Profile = () => {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!loading && (error === 'No authenticated user found' || !user)) {
-      console.log('Profile: No authenticated user, redirecting to auth');
+    if (!loading && error) {
+      console.log('Profile: Authentication error, redirecting to auth');
       navigate('/auth');
     }
-  }, [loading, error, user, navigate]);
+  }, [loading, error, navigate]);
 
   const handleSignOut = async () => {
     try {

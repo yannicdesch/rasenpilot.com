@@ -17,14 +17,11 @@ export const useProfileData = () => {
 
   useEffect(() => {
     let isMounted = true;
-    let timeoutId: NodeJS.Timeout;
 
     const loadUserData = async () => {
       try {
         console.log('useProfileData: Starting to load user data...');
-        setLoading(true);
-        setError(null);
-
+        
         const { data: authData, error: authError } = await supabase.auth.getUser();
         
         if (authError) {
@@ -55,6 +52,7 @@ export const useProfileData = () => {
             name: authData.user.user_metadata?.name,
             avatar_url: authData.user.user_metadata?.avatar_url,
           });
+          setError(null);
           setLoading(false);
         }
         
@@ -67,15 +65,6 @@ export const useProfileData = () => {
       }
     };
 
-    // Set a timeout to prevent infinite loading
-    timeoutId = setTimeout(() => {
-      if (isMounted && loading) {
-        console.log('useProfileData: Loading timeout reached');
-        setError('Loading timeout - please refresh the page');
-        setLoading(false);
-      }
-    }, 5000); // 5 second timeout
-
     loadUserData();
 
     // Set up auth state listener
@@ -83,14 +72,14 @@ export const useProfileData = () => {
       async (event, session) => {
         console.log('useProfileData: Auth state changed:', event);
         
+        if (!isMounted) return;
+        
         if (event === 'SIGNED_OUT') {
-          if (isMounted) {
-            setUser(null);
-            setError('No authenticated user found');
-            setLoading(false);
-          }
+          setUser(null);
+          setError('No authenticated user found');
+          setLoading(false);
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          if (session?.user && isMounted) {
+          if (session?.user) {
             setUser({
               id: session.user.id,
               email: session.user.email || '',
@@ -106,7 +95,6 @@ export const useProfileData = () => {
 
     return () => {
       isMounted = false;
-      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
