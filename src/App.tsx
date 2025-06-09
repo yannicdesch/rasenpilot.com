@@ -10,6 +10,7 @@ import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import CarePlan from "@/pages/CarePlan";
 import ChatAssistant from "@/pages/ChatAssistant";
+import Subscription from "@/pages/Subscription";
 import NotFound from "@/pages/NotFound";
 import OnboardingPage from "@/pages/OnboardingPage";
 import AnalysisResults from "@/pages/AnalysisResults";
@@ -36,11 +37,12 @@ function App() {
           <Route path="/nutzungsbedingungen" element={<TermsOfUse />} />
           <Route path="/impressum" element={<Imprint />} />
           
-          {/* Protected Routes - Core member features only */}
+          {/* Protected Routes - Core member features */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/care-plan" element={<ProtectedRoute><CarePlan /></ProtectedRoute>} />
           <Route path="/chat" element={<ProtectedRoute><ChatAssistant /></ProtectedRoute>} />
+          <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
           
           {/* Legacy route */}
           <Route path="/home" element={<Index />} />

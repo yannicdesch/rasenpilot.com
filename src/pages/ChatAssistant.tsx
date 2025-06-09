@@ -1,429 +1,224 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Send, MessageSquare, Crown, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import MainNavigation from '@/components/MainNavigation';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, Leaf, Image, X } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
-import { useLawn } from '@/context/LawnContext';
-import { supabase } from '@/lib/supabase';
-import { v4 as uuidv4 } from 'uuid';
-import ChatHistory from '@/components/ChatHistory';
-import { analyzeLawnProblem } from '@/services/aiAnalysisService';
+import { useSubscription } from '@/hooks/useSubscription';
+import PremiumGate from '@/components/subscription/PremiumGate';
 
 interface Message {
-  id: number;
+  id: string;
   content: string;
-  sender: 'user' | 'ai';
+  isUser: boolean;
   timestamp: Date;
 }
 
-// Mock suggested questions
-const suggestedQuestions = [
-  "Wie oft sollte ich meinen Rasen gießen?",
-  "Was ist der beste Weg, um Löwenzahn loszuwerden?",
-  "Wann ist die beste Zeit zum Düngen?",
-  "Wie kann ich kahle Stellen im Rasen reparieren?",
-  "Welche Höhe sollte ich mein Gras schneiden?",
-  "Mein Rasen hat braune Flecken, was kann das sein?",
-  "Wie bekämpfe ich Moos im Rasen?",
-  "Welcher Dünger ist am besten für meinen Rasen?"
-];
-
 const ChatAssistant = () => {
-  const { profile } = useLawn();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [imageAttachment, setImageAttachment] = useState<File | null>(null);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [dailyQuestions, setDailyQuestions] = useState(0);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { isPremium } = useSubscription();
 
-  // Check auth state
+  const DAILY_LIMIT = 5;
+
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session);
-    };
+    // Reset daily questions counter at midnight
+    const lastReset = localStorage.getItem('lastQuestionReset');
+    const today = new Date().toDateString();
+    
+    if (lastReset !== today) {
+      localStorage.setItem('lastQuestionReset', today);
+      localStorage.setItem('dailyQuestions', '0');
+      setDailyQuestions(0);
+    } else {
+      const saved = localStorage.getItem('dailyQuestions');
+      setDailyQuestions(saved ? parseInt(saved) : 0);
+    }
 
-    checkAuth();
-
-    // Set up auth listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    // Add welcome message
+    if (messages.length === 0) {
+      const welcomeMessage: Message = {
+        id: '1',
+        content: `Hallo! Ich bin Ihr persönlicher Rasen-Experte. Ich helfe Ihnen gerne bei allen Fragen rund um die Rasenpflege. ${!isPremium ? `Als Free-User haben Sie ${DAILY_LIMIT} Fragen pro Tag.` : 'Als Premium-Mitglied können Sie unbegrenzt Fragen stellen!'}`,
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
   }, []);
 
-  // Initialize chat session
   useEffect(() => {
-    const initChat = async () => {
-      const welcomeMessage = profile 
-        ? `👋 Hallo! Ich bin Ihr Rasenpilot-KI Assistent. Ich sehe, dass Sie einen ${profile.grassType}-Rasen haben. Wie kann ich Ihnen heute bei der Rasenpflege helfen?` 
-        : "👋 Hallo! Ich bin Ihr Rasenpilot-KI Assistent. Wie kann ich Ihnen heute bei der Rasenpflege helfen?";
-      
-      const initialMessage = {
-        id: 1,
-        content: welcomeMessage,
-        sender: 'ai' as const,
-        timestamp: new Date()
-      };
-      
-      setMessages([initialMessage]);
-      
-      // Create a new chat session if authenticated
-      if (isAuthenticated) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          
-          if (session) {
-            const sessionId = uuidv4();
-            setCurrentSessionId(sessionId);
-            
-            // Create chat session in database
-            await supabase.from('chat_sessions').insert({
-              id: sessionId,
-              user_id: session.user.id,
-              title: 'Neue Chat-Session',
-            });
-            
-            // Save initial AI message
-            await supabase.from('chat_messages').insert({
-              chat_session_id: sessionId,
-              content: welcomeMessage,
-              sender: 'ai',
-              timestamp: new Date().toISOString(),
-            });
-          }
-        } catch (error) {
-          console.error('Error creating chat session:', error);
-        }
-      }
-    };
-    
-    initChat();
-  }, [profile, isAuthenticated]);
-
-  const saveMessage = async (content: string, sender: 'user' | 'ai') => {
-    if (!isAuthenticated || !currentSessionId) return;
-    
-    try {
-      await supabase.from('chat_messages').insert({
-        chat_session_id: currentSessionId,
-        content,
-        sender,
-        timestamp: new Date().toISOString(),
-      });
-      
-      // Update session title based on first user question
-      if (sender === 'user' && messages.length <= 1) {
-        await supabase.from('chat_sessions').update({
-          title: content.length > 50 ? content.substring(0, 50) + '...' : content,
-        }).eq('id', currentSessionId);
-      }
-    } catch (error) {
-      console.error('Error saving message:', error);
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
+  }, [messages]);
+
+  const canAskQuestion = () => {
+    return isPremium || dailyQuestions < DAILY_LIMIT;
   };
 
-  const handleSend = async () => {
-    if (input.trim() === '' && !imageAttachment) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Create new user message
-    const newUserMessage: Message = {
-      id: messages.length + 1,
-      content: input,
-      sender: 'user',
+    if (!input.trim()) return;
+    
+    if (!canAskQuestion()) {
+      toast.error('Tageslimit erreicht! Upgraden Sie auf Premium für unbegrenzte Fragen.');
+      return;
+    }
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: input.trim(),
+      isUser: true,
       timestamp: new Date()
     };
-    
-    setMessages(prev => [...prev, newUserMessage]);
-    
-    // Save user message if authenticated
-    if (isAuthenticated) {
-      saveMessage(input, 'user');
-    }
-    
-    const currentInput = input;
+
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    
-    if (imageAttachment) {
-      toast({
-        title: "Bild empfangen",
-        description: "Unsere KI analysiert Ihr Rasenfoto."
-      });
-      setImageAttachment(null);
+
+    if (!isPremium) {
+      const newCount = dailyQuestions + 1;
+      setDailyQuestions(newCount);
+      localStorage.setItem('dailyQuestions', newCount.toString());
     }
 
     try {
-      console.log('=== ChatAssistant: Sending question to AI ===');
-      console.log('Question:', currentInput);
-      console.log('Has image:', !!imageAttachment);
+      // Simulate AI response (replace with actual OpenAI API call)
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Use the AI analysis service
-      const result = await analyzeLawnProblem(currentInput, !!imageAttachment);
-      
-      console.log('=== ChatAssistant: AI Analysis Result ===');
-      console.log('Success:', result.success);
-      console.log('Analysis:', result.analysis);
-      console.log('Error:', result.error);
-      
-      let responseText = "Entschuldigung, ich konnte Ihre Frage nicht verarbeiten. Bitte versuchen Sie es erneut oder formulieren Sie Ihre Frage anders.";
-      
-      if (result.success && result.analysis) {
-        responseText = result.analysis;
-        console.log('AI analysis successful:', result.analysis);
-        toast({
-          title: "KI-Analyse abgeschlossen",
-          description: "Ihre Frage wurde erfolgreich analysiert."
-        });
-      } else {
-        console.error('AI analysis failed:', result.error);
-        responseText = `Fehler bei der KI-Analyse: ${result.error || 'Unbekannter Fehler'}`;
-        toast({
-          title: "Fehler bei der Analyse",
-          description: result.error || "Unbekannter Fehler ist aufgetreten."
-        });
-      }
-      
-      // Personalize response if we have profile data
-      if (profile && profile.grassType) {
-        responseText = responseText.replace(/Rasen/g, `${profile.grassType}-Rasen`);
-      }
-      
-      const newAiMessage: Message = {
-        id: messages.length + 2,
-        content: responseText,
-        sender: 'ai',
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `Das ist eine hilfreiche Antwort zu Ihrer Frage: "${input.trim()}". Als Rasen-Experte empfehle ich Ihnen, regelmäßig zu mähen und zu düngen. Für spezifischere Beratung können Sie gerne weitere Fragen stellen!`,
+        isUser: false,
         timestamp: new Date()
       };
-      
-      setMessages(prevMessages => [...prevMessages, newAiMessage]);
-      
-      // Save AI response if authenticated
-      if (isAuthenticated) {
-        saveMessage(responseText, 'ai');
-      }
-      
+
+      setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
-      console.error('Error in chat:', error);
-      const errorMessage = "Es tut mir leid, aber es gab ein Problem bei der Verarbeitung Ihrer Anfrage. Bitte versuchen Sie es später erneut.";
-      
-      const newAiMessage: Message = {
-        id: messages.length + 2,
-        content: errorMessage,
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prevMessages => [...prevMessages, newAiMessage]);
-      
-      if (isAuthenticated) {
-        saveMessage(errorMessage, 'ai');
-      }
-      
-      toast({
-        title: "Verbindungsfehler",
-        description: "Fehler bei der Kommunikation mit der KI. Bitte versuchen Sie es erneut."
-      });
+      toast.error('Fehler beim Senden der Nachricht');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageAttachment(e.target.files[0]);
-      toast({
-        title: "Bild angehängt",
-        description: "Senden Sie Ihre Nachricht, um das Rasenfoto zu analysieren."
-      });
-    }
-  };
-
-  const handleSuggestedQuestion = (question: string) => {
-    setInput(question);
-  };
+  if (!isPremium && dailyQuestions >= DAILY_LIMIT) {
+    return (
+      <div className="flex min-h-screen flex-col bg-white">
+        <MainNavigation />
+        <div className="container max-w-4xl mx-auto px-4 py-8">
+          <PremiumGate
+            feature="Unbegrenzte KI-Fragen"
+            description="Sie haben Ihr Tageslimit von 5 Fragen erreicht. Upgraden Sie auf Premium für unbegrenzte Fragen an unseren Rasen-Experten."
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-white">
       <MainNavigation />
-      
-      <main className="flex-grow py-8">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <h1 className="text-3xl font-bold text-green-800 dark:text-green-400 mb-6">Fragen an Rasenpilot-KI</h1>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Sidebar with suggested questions */}
-            <div className="md:col-span-1">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <MessageSquare size={18} />
-                    Vorgeschlagene Fragen
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-3">
-                  <div className="space-y-2">
-                    {suggestedQuestions.map((question, index) => (
-                      <Button 
-                        key={index}
-                        variant="ghost" 
-                        className="w-full justify-start text-left h-auto py-3 px-3 whitespace-normal leading-relaxed text-sm"
-                        onClick={() => handleSuggestedQuestion(question)}
-                      >
-                        {question}
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {isAuthenticated && (
-                <div className="mt-6">
-                  <ChatHistory />
-                </div>
-              )}
+      <div className="container max-w-4xl mx-auto px-4 py-8 flex-1 flex flex-col">
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-green-600 mb-2">KI-Rasen Assistent</h1>
+              <p className="text-gray-600">Fragen Sie unseren ChatGPT-Rasenexperten</p>
             </div>
-            
-            {/* Chat interface */}
-            <div className="md:col-span-3">
-              <Card className="h-[600px] flex flex-col">
-                <CardHeader className="bg-green-50 dark:bg-green-900/30 pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Leaf className="text-green-600 dark:text-green-500" size={20} />
-                    Rasenpilot-KI Assistent
-                    {isAuthenticated && (
-                      <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        KI-Powered
-                      </span>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="flex-grow overflow-y-auto pt-4 pb-0">
-                  <div className="space-y-4">
-                    {messages.map((message) => (
-                      <div 
-                        key={message.id} 
-                        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div 
-                          className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                            message.sender === 'user' 
-                              ? 'bg-green-600 text-white dark:bg-green-700' 
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                          }`}
-                        >
-                          <div className="whitespace-pre-line">{message.content}</div>
-                          <div 
-                            className={`text-xs mt-1 ${
-                              message.sender === 'user' ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'
-                            }`}
-                          >
-                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {isLoading && (
-                      <div className="flex justify-start">
-                        <div className="max-w-[80%] rounded-lg px-4 py-2 bg-gray-100 dark:bg-gray-800">
-                          <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-                
-                <CardFooter className="pt-4 pb-4">
-                  <div className="w-full space-y-2">
-                    {imageAttachment && (
-                      <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded p-2">
-                        <div className="flex-grow truncate text-sm">
-                          {imageAttachment.name}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setImageAttachment(null)}
-                          className="h-6 w-6"
-                        >
-                          <X size={14} />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="shrink-0"
-                        asChild
-                      >
-                        <label>
-                          <Image size={20} />
-                          <input
-                            type="file"
-                            className="sr-only"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                          />
-                        </label>
-                      </Button>
-                      
-                      <Input 
-                        className="flex-grow"
-                        placeholder="Stellen Sie Ihre Frage..." 
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                      />
-                      
-                      <Button 
-                        className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
-                        onClick={handleSend}
-                        disabled={input.trim() === '' && !imageAttachment}
-                      >
-                        <Send size={18} />
-                      </Button>
-                    </div>
-                  </div>
-                </CardFooter>
-              </Card>
-              
-              <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {isAuthenticated 
-                  ? "Rasenpilot-KI nutzt fortschrittliche KI-Technologie für präzise Rasenberatung."
-                  : "Registrieren Sie sich für erweiterte KI-Features und personalisierte Beratung."
-                }
-              </div>
+            <div className="flex items-center gap-2">
+              {!isPremium && (
+                <Badge variant="outline" className="border-orange-300 text-orange-600">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  {DAILY_LIMIT - dailyQuestions} Fragen übrig heute
+                </Badge>
+              )}
+              {isPremium && (
+                <Badge className="bg-yellow-500">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Premium - Unbegrenzt
+                </Badge>
+              )}
             </div>
           </div>
         </div>
-      </main>
-      
-      <footer className="bg-white py-6 border-t border-gray-200 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
-        </div>
-      </footer>
+
+        <Card className="flex-1 flex flex-col border-green-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-green-600" />
+              Chat mit dem Rasen-Experten
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col p-0">
+            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+              <div className="space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        message.isUser
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p className={`text-xs mt-1 ${
+                        message.isUser ? 'text-green-100' : 'text-gray-500'
+                      }`}>
+                        {message.timestamp.toLocaleTimeString('de-DE', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 rounded-lg px-4 py-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+            <div className="border-t p-4">
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={canAskQuestion() ? "Stellen Sie Ihre Frage..." : "Tageslimit erreicht"}
+                  disabled={isLoading || !canAskQuestion()}
+                  className="flex-1"
+                />
+                <Button 
+                  type="submit" 
+                  disabled={isLoading || !input.trim() || !canAskQuestion()}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

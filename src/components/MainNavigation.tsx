@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Leaf, Menu, X, User, MessageSquare, Calendar, Home } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Leaf, Menu, X, User, MessageSquare, Calendar, Home, Crown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLawn } from '@/context/LawnContext';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +13,7 @@ const MainNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated: contextAuth } = useLawn();
+  const { isPremium } = useSubscription();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -53,7 +55,10 @@ const MainNavigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2" onClick={closeMenu}>
             <Leaf className="h-8 w-8 text-green-600" />
-            <span className="text-xl font-bold text-green-800">Rasenpilot</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-green-800">Rasenpilot</span>
+              {isPremium && <Badge className="bg-yellow-500 text-white"><Crown className="h-3 w-3 mr-1" />Premium</Badge>}
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -94,6 +99,18 @@ const MainNavigation = () => {
                 >
                   <MessageSquare size={18} />
                   <span>KI-Assistent</span>
+                </Link>
+                
+                <Link 
+                  to="/subscription" 
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                    isActive('/subscription') 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                  }`}
+                >
+                  <Crown size={18} />
+                  <span>Mitgliedschaft</span>
                 </Link>
                 
                 <Link 
@@ -182,6 +199,19 @@ const MainNavigation = () => {
                   >
                     <MessageSquare size={18} />
                     <span>KI-Assistent</span>
+                  </Link>
+                  
+                  <Link 
+                    to="/subscription" 
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                      isActive('/subscription') 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                    }`}
+                    onClick={closeMenu}
+                  >
+                    <Crown size={18} />
+                    <span>Mitgliedschaft</span>
                   </Link>
                   
                   <Link 
