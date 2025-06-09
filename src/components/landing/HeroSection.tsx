@@ -20,35 +20,36 @@ const HeroSection = () => {
             <span className="text-blue-600">Perfekte Ergebnisse</span> in 60 Sekunden.
           </h1>
           <h2 className="text-xl md:text-2xl text-gray-700 max-w-2xl leading-relaxed">
-            Revolutionäre Künstliche Intelligenz analysiert Ihren Rasen, erkennt Probleme sofort und erstellt einen 
-            <strong> wissenschaftlich fundierten Pflegeplan</strong> - maßgeschneidert für deutsche Klimabedingungen.
+            <span className="hidden md:inline">Revolutionäre Künstliche Intelligenz analysiert Ihren Rasen, erkennt Probleme sofort und erstellt einen 
+            <strong> wissenschaftlich fundierten Pflegeplan</strong> - maßgeschneidert für deutsche Klimabedingungen.</span>
+            <span className="md:hidden">KI analysiert Ihren Rasen und erstellt einen <strong>wissenschaftlich fundierten Pflegeplan</strong> für perfekte Ergebnisse.</span>
           </h2>
           
-          {/* Unique Selling Points */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <Zap className="w-4 h-4 text-green-600" />
+          {/* Unique Selling Points - Simplified for mobile */}
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-4 py-4">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <Zap className="w-3 h-3 md:w-4 md:h-4 text-green-600" />
               </div>
-              <span className="text-gray-700 font-medium">KI-Analyse in 60 Sekunden</span>
+              <span className="text-sm md:text-base text-gray-700 font-medium">60 Sekunden Analyse</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <Shield className="w-4 h-4 text-blue-600" />
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <Shield className="w-3 h-3 md:w-4 md:h-4 text-blue-600" />
               </div>
-              <span className="text-gray-700 font-medium">Wissenschaftlich fundiert</span>
+              <span className="text-sm md:text-base text-gray-700 font-medium">Wissenschaftlich fundiert</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                <Star className="w-4 h-4 text-purple-600" />
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <Star className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
               </div>
-              <span className="text-gray-700 font-medium">Über 50.000 zufriedene Nutzer</span>
+              <span className="text-sm md:text-base text-gray-700 font-medium">50.000+ Nutzer</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <Clock className="w-4 h-4 text-orange-600" />
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <Clock className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
               </div>
-              <span className="text-gray-700 font-medium">24/7 verfügbar</span>
+              <span className="text-sm md:text-base text-gray-700 font-medium">24/7 verfügbar</span>
             </div>
           </div>
           
@@ -59,7 +60,8 @@ const HeroSection = () => {
               className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6 px-8 shadow-lg"
             >
               <Sparkles className="mr-2 h-5 w-5" />
-              Kostenlose KI-Analyse starten
+              <span className="hidden sm:inline">Kostenlose KI-Analyse starten</span>
+              <span className="sm:hidden">KI-Analyse starten</span>
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 
@@ -68,11 +70,12 @@ const HeroSection = () => {
               size="lg"
               className="border-2 border-green-200 text-green-700 hover:bg-green-50 text-lg py-6 px-8"
             >
-              Anmelden & Vollversion nutzen
+              <span className="hidden sm:inline">Anmelden & Vollversion nutzen</span>
+              <span className="sm:hidden">Anmelden</span>
             </Button>
           </div>
           
-          <div className="flex items-center space-x-6 text-sm text-gray-600 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-600 pt-2">
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
               <span>Keine Kreditkarte erforderlich</span>
@@ -83,7 +86,8 @@ const HeroSection = () => {
             </div>
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
-              <span>100% kostenlose Testversion</span>
+              <span className="hidden sm:inline">100% kostenlose Testversion</span>
+              <span className="sm:hidden">100% kostenlos</span>
             </div>
           </div>
         </div>
