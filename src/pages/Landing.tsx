@@ -30,7 +30,7 @@ const Landing = () => {
         }}
       />
       
-      <div className="container mx-auto px-4 mb-8">
+      <div className="container mx-auto px-4 mb-2 sm:mb-4">
         <Logo showTagline={true} />
       </div>
       

@@ -16,17 +16,17 @@ const Logo: React.FC<LogoProps> = ({ className = '', showTagline = false }) => {
   return (
     <div className={`flex flex-col ${className}`}>
       <div 
-        className="flex items-center gap-2 cursor-pointer"
+        className="flex items-center gap-1.5 cursor-pointer"
         onClick={() => navigate('/')}
       >
-        <div className="bg-green-100 p-1.5 rounded-full">
-          <Leaf className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+        <div className="bg-green-100 p-1 rounded-full">
+          <Leaf className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
         </div>
-        <span className="text-lg sm:text-xl font-bold text-green-700">Rasenpilot</span>
+        <span className="text-base sm:text-lg font-bold text-green-700">Rasenpilot</span>
       </div>
       
       {showTagline && (
-        <p className={`text-xs sm:text-sm text-green-600 mt-1 ${isMobile ? 'ml-1' : 'ml-2'}`}>
+        <p className={`text-xs text-green-600 mt-0.5 ${isMobile ? 'ml-0.5' : 'ml-1'}`}>
           Weltweit erste KI für Rasen-Enthusiasten
         </p>
       )}
