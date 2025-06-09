@@ -1,19 +1,14 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useLawn } from '@/context/LawnContext';
 import MainNavigation from '@/components/MainNavigation';
-import { Mail, UserRound, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AvatarUpload from '@/components/AvatarUpload';
 import PasswordChange from '@/components/PasswordChange';
@@ -23,147 +18,53 @@ import ActivityHistory from '@/components/ActivityHistory';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageSelector from '@/components/LanguageSelector';
 import SocialConnections from '@/components/SocialConnections';
+import ProfileForm from '@/components/profile/ProfileForm';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const profileSchema = z.object({
-  name: z.string().min(2, 'Name muss mindestens 2 Zeichen lang sein'),
-  email: z.string().email('Bitte gib eine gültige E-Mail-Adresse ein').optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
-
-interface UserData {
-  id: string;
-  email: string;
-  name?: string;
-  avatar_url?: string;
-}
+import { useProfileData } from '@/hooks/useProfileData';
 
 const Profile = () => {
-  const [user, setUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { profile, syncProfileWithSupabase, temporaryProfile, setProfile, clearTemporaryProfile } = useLawn();
   const [activeTab, setActiveTab] = useState('account');
+  const { user, loading, error, updateUserProfile, updateAvatar } = useProfileData();
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: '',
-      email: '',
+  // Handle temporary profile data on mount
+  React.useEffect(() => {
+    if (!loading && user && temporaryProfile) {
+      console.log('Merging temporary profile data:', temporaryProfile);
+      
+      const updatedProfile = {
+        ...(profile || {}),
+        ...temporaryProfile,
+        userId: user.id,
+      };
+      
+      setProfile(updatedProfile);
+      clearTemporaryProfile();
+      
+      // Sync with Supabase in the background
+      syncProfileWithSupabase().catch(console.error);
     }
-  });
+  }, [loading, user, temporaryProfile, profile, setProfile, clearTemporaryProfile, syncProfileWithSupabase]);
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data, error } = await supabase.auth.getUser();
-        
-        if (error || !data?.user) {
-          console.log("No authenticated user found, redirecting to auth");
-          navigate('/auth');
-          return;
-        }
-        
-        setUser({
-          id: data.user.id,
-          email: data.user.email || '',
-          name: data.user.user_metadata?.name,
-          avatar_url: data.user.user_metadata?.avatar_url,
-        });
-        
-        form.reset({
-          name: data.user.user_metadata?.name || '',
-          email: data.user.email || '',
-        });
-        
-        // If there's temporary profile data, save it to the user profile
-        if (temporaryProfile) {
-          console.log('Temporary profile found in Profile page, saving to user profile:', temporaryProfile);
-          
-          // Create a merged profile by combining existing profile with temporary profile
-          const updatedProfile = {
-            ...(profile || {}),
-            ...temporaryProfile,
-            zipCode: temporaryProfile.zipCode || profile?.zipCode || '',
-            grassType: temporaryProfile.grassType || profile?.grassType || '',
-            lawnSize: temporaryProfile.lawnSize || profile?.lawnSize || '',
-            lawnGoal: temporaryProfile.lawnGoal || profile?.lawnGoal || '',
-            lawnPicture: temporaryProfile.lawnPicture || profile?.lawnPicture || '',
-            hasChildren: temporaryProfile.hasChildren !== undefined ? temporaryProfile.hasChildren : profile?.hasChildren,
-            hasPets: temporaryProfile.hasPets !== undefined ? temporaryProfile.hasPets : profile?.hasPets,
-          };
-          
-          console.log("Updated profile to be set:", updatedProfile);
-          
-          // Update profile in LawnContext
-          setProfile(updatedProfile);
-          
-          // Clear temporary profile after merging to avoid reapplying
-          clearTemporaryProfile();
-          
-          // Sync with Supabase
-          await syncProfileWithSupabase();
-        }
-        
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        toast.error('Fehler beim Laden der Benutzerdaten');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUser();
-  }, [navigate, form, temporaryProfile, profile, setProfile, syncProfileWithSupabase, clearTemporaryProfile]);
-
-  const onSubmit = async (values: ProfileFormValues) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: { name: values.name }
-      });
-
-      if (error) throw error;
-
-      if (user) {
-        setUser({
-          ...user,
-          name: values.name
-        });
-      }
-
-      toast.success('Profil wurde aktualisiert');
-    } catch (error: any) {
-      toast.error(`Fehler beim Aktualisieren des Profils: ${error.message}`);
-    } finally {
-      setLoading(false);
+  // Redirect if not authenticated
+  React.useEffect(() => {
+    if (!loading && error === 'No authenticated user found') {
+      navigate('/auth');
     }
-  };
+  }, [loading, error, navigate]);
 
   const handleSignOut = async () => {
-    setLoading(true);
     try {
       await supabase.auth.signOut();
       navigate('/auth');
       toast.success('Du wurdest erfolgreich abgemeldet');
     } catch (error: any) {
       toast.error(`Fehler beim Abmelden: ${error.message}`);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleAvatarUpdate = (url: string) => {
-    if (user) {
-      setUser({
-        ...user,
-        avatar_url: url
-      });
-    }
-  };
-
-  if (loading && !user) {
+  if (loading) {
     return (
       <div className="flex min-h-screen flex-col bg-white">
         <MainNavigation />
@@ -171,6 +72,23 @@ const Profile = () => {
           <div className="space-y-4">
             <Skeleton className="h-12 w-48" />
             <Skeleton className="h-32 w-64" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !user) {
+    return (
+      <div className="flex min-h-screen flex-col bg-white">
+        <MainNavigation />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Fehler beim Laden des Profils</h2>
+            <p className="text-gray-600 mb-4">{error || 'Unbekannter Fehler'}</p>
+            <Button onClick={() => navigate('/auth')} variant="outline">
+              Zur Anmeldung
+            </Button>
           </div>
         </div>
       </div>
@@ -194,17 +112,15 @@ const Profile = () => {
               <CardDescription className="text-gray-600">Verwalte deine persönlichen Daten</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
-              {user && (
-                <AvatarUpload 
-                  uid={user.id}
-                  url={user.avatar_url || null}
-                  onAvatarUpdate={handleAvatarUpdate}
-                  name={user.name}
-                  email={user.email}
-                />
-              )}
-              <p className="mt-4 font-medium text-lg text-gray-800">{user?.name || 'Kein Name'}</p>
-              <p className="text-sm text-gray-600">{user?.email}</p>
+              <AvatarUpload 
+                uid={user.id}
+                url={user.avatar_url || null}
+                onAvatarUpdate={updateAvatar}
+                name={user.name}
+                email={user.email}
+              />
+              <p className="mt-4 font-medium text-lg text-gray-800">{user.name || 'Kein Name'}</p>
+              <p className="text-sm text-gray-600">{user.email}</p>
             </CardContent>
             <CardFooter>
               <Button 
@@ -235,50 +151,11 @@ const Profile = () => {
                 </TabsList>
                 
                 <TabsContent value="account" className="p-4 mt-4">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-gray-700">Name</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <UserRound className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                <Input placeholder="Dein Name" className="pl-10 bg-white border-gray-300 text-gray-800" {...field} />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-gray-700">E-Mail</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                <Input 
-                                  placeholder="deine@email.de" 
-                                  className="pl-10 bg-gray-100 border-gray-300 text-gray-600" 
-                                  disabled 
-                                  {...field} 
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={loading}>
-                        {loading ? 'Wird gespeichert...' : 'Speichern'}
-                      </Button>
-                    </form>
-                  </Form>
+                  <ProfileForm 
+                    user={user}
+                    onSubmit={updateUserProfile}
+                    loading={loading}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="password" className="p-4 mt-4 space-y-6">
@@ -320,22 +197,30 @@ const Profile = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  <div>
-                    <Label className="text-gray-600">PLZ</Label>
-                    <p className="font-medium text-gray-800">{profile.zipCode}</p>
-                  </div>
-                  <div>
-                    <Label className="text-gray-600">Grassorte</Label>
-                    <p className="font-medium text-gray-800">{profile.grassType}</p>
-                  </div>
-                  <div>
-                    <Label className="text-gray-600">Rasengröße</Label>
-                    <p className="font-medium text-gray-800">{profile.lawnSize}</p>
-                  </div>
-                  <div>
-                    <Label className="text-gray-600">Rasenziel</Label>
-                    <p className="font-medium text-gray-800">{profile.lawnGoal}</p>
-                  </div>
+                  {profile.zipCode && (
+                    <div>
+                      <Label className="text-gray-600">PLZ</Label>
+                      <p className="font-medium text-gray-800">{profile.zipCode}</p>
+                    </div>
+                  )}
+                  {profile.grassType && (
+                    <div>
+                      <Label className="text-gray-600">Grassorte</Label>
+                      <p className="font-medium text-gray-800">{profile.grassType}</p>
+                    </div>
+                  )}
+                  {profile.lawnSize && (
+                    <div>
+                      <Label className="text-gray-600">Rasengröße</Label>
+                      <p className="font-medium text-gray-800">{profile.lawnSize}</p>
+                    </div>
+                  )}
+                  {profile.lawnGoal && (
+                    <div>
+                      <Label className="text-gray-600">Rasenziel</Label>
+                      <p className="font-medium text-gray-800">{profile.lawnGoal}</p>
+                    </div>
+                  )}
                   {profile.soilType && (
                     <div>
                       <Label className="text-gray-600">Bodentyp</Label>

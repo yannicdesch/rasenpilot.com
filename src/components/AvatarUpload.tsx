@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Camera, Loader2 } from 'lucide-react';
+import { validateImageFile, generateSecureFileName } from '@/utils/fileValidation';
 
 interface AvatarUploadProps {
   uid: string;
@@ -28,20 +29,36 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
       }
 
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${uid}/avatar.${fileExt}`;
+      
+      // Validate file before upload
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(', '));
+      }
+
+      // Generate secure filename
+      const secureFileName = generateSecureFileName(file.name);
+      const filePath = `${uid}/${secureFileName}`;
 
       console.log('Uploading avatar to path:', filePath);
 
-      // First, try to delete existing avatar if it exists
+      // Delete existing avatar files for this user (cleanup old avatars)
       try {
-        await supabase.storage
+        const { data: existingFiles } = await supabase.storage
           .from('avatars')
-          .remove([filePath]);
+          .list(uid);
+          
+        if (existingFiles && existingFiles.length > 0) {
+          const filesToDelete = existingFiles.map(file => `${uid}/${file.name}`);
+          await supabase.storage
+            .from('avatars')
+            .remove(filesToDelete);
+        }
       } catch (deleteError) {
-        console.log('No existing avatar to delete, continuing...');
+        console.log('No existing avatars to delete or delete failed:', deleteError);
       }
 
+      // Upload new avatar
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, { upsert: true });
@@ -50,7 +67,8 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
         throw uploadError;
       }
 
-      const { data } = await supabase.storage
+      // Get public URL
+      const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
@@ -75,6 +93,10 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
       toast.error(`Fehler beim Upload: ${error.message}`);
     } finally {
       setUploading(false);
+      // Clear the input so the same file can be selected again
+      if (event.target) {
+        event.target.value = '';
+      }
     }
   };
 
@@ -84,11 +106,11 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
 
   return (
     <div className="flex flex-col items-center">
-      <Avatar className="h-24 w-24 cursor-pointer border-2 border-green-200 shadow-md hover:opacity-90" 
+      <Avatar className="h-24 w-24 cursor-pointer border-2 border-green-200 shadow-md hover:opacity-90 transition-opacity" 
         onClick={handleButtonClick}>
-        <AvatarImage src={avatarUrl || ''} />
+        <AvatarImage src={avatarUrl || ''} alt="Profile picture" />
         <AvatarFallback className="bg-green-100 text-green-800 text-xl">
-          {name?.charAt(0) || email?.charAt(0) || '?'}
+          {name?.charAt(0)?.toUpperCase() || email?.charAt(0)?.toUpperCase() || '?'}
         </AvatarFallback>
       </Avatar>
       
@@ -96,7 +118,7 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ uid, url, onAvatarUpdate, n
         type="file"
         ref={fileInputRef}
         onChange={uploadAvatar}
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         className="hidden"
       />
       
