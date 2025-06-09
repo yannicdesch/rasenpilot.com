@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="bg-gradient-to-br from-green-50 via-white to-green-50 py-8 md:py-12">
+    <section className="bg-gradient-to-br from-green-50 via-white to-green-50 py-4 md:py-8">
       <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
         <div className="flex-1 space-y-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
