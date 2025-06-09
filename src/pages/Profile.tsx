@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -24,35 +23,32 @@ import { useProfileData } from '@/hooks/useProfileData';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile, syncProfileWithSupabase, temporaryProfile, setProfile, clearTemporaryProfile } = useLawn();
+  const { profile, setProfile, temporaryProfile, clearTemporaryProfile } = useLawn();
   const [activeTab, setActiveTab] = useState('account');
   const { user, loading, error, updateUserProfile, updateAvatar } = useProfileData();
 
-  // Handle temporary profile data on mount
-  React.useEffect(() => {
-    if (!loading && user && temporaryProfile) {
-      console.log('Merging temporary profile data:', temporaryProfile);
+  // Handle temporary profile data merge - simplified to prevent circular dependencies
+  useEffect(() => {
+    if (!loading && user && temporaryProfile && !profile) {
+      console.log('Profile: Merging temporary profile data');
       
       const updatedProfile = {
-        ...(profile || {}),
         ...temporaryProfile,
         userId: user.id,
       };
       
       setProfile(updatedProfile);
       clearTemporaryProfile();
-      
-      // Sync with Supabase in the background
-      syncProfileWithSupabase().catch(console.error);
     }
-  }, [loading, user, temporaryProfile, profile, setProfile, clearTemporaryProfile, syncProfileWithSupabase]);
+  }, [loading, user, temporaryProfile, profile, setProfile, clearTemporaryProfile]);
 
   // Redirect if not authenticated
-  React.useEffect(() => {
-    if (!loading && error === 'No authenticated user found') {
+  useEffect(() => {
+    if (!loading && (error === 'No authenticated user found' || !user)) {
+      console.log('Profile: No authenticated user, redirecting to auth');
       navigate('/auth');
     }
-  }, [loading, error, navigate]);
+  }, [loading, error, user, navigate]);
 
   const handleSignOut = async () => {
     try {
@@ -64,31 +60,42 @@ const Profile = () => {
     }
   };
 
+  // Show loading with better UX
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col bg-white">
         <MainNavigation />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="space-y-4">
-            <Skeleton className="h-12 w-48" />
-            <Skeleton className="h-32 w-64" />
+        <div className="container max-w-5xl mx-auto px-4 py-8">
+          <div className="flex justify-between items-center mb-8">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-8 w-8" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full lg:col-span-2" />
           </div>
         </div>
       </div>
     );
   }
 
+  // Show error state with action button
   if (error || !user) {
     return (
       <div className="flex min-h-screen flex-col bg-white">
         <MainNavigation />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
+          <div className="text-center max-w-md mx-auto">
             <h2 className="text-xl font-semibold text-red-600 mb-2">Fehler beim Laden des Profils</h2>
             <p className="text-gray-600 mb-4">{error || 'Unbekannter Fehler'}</p>
-            <Button onClick={() => navigate('/auth')} variant="outline">
-              Zur Anmeldung
-            </Button>
+            <div className="space-y-2">
+              <Button onClick={() => window.location.reload()} variant="default">
+                Seite neu laden
+              </Button>
+              <Button onClick={() => navigate('/auth')} variant="outline">
+                Zur Anmeldung
+              </Button>
+            </div>
           </div>
         </div>
       </div>

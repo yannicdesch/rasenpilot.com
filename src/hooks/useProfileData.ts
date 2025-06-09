@@ -17,51 +17,78 @@ export const useProfileData = () => {
 
   useEffect(() => {
     let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const loadUserData = async () => {
       try {
+        console.log('useProfileData: Starting to load user data...');
         setLoading(true);
         setError(null);
 
         const { data: authData, error: authError } = await supabase.auth.getUser();
         
-        if (authError || !authData?.user) {
+        if (authError) {
+          console.error('useProfileData: Auth error:', authError);
           if (isMounted) {
             setError('No authenticated user found');
             setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (!authData?.user) {
+          console.log('useProfileData: No user found');
+          if (isMounted) {
+            setError('No authenticated user found');
+            setUser(null);
+            setLoading(false);
           }
           return;
         }
         
         if (isMounted) {
+          console.log('useProfileData: User data loaded successfully');
           setUser({
             id: authData.user.id,
             email: authData.user.email || '',
             name: authData.user.user_metadata?.name,
             avatar_url: authData.user.user_metadata?.avatar_url,
           });
+          setLoading(false);
         }
         
       } catch (err) {
-        console.error('Error loading user data:', err);
+        console.error('useProfileData: Error loading user data:', err);
         if (isMounted) {
           setError('Failed to load user data');
-        }
-      } finally {
-        if (isMounted) {
           setLoading(false);
         }
       }
     };
+
+    // Set a timeout to prevent infinite loading
+    timeoutId = setTimeout(() => {
+      if (isMounted && loading) {
+        console.log('useProfileData: Loading timeout reached');
+        setError('Loading timeout - please refresh the page');
+        setLoading(false);
+      }
+    }, 5000); // 5 second timeout
 
     loadUserData();
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('useProfileData: Auth state changed:', event);
+        
         if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setError(null);
+          if (isMounted) {
+            setUser(null);
+            setError('No authenticated user found');
+            setLoading(false);
+          }
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user && isMounted) {
             setUser({
@@ -70,6 +97,8 @@ export const useProfileData = () => {
               name: session.user.user_metadata?.name,
               avatar_url: session.user.user_metadata?.avatar_url,
             });
+            setError(null);
+            setLoading(false);
           }
         }
       }
@@ -77,6 +106,7 @@ export const useProfileData = () => {
 
     return () => {
       isMounted = false;
+      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
