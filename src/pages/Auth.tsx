@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
@@ -61,28 +62,6 @@ const Auth = () => {
       try {
         console.log('Checking for existing auth session...');
         
-        // Check for auth_initialized flag that indicates we just logged in
-        const authInitialized = localStorage.getItem('auth_initialized');
-        if (authInitialized) {
-          console.log('Auth just initialized, skipping check and redirecting');
-          localStorage.removeItem('auth_initialized');
-          setAlreadyAuthenticated(true);
-          
-          // Complete progress animation
-          setAuthProgress(100);
-          
-          // If we have temporary profile data, sync it first
-          if (temporaryProfile) {
-            await syncProfileWithSupabase();
-          }
-          
-          // Use navigate instead of hard redirect
-          setTimeout(() => {
-            navigate(from, { replace: true });
-          }, 300);
-          return;
-        }
-        
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -130,29 +109,38 @@ const Auth = () => {
 
     checkExistingAuth();
   
-    // Set up auth listener with immediate redirect on sign in
+    // Set up auth listener with proper profile syncing
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, !!session);
       
       if (event === 'SIGNED_IN' && session) {
+        console.log('User signed in, syncing profile and redirecting...');
+        
         // Complete progress animation
         setAuthProgress(100);
         
         // If we have temporary profile data, sync it
         if (temporaryProfile) {
           console.log('Found temporary profile data, syncing after sign in');
-          await syncProfileWithSupabase();
+          try {
+            await syncProfileWithSupabase();
+            console.log('Profile sync completed successfully');
+          } catch (error) {
+            console.error('Error syncing profile:', error);
+            toast.error('Fehler beim Speichern des Profils');
+          }
         }
         
         toast.success('Erfolgreich eingeloggt!');
-        localStorage.setItem('auth_initialized', 'true');
         
-        // Use navigate instead of hard redirect
+        // Navigate to dashboard
         setTimeout(() => {
           navigate(from, { replace: true });
-        }, 300);
+        }, 500);
+        
       } else if (event === 'SIGNED_OUT') {
         toast.info('Abgemeldet');
+        setAlreadyAuthenticated(false);
       }
     });
   

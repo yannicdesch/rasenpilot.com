@@ -26,7 +26,7 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
   onBack 
 }) => {
   const navigate = useNavigate();
-  const { setProfile, setTemporaryProfile } = useLawn();
+  const { setTemporaryProfile } = useLawn();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [dsgvoConsent, setDsgvoConsent] = useState(false);
@@ -68,22 +68,20 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       // Update consent data
       updateData({ consent_ai_training: aiTrainingConsent });
       
-      // Create the profile from onboarding data
+      // Create the profile from onboarding data and store as temporary
       const profileData = createProfileFromOnboardingData();
-      console.log('Creating profile with data:', profileData);
-
-      // Set as temporary profile first
+      console.log('Setting temporary profile before registration:', profileData);
       setTemporaryProfile(profileData);
 
+      // Register user with Supabase
       const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
-            onboarding_data: {
-              ...data,
-              consent_ai_training: aiTrainingConsent
-            }
+            onboarding_completed: true,
+            consent_ai_training: aiTrainingConsent
           }
         }
       });
@@ -91,14 +89,27 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       if (error) {
         console.error('Registration error:', error);
         toast.error(error.message);
-      } else {
-        console.log('Registration successful:', authData);
-        toast.success('Registrierung erfolgreich! Dein 14-Tage-Pflegeplan wird erstellt...');
+        setLoading(false);
+        return;
+      }
+
+      if (authData.user) {
+        console.log('Registration successful, user created:', authData.user.id);
         
-        // Navigate to dashboard to show 14-day plan
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+        // Check if email confirmation is required
+        if (!authData.session) {
+          toast.success('Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse.', {
+            description: 'Ein Bestätigungslink wurde an deine E-Mail gesendet.'
+          });
+          setLoading(false);
+          return;
+        }
+
+        // If we have a session, the user is immediately logged in
+        toast.success('Registrierung erfolgreich! Du wirst weitergeleitet...');
+        
+        // The auth state change will handle navigation automatically
+        // Don't call navigate here to avoid conflicts
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -116,12 +127,14 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
     console.log('Temporary profile data:', profileData);
     
     setTemporaryProfile(profileData);
+    
+    // Mark free analysis as used
+    localStorage.setItem('freeAnalysisUsed', 'true');
+    
     toast.success('Du kannst dich später registrieren. Dein Pflegeplan wird erstellt...');
     
     // Navigate to dashboard
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 500);
+    navigate('/dashboard');
   };
 
   return (
@@ -224,7 +237,7 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
             {loading ? (
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Pflegeplan wird erstellt...</span>
+                <span>Registrierung läuft...</span>
               </div>
             ) : (
               <>
@@ -238,13 +251,14 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
             variant="outline"
             onClick={handleSkipRegistration}
             className="w-full"
+            disabled={loading}
           >
             Später registrieren
           </Button>
         </div>
 
         <div className="flex justify-start pt-4">
-          <Button variant="ghost" onClick={onBack}>
+          <Button variant="ghost" onClick={onBack} disabled={loading}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Zurück
           </Button>
