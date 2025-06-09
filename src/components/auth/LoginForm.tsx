@@ -50,12 +50,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPa
         return;
       }
 
+      console.log('LoginForm: Attempting sign in...');
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: emailValidation.sanitizedValue!,
         password: password.trim()
       });
 
       if (error) {
+        console.error('LoginForm: Sign in error:', error);
         await trackFailedLogin(email, error.message);
         
         if (error.message.includes('Invalid login credentials')) {
@@ -63,19 +66,24 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPa
         } else {
           setErrors([error.message]);
         }
+        setIsLoading(false);
         return;
       }
 
       if (data.user) {
+        console.log('LoginForm: Sign in successful');
         await trackSuccessfulLogin(data.user.email || email);
-        toast.success('Erfolgreich angemeldet!');
+        
+        // Don't show toast here - let the auth state change handle it
         onSuccess?.();
+        
+        // The auth state change listener will handle the redirect
       }
 
     } catch (error) {
+      console.error('LoginForm: Unexpected error:', error);
       await trackFailedLogin(email, 'Unexpected error during login');
       setErrors(['Ein unerwarteter Fehler ist aufgetreten']);
-    } finally {
       setIsLoading(false);
     }
   };

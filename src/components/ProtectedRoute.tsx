@@ -19,95 +19,98 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
-  }, [requireAdmin]);
-
-  const checkAuth = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Check session validity first
-      const sessionValid = await validateSession();
-      if (!sessionValid) {
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-
-      // Check session timeout
-      const lastActivity = sessionSecurity.getLastActivity();
-      if (lastActivity && !sessionSecurity.isSessionValid(lastActivity)) {
-        await supabase.auth.signOut();
-        sessionSecurity.clearSession();
-        toast.info('Sitzung aufgrund von Inaktivität beendet');
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Supabase authentication error:', error);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-      
-      const isLoggedIn = !!data.session;
-      setIsAuthenticated(isLoggedIn);
-      
-      // Update session activity
-      if (isLoggedIn) {
-        sessionSecurity.updateLastActivity();
-      }
-      
-      if (isLoggedIn && requireAdmin) {
-        const adminStatus = await validateAdminRole();
-        setIsAdmin(adminStatus);
+    let mounted = true;
+    
+    const checkAuth = async () => {
+      try {
+        console.log('ProtectedRoute: Starting auth check...');
         
-        if (!adminStatus) {
-          await trackAdminAction('unauthorized_access_attempt', undefined, {
-            path: location.pathname,
-            userId: data.session?.user.id
-          });
-          toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
+        // Quick session check first
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('ProtectedRoute: Session error:', error);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        const isLoggedIn = !!session;
+        console.log('ProtectedRoute: Session check result:', isLoggedIn);
+        
+        if (mounted) {
+          setIsAuthenticated(isLoggedIn);
+          
+          if (isLoggedIn) {
+            // Update session activity
+            sessionSecurity.updateLastActivity();
+            
+            // Check admin status if required
+            if (requireAdmin) {
+              try {
+                const adminStatus = await validateAdminRole();
+                setIsAdmin(adminStatus);
+                
+                if (!adminStatus) {
+                  await trackAdminAction('unauthorized_access_attempt', undefined, {
+                    path: location.pathname,
+                    userId: session?.user.id
+                  });
+                  toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
+                }
+              } catch (adminError) {
+                console.error('ProtectedRoute: Admin check error:', adminError);
+                setIsAdmin(false);
+              }
+            }
+          }
+          
+          setIsLoading(false);
+        }
+        
+      } catch (error) {
+        console.error('ProtectedRoute: Auth check error:', error);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          setIsLoading(false);
         }
       }
-      
-    } catch (error) {
-      console.error('Error checking authentication:', error);
-      setIsAuthenticated(false);
-      setIsAdmin(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  // Set up auth listener with security enhancements
-  useEffect(() => {
+    checkAuth();
+
+    // Set up auth listener
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setIsAuthenticated(!!session);
+      console.log('ProtectedRoute: Auth state changed:', event, !!session);
+      
+      if (!mounted) return;
+      
+      const isLoggedIn = !!session;
+      setIsAuthenticated(isLoggedIn);
       
       if (event === 'SIGNED_IN' && session) {
         sessionSecurity.updateLastActivity();
-        toast.success('Erfolgreich eingeloggt!');
+        console.log('ProtectedRoute: User signed in, auth should be complete');
       } else if (event === 'SIGNED_OUT') {
         sessionSecurity.clearSession();
-        toast.info('Sie wurden abgemeldet');
         setIsAdmin(false);
         navigate('/auth', { state: { from: location }, replace: true });
       } else if (event === 'TOKEN_REFRESHED') {
         sessionSecurity.updateLastActivity();
       }
     });
-  
+
+    // Cleanup function
     return () => {
+      mounted = false;
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [navigate, location]);
+  }, [requireAdmin, location, navigate]);
 
   // Session timeout checker
   useEffect(() => {
@@ -124,11 +127,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  // Show loading only for a very short time
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
-        <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mb-3"></div>
-        <p className="text-green-800 text-sm">Authentifizierung wird überprüft...</p>
+        <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2"></div>
+        <p className="text-green-800 text-sm">Wird geladen...</p>
       </div>
     );
   }

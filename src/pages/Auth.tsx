@@ -10,18 +10,14 @@ import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-do
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useLawn } from '@/context/LawnContext';
-import { Progress } from '@/components/ui/progress';
 
 const Auth = () => {
-  // Check if Supabase is configured
   const isSupabaseReady = isSupabaseConfigured();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [alreadyAuthenticated, setAlreadyAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [authProgress, setAuthProgress] = useState(0);
   const { temporaryProfile, syncProfileWithSupabase } = useLawn();
   
   // Get initial active tab from URL search params
@@ -34,125 +30,104 @@ const Auth = () => {
   const prefillEmail = location.state?.prefillEmail || '';
 
   useEffect(() => {
-    let progressTimer: number | null = null;
+    let mounted = true;
     
-    // Start progress animation
-    if (checkingAuth) {
-      progressTimer = window.setInterval(() => {
-        setAuthProgress(prev => Math.min(prev + 10, 90));
-      }, 100);
-    }
-    
-    // Enforce max time for auth check
-    const maxAuthCheckTime = setTimeout(() => {
-      if (checkingAuth) {
-        setCheckingAuth(false);
-        if (progressTimer) clearInterval(progressTimer);
-      }
-    }, 2000);
-    
-    // Check if user is already authenticated
+    // Quick auth check with timeout
     const checkExistingAuth = async () => {
       if (!isSupabaseReady) {
-        setCheckingAuth(false);
-        if (progressTimer) clearInterval(progressTimer);
+        if (mounted) setCheckingAuth(false);
         return;
       }
       
       try {
-        console.log('Checking for existing auth session...');
+        console.log('Auth page: Checking for existing session...');
         
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error checking auth session:', error);
-          setCheckingAuth(false);
-          if (progressTimer) clearInterval(progressTimer);
+          console.error('Auth page: Session check error:', error);
+          if (mounted) setCheckingAuth(false);
           return;
         }
         
-        if (data.session) {
-          console.log('User already authenticated, redirecting to:', from);
-          setAlreadyAuthenticated(true);
-          
-          // Complete progress animation
-          setAuthProgress(100);
+        if (data.session && mounted) {
+          console.log('Auth page: User already authenticated, redirecting to:', from);
           
           // If we have temporary profile data, sync it first
           if (temporaryProfile) {
-            console.log('Found temporary profile data, syncing before redirect');
-            await syncProfileWithSupabase();
+            console.log('Auth page: Found temporary profile, syncing before redirect');
+            try {
+              await syncProfileWithSupabase();
+            } catch (syncError) {
+              console.error('Auth page: Profile sync error:', syncError);
+            }
           }
           
-          // Use navigate instead of hard redirect
-          setTimeout(() => {
-            navigate(from, { replace: true });
-          }, 300);
-        } else {
-          console.log('No active session found');
+          // Navigate immediately
+          navigate(from, { replace: true });
+          return;
+        }
+        
+        if (mounted) {
+          console.log('Auth page: No active session found');
           setCheckingAuth(false);
-          if (progressTimer) clearInterval(progressTimer);
         }
       } catch (error) {
-        console.error('Unexpected error checking authentication:', error);
-        setCheckingAuth(false);
-        if (progressTimer) clearInterval(progressTimer);
+        console.error('Auth page: Unexpected error:', error);
+        if (mounted) setCheckingAuth(false);
       }
     };
 
-    // Check for confirmation token in URL (email verification flow)
-    const confirmationToken = searchParams.get('confirmation_token');
-    if (confirmationToken) {
-      console.log('Email confirmation token detected. Handling confirmation...');
-      toast.info('E-Mail wird bestätigt...');
-    }
+    // Set timeout to prevent hanging
+    const authCheckTimeout = setTimeout(() => {
+      if (mounted) {
+        console.log('Auth page: Auth check timeout, proceeding to show auth form');
+        setCheckingAuth(false);
+      }
+    }, 1000); // Max 1 second for auth check
 
     checkExistingAuth();
-  
-    // Set up auth listener with proper profile syncing and redirect handling
+    
+    // Set up auth listener for sign-in events
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, !!session);
+      console.log('Auth page: Auth state changed:', event, !!session);
+      
+      if (!mounted) return;
       
       if (event === 'SIGNED_IN' && session) {
-        console.log('User signed in, syncing profile and redirecting...');
-        
-        // Complete progress animation
-        setAuthProgress(100);
+        console.log('Auth page: User signed in, syncing profile and redirecting...');
         
         // If we have temporary profile data, sync it
         if (temporaryProfile) {
-          console.log('Found temporary profile data, syncing after sign in');
+          console.log('Auth page: Found temporary profile data, syncing after sign in');
           try {
             await syncProfileWithSupabase();
-            console.log('Profile sync completed successfully');
+            console.log('Auth page: Profile sync completed successfully');
           } catch (error) {
-            console.error('Error syncing profile:', error);
+            console.error('Auth page: Error syncing profile:', error);
             toast.error('Fehler beim Speichern des Profils');
           }
         }
         
         toast.success('Erfolgreich eingeloggt!');
         
-        // Navigate to dashboard - this handles both regular login and email confirmation
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 500);
+        // Navigate to dashboard immediately
+        navigate('/dashboard', { replace: true });
         
       } else if (event === 'SIGNED_OUT') {
         toast.info('Abgemeldet');
-        setAlreadyAuthenticated(false);
       }
     });
   
     return () => {
-      if (progressTimer) clearInterval(progressTimer);
-      clearTimeout(maxAuthCheckTime);
+      mounted = false;
+      clearTimeout(authCheckTimeout);
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
     
-  }, [from, navigate, isSupabaseReady, searchParams, temporaryProfile, syncProfileWithSupabase]);
+  }, [from, navigate, isSupabaseReady, temporaryProfile, syncProfileWithSupabase]);
 
   const handleRegistrationSuccess = () => {
     setRegistrationComplete(true);
@@ -168,27 +143,13 @@ const Auth = () => {
     navigate(from, { replace: true });
   };
 
-  // If already authenticated, show minimal loading and immediate redirect
-  if (alreadyAuthenticated) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
-        <div className="text-center">
-          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mb-3 mx-auto"></div>
-          <Progress value={authProgress} className="w-64 h-1.5 mb-3" />
-          <p className="text-green-700">Sie sind bereits angemeldet. Weiterleitung zur gewünschten Seite...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If checking auth state, show minimal loading for max 1 second
+  // If checking auth state, show minimal loading
   if (checkingAuth) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="text-center">
-          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mb-3 mx-auto"></div>
-          <Progress value={authProgress} className="w-64 h-1.5 mb-3" />
-          <p className="text-sm text-gray-500">Überprüfe Anmeldestatus...</p>
+          <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2 mx-auto"></div>
+          <p className="text-sm text-gray-500">Anmeldestatus wird überprüft...</p>
         </div>
       </div>
     );
