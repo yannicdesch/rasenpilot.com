@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Sparkles, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,21 +8,71 @@ interface AnalysisResultsProps {
 }
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) => {
-  // Mock analysis data - in real app this would come from the AI analysis
-  const mockAnalysis = {
-    condition: "Lückenhaft mit leichten Moosstellen",
-    cause: "Verdichteter Boden & zu wenig Licht",
-    tip: "Vertikutiere deinen Rasen im Frühjahr bei feuchtem Boden. Danach nachsäen und regelmäßig düngen.",
-    score: 41,
-    products: [
-      "Moosfrei Granulat (mit Eisen)",
-      "Nachsaat-Mix \"Sport & Spiel\""
-    ]
+  // Parse the analysis results if they exist
+  const parseAnalysisResults = (results: string | null) => {
+    if (!results) {
+      return {
+        condition: "Analyse nicht verfügbar",
+        cause: "Keine Daten erhalten",
+        tip: "Bitte versuchen Sie es erneut oder kontaktieren Sie den Support.",
+        score: 50,
+        products: ["Basis-Rasenpflege", "Standarddünger"]
+      };
+    }
+
+    // Try to extract structured information from the analysis text
+    const lines = results.split('\n').filter(line => line.trim());
+    
+    // Look for health score in the text
+    let score = 50; // default
+    const healthLine = lines.find(line => line.includes('Gesamtgesundheit') || line.includes('/10'));
+    if (healthLine) {
+      const scoreMatch = healthLine.match(/(\d+)\/10/);
+      if (scoreMatch) {
+        score = parseInt(scoreMatch[1]) * 10; // Convert to percentage
+      }
+    }
+
+    // Extract main issues/problems
+    const issueLines = lines.filter(line => 
+      line.includes('Problem') || 
+      line.includes('erkannt') || 
+      line.includes('Ursache') ||
+      line.includes('•')
+    );
+    
+    const condition = issueLines.length > 0 
+      ? issueLines[0].replace(/[•\-\*]/g, '').trim()
+      : "Rasenprobleme erkannt";
+
+    // Extract recommendations
+    const recommendationLines = lines.filter(line => 
+      line.includes('Empfehlung') || 
+      line.includes('sollten') || 
+      line.includes('Dünger') ||
+      line.includes('Bewässer')
+    );
+
+    const tip = recommendationLines.length > 0
+      ? recommendationLines[0].replace(/[•\-\*]/g, '').trim()
+      : "Folgen Sie den detaillierten Empfehlungen in der Analyse.";
+
+    // Extract product recommendations
+    const productLines = lines.filter(line => 
+      line.includes('Dünger') || 
+      line.includes('Produkt') ||
+      line.includes('Nachsaat') ||
+      line.includes('Granulat')
+    );
+
+    const products = productLines.length > 0 
+      ? productLines.slice(0, 2).map(line => line.replace(/[•\-\*]/g, '').trim())
+      : ["Langzeitrasendünger", "Nachsaat-Mix"];
+
+    return { condition, cause: "Basierend auf KI-Analyse", tip, score, products };
   };
 
-  // If we have actual analysis results, try to extract structured data from them
-  // Otherwise, use mock data for display
-  const analysisData = analysisResults ? mockAnalysis : mockAnalysis;
+  const analysisData = parseAnalysisResults(analysisResults);
 
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -88,6 +139,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
               ))}
             </ul>
           </div>
+
+          {/* Show raw analysis if available */}
+          {analysisResults && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm font-semibold text-gray-700 mb-2">Detaillierte KI-Analyse:</p>
+              <div className="text-sm text-gray-600 whitespace-pre-line">
+                {analysisResults}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Call to Action */}

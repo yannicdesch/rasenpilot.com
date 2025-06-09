@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +12,7 @@ const AnalysisResults = () => {
   const navigate = useNavigate();
   const { temporaryProfile, isAuthenticated } = useLawn();
   const [analysis, setAnalysis] = useState<string>('');
+  const [healthScore, setHealthScore] = useState<number>(50);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -47,11 +47,26 @@ const AnalysisResults = () => {
 
         console.log('Analysis response:', data);
         setAnalysis(data.analysis);
+        
+        // Extract health score from analysis
+        if (data.analysis) {
+          const healthMatch = data.analysis.match(/(\d+)\/10/);
+          if (healthMatch) {
+            setHealthScore(parseInt(healthMatch[1]) * 10);
+          } else {
+            // Look for percentage in the text
+            const percentMatch = data.analysis.match(/(\d+)\s*%/);
+            if (percentMatch) {
+              setHealthScore(parseInt(percentMatch[1]));
+            }
+          }
+        }
       } catch (error) {
         console.error('Analysis error:', error);
         console.log('Falling back to mock analysis');
         // Fallback to mock analysis
         setAnalysis(getMockAnalysis(temporaryProfile.rasenproblem));
+        setHealthScore(65); // Better default score
         toast.info('KI-Analyse nicht verfügbar, zeige Beispielanalyse');
       } finally {
         setIsLoading(false);
@@ -64,6 +79,8 @@ const AnalysisResults = () => {
   const getMockAnalysis = (problem: string) => {
     return `🌱 **Vermutete Diagnose**
 Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstoffmangel oder ein Problem mit der Wasserversorgung vor. Dies sind häufige Ursachen für die beschriebenen Symptome.
+
+**Gesamtgesundheit:** 6.5/10
 
 🛠️ **Empfohlene Behandlung**
 - Führen Sie einen Bodentest durch, um den pH-Wert und Nährstoffgehalt zu bestimmen
@@ -133,6 +150,24 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
               <p className="text-gray-600">
                 Basierend auf deiner Problembeschreibung haben wir eine personalisierte Analyse erstellt
               </p>
+              
+              {/* Health Score Display */}
+              <div className="mt-4 p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-lg font-semibold text-gray-800">
+                    📊 Dein Rasen-Score:
+                  </span>
+                  <span className="text-3xl font-bold text-green-600">
+                    {healthScore}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-green-600 h-3 rounded-full transition-all duration-1000" 
+                    style={{ width: `${healthScore}%` }}
+                  ></div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div 
