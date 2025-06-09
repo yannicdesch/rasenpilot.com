@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
@@ -32,7 +31,7 @@ const Auth = () => {
   useEffect(() => {
     let mounted = true;
     
-    // Quick auth check with timeout
+    // Quick auth check with shorter timeout
     const checkExistingAuth = async () => {
       if (!isSupabaseReady) {
         if (mounted) setCheckingAuth(false);
@@ -78,13 +77,13 @@ const Auth = () => {
       }
     };
 
-    // Set timeout to prevent hanging
+    // Reduce timeout to 500ms to prevent hanging
     const authCheckTimeout = setTimeout(() => {
       if (mounted) {
         console.log('Auth page: Auth check timeout, proceeding to show auth form');
         setCheckingAuth(false);
       }
-    }, 1000); // Max 1 second for auth check
+    }, 500);
 
     checkExistingAuth();
     
@@ -134,7 +133,6 @@ const Auth = () => {
   };
 
   const handleOnboardingComplete = async (data: any) => {
-    // Sync profile before navigating
     await syncProfileWithSupabase();
     navigate(from, { replace: true });
   };
@@ -143,7 +141,7 @@ const Auth = () => {
     navigate(from, { replace: true });
   };
 
-  // If checking auth state, show minimal loading
+  // If checking auth state, show minimal loading with shorter duration
   if (checkingAuth) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">

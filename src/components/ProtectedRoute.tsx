@@ -26,14 +26,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       try {
         console.log('ProtectedRoute: Starting auth check for path:', location.pathname);
         
-        // Set a timeout to prevent infinite loading
+        // Reduce timeout to 1 second to prevent hanging
         authCheckTimeout = setTimeout(() => {
           if (mounted) {
             console.log('ProtectedRoute: Auth check timeout, assuming not authenticated');
             setIsAuthenticated(false);
             setIsLoading(false);
           }
-        }, 2000);
+        }, 1000);
         
         // Quick session check first
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -112,13 +112,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         sessionSecurity.clearSession();
         setIsAdmin(false);
         setIsLoading(false);
-        // Don't navigate here - let the component handle it
       } else if (event === 'TOKEN_REFRESHED') {
         sessionSecurity.updateLastActivity();
       }
     });
 
-    // Cleanup function
     return () => {
       mounted = false;
       if (authCheckTimeout) {
@@ -141,11 +139,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       }
     };
 
-    const interval = setInterval(checkSessionTimeout, 60000); // Check every minute
+    const interval = setInterval(checkSessionTimeout, 60000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  // Show loading only briefly
+  // Show loading with shorter duration
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">

@@ -74,7 +74,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPa
         console.log('LoginForm: Sign in successful');
         await trackSuccessfulLogin(data.user.email || email);
         
-        // Don't show toast here - let the auth state change handle it
+        // Call onSuccess immediately without waiting for auth state change
         onSuccess?.();
         
         // The auth state change listener will handle the redirect
@@ -84,6 +84,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPa
       console.error('LoginForm: Unexpected error:', error);
       await trackFailedLogin(email, 'Unexpected error during login');
       setErrors(['Ein unerwarteter Fehler ist aufgetreten']);
+    } finally {
       setIsLoading(false);
     }
   };
