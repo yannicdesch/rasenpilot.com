@@ -17,17 +17,27 @@ export const useProfileData = () => {
 
   useEffect(() => {
     let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const loadUserData = async () => {
       try {
         console.log('useProfileData: Starting to load user data...');
+        
+        // Set a timeout to prevent infinite loading
+        timeoutId = setTimeout(() => {
+          if (isMounted && loading) {
+            console.log('useProfileData: Loading timeout reached');
+            setError('Authentication timeout');
+            setLoading(false);
+          }
+        }, 3000);
         
         const { data: authData, error: authError } = await supabase.auth.getUser();
         
         if (authError) {
           console.error('useProfileData: Auth error:', authError);
           if (isMounted) {
-            setError('No authenticated user found');
+            setError('Authentication failed');
             setUser(null);
             setLoading(false);
           }
@@ -45,7 +55,8 @@ export const useProfileData = () => {
         }
         
         if (isMounted) {
-          console.log('useProfileData: User data loaded successfully');
+          console.log('useProfileData: User data loaded successfully:', authData.user.email);
+          clearTimeout(timeoutId);
           setUser({
             id: authData.user.id,
             email: authData.user.email || '',
@@ -70,16 +81,18 @@ export const useProfileData = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('useProfileData: Auth state changed:', event);
+        console.log('useProfileData: Auth state changed:', event, session?.user?.email || 'no user');
         
         if (!isMounted) return;
         
         if (event === 'SIGNED_OUT') {
+          clearTimeout(timeoutId);
           setUser(null);
           setError('No authenticated user found');
           setLoading(false);
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user) {
+            clearTimeout(timeoutId);
             setUser({
               id: session.user.id,
               email: session.user.email || '',
@@ -95,6 +108,9 @@ export const useProfileData = () => {
 
     return () => {
       isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       subscription.unsubscribe();
     };
   }, []);

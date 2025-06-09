@@ -42,13 +42,17 @@ const Profile = () => {
     }
   }, [loading, user, temporaryProfile, profile, setProfile, clearTemporaryProfile]);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated - wait a bit longer to avoid premature redirects
   useEffect(() => {
-    if (!loading && error) {
-      console.log('Profile: Authentication error, redirecting to auth');
-      navigate('/auth');
-    }
-  }, [loading, error, navigate]);
+    const redirectTimeout = setTimeout(() => {
+      if (!loading && (error || !user)) {
+        console.log('Profile: No authenticated user after timeout, redirecting to auth');
+        navigate('/auth');
+      }
+    }, 1000); // Wait 1 second before redirecting
+
+    return () => clearTimeout(redirectTimeout);
+  }, [loading, error, user, navigate]);
 
   const handleSignOut = async () => {
     try {
