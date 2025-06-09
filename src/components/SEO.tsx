@@ -53,9 +53,9 @@ const SEO: React.FC<SEOProps> = ({
   const siteUrl = 'https://rasenpilot.de';
   const canonicalUrl = canonical ? `${siteUrl}${canonical}` : undefined;
 
-  // Default OG image
-  const defaultOgImage = `${siteUrl}/logo.png`;
-  const ogImageUrl = ogImage ? ogImage : defaultOgImage;
+  // Logo URL for search engines and social media
+  const logoUrl = `${siteUrl}/logo.png`;
+  const ogImageUrl = ogImage ? ogImage : logoUrl;
 
   // Enhanced keywords for lawn care
   const enhancedKeywords = keywords 
@@ -76,6 +76,13 @@ const SEO: React.FC<SEOProps> = ({
         <meta name="geo.region" content="DE" />
         <meta name="geo.country" content="Deutschland" />
         
+        {/* Logo for search engines */}
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+        <meta name="application-name" content="Rasenpilot" />
+        <meta name="msapplication-TileImage" content="/logo.png" />
+        <meta name="msapplication-TileColor" content="#4CAF50" />
+        
         {author && <meta name="author" content={author} />}
         {datePublished && <meta name="article:published_time" content={datePublished} />}
         {dateModified && <meta name="article:modified_time" content={dateModified} />}
@@ -89,7 +96,9 @@ const SEO: React.FC<SEOProps> = ({
         <meta property="og:image" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Rasenpilot Logo - Intelligenter KI-Rasenberater" />
         <meta property="og:locale" content="de_DE" />
+        <meta property="og:logo" content={logoUrl} />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -97,6 +106,7 @@ const SEO: React.FC<SEOProps> = ({
         <meta name="twitter:title" content={formattedTitle} />
         <meta name="twitter:description" content={formattedDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:image:alt" content="Rasenpilot Logo - Intelligenter KI-Rasenberater" />
         
         {/* Canonical link */}
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
@@ -138,7 +148,7 @@ const SEO: React.FC<SEOProps> = ({
             name: "Rasenpilot",
             description: formattedDescription,
             url: siteUrl,
-            logo: `${siteUrl}/logo.png`
+            logo: logoUrl
           }}
         />
       )}
