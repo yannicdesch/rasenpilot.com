@@ -18,6 +18,11 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfUse from "@/pages/TermsOfUse";
 import Imprint from "@/pages/Imprint";
+import Blog from "@/pages/Blog";
+import BlogOverview from "@/pages/BlogOverview";
+import NewBlogPost from "@/pages/NewBlogPost";
+import EditBlogPost from "@/pages/EditBlogPost";
+import BlogPost from "@/pages/BlogPost";
 
 function App() {
   return (
@@ -31,6 +36,13 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/analysis-results" element={<AnalysisResults />} />
+          
+          {/* Blog routes */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog-overview" element={<BlogOverview />} />
+          <Route path="/blog/new" element={<ProtectedRoute><NewBlogPost /></ProtectedRoute>} />
+          <Route path="/blog/edit/:id" element={<ProtectedRoute><EditBlogPost /></ProtectedRoute>} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           
           {/* Legal pages */}
           <Route path="/datenschutz" element={<PrivacyPolicy />} />
