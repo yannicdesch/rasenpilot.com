@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Loader2, Sparkles, UserPlus } from 'lucide-react';
+import { ArrowRight, Loader2, Sparkles, UserPlus, CheckCircle, AlertTriangle, Lightbulb } from 'lucide-react';
 import { useLawn } from '@/context/LawnContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -101,6 +101,38 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
 - pH-Teststreifen für regelmäßige Kontrollen`;
   };
 
+  const parseAnalysisForStructure = (analysisText: string) => {
+    const lines = analysisText.split('\n').filter(line => line.trim().length > 0);
+    
+    // Extract problem
+    const problemLine = lines.find(line => 
+      line.includes('Diagnose') || line.includes('Problem') || line.includes('Zustand')
+    );
+    const problem = problemLine ? problemLine.replace(/[🌱🔍]/g, '').replace(/\*\*/g, '').trim() : 
+      'Nährstoffmangel oder Wasserproblem erkannt';
+
+    // Extract cause
+    const causeLine = lines.find(line => line.includes('Ursache') || line.includes('wahrscheinlich'));
+    const cause = causeLine ? causeLine.replace(/[🧠]/g, '').replace(/\*\*/g, '').trim() : 
+      'Basierend auf KI-Analyse';
+
+    // Extract solutions
+    const solutionLines = lines.filter(line => 
+      line.includes('Empfehlung') || line.includes('Behandlung') || line.includes('- ')
+    ).slice(0, 4);
+    
+    const solutions = solutionLines.length > 0 ? 
+      solutionLines.map(line => line.replace(/[🛠️💡-]/g, '').replace(/\*\*/g, '').trim()) :
+      [
+        'Bodentest durchführen (pH-Wert und Nährstoffe)',
+        'Regelmäßig aber tief bewässern',
+        'Ausgewogenen Rasendünger verwenden',
+        'Verdichtete Bereiche lockern'
+      ];
+
+    return { problem, cause, solutions };
+  };
+
   const handleContinueToRegistration = () => {
     console.log('Redirecting to registration');
     navigate('/auth?tab=register');
@@ -124,7 +156,7 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
                 <Loader2 className="h-12 w-12 animate-spin text-green-600 mb-4" />
                 <h2 className="text-xl font-semibold mb-2">Analysiere dein Rasenproblem...</h2>
                 <p className="text-gray-600 text-center">
-                  Unsere KI erstellt gerade eine personalisierte Analyse basierend auf deiner Beschreibung.
+                  Unsere KI erstellt gerade eine personalisierte Analyse.
                 </p>
               </CardContent>
             </Card>
@@ -134,58 +166,88 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
     );
   }
 
+  const structuredAnalysis = parseAnalysisForStructure(analysis);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
+          {/* Header with Score */}
           <Card className="border-green-100 mb-6">
             <CardHeader className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Sparkles className="h-6 w-6 text-green-600 mr-2" />
+              <div className="flex items-center justify-center mb-4">
+                <Sparkles className="h-8 w-8 text-green-600 mr-3" />
                 <CardTitle className="text-2xl text-green-800">
-                  Deine kostenlose Rasenanalyse
+                  🌿 Deine Rasenanalyse ist da!
                 </CardTitle>
               </div>
-              <p className="text-gray-600">
-                Basierend auf deiner Problembeschreibung haben wir eine personalisierte Analyse erstellt
-              </p>
               
-              {/* Health Score Display */}
-              <div className="mt-4 p-4 bg-green-50 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
+              <div className="bg-green-50 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-3">
                   <span className="text-lg font-semibold text-gray-800">
                     📊 Dein Rasen-Score:
                   </span>
-                  <span className="text-3xl font-bold text-green-600">
+                  <span className="text-4xl font-bold text-green-600">
                     {healthScore}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-gray-200 rounded-full h-4">
                   <div 
-                    className="bg-green-600 h-3 rounded-full transition-all duration-1000" 
+                    className="bg-green-600 h-4 rounded-full transition-all duration-1000" 
                     style={{ width: `${healthScore}%` }}
                   ></div>
                 </div>
+                <p className="text-sm text-gray-600 mt-3">
+                  🔒 Du kannst ihn auf <strong>90%</strong> verbessern – wir zeigen dir wie!
+                </p>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Problem Identification */}
+          <Card className="border-orange-200 bg-orange-50 mb-6">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-6 w-6 text-orange-600" />
+                <CardTitle className="text-xl text-orange-800">Erkanntes Problem</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
-              <div 
-                className="prose prose-green max-w-none"
-                dangerouslySetInnerHTML={{ 
-                  __html: analysis.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/^🌱/gm, '<div class="mb-4">🌱')
-                    .replace(/^🛠️/gm, '</div><div class="mb-4">🛠️')
-                    .replace(/^💡/gm, '</div><div class="mb-4">💡')
-                    .replace(/^🛒/gm, '</div><div class="mb-4">🛒')
-                    .replace(/\n- /g, '<br>• ')
-                    .replace(/\n/g, '<br>')
-                    + '</div>'
-                }}
-              />
+              <div className="space-y-3">
+                <div>
+                  <p className="font-semibold text-gray-800 mb-1">🟢 Zustand:</p>
+                  <p className="text-gray-700">{structuredAnalysis.problem}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-800 mb-1">🧠 Wahrscheinliche Ursache:</p>
+                  <p className="text-gray-700">{structuredAnalysis.cause}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
+          {/* Solutions */}
+          <Card className="border-blue-200 bg-blue-50 mb-6">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Lightbulb className="h-6 w-6 text-blue-600" />
+                <CardTitle className="text-xl text-blue-800">Lösungsempfehlungen</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {structuredAnalysis.solutions.map((solution, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-gray-700">{solution}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Registration CTA - Only for non-authenticated users */}
           {!isAuthenticated && (
             <Card className="border-green-200 bg-green-50 mb-6">
               <CardContent className="pt-6">
@@ -193,40 +255,33 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
                   <div className="flex items-center justify-center mb-4">
                     <UserPlus className="h-8 w-8 text-green-600 mr-2" />
                     <h3 className="text-xl font-semibold text-green-800">
-                      Möchtest du weitere Analysen und Premium-Features?
+                      Jetzt kostenlos registrieren für:
                     </h3>
                   </div>
                   
-                  <p className="text-gray-700 mb-6">
-                    Registriere dich kostenlos für unbegrenzte KI-Analysen, personalisierte Pflegepläne 
-                    und exklusive Rasenpflege-Tools.
-                  </p>
-
                   <div className="grid md:grid-cols-2 gap-4 mb-6">
                     <div className="bg-white rounded-lg p-4 border border-green-200">
-                      <h4 className="font-semibold text-green-800 mb-2">Mit Registrierung:</h4>
+                      <h4 className="font-semibold text-green-800 mb-2">✅ Mit Registrierung:</h4>
                       <ul className="text-sm text-gray-700 space-y-1 text-left">
-                        <li>• Unbegrenzte KI-Rasenanalysen</li>
+                        <li>• Unbegrenzte KI-Analysen</li>
                         <li>• Personalisierte Pflegepläne</li>
                         <li>• Fortschritts-Tracking</li>
                         <li>• Wetterbasierte Empfehlungen</li>
-                        <li>• Premium-Support</li>
                       </ul>
                     </div>
                     <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <h4 className="font-semibold text-gray-600 mb-2">Ohne Registrierung:</h4>
+                      <h4 className="font-semibold text-gray-600 mb-2">❌ Ohne Registrierung:</h4>
                       <ul className="text-sm text-gray-600 space-y-1 text-left">
                         <li>• Nur 1 kostenlose Analyse</li>
                         <li>• Begrenzte Funktionen</li>
-                        <li>• Keine Fortschritts-Speicherung</li>
-                        <li>• Basis-Empfehlungen</li>
+                        <li>• Keine Speicherung</li>
                       </ul>
                     </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button 
-                      onClick={handleContinueToRegistration}
+                      onClick={() => navigate('/auth?tab=register')}
                       size="lg"
                       className="bg-green-600 hover:bg-green-700"
                     >
@@ -235,7 +290,7 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
                     </Button>
                     <Button 
                       variant="outline"
-                      onClick={handleSkipRegistration}
+                      onClick={() => navigate('/dashboard')}
                       size="lg"
                     >
                       Später registrieren
@@ -246,6 +301,7 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
             </Card>
           )}
 
+          {/* Continue to Dashboard */}
           <div className="text-center">
             <Button 
               onClick={() => navigate('/dashboard')}
@@ -255,12 +311,6 @@ Basierend auf Ihrer Beschreibung "${problem}" liegt wahrscheinlich ein Nährstof
               Zum Dashboard
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <p className="text-sm text-gray-600 mt-3">
-              {isAuthenticated 
-                ? 'Im Dashboard findest du weitere Tools und deinen personalisierten Pflegeplan.'
-                : 'Entdecke weitere Funktionen in unserem Dashboard.'
-              }
-            </p>
           </div>
         </div>
       </div>
