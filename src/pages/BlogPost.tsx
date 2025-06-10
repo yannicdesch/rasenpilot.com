@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
@@ -100,6 +101,39 @@ const BlogPost = () => {
         canonical={`/blog/${post.slug}`}
         keywords={post.keywords.join(',')}
         ogImage={post.image}
+        type="article"
+        author={post.author}
+        datePublished={new Date(post.date).toISOString()}
+        dateModified={new Date(post.date).toISOString()}
+        structuredData={{
+          type: 'Article',
+          data: {
+            headline: post.title,
+            description: post.excerpt,
+            image: post.image,
+            author: {
+              "@type": "Person",
+              name: post.author
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "Rasenpilot",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://rasenpilot.de/logo.png"
+              }
+            },
+            datePublished: new Date(post.date).toISOString(),
+            dateModified: new Date(post.date).toISOString(),
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `https://rasenpilot.de/blog/${post.slug}`
+            },
+            keywords: post.keywords.join(', '),
+            articleSection: getCategoryName(post.category),
+            inLanguage: "de-DE"
+          }
+        }}
       />
       
       <MainNavigation />
@@ -128,7 +162,7 @@ const BlogPost = () => {
               
               <div className="text-sm text-gray-500 flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
-                {post.date}
+                <time dateTime={new Date(post.date).toISOString()}>{post.date}</time>
               </div>
               
               <div className="text-sm text-gray-500">

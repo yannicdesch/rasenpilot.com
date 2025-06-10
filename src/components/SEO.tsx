@@ -39,77 +39,98 @@ const SEO: React.FC<SEOProps> = ({
     initializeGA();
   }, []);
 
-  // Ensure title doesn't exceed 60 characters
+  // Enhanced title optimization - max 60 characters for Google
   const formattedTitle = title 
-    ? (title.length > 60 ? `${title.substring(0, 57)}...` : title) + ' | Rasenpilot'
-    : 'Rasenpilot - Intelligenter KI-Rasenberater | Persönlicher Pflegeplan in 30 Sekunden';
+    ? (title.length > 60 ? `${title.substring(0, 55)}...` : title)
+    : 'Rasenpilot - Intelligenter KI-Rasenberater | Kostenloser Pflegeplan in 30 Sekunden';
 
-  // Ensure description doesn't exceed 160 characters
+  // Enhanced description optimization - max 160 characters for Google
   const formattedDescription = description && description.length > 160 
-    ? `${description.substring(0, 157)}...`
-    : description || 'Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden mit KI-gestützten Empfehlungen für einen perfekten Rasen.';
+    ? `${description.substring(0, 155)}...`
+    : description || 'Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden. KI-gestützte Rasenanalyse basierend auf Standort, Rasentyp & Zielen. Sofort starten - ohne Anmeldung.';
 
-  // Build canonical URL if provided
+  // Build canonical URL
   const siteUrl = 'https://rasenpilot.de';
-  const canonicalUrl = canonical ? `${siteUrl}${canonical}` : undefined;
+  const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
-  // Logo URL for search engines and social media
+  // High-quality logo and images for better search results
   const logoUrl = `${siteUrl}/logo.png`;
-  const ogImageUrl = ogImage ? ogImage : logoUrl;
+  const ogImageUrl = ogImage || `${siteUrl}/og-image.jpg`;
 
-  // Enhanced keywords for lawn care
+  // Enhanced keywords for better search visibility
   const enhancedKeywords = keywords 
-    ? `${keywords}, Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot, intelligenter Rasenberater, Rasenpflegeplan kostenlos, Rasenberatung`
-    : 'Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot, Rasenpflegeplan kostenlos, Rasenberatung, intelligenter Rasenberater, Rasen-Analyse, Rasen-Probleme, Rasen-Tipps, Gartenpflege';
+    ? `${keywords}, Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot, intelligenter Rasenberater, Rasenpflegeplan kostenlos, Rasenberatung Deutschland`
+    : 'Rasenpflege Deutschland, KI-Rasenberater, intelligenter Rasen-Assistent, kostenloser Rasenpflegeplan, Rasen düngen, Rasen mähen, Rasenpilot, Rasenberatung, Rasen-Analyse kostenlos, Rasen-Probleme lösen, Rasen-Tipps, Gartenpflege, Rasensamen, Rasen vertikutieren';
 
   return (
     <>
       <Helmet>
+        {/* Primary Meta Tags */}
         <title>{formattedTitle}</title>
+        <meta name="title" content={formattedTitle} />
         <meta name="description" content={formattedDescription} />
         <meta name="keywords" content={enhancedKeywords} />
         
-        {/* Enhanced meta tags */}
-        <meta name="robots" content={noindex ? "noindex,nofollow" : "index,follow"} />
-        <meta name="googlebot" content={noindex ? "noindex,nofollow" : "index,follow"} />
+        {/* Enhanced meta tags for better indexing */}
+        <meta name="robots" content={noindex ? "noindex,nofollow" : "index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"} />
+        <meta name="googlebot" content={noindex ? "noindex,nofollow" : "index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"} />
+        <meta name="bingbot" content={noindex ? "noindex,nofollow" : "index,follow"} />
+        
+        {/* Geographic and language targeting */}
         <meta name="language" content="de" />
         <meta name="geo.region" content="DE" />
         <meta name="geo.country" content="Deutschland" />
+        <meta name="geo.placename" content="Deutschland" />
         
-        {/* Logo for search engines */}
-        <link rel="icon" type="image/png" href="/logo.png" />
-        <link rel="apple-touch-icon" href="/logo.png" />
+        {/* Enhanced favicon and app icons */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+        <link rel="mask-icon" href="/logo.png" color="#4CAF50" />
         <meta name="application-name" content="Rasenpilot" />
         <meta name="msapplication-TileImage" content="/logo.png" />
         <meta name="msapplication-TileColor" content="#4CAF50" />
+        <meta name="theme-color" content="#4CAF50" />
         
+        {/* Author and publication data */}
         {author && <meta name="author" content={author} />}
         {datePublished && <meta name="article:published_time" content={datePublished} />}
         {dateModified && <meta name="article:modified_time" content={dateModified} />}
         
-        {/* Open Graph / Facebook */}
+        {/* Open Graph / Facebook - Enhanced */}
         <meta property="og:type" content={type} />
-        <meta property="og:site_name" content="Rasenpilot" />
+        <meta property="og:site_name" content="Rasenpilot - Intelligenter KI-Rasenberater" />
         <meta property="og:title" content={formattedTitle} />
         <meta property="og:description" content={formattedDescription} />
-        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:secure_url" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Rasenpilot Logo - Intelligenter KI-Rasenberater" />
+        <meta property="og:image:alt" content="Rasenpilot - Intelligenter KI-Rasenberater für kostenlosen Rasenpflegeplan" />
         <meta property="og:locale" content="de_DE" />
         <meta property="og:logo" content={logoUrl} />
         
-        {/* Twitter */}
+        {/* Twitter Card - Enhanced */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@rasenpilot" />
+        <meta name="twitter:creator" content="@rasenpilot" />
         <meta name="twitter:title" content={formattedTitle} />
         <meta name="twitter:description" content={formattedDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
-        <meta name="twitter:image:alt" content="Rasenpilot Logo - Intelligenter KI-Rasenberater" />
+        <meta name="twitter:image:alt" content="Rasenpilot - Intelligenter KI-Rasenberater" />
         
-        {/* Canonical link */}
-        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        {/* Additional Twitter tags */}
+        <meta name="twitter:domain" content="rasenpilot.de" />
+        <meta name="twitter:url" content={canonicalUrl} />
+        
+        {/* Canonical link - Always include */}
+        <link rel="canonical" href={canonicalUrl} />
+        
+        {/* Enhanced structured data hints */}
+        <meta name="news_keywords" content="Rasenpflege, Garten, KI, Rasen, Deutschland" />
+        <meta name="article:section" content="Garten & Rasenpflege" />
+        <meta name="article:tag" content="Rasenpflege, KI-Beratung, Garten" />
         
         {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://www.google-analytics.com" />
@@ -118,21 +139,27 @@ const SEO: React.FC<SEOProps> = ({
         
         {/* DNS prefetch for better performance */}
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
         
-        {/* Analytics tracking consent */}
-        <script type="text/javascript">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('consent', 'default', {
-              'analytics_storage': 'granted',
-              'ad_storage': 'denied'
-            });
-          `}
-        </script>
+        {/* Mobile optimization */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        
+        {/* Analytics and verification tags */}
+        <meta name="google-site-verification" content="" />
+        <meta name="msvalidate.01" content="" />
+        
+        {/* Rich snippets hints */}
+        <meta itemProp="name" content={formattedTitle} />
+        <meta itemProp="description" content={formattedDescription} />
+        <meta itemProp="image" content={ogImageUrl} />
       </Helmet>
       
-      {/* Structured Data */}
+      {/* Enhanced Structured Data */}
       {structuredData && (
         <StructuredData 
           type={structuredData.type} 
@@ -140,15 +167,26 @@ const SEO: React.FC<SEOProps> = ({
         />
       )}
       
-      {/* Default website structured data if none provided */}
+      {/* Default enhanced website structured data */}
       {!structuredData && (
         <StructuredData 
           type="WebSite"
           data={{
             name: "Rasenpilot",
+            alternateName: "Rasenpilot - Intelligenter KI-Rasenberater",
             description: formattedDescription,
             url: siteUrl,
-            logo: logoUrl
+            logo: logoUrl,
+            sameAs: [
+              "https://www.facebook.com/rasenpilot",
+              "https://www.instagram.com/rasenpilot",
+              "https://twitter.com/rasenpilot"
+            ],
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${siteUrl}/blog-overview?q={search_term_string}`,
+              "query-input": "required name=search_term_string"
+            }
           }}
         />
       )}
