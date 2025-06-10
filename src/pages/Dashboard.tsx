@@ -8,6 +8,8 @@ import DashboardFooter from '@/components/dashboard/DashboardFooter';
 import { useLawn } from '@/context/LawnContext';
 import { toast } from 'sonner';
 import { generateCarePlan } from '@/services/lawnService';
+import { Badge } from '@/components/ui/badge';
+import { Camera, Sparkles } from 'lucide-react';
 
 const Dashboard = () => {
   const { profile, setProfile } = useLawn();
@@ -58,6 +60,27 @@ const Dashboard = () => {
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4">
           <DashboardHeader profileName={profile?.name} />
+          
+          {/* Premium Features Banner */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Camera className="h-8 w-8 text-green-600" />
+                <div>
+                  <h3 className="font-semibold text-green-800 flex items-center gap-2">
+                    KI-Bildanalyse verfügbar
+                    <Badge className="bg-green-100 text-green-800">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Premium
+                    </Badge>
+                  </h3>
+                  <p className="text-sm text-green-700">
+                    Als angemeldeter Nutzer können Sie unbegrenzt KI-basierte Rasenanalysen durchführen
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <div className="flex flex-col md:flex-row justify-between items-start gap-6 mt-6">
             <div className="w-full md:w-2/3">

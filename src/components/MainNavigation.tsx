@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Leaf, Menu, X, User, MessageSquare, Calendar, Home, Crown } from 'lucide-react';
+import { Leaf, Menu, X, User, MessageSquare, Calendar, Home, Crown, FileText, BookOpen } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLawn } from '@/context/LawnContext';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -10,6 +11,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated: contextAuth } = useLawn();
@@ -19,13 +21,36 @@ const MainNavigation = () => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+      
+      // Check admin status
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        
+        setIsAdmin(profile?.role === 'admin');
+      }
     };
     
     checkAuth();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setIsAuthenticated(!!session);
+        
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+          
+          setIsAdmin(profile?.role === 'admin');
+        } else {
+          setIsAdmin(false);
+        }
       }
     );
 
@@ -63,6 +88,19 @@ const MainNavigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
+            {/* Public Blog Link */}
+            <Link 
+              to="/blog-overview" 
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                isActive('/blog-overview') 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+              }`}
+            >
+              <BookOpen size={18} />
+              <span>Blog</span>
+            </Link>
+            
             {isAuthenticated ? (
               <>
                 <Link 
@@ -100,6 +138,21 @@ const MainNavigation = () => {
                   <MessageSquare size={18} />
                   <span>KI-Assistent</span>
                 </Link>
+                
+                {/* Admin Blog Management Link */}
+                {isAdmin && (
+                  <Link 
+                    to="/blog" 
+                    className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                      isActive('/blog') 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                    }`}
+                  >
+                    <FileText size={18} />
+                    <span>Blog-Admin</span>
+                  </Link>
+                )}
                 
                 <Link 
                   to="/subscription" 
@@ -160,6 +213,20 @@ const MainNavigation = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-2">
+              {/* Public Blog Link */}
+              <Link 
+                to="/blog-overview" 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                  isActive('/blog-overview') 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                }`}
+                onClick={closeMenu}
+              >
+                <BookOpen size={18} />
+                <span>Blog</span>
+              </Link>
+              
               {isAuthenticated ? (
                 <>
                   <Link 
@@ -200,6 +267,22 @@ const MainNavigation = () => {
                     <MessageSquare size={18} />
                     <span>KI-Assistent</span>
                   </Link>
+                  
+                  {/* Admin Blog Management Link */}
+                  {isAdmin && (
+                    <Link 
+                      to="/blog" 
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                        isActive('/blog') 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <FileText size={18} />
+                      <span>Blog-Admin</span>
+                    </Link>
+                  )}
                   
                   <Link 
                     to="/subscription" 
