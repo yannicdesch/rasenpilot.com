@@ -73,21 +73,26 @@ const Landing = () => {
         <Logo showTagline={true} />
       </div>
       
+      <HeroSection />
+      <SpecialFeaturesSection />
+      <HowItWorksSection />
+      <FeaturesSection />
+      <CallToActionSection />
+      
       {/* Blog Call-to-Action */}
-      <div className="bg-green-50 border-b border-green-100">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <BookOpen className="h-6 w-6 text-green-600" />
+      <div className="bg-green-50 border-y border-green-100">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <BookOpen className="h-8 w-8 text-green-600" />
               <div>
-                <h3 className="font-semibold text-green-800">Expertentipps für Ihren Rasen</h3>
-                <p className="text-sm text-green-700">Entdecken Sie unsere aktuellen Ratgeber und Pflegetipps</p>
+                <h3 className="text-xl font-semibold text-green-800">Expertentipps für Ihren Rasen</h3>
+                <p className="text-green-700">Entdecken Sie unsere aktuellen Ratgeber und Pflegetipps</p>
               </div>
             </div>
             <Button 
               onClick={() => navigate('/blog-overview')}
-              variant="outline"
-              className="border-green-300 text-green-700 hover:bg-green-100"
+              className="bg-green-600 hover:bg-green-700 px-6 py-3"
             >
               Zum Blog <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -95,11 +100,6 @@ const Landing = () => {
         </div>
       </div>
       
-      <HeroSection />
-      <SpecialFeaturesSection />
-      <HowItWorksSection />
-      <FeaturesSection />
-      <CallToActionSection />
       <FooterSection />
     </div>
   );
