@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -10,7 +11,6 @@ import { trackRegistrationStep, trackRegistrationComplete } from '@/lib/analytic
 // Import our new component modules
 import BenefitsList from './conversion/BenefitsList';
 import QuickRegisterForm from './conversion/QuickRegisterForm';
-import RegistrationButtons from './conversion/RegistrationButtons';
 import TaskPreview from './conversion/TaskPreview';
 import FeatureCards from './conversion/FeatureCards';
 
@@ -83,6 +83,12 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
     }
   };
 
+  // Fixed "Jetzt freischalten" button handler
+  const handleUnlockNow = () => {
+    // Navigate to subscription page to unlock premium features
+    navigate('/subscription');
+  };
+
   return (
     <Card className="border-green-200 shadow-lg">
       <CardHeader className="text-center pb-2">
@@ -100,7 +106,7 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
           
           <div className="text-center px-4 py-6 border border-gray-200 rounded-lg bg-gray-50 mb-6">
             <h3 className="text-xl font-semibold mb-4 text-green-800">
-              Speichere deinen Pflegeplan – kostenlos & individuell erweiterbar
+              👉 Jetzt kostenlos registrieren, um:
             </h3>
             
             <BenefitsList />
@@ -111,10 +117,25 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
               isSubmitting={isSubmitting} 
             />
             
-            <RegistrationButtons 
-              onRegister={onRegister} 
-              onContinueWithoutRegistration={onContinueWithoutRegistration} 
-            />
+            {/* Fixed "Jetzt freischalten" button - now properly navigates to subscription */}
+            <div className="mt-4">
+              <Button 
+                onClick={handleUnlockNow}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 text-lg font-medium"
+              >
+                🔒 Jetzt freischalten
+              </Button>
+            </div>
+            
+            <div className="mt-4">
+              <Button 
+                onClick={onContinueWithoutRegistration}
+                variant="outline"
+                className="w-full border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                Ohne Registrierung fortfahren
+              </Button>
+            </div>
           </div>
         </div>
         

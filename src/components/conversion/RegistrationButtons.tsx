@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { trackRegistrationStep, trackRegistrationAbandoned } from '@/lib/analytics';
+import { Button } from '@/components/ui/button';
 
 interface RegistrationButtonsProps {
   onRegister: () => void;
@@ -12,30 +11,14 @@ const RegistrationButtons: React.FC<RegistrationButtonsProps> = ({
   onRegister, 
   onContinueWithoutRegistration 
 }) => {
-  const handleNavToRegister = () => {
-    trackRegistrationStep('full_register_selected');
-    onRegister();
-  };
-
-  const handleContinueWithoutReg = () => {
-    trackRegistrationAbandoned('conversion_prompt');
-    onContinueWithoutRegistration();
-  };
-
   return (
-    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+    <div className="space-y-3 mt-4">
       <Button 
-        className="py-6 text-lg bg-green-600 hover:bg-green-700" 
-        onClick={handleNavToRegister}
-      >
-        Vollständig registrieren
-      </Button>
-      <Button 
+        onClick={onRegister}
         variant="outline"
-        className="border-green-200"
-        onClick={handleContinueWithoutReg}
+        className="w-full border-green-600 text-green-700 hover:bg-green-50"
       >
-        Ohne Registrierung fortfahren
+        Zur vollständigen Registrierung
       </Button>
     </div>
   );
