@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle, AlertTriangle, Lightbulb, UserPlus } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Lightbulb, UserPlus, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -42,27 +42,52 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
     const problemLine = lines.find(line => 
       line.includes('Diagnose') || line.includes('Problem') || line.includes('Zustand')
     );
-    const problem = problemLine ? problemLine.replace(/[🌱🔍]/g, '').replace(/\*\*/g, '').trim() : 
-      'Nährstoffmangel oder Wasserproblem erkannt';
+    
+    // Adjust problem description based on score
+    let problem;
+    if (score >= 85) {
+      problem = "Ihr Rasen ist in sehr gutem Zustand";
+    } else if (score >= 70) {
+      problem = "Ihr Rasen hat kleinere Verbesserungsmöglichkeiten";
+    } else {
+      problem = problemLine ? problemLine.replace(/[🌱🔍]/g, '').replace(/\*\*/g, '').trim() : 
+        'Nährstoffmangel oder Wasserproblem erkannt';
+    }
 
     // Extract cause
     const causeLine = lines.find(line => line.includes('Ursache') || line.includes('wahrscheinlich'));
-    const cause = causeLine ? causeLine.replace(/[🧠]/g, '').replace(/\*\*/g, '').trim() : 
-      'Basierend auf KI-Analyse';
+    let cause;
+    if (score >= 85) {
+      cause = "Basierend auf KI-Analyse - Optimierungspotential vorhanden";
+    } else {
+      cause = causeLine ? causeLine.replace(/[🧠]/g, '').replace(/\*\*/g, '').trim() : 
+        'Basierend auf KI-Analyse';
+    }
 
-    // Extract solutions
+    // Extract solutions or provide optimization tips for high scores
     const solutionLines = lines.filter(line => 
       line.includes('Empfehlung') || line.includes('Behandlung') || line.includes('- ')
     ).slice(0, 4);
     
-    const solutions = solutionLines.length > 0 ? 
-      solutionLines.map(line => line.replace(/[🛠️💡-]/g, '').replace(/\*\*/g, '').trim()) :
-      [
-        'Bodentest durchführen (pH-Wert und Nährstoffe)',
-        'Regelmäßig aber tief bewässern',
-        'Ausgewogenen Rasendünger verwenden',
-        'Verdichtete Bereiche lockern'
+    let solutions;
+    if (score >= 85) {
+      // Optimization tips for already good lawns
+      solutions = [
+        "Regelmäßige Bodenanalyse für Feintuning (2x jährlich)",
+        "Saisonale Düngung mit Langzeitdünger optimieren",
+        "Bewässerungszeiten perfektionieren (früh morgens)",
+        "Mährhythmus für dichteres Wachstum anpassen"
       ];
+    } else if (solutionLines.length > 0) {
+      solutions = solutionLines.map(line => line.replace(/[🛠️💡-]/g, '').replace(/\*\*/g, '').trim());
+    } else {
+      solutions = [
+        "Bodentest durchführen (pH-Wert und Nährstoffe)",
+        "Regelmäßig aber tief bewässern",
+        "Ausgewogenen Rasendünger verwenden",
+        "Verdichtete Bereiche lockern"
+      ];
+    }
 
     return { problem, cause, solutions, score };
   };
@@ -93,16 +118,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
                 style={{ width: `${analysisData.score}%` }}
               ></div>
             </div>
+            <p className="text-sm text-gray-600 mt-3">
+              🎯 Ziel: <strong>100%</strong> - Wir zeigen dir wie!
+            </p>
           </div>
         </CardHeader>
       </Card>
 
-      {/* Problem Identification */}
-      <Card className="border-orange-200 bg-orange-50">
+      {/* Problem/Status Identification */}
+      <Card className={analysisData.score >= 85 ? "border-green-200 bg-green-50" : "border-orange-200 bg-orange-50"}>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <AlertTriangle className="h-6 w-6 text-orange-600" />
-            <CardTitle className="text-lg text-orange-800">Erkanntes Problem</CardTitle>
+            {analysisData.score >= 85 ? (
+              <Target className="h-6 w-6 text-green-600" />
+            ) : (
+              <AlertTriangle className="h-6 w-6 text-orange-600" />
+            )}
+            <CardTitle className={`text-lg ${analysisData.score >= 85 ? 'text-green-800' : 'text-orange-800'}`}>
+              {analysisData.score >= 85 ? 'Aktueller Zustand' : 'Erkanntes Problem'}
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -112,19 +146,21 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
               <p className="text-gray-700">{analysisData.problem}</p>
             </div>
             <div>
-              <p className="font-semibold text-gray-800 mb-1">🧠 Wahrscheinliche Ursache:</p>
+              <p className="font-semibold text-gray-800 mb-1">🧠 Analyse:</p>
               <p className="text-gray-700">{analysisData.cause}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Solutions */}
+      {/* Solutions/Optimization */}
       <Card className="border-blue-200 bg-blue-50">
         <CardHeader>
           <div className="flex items-center gap-3">
             <Lightbulb className="h-6 w-6 text-blue-600" />
-            <CardTitle className="text-lg text-blue-800">Lösungsempfehlungen</CardTitle>
+            <CardTitle className="text-lg text-blue-800">
+              {analysisData.score >= 85 ? 'Optimierungsempfehlungen' : 'Lösungsempfehlungen'}
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
