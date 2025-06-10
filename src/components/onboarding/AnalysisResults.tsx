@@ -94,6 +94,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
 
   const analysisData = parseAnalysisResults(analysisResults);
 
+  const handleRegister = () => {
+    window.location.href = '/auth?tab=register';
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Score */}
@@ -201,7 +205,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
               </div>
             </div>
 
-            <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3">
+            <Button 
+              onClick={handleRegister}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3"
+            >
               <UserPlus className="mr-2 h-5 w-5" />
               Kostenlos registrieren
             </Button>
