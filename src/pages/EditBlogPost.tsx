@@ -2,21 +2,9 @@
 import React from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { FileText } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useLawn } from '@/context/LawnContext';
 import BlogPostEditor from '@/components/BlogPostEditor';
 
 const EditBlogPost = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useLawn();
-  
-  // Redirect to auth page if not logged in
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/auth');
-    }
-  }, [isAuthenticated, navigate]);
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />

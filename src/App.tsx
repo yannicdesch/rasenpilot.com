@@ -23,6 +23,7 @@ import BlogOverview from "@/pages/BlogOverview";
 import NewBlogPost from "@/pages/NewBlogPost";
 import EditBlogPost from "@/pages/EditBlogPost";
 import BlogPost from "@/pages/BlogPost";
+import SEOManagement from "@/pages/SEOManagement";
 
 function App() {
   return (
@@ -37,12 +38,13 @@ function App() {
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/analysis-results" element={<AnalysisResults />} />
           
-          {/* Blog routes */}
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog-overview" element={<BlogOverview />} />
+          {/* Blog routes - ALL PROTECTED */}
+          <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
+          <Route path="/blog-overview" element={<ProtectedRoute><BlogOverview /></ProtectedRoute>} />
           <Route path="/blog/new" element={<ProtectedRoute><NewBlogPost /></ProtectedRoute>} />
           <Route path="/blog/edit/:id" element={<ProtectedRoute><EditBlogPost /></ProtectedRoute>} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/blog/:slug" element={<ProtectedRoute><BlogPost /></ProtectedRoute>} />
+          <Route path="/seo-management" element={<ProtectedRoute><SEOManagement /></ProtectedRoute>} />
           
           {/* Legal pages */}
           <Route path="/datenschutz" element={<PrivacyPolicy />} />
