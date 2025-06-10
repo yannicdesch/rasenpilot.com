@@ -51,9 +51,13 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
     }, 1000);
   };
 
+  const triggerFileInput = () => {
+    document.getElementById('lawn-image-input')?.click();
+  };
+
   return (
     <div className="space-y-4">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
         {preview ? (
           <div className="relative w-full">
             <AspectRatio ratio={16/9} className="bg-gray-100 rounded-md overflow-hidden">
@@ -66,21 +70,28 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
             <Button 
               variant="outline" 
               size="sm" 
-              className="absolute bottom-2 right-2 bg-white"
-              onClick={() => document.getElementById('lawn-image-input')?.click()}
+              className="absolute bottom-2 right-2 bg-white shadow-md"
+              onClick={triggerFileInput}
+              disabled={isUploading}
             >
+              <Upload className="h-4 w-4 mr-2" />
               Ändern
             </Button>
           </div>
         ) : (
-          <label 
-            htmlFor="lawn-image-input"
-            className="flex flex-col items-center justify-center h-40 cursor-pointer"
-          >
-            <Upload className="h-8 w-8 text-gray-400 mb-2" />
-            <span className="text-sm text-gray-500 font-medium">Klicke zum Hochladen</span>
+          <div className="flex flex-col items-center justify-center py-8">
+            <Upload className="h-12 w-12 text-gray-400 mb-4" />
+            <Button 
+              onClick={triggerFileInput}
+              disabled={isUploading}
+              className="bg-green-600 hover:bg-green-700 text-white mb-2"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Rasenbild hochladen
+            </Button>
+            <span className="text-sm text-gray-500 font-medium">oder hier klicken zum Hochladen</span>
             <span className="text-xs text-gray-400 mt-1">JPG, PNG (max. 5MB)</span>
-          </label>
+          </div>
         )}
         <input 
           id="lawn-image-input"
