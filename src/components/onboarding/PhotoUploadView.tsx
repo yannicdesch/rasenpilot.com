@@ -66,7 +66,21 @@ const PhotoUploadView: React.FC<PhotoUploadViewProps> = ({
       <CardContent className="space-y-6">
         {!showAnalysis ? (
           <>
-            {/* Problem Description */}
+            {/* Image Upload - Now at the top */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">
+                📸 Rasenbild hochladen
+              </Label>
+              <LawnImageUpload
+                onImageSelected={handleImageSelected}
+                currentImage={data.rasenbild}
+              />
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Lade ein Foto deines Rasens hoch für eine personalisierte Analyse
+              </p>
+            </div>
+
+            {/* Problem Description - Now below image upload */}
             <div>
               <Label htmlFor="problem" className="text-sm font-medium mb-2 block">
                 Beschreibe dein Rasenproblem (optional)
@@ -77,17 +91,6 @@ const PhotoUploadView: React.FC<PhotoUploadViewProps> = ({
                 value={data.rasenproblem}
                 onChange={(e) => updateData({ rasenproblem: e.target.value })}
                 className="min-h-[100px]"
-              />
-            </div>
-
-            {/* Image Upload */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">
-                Rasenbild hochladen
-              </Label>
-              <LawnImageUpload
-                onImageSelected={handleImageSelected}
-                currentImage={data.rasenbild}
               />
             </div>
 
