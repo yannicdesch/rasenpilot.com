@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
@@ -74,6 +75,10 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (fetchedProfile) {
             setProfileState(fetchedProfile);
             localStorage.setItem('lawnProfile', JSON.stringify(fetchedProfile));
+          } else if (temporaryProfile) {
+            // If no profile in Supabase but we have temporary data, sync it
+            console.log("Found temporary profile, syncing to Supabase...");
+            await syncProfileWithSupabase();
           }
         }
       }
@@ -85,15 +90,49 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
-  // Sync profile with Supabase
+  // Enhanced sync profile with Supabase that preserves AI analysis data
   const syncProfileWithSupabase = async () => {
-    const updatedProfile = await syncProfile(profile, temporaryProfile, isAuthenticated);
-    if (updatedProfile) {
-      setProfileState(updatedProfile);
-      localStorage.setItem('lawnProfile', JSON.stringify(updatedProfile));
-      
-      // Clear temporary profile after successful sync
-      clearTemporaryProfile();
+    console.log("Syncing profile with Supabase...");
+    console.log("Current profile:", profile);
+    console.log("Temporary profile:", temporaryProfile);
+    
+    // Use temporary profile if no main profile exists, or merge data
+    let profileToSync = profile;
+    
+    if (!profile && temporaryProfile) {
+      profileToSync = temporaryProfile;
+      console.log("Using temporary profile as main profile");
+    } else if (profile && temporaryProfile) {
+      // Merge temporary data into existing profile, preserving AI analysis
+      profileToSync = {
+        ...profile,
+        // Preserve AI analysis data from temporary profile
+        rasenproblem: temporaryProfile.rasenproblem || profile.rasenproblem,
+        rasenbild: temporaryProfile.rasenbild || profile.rasenbild,
+        analysisResults: temporaryProfile.analysisResults || profile.analysisResults,
+        analyzesUsed: Math.max(temporaryProfile.analyzesUsed || 0, profile.analyzesUsed || 0),
+        // Update other fields if they're missing in main profile
+        zipCode: profile.zipCode || temporaryProfile.zipCode,
+        grassType: profile.grassType || temporaryProfile.grassType,
+        lawnSize: profile.lawnSize || temporaryProfile.lawnSize,
+        lawnGoal: profile.lawnGoal || temporaryProfile.lawnGoal,
+      };
+      console.log("Merged temporary data into main profile");
+    }
+    
+    if (profileToSync) {
+      const updatedProfile = await syncProfile(profileToSync, temporaryProfile, isAuthenticated);
+      if (updatedProfile) {
+        setProfileState(updatedProfile);
+        localStorage.setItem('lawnProfile', JSON.stringify(updatedProfile));
+        
+        // Clear temporary profile after successful sync
+        clearTemporaryProfile();
+        
+        toast.success("Profil synchronisiert", {
+          description: "Ihre Rasendaten wurden erfolgreich übertragen."
+        });
+      }
     }
   };
 
@@ -145,15 +184,12 @@ export const LawnProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUserData(userData);
         }
         
-        if (profile) {
-          // If there's already a profile in local storage, sync it
-          await syncProfileWithSupabase();
-        } else if (temporaryProfile) {
-          // If there's a temporary profile, use it as the main profile and sync
-          setProfile(temporaryProfile);
+        // Always try to sync profile data when signing in
+        if (profile || temporaryProfile) {
+          console.log("User signed in, syncing profile data...");
           await syncProfileWithSupabase();
         } else {
-          // Otherwise, try to fetch profile from Supabase
+          // Try to fetch profile from Supabase
           const fetchedProfile = await fetchProfileFromSupabase();
           if (fetchedProfile) {
             setProfileState(fetchedProfile);

@@ -1,102 +1,200 @@
 
 import React, { useState, useEffect } from 'react';
-import MainNavigation from '@/components/MainNavigation';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardTabs from '@/components/dashboard/DashboardTabs';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardFooter from '@/components/dashboard/DashboardFooter';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { useLawn } from '@/context/LawnContext';
-import { toast } from 'sonner';
 import { generateCarePlan } from '@/services/lawnService';
-import { Badge } from '@/components/ui/badge';
-import { Camera, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+import MainNavigation from '@/components/MainNavigation';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import DashboardTabs from '@/components/dashboard/DashboardTabs';
+import ProfileCompletion from '@/components/profile/ProfileCompletion';
+import { User, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 
 const Dashboard = () => {
-  const { profile, setProfile } = useLawn();
+  const { 
+    profile, 
+    temporaryProfile,
+    isAuthenticated, 
+    checkAuthentication,
+    syncProfileWithSupabase 
+  } = useLawn();
+  
   const [loading, setLoading] = useState(false);
-  
+  const [showProfileCompletion, setShowProfileCompletion] = useState(false);
+
   useEffect(() => {
-    // Check if profile has a zipCode but there is no care plan
-    if (profile && profile.zipCode) {
-      const savedTasks = localStorage.getItem('lawnTasks');
-      if (!savedTasks) {
-        console.log("Profile has zipCode but no care plan, generating one...");
-        generateInitialCarePlan();
-      }
-    } else {
-      // Check if we have a profile in localStorage
-      const storedProfile = localStorage.getItem('lawnProfile');
-      if (storedProfile) {
-        try {
-          const parsedProfile = JSON.parse(storedProfile);
-          console.log("Found stored profile, updating context:", parsedProfile);
-          setProfile(parsedProfile);
-        } catch (e) {
-          console.error("Error parsing stored profile:", e);
-        }
-      }
+    checkAuthentication();
+  }, []);
+
+  useEffect(() => {
+    // If user just registered and we have temporary data, sync it
+    if (isAuthenticated && temporaryProfile && !profile?.zipCode) {
+      console.log("User authenticated with temporary data, syncing...");
+      syncProfileWithSupabase();
     }
-  }, [profile, setProfile]);
-  
-  const generateInitialCarePlan = async () => {
-    if (!profile) return;
+  }, [isAuthenticated, temporaryProfile, profile]);
+
+  // Calculate profile completion
+  const calculateProfileCompletion = () => {
+    if (!profile) return 0;
     
+    const requiredFields = ['name', 'zipCode', 'grassType', 'lawnSize', 'lawnGoal'];
+    const optionalFields = ['soilType', 'lastMowed', 'lastFertilized'];
+    
+    const requiredCompleted = requiredFields.filter(field => profile[field as keyof typeof profile]).length;
+    const optionalCompleted = optionalFields.filter(field => profile[field as keyof typeof profile]).length;
+    
+    const requiredScore = (requiredCompleted / requiredFields.length) * 70;
+    const optionalScore = (optionalCompleted / optionalFields.length) * 30;
+    
+    return Math.round(requiredScore + optionalScore);
+  };
+
+  const profileCompletion = calculateProfileCompletion();
+  const hasAnalysisData = !!(profile?.rasenproblem || profile?.analysisResults);
+
+  const handleGenerateCarePlan = async () => {
+    if (!profile) {
+      toast.error('Bitte vervollständigen Sie zuerst Ihr Profil');
+      return;
+    }
+
     setLoading(true);
     try {
       await generateCarePlan(profile);
-      console.log("Successfully generated initial care plan");
+      toast.success('Pflegeplan wurde aktualisiert');
     } catch (error) {
-      console.error("Error generating initial care plan:", error);
-      toast.error("Fehler beim Erstellen des Pflegeplans");
+      console.error('Error generating care plan:', error);
+      toast.error('Fehler beim Erstellen des Pflegeplans');
     } finally {
       setLoading(false);
     }
   };
-  
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+        <MainNavigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto">
+            <Card>
+              <CardContent className="text-center py-12">
+                <User className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <h2 className="text-xl font-semibold mb-2">Anmeldung erforderlich</h2>
+                <p className="text-gray-600 mb-4">
+                  Bitte melden Sie sich an, um auf Ihr Dashboard zuzugreifen.
+                </p>
+                <Button onClick={() => window.location.href = '/auth'}>
+                  Anmelden
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showProfileCompletion) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+        <MainNavigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowProfileCompletion(false)}
+                className="mb-4"
+              >
+                ← Zurück zum Dashboard
+              </Button>
+            </div>
+            <ProfileCompletion />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />
       
-      <main className="flex-grow py-8">
-        <div className="container mx-auto px-4">
-          <DashboardHeader profileName={profile?.name} />
-          
-          {/* Premium Features Banner */}
-          <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Camera className="h-8 w-8 text-green-600" />
-                <div>
-                  <h3 className="font-semibold text-green-800 flex items-center gap-2">
-                    KI-Bildanalyse verfügbar
-                    <Badge className="bg-green-100 text-green-800">
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      Premium
-                    </Badge>
-                  </h3>
-                  <p className="text-sm text-green-700">
-                    Als angemeldeter Nutzer können Sie unbegrenzt KI-basierte Rasenanalysen durchführen
-                  </p>
-                </div>
-              </div>
-            </div>
+      <div className="container mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Welcome Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-green-800 mb-2">
+              Willkommen{profile?.name ? `, ${profile.name}` : ''}!
+            </h1>
+            <p className="text-gray-600">
+              Hier ist Ihr persönliches Rasen-Dashboard
+            </p>
           </div>
-          
-          <div className="flex flex-col md:flex-row justify-between items-start gap-6 mt-6">
-            <div className="w-full md:w-2/3">
+
+          {/* Profile Completion Alert */}
+          {profileCompletion < 100 && (
+            <Card className="mb-6 border-orange-200 bg-orange-50">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-4">
+                  <AlertCircle className="h-6 w-6 text-orange-600 mt-1" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-orange-800 mb-2">
+                      Profil vervollständigen ({profileCompletion}%)
+                    </h3>
+                    <Progress value={profileCompletion} className="mb-3 h-2" />
+                    <p className="text-orange-700 mb-4">
+                      Vervollständigen Sie Ihr Profil für bessere Empfehlungen und vollständige Wetterdaten.
+                    </p>
+                    <Button 
+                      onClick={() => setShowProfileCompletion(true)}
+                      className="bg-orange-600 hover:bg-orange-700"
+                    >
+                      Profil vervollständigen
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Analysis Data Status */}
+          {hasAnalysisData && (
+            <Card className="mb-6 border-green-200 bg-green-50">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <Sparkles className="h-6 w-6 text-green-600" />
+                  <div>
+                    <h3 className="font-semibold text-green-800 mb-1">
+                      KI-Analyse verfügbar
+                    </h3>
+                    <p className="text-green-700">
+                      Ihre Rasenanalyse wurde erfolgreich übertragen und fließt in Ihre Empfehlungen ein.
+                    </p>
+                  </div>
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Main Dashboard Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
               <DashboardTabs 
-                profile={profile}
+                profile={profile} 
                 loading={loading}
-                onGenerateCarePlan={generateInitialCarePlan}
+                onGenerateCarePlan={handleGenerateCarePlan}
               />
             </div>
             
             <DashboardSidebar />
           </div>
         </div>
-      </main>
-      
-      <DashboardFooter />
+      </div>
     </div>
   );
 };

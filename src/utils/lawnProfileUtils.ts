@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { LawnProfile, UserData } from '../types/lawn';
 import { toast } from 'sonner';
@@ -99,7 +98,7 @@ export const fetchProfileFromSupabase = async (): Promise<LawnProfile | null> =>
   }
 };
 
-// Sync profile with Supabase
+// Enhanced sync profile with Supabase that preserves all temporary data
 export const syncProfileWithSupabase = async (
   profile: LawnProfile | null, 
   temporaryProfile: LawnProfile | null,
@@ -111,23 +110,51 @@ export const syncProfileWithSupabase = async (
       return null;
     }
     
-    // If there's no profile to sync, check if we have a temporary profile to use
-    let currentProfile = profile;
+    console.log("=== SYNCING PROFILE DATA ===");
+    console.log("Current profile:", profile);
+    console.log("Temporary profile:", temporaryProfile);
+    
+    // Determine what profile to sync
+    let profileToSync: LawnProfile | null = null;
+    
     if (!profile && temporaryProfile) {
-      console.log("No profile found, using temporary profile for syncing:", temporaryProfile);
-      currentProfile = temporaryProfile;
-    } else if (!profile) {
-      console.log("No profile or temporary profile found, nothing to sync");
+      // No main profile, use temporary as base
+      profileToSync = { ...temporaryProfile };
+      console.log("Using temporary profile as base");
+    } else if (profile && temporaryProfile) {
+      // Merge temporary data into existing profile, preserving all data
+      profileToSync = {
+        ...profile,
+        // Preserve analysis data from temporary profile (higher priority)
+        rasenproblem: temporaryProfile.rasenproblem || profile.rasenproblem,
+        rasenbild: temporaryProfile.rasenbild || profile.rasenbild,
+        analysisResults: temporaryProfile.analysisResults || profile.analysisResults,
+        analyzesUsed: Math.max(temporaryProfile.analyzesUsed || 0, profile.analyzesUsed || 0),
+        // Fill in missing basic data from temporary profile
+        zipCode: profile.zipCode || temporaryProfile.zipCode,
+        grassType: profile.grassType || temporaryProfile.grassType,
+        lawnSize: profile.lawnSize || temporaryProfile.lawnSize,
+        lawnGoal: profile.lawnGoal || temporaryProfile.lawnGoal,
+        name: profile.name || temporaryProfile.name,
+        soilType: profile.soilType || temporaryProfile.soilType,
+        lastMowed: profile.lastMowed || temporaryProfile.lastMowed,
+        lastFertilized: profile.lastFertilized || temporaryProfile.lastFertilized,
+        hasChildren: profile.hasChildren ?? temporaryProfile.hasChildren,
+        hasPets: profile.hasPets ?? temporaryProfile.hasPets,
+      };
+      console.log("Merged temporary data into existing profile");
+    } else if (profile) {
+      // Only main profile exists
+      profileToSync = profile;
+      console.log("Using existing profile");
+    }
+    
+    if (!profileToSync) {
+      console.log("No profile to sync");
       return null;
     }
     
-    // At this point we should have a profile to sync
-    if (!currentProfile) {
-      console.log("Still no profile to sync after checks");
-      return null;
-    }
-    
-    console.log("Syncing profile with Supabase:", currentProfile);
+    console.log("Profile to sync:", profileToSync);
     
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -141,105 +168,110 @@ export const syncProfileWithSupabase = async (
       .select('*')
       .eq('user_id', session.user.id);
       
-    let updatedProfile: LawnProfile = { ...currentProfile };
+    let updatedProfile: LawnProfile = { ...profileToSync };
       
     if (existingProfiles && existingProfiles.length > 0) {
       // Update existing profile
       console.log("Updating existing profile with ID:", existingProfiles[0].id);
       
+      const updateData = {
+        zip_code: profileToSync.zipCode || '',
+        grass_type: profileToSync.grassType || '',
+        lawn_size: profileToSync.lawnSize || '',
+        lawn_goal: profileToSync.lawnGoal || '',
+        name: profileToSync.name,
+        last_mowed: profileToSync.lastMowed,
+        last_fertilized: profileToSync.lastFertilized,
+        soil_type: profileToSync.soilType,
+        has_children: profileToSync.hasChildren,
+        has_pets: profileToSync.hasPets,
+        lawn_picture: profileToSync.lawnPicture,
+        analysis_results: profileToSync.analysisResults,
+        analyzes_used: profileToSync.analyzesUsed || 0,
+        rasenproblem: profileToSync.rasenproblem,
+        rasenbild: profileToSync.rasenbild,
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log("Updating with data:", updateData);
+      
       const { error } = await supabase
         .from('lawn_profiles')
-        .update({
-          zip_code: currentProfile.zipCode,
-          grass_type: currentProfile.grassType,
-          lawn_size: currentProfile.lawnSize,
-          lawn_goal: currentProfile.lawnGoal,
-          name: currentProfile.name,
-          last_mowed: currentProfile.lastMowed,
-          last_fertilized: currentProfile.lastFertilized,
-          soil_type: currentProfile.soilType,
-          has_children: currentProfile.hasChildren,
-          has_pets: currentProfile.hasPets,
-          lawn_picture: currentProfile.lawnPicture,
-          analysis_results: currentProfile.analysisResults,
-          analyzes_used: currentProfile.analyzesUsed,
-          rasenproblem: currentProfile.rasenproblem,
-          rasenbild: currentProfile.rasenbild,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', existingProfiles[0].id);
         
       if (error) {
         console.error("Error updating profile in Supabase:", error);
-        toast.error("Fehler", {
+        toast.error("Fehler beim Speichern", {
           description: "Ihre Rasendaten konnten nicht aktualisiert werden."
         });
         return null;
       }
         
-      // Update local profile with id
       updatedProfile = {
-        ...currentProfile,
+        ...profileToSync,
         id: existingProfiles[0].id
       };
       
-      toast.success("Profil gespeichert", {
-        description: "Ihre Rasendaten wurden erfolgreich aktualisiert."
-      });
+      console.log("Profile updated successfully");
     } else {
       // Create new profile
       console.log("Creating new profile for user:", session.user.id);
       
+      const insertData = {
+        user_id: session.user.id,
+        zip_code: profileToSync.zipCode || '',
+        grass_type: profileToSync.grassType || '',
+        lawn_size: profileToSync.lawnSize || '',
+        lawn_goal: profileToSync.lawnGoal || '',
+        name: profileToSync.name,
+        last_mowed: profileToSync.lastMowed,
+        last_fertilized: profileToSync.lastFertilized,
+        soil_type: profileToSync.soilType,
+        has_children: profileToSync.hasChildren || false,
+        has_pets: profileToSync.hasPets || false,
+        lawn_picture: profileToSync.lawnPicture,
+        analysis_results: profileToSync.analysisResults,
+        analyzes_used: profileToSync.analyzesUsed || 0,
+        rasenproblem: profileToSync.rasenproblem,
+        rasenbild: profileToSync.rasenbild,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log("Creating with data:", insertData);
+      
       const { data: newProfile, error } = await supabase
         .from('lawn_profiles')
-        .insert({
-          user_id: session.user.id,
-          zip_code: currentProfile.zipCode || '',
-          grass_type: currentProfile.grassType || '',
-          lawn_size: currentProfile.lawnSize || '',
-          lawn_goal: currentProfile.lawnGoal || '',
-          name: currentProfile.name,
-          last_mowed: currentProfile.lastMowed,
-          last_fertilized: currentProfile.lastFertilized,
-          soil_type: currentProfile.soilType,
-          has_children: currentProfile.hasChildren,
-          has_pets: currentProfile.hasPets,
-          lawn_picture: currentProfile.lawnPicture,
-          analysis_results: currentProfile.analysisResults,
-          analyzes_used: currentProfile.analyzesUsed,
-          rasenproblem: currentProfile.rasenproblem,
-          rasenbild: currentProfile.rasenbild,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+        .insert(insertData)
         .select()
         .single();
         
       if (error) {
         console.error("Error creating profile:", error);
-        toast.error("Fehler", {
+        toast.error("Fehler beim Erstellen", {
           description: "Ihre Rasendaten konnten nicht gespeichert werden."
         });
         return null;
       }
         
       if (newProfile) {
-        // Update local profile with id
         updatedProfile = {
-          ...currentProfile,
+          ...profileToSync,
           id: newProfile.id
         };
         
-        toast.success("Profil erstellt", {
-          description: "Ihre Rasendaten wurden erfolgreich gespeichert."
-        });
+        console.log("Profile created successfully");
       }
     }
+    
+    console.log("=== SYNC COMPLETED ===");
+    console.log("Final profile:", updatedProfile);
     
     return updatedProfile;
   } catch (error) {
     console.error("Error syncing profile with Supabase:", error);
-    toast.error("Fehler", {
+    toast.error("Synchronisierungsfehler", {
       description: "Ihre Rasendaten konnten nicht gespeichert werden."
     });
     return null;
