@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Leaf, Menu, X, User, MessageSquare, Calendar, Home, Crown, FileText, BookOpen } from 'lucide-react';
+import { Leaf, Menu, X, User, Camera, Calendar, Home, Crown, FileText, BookOpen } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLawn } from '@/context/LawnContext';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -128,15 +128,15 @@ const MainNavigation = () => {
                 </Link>
                 
                 <Link 
-                  to="/chat" 
+                  to="/onboarding" 
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                    isActive('/chat') 
+                    isActive('/onboarding') 
                       ? 'bg-green-100 text-green-700' 
                       : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
                   }`}
                 >
-                  <MessageSquare size={18} />
-                  <span>KI-Assistent</span>
+                  <Camera size={18} />
+                  <span>Foto-Analyzer</span>
                 </Link>
                 
                 {/* Admin Blog Management Link */}
@@ -256,16 +256,16 @@ const MainNavigation = () => {
                   </Link>
                   
                   <Link 
-                    to="/chat" 
+                    to="/onboarding" 
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive('/chat') 
+                      isActive('/onboarding') 
                         ? 'bg-green-100 text-green-700' 
                         : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
                     }`}
                     onClick={closeMenu}
                   >
-                    <MessageSquare size={18} />
-                    <span>KI-Assistent</span>
+                    <Camera size={18} />
+                    <span>Foto-Analyzer</span>
                   </Link>
                   
                   {/* Admin Blog Management Link */}
