@@ -17,20 +17,12 @@ export const useProfileData = () => {
 
   useEffect(() => {
     let isMounted = true;
-    let loadingTimeout: NodeJS.Timeout;
 
     const loadUserData = async () => {
       try {
         console.log('useProfileData: Starting to load user data...');
-        
-        // Set a shorter timeout to prevent hanging
-        loadingTimeout = setTimeout(() => {
-          if (isMounted && loading) {
-            console.log('useProfileData: Loading timeout reached');
-            setError('Authentifizierung fehlgeschlagen');
-            setLoading(false);
-          }
-        }, 2000);
+        setLoading(true);
+        setError(null);
         
         const { data: authData, error: authError } = await supabase.auth.getUser();
         
@@ -38,7 +30,6 @@ export const useProfileData = () => {
         
         if (authError) {
           console.error('useProfileData: Auth error:', authError);
-          clearTimeout(loadingTimeout);
           setError('Authentifizierung fehlgeschlagen');
           setUser(null);
           setLoading(false);
@@ -47,7 +38,6 @@ export const useProfileData = () => {
 
         if (!authData?.user) {
           console.log('useProfileData: No user found');
-          clearTimeout(loadingTimeout);
           setError('Kein angemeldeter Benutzer gefunden');
           setUser(null);
           setLoading(false);
@@ -55,21 +45,21 @@ export const useProfileData = () => {
         }
         
         console.log('useProfileData: User data loaded successfully:', authData.user.email);
-        clearTimeout(loadingTimeout);
         setUser({
           id: authData.user.id,
           email: authData.user.email || '',
-          name: authData.user.user_metadata?.name,
+          name: authData.user.user_metadata?.name || authData.user.user_metadata?.full_name,
           avatar_url: authData.user.user_metadata?.avatar_url,
         });
         setError(null);
-        setLoading(false);
         
       } catch (err) {
         console.error('useProfileData: Error loading user data:', err);
         if (isMounted) {
-          clearTimeout(loadingTimeout);
           setError('Fehler beim Laden der Benutzerdaten');
+        }
+      } finally {
+        if (isMounted) {
           setLoading(false);
         }
       }
@@ -79,23 +69,21 @@ export const useProfileData = () => {
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('useProfileData: Auth state changed:', event, session?.user?.email || 'no user');
         
         if (!isMounted) return;
         
         if (event === 'SIGNED_OUT') {
-          clearTimeout(loadingTimeout);
           setUser(null);
           setError('Kein angemeldeter Benutzer gefunden');
           setLoading(false);
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user) {
-            clearTimeout(loadingTimeout);
             setUser({
               id: session.user.id,
               email: session.user.email || '',
-              name: session.user.user_metadata?.name,
+              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name,
               avatar_url: session.user.user_metadata?.avatar_url,
             });
             setError(null);
@@ -107,9 +95,6 @@ export const useProfileData = () => {
 
     return () => {
       isMounted = false;
-      if (loadingTimeout) {
-        clearTimeout(loadingTimeout);
-      }
       subscription.unsubscribe();
     };
   }, []);

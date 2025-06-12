@@ -1,9 +1,7 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { supabase, validateAdminRole, validateSession } from '@/lib/supabase';
-import { trackAdminAction } from '@/utils/auditLogger';
-import { sessionSecurity } from '@/utils/securityHeaders';
+import { Navigate, useLocation } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
@@ -16,32 +14,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
-    let authCheckTimeout: NodeJS.Timeout;
     
     const checkAuth = async () => {
       try {
         console.log('ProtectedRoute: Starting auth check for path:', location.pathname);
         
-        // Reduce timeout to 1 second to prevent hanging
-        authCheckTimeout = setTimeout(() => {
-          if (mounted) {
-            console.log('ProtectedRoute: Auth check timeout, assuming not authenticated');
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
-        }, 1000);
-        
-        // Quick session check first
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('ProtectedRoute: Session error:', error);
           if (mounted) {
-            clearTimeout(authCheckTimeout);
             setIsAuthenticated(false);
             setIsLoading(false);
           }
@@ -52,31 +37,37 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         console.log('ProtectedRoute: Session check result:', isLoggedIn);
         
         if (mounted) {
-          clearTimeout(authCheckTimeout);
           setIsAuthenticated(isLoggedIn);
           
-          if (isLoggedIn) {
-            // Update session activity
-            sessionSecurity.updateLastActivity();
-            
-            // Check admin status if required
-            if (requireAdmin) {
-              try {
-                const adminStatus = await validateAdminRole();
+          if (isLoggedIn && requireAdmin) {
+            try {
+              console.log('ProtectedRoute: Checking admin role for user:', session?.user.email);
+              
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session?.user.id)
+                .single();
+                
+              if (profileError) {
+                console.error('ProtectedRoute: Profile error:', profileError);
+                setIsAdmin(false);
+                toast.error('Profil nicht gefunden. Admin-Berechtigung erforderlich.');
+              } else {
+                const adminStatus = profile?.role === 'admin';
+                console.log('ProtectedRoute: Admin status:', adminStatus, 'Role:', profile?.role);
                 setIsAdmin(adminStatus);
                 
                 if (!adminStatus) {
-                  await trackAdminAction('unauthorized_access_attempt', undefined, {
-                    path: location.pathname,
-                    userId: session?.user.id
-                  });
                   toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
                 }
-              } catch (adminError) {
-                console.error('ProtectedRoute: Admin check error:', adminError);
-                setIsAdmin(false);
               }
+            } catch (adminError) {
+              console.error('ProtectedRoute: Admin check error:', adminError);
+              setIsAdmin(false);
             }
+          } else if (!requireAdmin) {
+            setIsAdmin(true); // Not needed for non-admin routes
           }
           
           setIsLoading(false);
@@ -85,7 +76,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       } catch (error) {
         console.error('ProtectedRoute: Auth check error:', error);
         if (mounted) {
-          clearTimeout(authCheckTimeout);
           setIsAuthenticated(false);
           setIsAdmin(false);
           setIsLoading(false);
@@ -105,45 +95,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       setIsAuthenticated(isLoggedIn);
       
       if (event === 'SIGNED_IN' && session) {
-        sessionSecurity.updateLastActivity();
-        console.log('ProtectedRoute: User signed in, auth should be complete');
+        console.log('ProtectedRoute: User signed in');
         setIsLoading(false);
       } else if (event === 'SIGNED_OUT') {
-        sessionSecurity.clearSession();
         setIsAdmin(false);
         setIsLoading(false);
-      } else if (event === 'TOKEN_REFRESHED') {
-        sessionSecurity.updateLastActivity();
       }
     });
 
     return () => {
       mounted = false;
-      if (authCheckTimeout) {
-        clearTimeout(authCheckTimeout);
-      }
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
   }, [requireAdmin, location.pathname]);
 
-  // Session timeout checker
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const checkSessionTimeout = () => {
-      const lastActivity = sessionSecurity.getLastActivity();
-      if (lastActivity && !sessionSecurity.isSessionValid(lastActivity)) {
-        supabase.auth.signOut();
-      }
-    };
-
-    const interval = setInterval(checkSessionTimeout, 60000);
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
-
-  // Show loading with shorter duration
+  // Show loading
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
@@ -153,7 +121,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     );
   }
 
-  // Check authentication - redirect to auth if not authenticated
+  // Check authentication
   if (isAuthenticated === false) {
     console.log('ProtectedRoute: Not authenticated, redirecting to /auth');
     return <Navigate to="/auth" state={{ from: location }} replace />;
@@ -165,7 +133,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // User is authenticated, render the protected content
+  // User is authenticated and has required permissions
   return <>{children}</>;
 };
 

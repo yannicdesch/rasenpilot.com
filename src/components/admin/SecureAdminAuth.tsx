@@ -4,7 +4,7 @@ import { Shield, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AdminLoginForm from './AdminLoginForm';
-import { validateAdminRole, logSecurityEvent } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface SecureAdminAuthProps {
@@ -23,30 +23,55 @@ export const SecureAdminAuth: React.FC<SecureAdminAuthProps> = ({ children }) =>
   const validateAdmin = async () => {
     try {
       setIsLoading(true);
+      console.log('SecureAdminAuth: Starting admin validation...');
       
-      // Log admin access attempt
-      await logSecurityEvent('admin_access_attempt', {
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
-      });
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('SecureAdminAuth: Auth error:', authError);
+        setIsValidAdmin(false);
+        setSecurityWarning('Authentication error. Please try again.');
+        setIsLoading(false);
+        return;
+      }
 
-      const isAdmin = await validateAdminRole();
+      if (!user) {
+        console.log('SecureAdminAuth: No user found');
+        setIsValidAdmin(false);
+        setSecurityWarning('Please sign in to access admin area.');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('SecureAdminAuth: User found, checking admin role for:', user.email);
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('SecureAdminAuth: Profile error:', profileError);
+        setIsValidAdmin(false);
+        setSecurityWarning('Profile not found. Admin role required.');
+        setIsLoading(false);
+        return;
+      }
+
+      const isAdmin = profile?.role === 'admin';
+      console.log('SecureAdminAuth: Admin check result:', isAdmin, 'Role:', profile?.role);
       
       if (isAdmin) {
-        await logSecurityEvent('admin_access_granted');
         setIsValidAdmin(true);
+        setSecurityWarning(null);
       } else {
-        await logSecurityEvent('admin_access_denied', {
-          reason: 'insufficient_privileges'
-        });
         setIsValidAdmin(false);
         setSecurityWarning('Insufficient privileges. Admin role required.');
       }
+      
     } catch (error) {
-      console.error('Admin validation error:', error);
-      await logSecurityEvent('admin_validation_error', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+      console.error('SecureAdminAuth: Validation error:', error);
       setIsValidAdmin(false);
       setSecurityWarning('Authentication error. Please try again.');
     } finally {
@@ -55,7 +80,7 @@ export const SecureAdminAuth: React.FC<SecureAdminAuthProps> = ({ children }) =>
   };
 
   const handleLoginSuccess = () => {
-    // Re-validate admin status after successful login
+    console.log('SecureAdminAuth: Login success, re-validating...');
     validateAdmin();
   };
 
@@ -63,7 +88,7 @@ export const SecureAdminAuth: React.FC<SecureAdminAuthProps> = ({ children }) =>
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mb-3"></div>
-        <p className="text-green-800 text-sm">Verifying admin access...</p>
+        <p className="text-green-800 text-sm">Admin-Zugang wird überprüft...</p>
       </div>
     );
   }
@@ -87,10 +112,10 @@ export const SecureAdminAuth: React.FC<SecureAdminAuthProps> = ({ children }) =>
                 <Shield className="h-8 w-8 text-red-600" />
               </div>
               <CardTitle className="text-2xl text-red-800">
-                Admin Access Required
+                Admin-Zugang erforderlich
               </CardTitle>
               <p className="text-gray-600">
-                Please sign in with an administrator account to continue.
+                Bitte melden Sie sich mit einem Administrator-Konto an.
               </p>
             </CardHeader>
             <AdminLoginForm onLoginSuccess={handleLoginSuccess} />
