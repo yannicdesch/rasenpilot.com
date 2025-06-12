@@ -24,6 +24,7 @@ import NewBlogPost from "@/pages/NewBlogPost";
 import EditBlogPost from "@/pages/EditBlogPost";
 import BlogPost from "@/pages/BlogPost";
 import SEOManagement from "@/pages/SEOManagement";
+import AdminPanel from "@/pages/AdminPanel";
 
 function App() {
   return (
@@ -41,6 +42,9 @@ function App() {
           {/* Public Blog Content Routes */}
           <Route path="/blog-overview" element={<BlogOverview />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          
+          {/* Protected Admin Routes */}
+          <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminPanel /></ProtectedRoute>} />
           
           {/* Protected Blog Management Routes */}
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
