@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,45 @@ import { toast } from 'sonner';
 import MainNavigation from '@/components/MainNavigation';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+type Severity = 'high' | 'medium' | 'low';
+type Priority = 'high' | 'medium' | 'low';
+
+interface MainIssue {
+  title: string;
+  severity: Severity;
+  description: string;
+  timeline: string;
+  cost: string;
+  confidence: string;
+}
+
+interface Solution {
+  category: string;
+  priority: Priority;
+  tasks: string[];
+}
+
+interface Product {
+  name: string;
+  price: string;
+  category: string;
+  rating: string;
+}
+
+interface MonthlyTask {
+  month: string;
+  priority: string;
+  details: string;
+  tasks: string[];
+}
+
+interface ComprehensiveData {
+  mainIssues: MainIssue[];
+  solutions: Solution[];
+  products: Product[];
+  monthlyTasks: MonthlyTask[];
+}
 
 const AnalysisResults = () => {
   const navigate = useNavigate();
@@ -125,12 +163,12 @@ Basierend auf Ihrer Beschreibung "${problem}" wurde eine detaillierte Analyse du
 **Mai:** Bewässerungsroutine etablieren + Kantenpflege`;
   };
 
-  const parseComprehensiveAnalysis = (analysisText: string) => {
-    const mockData = {
+  const parseComprehensiveAnalysis = (analysisText: string): ComprehensiveData => {
+    const mockData: ComprehensiveData = {
       mainIssues: [
         {
           title: "Nährstoffmangel (N-K)",
-          severity: "medium" as const,
+          severity: "medium" as Severity,
           description: "Stickstoff- und Kaliummangel mit gelblichen Verfärbungen",
           timeline: "2-4 Wochen",
           cost: "25-40€",
@@ -138,7 +176,7 @@ Basierend auf Ihrer Beschreibung "${problem}" wurde eine detaillierte Analyse du
         },
         {
           title: "Bodenverdichtung",
-          severity: "medium" as const,
+          severity: "medium" as Severity,
           description: "Ungleichmäßige Wasseraufnahme durch verdichteten Boden",
           timeline: "Sofort nach Belüftung",
           cost: "15-30€",
@@ -146,7 +184,7 @@ Basierend auf Ihrer Beschreibung "${problem}" wurde eine detaillierte Analyse du
         },
         {
           title: "Beginnender Unkrautbefall",
-          severity: "low" as const,
+          severity: "low" as Severity,
           description: "Löwenzahn und Klee in einzelnen Bereichen",
           timeline: "4-6 Wochen",
           cost: "20-35€",
@@ -156,7 +194,7 @@ Basierend auf Ihrer Beschreibung "${problem}" wurde eine detaillierte Analyse du
       solutions: [
         {
           category: "Sofortmaßnahmen (diese Woche)",
-          priority: "high",
+          priority: "high" as Priority,
           tasks: [
             "Professionellen Bodentest durchführen (pH, NPK, Spurenelemente)",
             "Aerifizierung mit 5cm tiefen Löchern bei feuchtem Boden",
@@ -166,7 +204,7 @@ Basierend auf Ihrer Beschreibung "${problem}" wurde eine detaillierte Analyse du
         },
         {
           category: "Kurzfristig (2-4 Wochen)",
-          priority: "medium",
+          priority: "medium" as Priority,
           tasks: [
             "Herbstdüngung mit kaliumreichem Dünger (NPK 5-5-20)",
             "Nachsaat kahler Stellen mit klimaangepasster Mischung",
@@ -176,7 +214,7 @@ Basierend auf Ihrer Beschreibung "${problem}" wurde eine detaillierte Analyse du
         },
         {
           category: "Langfristige Strategie (Saisonplan)",
-          priority: "low",
+          priority: "low" as Priority,
           tasks: [
             "Monatlichen Pflegekalender mit Foto-Dokumentation",
             "Automatisches Bewässerungssystem mit Timer",
@@ -217,14 +255,14 @@ Basierend auf Ihrer Beschreibung "${problem}" wurde eine detaillierte Analyse du
     return mockData;
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: Severity) => {
     if (severity === 'high') return 'bg-red-100 text-red-800 border-red-200';
     if (severity === 'medium') return 'bg-yellow-100 text-yellow-800 border-yellow-200';
     if (severity === 'low') return 'bg-green-100 text-green-800 border-green-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: Priority) => {
     if (priority === 'high') return 'border-l-red-500';
     if (priority === 'medium') return 'border-l-yellow-500';
     if (priority === 'low') return 'border-l-green-500';

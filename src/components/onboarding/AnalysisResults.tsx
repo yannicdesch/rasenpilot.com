@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CheckCircle, AlertTriangle, Lightbulb, UserPlus, Target, Clock, DollarSign, Calendar, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,9 +9,43 @@ interface AnalysisResultsProps {
   analysisResults: string | null;
 }
 
+type Severity = 'high' | 'medium' | 'low';
+
+interface MainIssue {
+  title: string;
+  severity: Severity;
+  description: string;
+  timeline: string;
+  cost: string;
+}
+
+interface Solution {
+  category: string;
+  tasks: string[];
+}
+
+interface Product {
+  name: string;
+  price: string;
+  category: string;
+}
+
+interface MonthlyTask {
+  month: string;
+  priority: string;
+}
+
+interface ParsedAnalysis {
+  score: number;
+  mainIssues: MainIssue[];
+  solutions: Solution[];
+  products: Product[];
+  monthlyTasks: MonthlyTask[];
+}
+
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) => {
   // Enhanced parsing of the analysis results
-  const parseAnalysisResults = (results: string | null) => {
+  const parseAnalysisResults = (results: string | null): ParsedAnalysis => {
     if (!results) {
       return getMockComprehensiveAnalysis();
     }
@@ -33,20 +66,20 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
     return getMockComprehensiveAnalysis(score);
   };
 
-  const getMockComprehensiveAnalysis = (score: number = 72) => {
+  const getMockComprehensiveAnalysis = (score: number = 72): ParsedAnalysis => {
     return {
       score,
       mainIssues: [
         {
           title: "Nährstoffmangel",
-          severity: "medium" as const,
+          severity: "medium" as Severity,
           description: "Stickstoff- und Kaliummangel erkannt",
           timeline: "2-4 Wochen",
           cost: "25-40€"
         },
         {
           title: "Bodenverdichtung",
-          severity: "medium" as const,
+          severity: "medium" as Severity,
           description: "Ungleichmäßige Wasseraufnahme",
           timeline: "Sofort nach Belüftung",
           cost: "15-30€"
@@ -97,7 +130,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysisResults }) =>
     window.location.href = '/auth?tab=register';
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: Severity) => {
     if (severity === 'high') return 'bg-red-100 text-red-800';
     if (severity === 'medium') return 'bg-yellow-100 text-yellow-800';
     if (severity === 'low') return 'bg-green-100 text-green-800';
