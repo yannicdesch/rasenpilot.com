@@ -15,36 +15,36 @@ import PasswordChange from '@/components/PasswordChange';
 import AccountDeletion from '@/components/AccountDeletion';
 import ProfileForm from '@/components/profile/ProfileForm';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useProfileData } from '@/hooks/useProfileData';
+import { useOptimizedProfile } from '@/hooks/useOptimizedProfile';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile, setProfile, temporaryProfile, clearTemporaryProfile } = useLawn();
+  const { profile: lawnProfile, setProfile, temporaryProfile, clearTemporaryProfile } = useLawn();
   const [activeTab, setActiveTab] = useState('profile');
-  const { user, loading, error, updateUserProfile, updateAvatar } = useProfileData();
+  const { profile, loading, error, updateProfile, updateAvatar } = useOptimizedProfile();
 
   // Handle temporary profile data merge
   useEffect(() => {
-    if (!loading && user && temporaryProfile && !profile) {
+    if (!loading && profile && temporaryProfile && !lawnProfile) {
       console.log('Profile: Merging temporary profile data');
       
       const updatedProfile = {
         ...temporaryProfile,
-        userId: user.id,
+        userId: profile.id,
       };
       
       setProfile(updatedProfile);
       clearTemporaryProfile();
     }
-  }, [loading, user, temporaryProfile, profile, setProfile, clearTemporaryProfile]);
+  }, [loading, profile, temporaryProfile, lawnProfile, setProfile, clearTemporaryProfile]);
 
   // Handle authentication errors - redirect to auth
   useEffect(() => {
-    if (!loading && (error || !user)) {
+    if (!loading && (error || !profile)) {
       console.log('Profile: Authentication issue detected, redirecting to /auth');
       navigate('/auth', { replace: true });
     }
-  }, [loading, error, user, navigate]);
+  }, [loading, error, profile, navigate]);
 
   const handleSignOut = async () => {
     try {
@@ -75,7 +75,7 @@ const Profile = () => {
   }
 
   // Don't render anything if there's an error or no user - the useEffect will handle redirect
-  if (error || !user) {
+  if (error || !profile) {
     return null;
   }
 
@@ -100,14 +100,14 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <AvatarUpload 
-                uid={user.id}
-                url={user.avatar_url || null}
+                uid={profile.id}
+                url={profile.avatar_url || null}
                 onAvatarUpdate={updateAvatar}
-                name={user.name}
-                email={user.email}
+                name={profile.name}
+                email={profile.email}
               />
-              <p className="mt-4 font-medium text-lg text-gray-800">{user.name || 'Kein Name'}</p>
-              <p className="text-sm text-gray-600">{user.email}</p>
+              <p className="mt-4 font-medium text-lg text-gray-800">{profile.name || 'Kein Name'}</p>
+              <p className="text-sm text-gray-600">{profile.email}</p>
             </CardContent>
             <CardFooter>
               <Button 
@@ -143,8 +143,8 @@ const Profile = () => {
                 
                 <TabsContent value="profile" className="p-4 mt-4">
                   <ProfileForm 
-                    user={user}
-                    onSubmit={updateUserProfile}
+                    user={profile}
+                    onSubmit={updateProfile}
                     loading={loading}
                   />
                 </TabsContent>
@@ -160,7 +160,7 @@ const Profile = () => {
           </Card>
 
           {/* Lawn Data Card */}
-          {profile && (
+          {lawnProfile && (
             <Card className="col-span-1 lg:col-span-3 bg-white border-gray-200">
               <CardHeader>
                 <CardTitle className="text-green-600">Meine Rasendaten</CardTitle>
@@ -168,62 +168,62 @@ const Profile = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {profile.zipCode && (
+                  {lawnProfile.zipCode && (
                     <div>
                       <Label className="text-gray-600">PLZ</Label>
-                      <p className="font-medium text-gray-800">{profile.zipCode}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.zipCode}</p>
                     </div>
                   )}
-                  {profile.grassType && (
+                  {lawnProfile.grassType && (
                     <div>
                       <Label className="text-gray-600">Grassorte</Label>
-                      <p className="font-medium text-gray-800">{profile.grassType}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.grassType}</p>
                     </div>
                   )}
-                  {profile.lawnSize && (
+                  {lawnProfile.lawnSize && (
                     <div>
                       <Label className="text-gray-600">Rasengröße</Label>
-                      <p className="font-medium text-gray-800">{profile.lawnSize}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.lawnSize}</p>
                     </div>
                   )}
-                  {profile.lawnGoal && (
+                  {lawnProfile.lawnGoal && (
                     <div>
                       <Label className="text-gray-600">Rasenziel</Label>
-                      <p className="font-medium text-gray-800">{profile.lawnGoal}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.lawnGoal}</p>
                     </div>
                   )}
-                  {profile.soilType && (
+                  {lawnProfile.soilType && (
                     <div>
                       <Label className="text-gray-600">Bodentyp</Label>
-                      <p className="font-medium text-gray-800">{profile.soilType}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.soilType}</p>
                     </div>
                   )}
-                  {profile.lastMowed && (
+                  {lawnProfile.lastMowed && (
                     <div>
                       <Label className="text-gray-600">Zuletzt gemäht</Label>
-                      <p className="font-medium text-gray-800">{profile.lastMowed}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.lastMowed}</p>
                     </div>
                   )}
-                  {profile.hasChildren !== undefined && (
+                  {lawnProfile.hasChildren !== undefined && (
                     <div>
                       <Label className="text-gray-600">Kinder nutzen den Rasen</Label>
-                      <p className="font-medium text-gray-800">{profile.hasChildren ? 'Ja' : 'Nein'}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.hasChildren ? 'Ja' : 'Nein'}</p>
                     </div>
                   )}
-                  {profile.hasPets !== undefined && (
+                  {lawnProfile.hasPets !== undefined && (
                     <div>
                       <Label className="text-gray-600">Haustiere nutzen den Rasen</Label>
-                      <p className="font-medium text-gray-800">{profile.hasPets ? 'Ja' : 'Nein'}</p>
+                      <p className="font-medium text-gray-800">{lawnProfile.hasPets ? 'Ja' : 'Nein'}</p>
                     </div>
                   )}
                 </div>
                 
-                {profile.lawnPicture && (
+                {lawnProfile.lawnPicture && (
                   <div className="mt-6">
                     <Label className="text-gray-600 mb-2 block">Dein Rasen</Label>
                     <div className="rounded-lg overflow-hidden border border-gray-200 max-w-md">
                       <img 
-                        src={profile.lawnPicture} 
+                        src={lawnProfile.lawnPicture} 
                         alt="Dein Rasen" 
                         className="w-full h-auto"
                       />
