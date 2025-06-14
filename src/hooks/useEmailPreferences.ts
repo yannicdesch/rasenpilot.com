@@ -47,7 +47,7 @@ export const useEmailPreferences = () => {
       }
 
       if (profile?.email_preferences) {
-        const emailPrefs = profile.email_preferences as EmailPreferences;
+        const emailPrefs = profile.email_preferences as unknown as EmailPreferences;
         setPreferences(emailPrefs);
       }
     } catch (error) {
