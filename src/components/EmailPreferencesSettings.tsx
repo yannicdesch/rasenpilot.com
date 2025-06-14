@@ -48,7 +48,8 @@ export const EmailPreferencesSettings = () => {
       }
 
       if (profile?.email_preferences) {
-        setPreferences(profile.email_preferences);
+        const emailPrefs = profile.email_preferences as EmailPreferences;
+        setPreferences(emailPrefs);
       }
 
       // Get last reminder sent
@@ -84,7 +85,7 @@ export const EmailPreferencesSettings = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update({ email_preferences: preferences })
+        .update({ email_preferences: preferences as any })
         .eq('id', user.id);
 
       if (error) {

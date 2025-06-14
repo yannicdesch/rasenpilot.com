@@ -47,7 +47,8 @@ export const useEmailPreferences = () => {
       }
 
       if (profile?.email_preferences) {
-        setPreferences(profile.email_preferences);
+        const emailPrefs = profile.email_preferences as EmailPreferences;
+        setPreferences(emailPrefs);
       }
     } catch (error) {
       console.error('Error loading preferences:', error);
@@ -89,7 +90,7 @@ export const useEmailPreferences = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update({ email_preferences: newPreferences })
+        .update({ email_preferences: newPreferences as any })
         .eq('id', user.id);
 
       if (error) {
