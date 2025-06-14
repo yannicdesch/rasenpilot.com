@@ -220,6 +220,7 @@ export type Database = {
         Row: {
           created_at: string | null
           email: string
+          email_preferences: Json | null
           full_name: string | null
           id: string
           is_active: boolean | null
@@ -230,6 +231,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           email: string
+          email_preferences?: Json | null
           full_name?: string | null
           id: string
           is_active?: boolean | null
@@ -240,12 +242,40 @@ export type Database = {
         Update: {
           created_at?: string | null
           email?: string
+          email_preferences?: Json | null
           full_name?: string | null
           id?: string
           is_active?: boolean | null
           last_sign_in_at?: string | null
           role?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reminder_logs: {
+        Row: {
+          email_sent: boolean | null
+          id: string
+          sent_at: string | null
+          task_date: string
+          task_type: string
+          user_id: string | null
+        }
+        Insert: {
+          email_sent?: boolean | null
+          id?: string
+          sent_at?: string | null
+          task_date: string
+          task_type: string
+          user_id?: string | null
+        }
+        Update: {
+          email_sent?: boolean | null
+          id?: string
+          sent_at?: string | null
+          task_date?: string
+          task_type?: string
+          user_id?: string | null
         }
         Relationships: []
       }
