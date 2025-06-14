@@ -50,12 +50,14 @@ export const useAnalytics = () => {
 
   const checkSqlFunction = async () => {
     try {
+      console.log('Checking if SQL function exists...');
       // Try to call the execute_sql function
       const { error } = await supabase.rpc('execute_sql', {
         sql: 'SELECT 1 as test;'
       });
       
       const exists = !error;
+      console.log('SQL function exists:', exists);
       setSqlFunctionExists(exists);
       return exists;
     } catch (err) {
@@ -70,6 +72,7 @@ export const useAnalytics = () => {
       setIsLoading(true);
       setError(null);
       
+      console.log('Starting analytics fetch...');
       console.log('Checking SQL function and analytics tables...');
       
       // First check if the SQL function exists
@@ -109,6 +112,7 @@ export const useAnalytics = () => {
         console.log('Fetching real analytics data...');
         const realData = await fetchRealAnalyticsData();
         setAnalyticsData(realData);
+        console.log('Successfully loaded analytics data:', realData);
       } catch (fetchError: any) {
         console.error('Error fetching real analytics data:', fetchError);
         toast.error('Fehler beim Laden der Analysedaten', {
@@ -134,9 +138,27 @@ export const useAnalytics = () => {
   // Improved function to fetch real analytics data from the database
   const fetchRealAnalyticsData = async (): Promise<AnalyticsData> => {
     try {
-      // For now, we'll use example data, but in a real implementation
-      // you'd query your analytics tables here
-      return generateExampleData();
+      console.log('Fetching real analytics data from database...');
+      
+      // For now, we'll use example data with some real data mixed in
+      // In a real implementation, you'd query your analytics tables here
+      const exampleData = generateExampleData();
+      
+      // Try to get some real page view count
+      try {
+        const { count } = await supabase
+          .from('page_views')
+          .select('*', { count: 'exact', head: true });
+        
+        if (count !== null) {
+          console.log('Found', count, 'page views in database');
+          exampleData.totalVisits = count;
+        }
+      } catch (pageViewError) {
+        console.log('Could not fetch page views:', pageViewError);
+      }
+      
+      return exampleData;
     } catch (error) {
       console.error("Error fetching analytics data:", error);
       throw error;
@@ -144,11 +166,13 @@ export const useAnalytics = () => {
   };
 
   useEffect(() => {
+    console.log('useAnalytics: Starting initial fetch...');
     fetchAnalytics();
   }, []);
   
   // Generate example data when no real data is available
   const generateExampleData = (): AnalyticsData => {
+    console.log('Generating example analytics data...');
     return {
       dailyVisitors: [
         { name: 'Mo', visitors: 240, signups: 20 },

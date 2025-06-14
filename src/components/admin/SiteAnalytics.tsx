@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import AnalyticsHeader from './analytics/AnalyticsHeader';
@@ -5,13 +6,16 @@ import TableCreationAlert from './analytics/TableCreationAlert';
 import StatisticCards from './analytics/StatisticCards';
 import VisitorChart from './analytics/VisitorChart';
 import AnalyticsInfoCard from './analytics/AnalyticsInfoCard';
+import AnalyticsDebugInfo from './analytics/AnalyticsDebugInfo';
 import { getSupabaseConnectionInfo, testSupabaseConnection } from '@/lib/analytics';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const SiteAnalytics = () => {
   const [timeFrame, setTimeFrame] = useState('daily');
   const [metricType, setMetricType] = useState('all');
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
   const { analyticsData, isLoading, refreshAnalytics, tablesExist, createTables } = useAnalytics();
   const [isCreatingTables, setIsCreatingTables] = useState(false);
   const [tableCreationError, setTableCreationError] = useState<string | null>(null);
@@ -82,6 +86,12 @@ const SiteAnalytics = () => {
       setIsCreatingTables(false);
     }
   };
+
+  // Force refresh function
+  const handleForceRefresh = () => {
+    console.log('Force refreshing analytics data...');
+    refreshAnalytics();
+  };
   
   // Select data based on timeframe
   const chartData = timeFrame === 'daily' ? analyticsData.dailyVisitors : 
@@ -91,9 +101,53 @@ const SiteAnalytics = () => {
   const totalVisits = analyticsData.totalVisits;
   const totalSignups = analyticsData.totalSignups;
   const conversionRate = analyticsData.conversionRate.toFixed(1);
+
+  console.log('SiteAnalytics render:', {
+    isLoading,
+    tablesExist,
+    totalVisits,
+    supabaseConnectionStatus: supabaseInfo.connectionStatus,
+    chartDataLength: chartData?.length || 0
+  });
   
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-green-800">Website-Statistiken</h2>
+          <p className="text-gray-600">Übersicht über Besucher und Aktivitäten</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDebugInfo(!showDebugInfo)}
+          >
+            {showDebugInfo ? 'Debug ausblenden' : 'Debug anzeigen'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleForceRefresh}
+            disabled={isLoading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Aktualisieren
+          </Button>
+        </div>
+      </div>
+
+      {showDebugInfo && (
+        <AnalyticsDebugInfo
+          tablesExist={tablesExist}
+          isLoading={isLoading}
+          error={null}
+          analyticsData={analyticsData}
+          supabaseConnectionStatus={supabaseInfo.connectionStatus}
+        />
+      )}
+      
       <AnalyticsHeader 
         timeFrame={timeFrame}
         setTimeFrame={setTimeFrame}
