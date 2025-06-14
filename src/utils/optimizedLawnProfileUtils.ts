@@ -37,10 +37,13 @@ export const fetchUserData = async (): Promise<UserData | null> => {
       console.error("Profile fetch error:", profileError);
     }
 
+    // Properly type the role with fallback
+    const userRole: 'user' | 'admin' = (profileData?.role === 'admin') ? 'admin' : 'user';
+
     const userData: UserData = {
       id: session.user.id,
       email: session.user.email || '',
-      role: profileData?.role || 'user',
+      role: userRole,
       createdAt: session.user.created_at,
       lastSignIn: session.user.last_sign_in_at
     };
