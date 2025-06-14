@@ -6,125 +6,33 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { Mail, Clock, CheckCircle } from 'lucide-react';
-
-interface EmailPreferences {
-  reminders: boolean;
-  frequency: 'daily' | 'weekly';
-  time: string;
-}
+import { useEmailPreferences } from '@/hooks/useEmailPreferences';
+import { Mail, Clock, CheckCircle, Send } from 'lucide-react';
 
 export const EmailPreferencesSettings = () => {
-  const [preferences, setPreferences] = useState<EmailPreferences>({
-    reminders: true,
-    frequency: 'daily',
-    time: '08:00'
-  });
-  const [loading, setLoading] = useState(true);
+  const { 
+    preferences, 
+    reminderHistory, 
+    loading, 
+    updatePreferences, 
+    sendTestReminder 
+  } = useEmailPreferences();
+  
   const [saving, setSaving] = useState(false);
-  const [lastReminderSent, setLastReminderSent] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadPreferences();
-  }, []);
-
-  const loadPreferences = async () => {
-    try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) return;
-
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('email_preferences')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error loading email preferences:', error);
-        return;
-      }
-
-      if (profile?.email_preferences) {
-        const emailPrefs = profile.email_preferences as unknown as EmailPreferences;
-        setPreferences(emailPrefs);
-      }
-
-      // Get last reminder sent
-      const { data: lastLog } = await supabase
-        .from('reminder_logs')
-        .select('sent_at')
-        .eq('user_id', user.id)
-        .order('sent_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (lastLog) {
-        setLastReminderSent(new Date(lastLog.sent_at).toLocaleDateString('de-DE'));
-      }
-
-    } catch (error) {
-      console.error('Error loading preferences:', error);
-      toast.error('Fehler beim Laden der Einstellungen');
-    } finally {
-      setLoading(false);
-    }
+  const handleSavePreferences = async () => {
+    setSaving(true);
+    await updatePreferences(preferences);
+    setSaving(false);
   };
 
-  const savePreferences = async () => {
-    try {
-      setSaving(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error('Sie müssen angemeldet sein');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({ email_preferences: preferences as any })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error saving email preferences:', error);
-        toast.error('Fehler beim Speichern der Einstellungen');
-        return;
-      }
-
-      toast.success('E-Mail-Einstellungen gespeichert');
-    } catch (error) {
-      console.error('Error saving preferences:', error);
-      toast.error('Fehler beim Speichern der Einstellungen');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const testReminder = async () => {
-    try {
-      setSaving(true);
-      const { data, error } = await supabase.functions.invoke('send-care-reminders', {
-        body: { 
-          scheduledRun: false,
-          testUser: true
-        }
-      });
-
-      if (error) {
-        console.error('Error sending test reminder:', error);
-        toast.error('Fehler beim Senden der Test-E-Mail');
-        return;
-      }
-
-      toast.success('Test-E-Mail wurde gesendet!');
-    } catch (error) {
-      console.error('Error sending test reminder:', error);
-      toast.error('Fehler beim Senden der Test-E-Mail');
-    } finally {
-      setSaving(false);
+  const handleTestEmail = async () => {
+    setSaving(true);
+    const success = await sendTestReminder();
+    setSaving(false);
+    
+    if (success) {
+      toast.success('Test-E-Mail wurde erfolgreich gesendet!');
     }
   };
 
@@ -146,6 +54,10 @@ export const EmailPreferencesSettings = () => {
       </Card>
     );
   }
+
+  const lastReminderSent = reminderHistory.length > 0 
+    ? new Date(reminderHistory[0].sent_at).toLocaleDateString('de-DE')
+    : null;
 
   return (
     <Card>
@@ -170,7 +82,7 @@ export const EmailPreferencesSettings = () => {
             id="reminders"
             checked={preferences.reminders}
             onCheckedChange={(checked) =>
-              setPreferences(prev => ({ ...prev, reminders: checked }))
+              updatePreferences({ ...preferences, reminders: checked })
             }
           />
         </div>
@@ -182,7 +94,7 @@ export const EmailPreferencesSettings = () => {
               <Select
                 value={preferences.frequency}
                 onValueChange={(value: 'daily' | 'weekly') =>
-                  setPreferences(prev => ({ ...prev, frequency: value }))
+                  updatePreferences({ ...preferences, frequency: value })
                 }
               >
                 <SelectTrigger>
@@ -203,7 +115,7 @@ export const EmailPreferencesSettings = () => {
               <Select
                 value={preferences.time}
                 onValueChange={(value) =>
-                  setPreferences(prev => ({ ...prev, time: value }))
+                  updatePreferences({ ...preferences, time: value })
                 }
               >
                 <SelectTrigger>
@@ -233,23 +145,39 @@ export const EmailPreferencesSettings = () => {
 
         <div className="flex gap-2 pt-4">
           <Button 
-            onClick={savePreferences} 
+            onClick={handleSavePreferences} 
             disabled={saving}
             className="flex-1"
           >
             {saving ? 'Speichern...' : 'Einstellungen speichern'}
           </Button>
           
-          {preferences.reminders && (
-            <Button 
-              variant="outline" 
-              onClick={testReminder}
-              disabled={saving}
-            >
-              Test-E-Mail senden
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            onClick={handleTestEmail}
+            disabled={saving}
+            className="flex items-center gap-2"
+          >
+            <Send className="h-4 w-4" />
+            {saving ? 'Senden...' : 'Test-E-Mail'}
+          </Button>
         </div>
+
+        {reminderHistory.length > 0 && (
+          <div className="space-y-2">
+            <Label>Letzte Erinnerungen</Label>
+            <div className="max-h-32 overflow-y-auto border rounded p-2 bg-gray-50">
+              {reminderHistory.slice(0, 5).map((log) => (
+                <div key={log.id} className="text-sm flex justify-between py-1">
+                  <span>{log.task_type}</span>
+                  <span className="text-muted-foreground">
+                    {new Date(log.sent_at).toLocaleDateString('de-DE')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
