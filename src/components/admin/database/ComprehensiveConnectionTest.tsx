@@ -65,7 +65,23 @@ const ComprehensiveConnectionTest = () => {
 
       for (const { table, description } of tableChecks) {
         try {
-          const { error } = await supabase.from(table).select('count').limit(1);
+          let error = null;
+          
+          // Use specific table queries based on the table name
+          if (table === 'profiles') {
+            const result = await supabase.from('profiles').select('count').limit(1);
+            error = result.error;
+          } else if (table === 'page_views') {
+            const result = await supabase.from('page_views').select('count').limit(1);
+            error = result.error;
+          } else if (table === 'events') {
+            const result = await supabase.from('events').select('count').limit(1);
+            error = result.error;
+          } else if (table === 'lawn_profiles') {
+            const result = await supabase.from('lawn_profiles').select('count').limit(1);
+            error = result.error;
+          }
+          
           if (!error) {
             tablesFound++;
             tableDetails.push(`✓ ${table} (${description})`);
