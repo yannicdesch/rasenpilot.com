@@ -113,7 +113,7 @@ const SecureFileUpload: React.FC<SecureFileUploadProps> = ({
               <p className="font-medium mb-1">Sicherheitsvalidierung aktiv:</p>
               <ul className="text-xs space-y-1">
                 <li>• Nur erlaubte Dateiformate (JPEG, PNG, WebP)</li>
-                <li>• Maximale Dateigröße: 5MB</li>
+                <li>• Maximale Dateigröße: 10MB</li>
                 <li>• Maximale Bildauflösung: 4096x4096px</li>
                 <li>• Automatische Dateinamen-Bereinigung</li>
               </ul>
@@ -149,7 +149,7 @@ const SecureFileUpload: React.FC<SecureFileUploadProps> = ({
                 {isValidating ? 'Validierung läuft...' : 'Klicken zum Hochladen oder Datei hierher ziehen'}
               </p>
               <p className={`text-xs ${disabled || isValidating ? 'text-gray-400' : 'text-green-600'}`}>
-                {accept.split(',').join(', ')} (max. 5MB)
+                {accept.split(',').join(', ')} (max. 10MB)
               </p>
             </div>
           </label>

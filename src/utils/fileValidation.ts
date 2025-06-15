@@ -8,7 +8,7 @@ const ALLOWED_IMAGE_TYPES = [
   'image/webp'
 ];
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB (increased from 5MB)
 const MAX_IMAGE_DIMENSIONS = 4096; // 4K max width/height
 
 export interface FileValidationResult {

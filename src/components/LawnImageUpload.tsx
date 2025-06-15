@@ -18,10 +18,10 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Check file size (max 10MB - increased from 5MB)
+    if (file.size > 10 * 1024 * 1024) {
       toast.error("Das Bild ist zu groß", {
-        description: "Bitte wähle ein Bild unter 5MB."
+        description: "Bitte wähle ein Bild unter 10MB."
       });
       return;
     }
@@ -90,7 +90,7 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
               Rasenbild hochladen
             </Button>
             <span className="text-sm text-gray-500 font-medium">oder hier klicken zum Hochladen</span>
-            <span className="text-xs text-gray-400 mt-1">JPG, PNG (max. 5MB)</span>
+            <span className="text-xs text-gray-400 mt-1">JPG, PNG (max. 10MB)</span>
           </div>
         )}
         <input 
