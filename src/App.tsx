@@ -26,6 +26,7 @@ import EditBlogPost from "@/pages/EditBlogPost";
 import BlogPost from "@/pages/BlogPost";
 import SEOManagement from "@/pages/SEOManagement";
 import AdminPanel from "@/pages/AdminPanel";
+import ConnectionTestPage from "@/pages/ConnectionTestPage";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminPanel /></ProtectedRoute>} />
+          <Route path="/connection-test" element={<ProtectedRoute requireAdmin><ConnectionTestPage /></ProtectedRoute>} />
           
           {/* Protected Blog Management Routes */}
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
