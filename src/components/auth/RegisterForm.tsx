@@ -77,12 +77,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
     setIsLoading(true);
     try {
+      // Get redirect URL
+      const redirectUrl = `${window.location.origin}${redirectTo}`;
+      
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             name: data.name,
+            full_name: data.name,
           },
         },
       });
@@ -92,22 +97,24 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         throw error;
       }
 
-      // Check if we have a session - user is authenticated
+      // Check if we have a session - user is authenticated immediately
       if (authData.session) {
         trackRegistrationComplete('direct');
         toast.success('Registrierung erfolgreich!');
         
-        // If we have temporary profile data, sync it first
+        // Wait a moment for the profile to be created by the trigger
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // If we have temporary profile data, sync it
         if (temporaryProfile) {
           console.log('Syncing temporary profile data after successful registration');
           await syncProfileWithSupabase();
         }
         
-        // If onRegistrationSuccess callback is provided, call it to show the onboarding wizard
+        // If onRegistrationSuccess callback is provided, call it
         if (onRegistrationSuccess) {
           onRegistrationSuccess();
         } else {
-          // If no callback is provided, navigate directly to dashboard
           navigate(redirectTo);
         }
       } else {

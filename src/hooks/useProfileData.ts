@@ -8,6 +8,8 @@ interface UserData {
   email: string;
   name?: string;
   avatar_url?: string;
+  role?: string;
+  is_active?: boolean;
 }
 
 export const useProfileData = () => {
@@ -44,13 +46,39 @@ export const useProfileData = () => {
           return;
         }
         
-        console.log('useProfileData: User data loaded successfully:', authData.user.email);
-        setUser({
+        // First set basic user data from auth
+        const basicUserData: UserData = {
           id: authData.user.id,
           email: authData.user.email || '',
           name: authData.user.user_metadata?.name || authData.user.user_metadata?.full_name,
           avatar_url: authData.user.user_metadata?.avatar_url,
-        });
+        };
+        
+        // Try to fetch additional profile data from profiles table
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('role, is_active, full_name, email')
+            .eq('id', authData.user.id)
+            .single();
+
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error('Profile fetch error:', profileError);
+          }
+
+          if (profileData) {
+            basicUserData.role = profileData.role || 'user';
+            basicUserData.is_active = profileData.is_active ?? true;
+            // Use profile name if available, otherwise fall back to auth metadata
+            basicUserData.name = profileData.full_name || basicUserData.name;
+            basicUserData.email = profileData.email || basicUserData.email;
+          }
+        } catch (profileErr) {
+          console.warn('Could not fetch profile data, using auth data only:', profileErr);
+        }
+        
+        console.log('useProfileData: User data loaded successfully:', basicUserData.email);
+        setUser(basicUserData);
         setError(null);
         
       } catch (err) {
@@ -79,16 +107,12 @@ export const useProfileData = () => {
           setError('Kein angemeldeter Benutzer gefunden');
           setLoading(false);
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          if (session?.user) {
-            setUser({
-              id: session.user.id,
-              email: session.user.email || '',
-              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name,
-              avatar_url: session.user.user_metadata?.avatar_url,
-            });
-            setError(null);
-            setLoading(false);
-          }
+          // Small delay to ensure profile is created by trigger
+          setTimeout(() => {
+            if (isMounted) {
+              loadUserData();
+            }
+          }, 100);
         }
       }
     );
@@ -100,22 +124,43 @@ export const useProfileData = () => {
   }, []);
 
   const updateUserProfile = async (updates: { name?: string }) => {
+    if (!user) return false;
+
     try {
       setLoading(true);
-      const { error } = await supabase.auth.updateUser({
-        data: updates
+      
+      // Update auth metadata
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { 
+          name: updates.name, 
+          full_name: updates.name 
+        }
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      if (user) {
-        setUser({ ...user, ...updates });
+      // Update profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          full_name: updates.name,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Profile table update error:', profileError);
+        // Don't throw here, as auth update succeeded
+        toast.warning('Profil in Auth aktualisiert, aber Sync zur Datenbank fehlgeschlagen');
       }
 
-      toast.success('Profil wurde aktualisiert');
+      // Update local state
+      setUser(prev => prev ? { ...prev, name: updates.name } : null);
+      
+      toast.success('Profil wurde erfolgreich aktualisiert');
       return true;
     } catch (error: any) {
-      console.error('Error updating profile:', error);
+      console.error('Profile update error:', error);
       toast.error(`Fehler beim Aktualisieren des Profils: ${error.message}`);
       return false;
     } finally {

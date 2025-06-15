@@ -73,9 +73,8 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
       console.log('Setting temporary profile before registration:', profileData);
       setTemporaryProfile(profileData);
 
-      // Use the current window location for redirect, but ensure it points to dashboard
-      const baseUrl = window.location.origin;
-      const redirectUrl = `${baseUrl}/dashboard`;
+      // Use the current window location for redirect
+      const redirectUrl = `${window.location.origin}/dashboard`;
 
       console.log('Using redirect URL:', redirectUrl);
 
@@ -114,8 +113,11 @@ const OnboardingRegister: React.FC<OnboardingRegisterProps> = ({
         // If we have a session, the user is immediately logged in
         toast.success('Registrierung erfolgreich! Du wirst weitergeleitet...');
         
-        // The auth state change will handle navigation automatically
-        // Don't call navigate here to avoid conflicts
+        // Wait a moment for the profile to be created by the trigger
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Navigate to dashboard
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Registration error:', error);
