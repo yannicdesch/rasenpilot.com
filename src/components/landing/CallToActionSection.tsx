@@ -3,9 +3,21 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Sparkles } from 'lucide-react';
+import { useInteractionTracking } from '@/hooks/useJourneyTracking';
 
 const CallToActionSection = () => {
   const navigate = useNavigate();
+  const { trackButtonClick } = useInteractionTracking('/');
+  
+  const handleFreeAnalysisClick = () => {
+    trackButtonClick('free_analysis_cta', { section: 'main_cta', priority: 'primary' });
+    navigate('/onboarding');
+  };
+  
+  const handleFullVersionClick = () => {
+    trackButtonClick('full_version_cta', { section: 'main_cta', priority: 'secondary' });
+    navigate('/auth');
+  };
   
   return (
     <section className="py-20 bg-gradient-to-r from-green-600 via-green-700 to-green-800" id="jetzt-starten">
@@ -20,7 +32,7 @@ const CallToActionSection = () => {
         
         <div className="flex flex-col sm:flex-row justify-center gap-6 mb-8">
           <Button 
-            onClick={() => navigate('/onboarding')} 
+            onClick={handleFreeAnalysisClick}
             size="lg"
             className="bg-white text-green-700 hover:bg-green-50 text-xl py-6 px-10 shadow-xl"
           >
@@ -28,7 +40,7 @@ const CallToActionSection = () => {
             Kostenlose KI-Analyse starten
           </Button>
           <Button 
-            onClick={() => navigate('/auth')} 
+            onClick={handleFullVersionClick}
             variant="outline"
             size="lg"
             className="border-2 border-white text-white hover:bg-white hover:text-green-700 text-xl py-6 px-10"

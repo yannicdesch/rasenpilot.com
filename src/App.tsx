@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
+import JourneyTracker from "@/components/JourneyTracker";
 import Landing from "@/pages/Landing";
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
@@ -30,6 +31,7 @@ function App() {
   return (
     <LawnProvider>
       <Router>
+        <JourneyTracker />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />

@@ -11,9 +11,16 @@ import FooterSection from '@/components/landing/FooterSection';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useInteractionTracking } from '@/hooks/useJourneyTracking';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { trackButtonClick } = useInteractionTracking('/');
+  
+  const handleBlogClick = () => {
+    trackButtonClick('blog_cta_button', { section: 'blog_promotion' });
+    navigate('/blog-overview');
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -91,7 +98,7 @@ const Landing = () => {
               </div>
             </div>
             <Button 
-              onClick={() => navigate('/blog-overview')}
+              onClick={handleBlogClick}
               className="bg-green-600 hover:bg-green-700 px-6 py-3"
             >
               Zum Blog <ArrowRight className="ml-2 h-4 w-4" />

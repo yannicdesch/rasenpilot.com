@@ -25,3 +25,15 @@ export {
 
 // Export test functions
 export { testSupabaseConnection, runAllConnectionTests } from './connectionTests';
+
+// Export new user journey tracking
+export {
+  trackPageEntry,
+  trackPageExit,
+  trackUserInteraction,
+  trackConversion,
+  trackDropOffRisk,
+  trackFormAbandonment,
+  setupDropOffDetection,
+  getSessionId
+} from './userJourneyTracking';

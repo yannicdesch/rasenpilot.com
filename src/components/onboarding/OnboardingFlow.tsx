@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
@@ -7,6 +8,8 @@ import OnboardingArea from './OnboardingArea';
 import OnboardingType from './OnboardingType';
 import OnboardingRegister from './OnboardingRegister';
 import { Progress } from '@/components/ui/progress';
+import { useInteractionTracking } from '@/hooks/useJourneyTracking';
+import { trackConversion, trackFormAbandonment } from '@/lib/analytics/userJourneyTracking';
 
 export interface OnboardingData {
   rasenziel: string;
@@ -24,6 +27,7 @@ export interface OnboardingData {
 const OnboardingFlow: React.FC = () => {
   const navigate = useNavigate();
   const { setTemporaryProfile, isAuthenticated } = useLawn();
+  const { trackButtonClick } = useInteractionTracking('/onboarding');
   
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
@@ -55,18 +59,21 @@ const OnboardingFlow: React.FC = () => {
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
+      trackButtonClick('onboarding_next', { step: currentStep, nextStep: currentStep + 1 });
       setCurrentStep(currentStep + 1);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
+      trackButtonClick('onboarding_back', { step: currentStep, prevStep: currentStep - 1 });
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleAnalysisComplete = () => {
     console.log('Analysis completed, moving to registration');
+    trackConversion('analysis_completed', '/onboarding', undefined, { step: currentStep });
     updateOnboardingData({ analysisCompleted: true });
     // Move to registration step (step 2)
     setCurrentStep(2);
@@ -74,6 +81,8 @@ const OnboardingFlow: React.FC = () => {
 
   const handleComplete = () => {
     // This is called when skipping registration
+    trackConversion('onboarding_completed_without_registration', '/onboarding');
+    
     // Create temporary profile from onboarding data
     const tempProfile = {
       zipCode: onboardingData.standort,
@@ -93,6 +102,20 @@ const OnboardingFlow: React.FC = () => {
     
     navigate('/dashboard');
   };
+
+  // Track form abandonment when component unmounts
+  useEffect(() => {
+    return () => {
+      if (currentStep < totalSteps) {
+        const completedFields = Object.values(onboardingData).filter(value => 
+          value !== '' && value !== false && value !== 0
+        ).length;
+        const totalFields = Object.keys(onboardingData).length;
+        
+        trackFormAbandonment('onboarding_flow', '/onboarding', completedFields, totalFields);
+      }
+    };
+  }, [currentStep, onboardingData, totalSteps]);
 
   const renderStep = () => {
     switch (currentStep) {
