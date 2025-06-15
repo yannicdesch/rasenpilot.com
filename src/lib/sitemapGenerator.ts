@@ -1,4 +1,6 @@
 
+import { blogPosts } from '../data/blogPosts';
+
 interface SitemapUrl {
   loc: string;
   lastmod?: string;
@@ -18,8 +20,8 @@ export const generateSitemap = (urls: SitemapUrl[]): string => {
     const images = url.images?.map(img => `
     <image:image>
       <image:loc>${img.loc}</image:loc>
-      ${img.caption ? `<image:caption>${img.caption}</image:caption>` : ''}
-      ${img.title ? `<image:title>${img.title}</image:title>` : ''}
+      ${img.caption ? `<image:caption><![CDATA[${img.caption}]]></image:caption>` : ''}
+      ${img.title ? `<image:title><![CDATA[${img.title}]]></image:title>` : ''}
     </image:image>`).join('') || '';
     
     return `
@@ -35,14 +37,14 @@ export const generateSitemap = (urls: SitemapUrl[]): string => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">${urlsXml}
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">${urlsXml}
 </urlset>`;
 };
 
-export const getDefaultSitemapUrls = (): SitemapUrl[] => {
+export const generateSitemapUrls = (): SitemapUrl[] => {
   const today = new Date().toISOString().split('T')[0];
   
-  return [
+  const staticUrls: SitemapUrl[] = [
     // High priority pages
     {
       loc: '/',
@@ -141,4 +143,23 @@ export const getDefaultSitemapUrls = (): SitemapUrl[] => {
       priority: 0.3
     }
   ];
+
+  const blogPostUrls: SitemapUrl[] = blogPosts.map(post => {
+    const postDate = new Date(post.date);
+    const lastmod = !isNaN(postDate.getTime()) ? postDate.toISOString().split('T')[0] : today;
+
+    return {
+      loc: `/blog/${post.slug}`,
+      lastmod,
+      changefreq: 'monthly',
+      priority: 0.85,
+      images: post.image ? [{
+        loc: `https://rasenpilot.de${post.image}`,
+        caption: post.title,
+        title: post.title
+      }] : undefined
+    };
+  });
+
+  return [...staticUrls, ...blogPostUrls];
 };

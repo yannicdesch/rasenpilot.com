@@ -3,253 +3,168 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-
-  <!-- Main landing page - highest priority -->
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">
   <url>
     <loc>https://rasenpilot.de/</loc>
-    <lastmod>2025-06-10</lastmod>
+    <lastmod>2025-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/logo.png</image:loc>
-      <image:caption>Rasenpilot - Intelligenter KI-Rasenberater</image:caption>
-      <image:title>Rasenpilot Logo</image:title>
+      <image:caption><![CDATA[Rasenpilot - Intelligenter KI-Rasenberater]]></image:caption>
+      <image:title><![CDATA[Rasenpilot - Intelligenter KI-Rasenberater]]></image:title>
     </image:image>
   </url>
-  
-  <!-- Free tools and plans (high SEO value for organic traffic) -->
   <url>
     <loc>https://rasenpilot.de/onboarding</loc>
-    <lastmod>2025-06-10</lastmod>
+    <lastmod>2025-06-15</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
+    <priority>0.9</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/free-analysis-preview.jpg</image:loc>
-      <image:caption>Kostenlose KI-Rasenanalyse in 30 Sekunden</image:caption>
-      <image:title>KI-Rasenanalyse</image:title>
+      <image:caption><![CDATA[Kostenlose KI-Rasenanalyse]]></image:caption>
+      <image:title><![CDATA[Kostenlose KI-Rasenanalyse]]></image:title>
     </image:image>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/free-plan</loc>
-    <lastmod>2025-06-10</lastmod>
+    <lastmod>2025-06-15</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
+    <priority>0.9</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/free-plan-preview.jpg</image:loc>
-      <image:caption>Kostenloser personalisierter Rasenpflegeplan</image:caption>
-      <image:title>Kostenloser Rasenpflegeplan</image:title>
+      <image:caption><![CDATA[Kostenloser Rasenpflegeplan erstellen]]></image:caption>
+      <image:title><![CDATA[Kostenloser Rasenpflegeplan erstellen]]></image:title>
     </image:image>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/free-care-plan</loc>
-    <lastmod>2025-06-10</lastmod>
+    <lastmod>2025-06-15</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/free-care-plan-preview.jpg</image:loc>
-      <image:caption>14-Tage Rasenpflegeplan mit KI-Empfehlungen</image:caption>
-      <image:title>14-Tage Rasenpflegeplan</image:title>
+      <image:caption><![CDATA[14-Tage Rasenpflegeplan]]></image:caption>
+      <image:title><![CDATA[14-Tage Rasenpflegeplan]]></image:title>
     </image:image>
   </url>
-  
-  <!-- Blog overview and main blog section -->
   <url>
     <loc>https://rasenpilot.de/blog-overview</loc>
-    <lastmod>2025-06-10</lastmod>
+    <lastmod>2025-06-15</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-    <image:image>
-      <image:loc>https://rasenpilot.de/logo.png</image:loc>
-      <image:caption>Rasenpflege Expertentipps und Anleitungen</image:caption>
-      <image:title>Rasenpflege Blog</image:title>
-    </image:image>
+    <priority>0.8</priority>
   </url>
-  
-  <!-- Individual blog posts with news tags for fresh content -->
+  <url>
+    <loc>https://rasenpilot.de/features</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.de/free-chat</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.de/free-weather</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.de/datenschutz</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.de/nutzungsbedingungen</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.de/impressum</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
   <url>
     <loc>https://rasenpilot.de/blog/rasensamen-richtig-ausbringen-vorbereitung</loc>
     <lastmod>2025-06-10</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/placeholder.svg</image:loc>
-      <image:caption>Rasensamen richtig ausbringen - Schritt für Schritt Anleitung</image:caption>
-      <image:title>Rasensamen ausbringen</image:title>
+      <image:caption><![CDATA[Rasensamen richtig ausbringen: Vorbereitung ist alles]]></image:caption>
+      <image:title><![CDATA[Rasensamen richtig ausbringen: Vorbereitung ist alles]]></image:title>
     </image:image>
-    <news:news>
-      <news:publication>
-        <news:name>Rasenpilot</news:name>
-        <news:language>de</news:language>
-      </news:publication>
-      <news:publication_date>2025-06-10</news:publication_date>
-      <news:title>Rasensamen richtig ausbringen: Vorbereitung ist alles</news:title>
-      <news:keywords>Rasensamen, Rasenpflege, Garten, Rasen säen</news:keywords>
-    </news:news>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/blog/rasen-saeen-im-maerz-sinnvoll-oder-zu-frueh</loc>
-    <lastmod>2025-06-08</lastmod>
+    <lastmod>2025-03-15</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/placeholder.svg</image:loc>
-      <image:caption>Rasen säen im März - optimaler Zeitpunkt und Tipps</image:caption>
-      <image:title>Rasen säen im März</image:title>
+      <image:caption><![CDATA[Rasen säen im März: Sinnvoll oder zu früh?]]></image:caption>
+      <image:title><![CDATA[Rasen säen im März: Sinnvoll oder zu früh?]]></image:title>
     </image:image>
-    <news:news>
-      <news:publication>
-        <news:name>Rasenpilot</news:name>
-        <news:language>de</news:language>
-      </news:publication>
-      <news:publication_date>2025-06-08</news:publication_date>
-      <news:title>Rasen säen im März: Sinnvoll oder zu früh?</news:title>
-      <news:keywords>Rasen säen, März, Frühling, Rasenpflege</news:keywords>
-    </news:news>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/blog/hochbeet-auf-rasen-stellen-anleitung</loc>
-    <lastmod>2025-06-05</lastmod>
+    <lastmod>2025-04-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/placeholder.svg</image:loc>
-      <image:caption>Hochbeet auf Rasen stellen - Komplette Anleitung</image:caption>
-      <image:title>Hochbeet auf Rasen</image:title>
+      <image:caption><![CDATA[Hochbeet auf Rasen stellen - die ultimative Anleitung]]></image:caption>
+      <image:title><![CDATA[Hochbeet auf Rasen stellen - die ultimative Anleitung]]></image:title>
     </image:image>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/blog/unebenen-rasen-begradigen-anleitung</loc>
-    <lastmod>2025-06-03</lastmod>
+    <lastmod>2025-05-01</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/placeholder.svg</image:loc>
-      <image:caption>Unebenen Rasen begradigen - Profi Anleitung</image:caption>
-      <image:title>Rasen begradigen</image:title>
+      <image:caption><![CDATA[Unebenen Rasen begradigen - so wird's gemacht]]></image:caption>
+      <image:title><![CDATA[Unebenen Rasen begradigen - so wird's gemacht]]></image:title>
     </image:image>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/blog/robusteste-rasensorten-vergleich</loc>
-    <lastmod>2025-06-01</lastmod>
+    <lastmod>2025-04-10</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/placeholder.svg</image:loc>
-      <image:caption>Die robustesten Rasensorten im Vergleich</image:caption>
-      <image:title>Robuste Rasensorten</image:title>
+      <image:caption><![CDATA[Die robustesten Rasensorten für einen strapazierfähigen Rasen]]></image:caption>
+      <image:title><![CDATA[Die robustesten Rasensorten für einen strapazierfähigen Rasen]]></image:title>
     </image:image>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/blog/erde-auf-rasen-streuen-topdressing</loc>
-    <lastmod>2025-05-30</lastmod>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/placeholder.svg</image:loc>
-      <image:caption>Erde auf Rasen streuen - Topdressing Anleitung</image:caption>
-      <image:title>Rasen Topdressing</image:title>
+      <image:caption><![CDATA[Erde auf Rasen streuen: Anleitung zum Topdressing]]></image:caption>
+      <image:title><![CDATA[Erde auf Rasen streuen: Anleitung zum Topdressing]]></image:title>
     </image:image>
   </url>
-  
   <url>
     <loc>https://rasenpilot.de/blog/rasen-nach-aussaat-betreten-zeitplan</loc>
-    <lastmod>2025-05-28</lastmod>
+    <lastmod>2025-05-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://rasenpilot.de/placeholder.svg</image:loc>
-      <image:caption>Rasen nach der Aussaat betreten - Zeitplan und Tipps</image:caption>
-      <image:title>Neuen Rasen betreten</image:title>
+      <image:caption><![CDATA[Rasen nach der Aussaat betreten: Wann ist der richtige Zeitpunkt?]]></image:caption>
+      <image:title><![CDATA[Rasen nach der Aussaat betreten: Wann ist der richtige Zeitpunkt?]]></image:title>
     </image:image>
-  </url>
-  
-  <!-- Additional free tools -->
-  <url>
-    <loc>https://rasenpilot.de/free-chat</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  
-  <url>
-    <loc>https://rasenpilot.de/free-analysis</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  
-  <url>
-    <loc>https://rasenpilot.de/free-weather</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Core pages -->
-  <url>
-    <loc>https://rasenpilot.de/features</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Seasonal guides optimized for search -->
-  <url>
-    <loc>https://rasenpilot.de/rasenpflege-fruehjahr</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://rasenpilot.de/rasenpflege-sommer</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://rasenpilot.de/rasenpflege-herbst</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://rasenpilot.de/rasenpflege-winter</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Legal pages -->
-  <url>
-    <loc>https://rasenpilot.de/datenschutz</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  
-  <url>
-    <loc>https://rasenpilot.de/nutzungsbedingungen</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  
-  <url>
-    <loc>https://rasenpilot.de/impressum</loc>
-    <lastmod>2025-06-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
   </url>
 </urlset>

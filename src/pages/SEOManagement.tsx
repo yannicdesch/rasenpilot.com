@@ -3,10 +3,12 @@ import React, { useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import SEOContentEditor from '@/components/SEOContentEditor';
-import { Book, ArrowRight, FileText, Globe } from 'lucide-react';
+import SitemapViewer from '@/components/SitemapViewer';
+import { Book, ArrowRight, FileText, Globe, Sitemap as SitemapIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
 import SEO from '@/components/SEO';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SEOManagement = () => {
   const navigate = useNavigate();
@@ -36,10 +38,10 @@ const SEOManagement = () => {
             <div>
               <h1 className="text-3xl font-bold text-green-800 flex items-center gap-2">
                 <Book className="h-8 w-8" />
-                SEO-Inhalte verwalten
+                SEO Management
               </h1>
               <p className="text-gray-600 mt-2">
-                Optimieren Sie Ihre Website-Inhalte für bessere Sichtbarkeit in Suchmaschinen
+                Optimieren Sie Ihre Website-Inhalte und -Struktur für Suchmaschinen.
               </p>
             </div>
             <div className="flex gap-2">
@@ -61,10 +63,29 @@ const SEOManagement = () => {
             </div>
           </header>
 
-          <section aria-labelledby="content-editor">
-            <h2 id="content-editor" className="sr-only">SEO Content Editor</h2>
-            <SEOContentEditor />
-          </section>
+          <Tabs defaultValue="content" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="content" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Inhalte
+              </TabsTrigger>
+              <TabsTrigger value="sitemap" className="flex items-center gap-2">
+                <SitemapIcon className="h-4 w-4" />
+                Sitemap
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="content" className="mt-6">
+              <section aria-labelledby="content-editor">
+                <h2 id="content-editor" className="sr-only">SEO Content Editor</h2>
+                <SEOContentEditor />
+              </section>
+            </TabsContent>
+
+            <TabsContent value="sitemap" className="mt-6">
+                <SitemapViewer />
+            </TabsContent>
+          </Tabs>
 
           <section aria-labelledby="seo-tips" className="mt-8 bg-green-50 p-6 rounded-lg border border-green-100">
             <h2 id="seo-tips" className="text-xl font-semibold text-green-800 mb-3 flex items-center gap-2">
@@ -88,4 +109,3 @@ const SEOManagement = () => {
 };
 
 export default SEOManagement;
-
