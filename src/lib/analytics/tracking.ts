@@ -2,10 +2,22 @@
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
+// Add GA type declaration for window to use gtag
+interface WindowWithGA extends Window {
+  gtag: (...args: any[]) => void;
+}
+declare const window: WindowWithGA;
+
 // Track page views
 export const trackPageView = async (path: string) => {
   try {
-    console.log('Google Analytics page view tracked:', path);
+    // GA Tracking
+    if (typeof window.gtag === 'function') {
+      window.gtag('config', 'G-7F24N28JNH', { page_path: path });
+      console.log('Google Analytics page view tracked:', path);
+    } else {
+      console.log('Page view tracked (GA not available):', path);
+    }
     
     // Also attempt to track in Supabase if connected
     try {
@@ -29,7 +41,19 @@ export const trackPageView = async (path: string) => {
 // Track custom events
 export const trackEvent = async (category: string, action: string, label?: string, value?: number) => {
   try {
-    console.log(`Event tracked: ${category} - ${action}${label ? ' - ' + label : ''}${value !== undefined ? ' - ' + value : ''}`);
+    const message = `Event tracked: ${category} - ${action}${label ? ' - ' + label : ''}${value !== undefined ? ' - ' + value : ''}`;
+    
+    // GA Tracking
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', action, {
+        'event_category': category,
+        'event_label': label,
+        'value': value,
+      });
+      console.log(`GA & DB ${message}`);
+    } else {
+      console.log(message);
+    }
     
     // Also attempt to track in Supabase if connected
     try {
