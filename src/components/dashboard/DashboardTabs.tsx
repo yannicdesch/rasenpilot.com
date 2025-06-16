@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Calendar, MessageSquare, RefreshCw, Plus, CheckSquare } from 'lucide-react';
+import { Calendar, MessageSquare, RefreshCw, CheckSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TaskTimeline from '@/components/TaskTimeline';
 
@@ -89,7 +89,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ profile, loading, onGener
         </Card>
       </div>
       
-      {/* Task Timeline */}
+      {/* Task Timeline - This is the main care plan display, no duplication needed */}
       <TaskTimeline />
     </div>
   );
