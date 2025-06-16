@@ -30,6 +30,8 @@ export const useOptimizedProfile = () => {
         return;
       }
 
+      console.log('Loading profile for user:', user.email);
+
       // Get profile data from database
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -41,14 +43,18 @@ export const useOptimizedProfile = () => {
         console.error('Profile fetch error:', profileError);
       }
 
-      setProfile({
+      // Use profile data if available, otherwise fall back to auth metadata
+      const finalProfile: ProfileData = {
         id: user.id,
         email: profileData?.email || user.email || '',
         name: profileData?.full_name || user.user_metadata?.name || user.user_metadata?.full_name,
         avatar_url: user.user_metadata?.avatar_url,
         role: profileData?.role || 'user',
         is_active: profileData?.is_active ?? true,
-      });
+      };
+
+      console.log('Profile loaded successfully:', finalProfile);
+      setProfile(finalProfile);
       
     } catch (err) {
       console.error('Profile loading error:', err);
@@ -63,14 +69,17 @@ export const useOptimizedProfile = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email || 'no user');
+        
         if (event === 'SIGNED_OUT') {
           setProfile(null);
           setError('Not authenticated');
           setLoading(false);
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          // Small delay to ensure any triggers have completed
           setTimeout(() => {
             loadProfile();
-          }, 0);
+          }, 500);
         }
       }
     );
@@ -79,41 +88,65 @@ export const useOptimizedProfile = () => {
   }, [loadProfile]);
 
   const updateProfile = async (updates: { name?: string }) => {
-    if (!profile) return false;
+    if (!profile) {
+      toast.error('No profile loaded');
+      return false;
+    }
 
     try {
       setLoading(true);
+      console.log('Updating profile with:', updates);
       
-      // Update both auth metadata AND profiles table
+      // Update auth metadata first
       const { error: authError } = await supabase.auth.updateUser({
-        data: { name: updates.name, full_name: updates.name }
+        data: { 
+          name: updates.name, 
+          full_name: updates.name 
+        }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth update error:', authError);
+        throw authError;
+      }
+
+      console.log('Auth metadata updated successfully');
 
       // Update profiles table
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ 
+        .upsert({ 
+          id: profile.id,
+          email: profile.email,
           full_name: updates.name,
+          role: profile.role || 'user',
+          is_active: profile.is_active ?? true,
           updated_at: new Date().toISOString()
-        })
-        .eq('id', profile.id);
+        }, {
+          onConflict: 'id'
+        });
 
       if (profileError) {
         console.error('Profile table update error:', profileError);
-        // Don't throw here, as auth update succeeded
-        toast.error('Profile updated in auth but failed to sync to database');
+        toast.error(`Profile updated in auth but database sync failed: ${profileError.message}`);
+      } else {
+        console.log('Profile table updated successfully');
       }
 
-      // Update local state
+      // Update local state immediately
       setProfile(prev => prev ? { ...prev, name: updates.name } : null);
       
-      toast.success('Profile updated successfully');
+      toast.success('Profil wurde erfolgreich aktualisiert');
+      
+      // Reload profile to ensure sync
+      setTimeout(() => {
+        loadProfile();
+      }, 1000);
+      
       return true;
     } catch (error: any) {
       console.error('Profile update error:', error);
-      toast.error(`Failed to update profile: ${error.message}`);
+      toast.error(`Fehler beim Aktualisieren des Profils: ${error.message}`);
       return false;
     } finally {
       setLoading(false);
@@ -124,17 +157,24 @@ export const useOptimizedProfile = () => {
     if (!profile) return;
 
     try {
+      console.log('Updating avatar:', avatarUrl);
+      
       // Update auth metadata
       const { error: authError } = await supabase.auth.updateUser({
         data: { avatar_url: avatarUrl }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Avatar update error:', authError);
+        throw authError;
+      }
 
       // Update local state
       setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : null);
+      console.log('Avatar updated successfully');
     } catch (error) {
       console.error('Avatar update error:', error);
+      toast.error('Fehler beim Aktualisieren des Avatars');
     }
   };
 

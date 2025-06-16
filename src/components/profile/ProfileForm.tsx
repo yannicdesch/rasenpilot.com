@@ -35,6 +35,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSubmit, loading }) =>
 
   // Update form when user data changes
   React.useEffect(() => {
+    console.log('ProfileForm: User data changed, updating form:', user);
     form.reset({
       name: user.name || '',
       email: user.email || '',
@@ -42,8 +43,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSubmit, loading }) =>
   }, [user, form]);
 
   const handleSubmit = async (values: ProfileFormValues) => {
+    console.log('ProfileForm: Submitting values:', values);
     const success = await onSubmit(values);
     if (success) {
+      console.log('ProfileForm: Update successful, resetting form');
       form.reset(values);
     }
   };
@@ -60,7 +63,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSubmit, loading }) =>
               <FormControl>
                 <div className="relative">
                   <UserRound className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                  <Input placeholder="Dein Name" className="pl-10 bg-white border-gray-300 text-gray-800" {...field} />
+                  <Input 
+                    placeholder="Dein Name" 
+                    className="pl-10 bg-white border-gray-300 text-gray-800" 
+                    {...field} 
+                  />
                 </div>
               </FormControl>
               <FormMessage />
@@ -88,7 +95,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSubmit, loading }) =>
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={loading}>
+        <Button 
+          type="submit" 
+          className="w-full bg-green-600 hover:bg-green-700" 
+          disabled={loading}
+        >
           {loading ? 'Wird gespeichert...' : 'Speichern'}
         </Button>
       </form>
