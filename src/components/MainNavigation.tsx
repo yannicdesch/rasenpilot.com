@@ -1,198 +1,100 @@
-
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Leaf, Menu, X, User, MessageSquare, Calendar, Home, Crown, FileText, BookOpen } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Leaf, Menu, X } from 'lucide-react';
 import { useLawn } from '@/context/LawnContext';
-import { useSubscription } from '@/hooks/useSubscription';
+import { clearAuthCache, fetchUserData } from '@/utils/optimizedLawnProfileUtils';
 
 const MainNavigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { isAuthenticated: contextAuth } = useLawn();
-  const { isPremium } = useSubscription();
+  const navigate = useNavigate();
+  const { isAuthenticated, setIsAuthenticated, setUserData, setProfile, setTemporaryProfile } = useLawn();
+  const [isOnboardingPage, setIsOnboardingPage] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      
-      // Check admin status
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        
-        setIsAdmin(profile?.role === 'admin');
-      }
-    };
-    
-    checkAuth();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setIsAuthenticated(!!session);
-        
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-          
-          setIsAdmin(profile?.role === 'admin');
-        } else {
-          setIsAdmin(false);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, [contextAuth]);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
+    setIsOnboardingPage(location.pathname.startsWith('/auth') || location.pathname.startsWith('/onboarding'));
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
-    closeMenu();
+    console.log('Signing out...');
+    
+    // Clear local storage
+    localStorage.removeItem('supabase.auth.token');
+    localStorage.removeItem('supabase.auth.token_expiry');
+    localStorage.removeItem('supabase.auth.refresh_token');
+    localStorage.removeItem('supabase.auth.user');
+    localStorage.removeItem('freeAnalysisUsed');
+    
+    // Clear LawnContext state
+    setIsAuthenticated(false);
+    setUserData(null);
+    setProfile(null);
+    setTemporaryProfile(null);
+    clearAuthCache();
+    
+    // Redirect to home page
+    navigate('/');
   };
 
-  const isActive = (path: string) => location.pathname === path;
-
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className={`bg-white border-b border-gray-200 ${isOnboardingPage ? 'shadow-sm' : 'shadow-md'}`}>
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2" onClick={closeMenu}>
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center space-x-2">
             <Leaf className="h-8 w-8 text-green-600" />
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-green-800">Rasenpilot</span>
-              {isPremium && <Badge className="bg-yellow-500 text-white"><Crown className="h-3 w-3 mr-1" />Premium</Badge>}
-            </div>
+            <span className="text-xl font-bold text-green-700">Rasenpilot</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            {/* Public Blog Link */}
-            <Link 
-              to="/blog-overview" 
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                isActive('/blog-overview') 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-              }`}
-            >
-              <BookOpen size={18} />
-              <span>Blog</span>
-            </Link>
+          <div className="hidden md:flex items-center space-x-8">
+            {!isOnboardingPage && (
+              <>
+                <NavLink to="/features" className="text-gray-600 hover:text-green-600 transition-colors">
+                  Features
+                </NavLink>
+                <NavLink to="/free-lawn-analysis" className="text-gray-600 hover:text-green-600 transition-colors">
+                  Kostenlose Analyse
+                </NavLink>
+                <NavLink to="/pricing" className="text-gray-600 hover:text-green-600 transition-colors">
+                  Preise
+                </NavLink>
+                <NavLink to="/blog" className="text-gray-600 hover:text-green-600 transition-colors">
+                  Blog
+                </NavLink>
+              </>
+            )}
             
             {isAuthenticated ? (
-              <>
-                <Link 
-                  to="/dashboard" 
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                    isActive('/dashboard') 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                  }`}
-                >
-                  <Home size={18} />
-                  <span>Dashboard</span>
-                </Link>
-                
-                <Link 
-                  to="/care-plan" 
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                    isActive('/care-plan') 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                  }`}
-                >
-                  <Calendar size={18} />
-                  <span>Pflegeplan</span>
-                </Link>
-                
-                <Link 
-                  to="/chat" 
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                    isActive('/chat') 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                  }`}
-                >
-                  <MessageSquare size={18} />
-                  <span>KI-Assistent</span>
-                </Link>
-                
-                {/* Admin Blog Management Link */}
-                {isAdmin && (
-                  <Link 
-                    to="/blog" 
-                    className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                      isActive('/blog') 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                    }`}
-                  >
-                    <FileText size={18} />
-                    <span>Blog-Admin</span>
-                  </Link>
-                )}
-                
-                <Link 
-                  to="/subscription" 
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                    isActive('/subscription') 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                  }`}
-                >
-                  <Crown size={18} />
-                  <span>Mitgliedschaft</span>
-                </Link>
-                
-                <Link 
-                  to="/profile" 
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                    isActive('/profile') 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                  }`}
-                >
-                  <User size={18} />
-                  <span>Profil</span>
-                </Link>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm"
+              <div className="flex items-center space-x-4">
+                <NavLink to="/dashboard" className="text-gray-600 hover:text-green-600 transition-colors">
+                  Dashboard
+                </NavLink>
+                <NavLink to="/lawn-analysis" className="text-gray-600 hover:text-green-600 transition-colors">
+                  KI-Analyse
+                </NavLink>
+                <Button
                   onClick={handleSignOut}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  variant="outline"
+                  size="sm"
+                  className="border-green-200 text-green-700 hover:bg-green-50"
                 >
                   Abmelden
                 </Button>
-              </>
+              </div>
             ) : (
-              <Link to="/auth">
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  Anmelden
-                </Button>
-              </Link>
+              <div className="flex items-center space-x-4">
+                <Link to="/auth">
+                  <Button variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50">
+                    Anmelden
+                  </Button>
+                </Link>
+                <Link to="/auth?tab=register">
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                    Registrieren
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
 
@@ -201,130 +103,64 @@ const MainNavigation = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={toggleMenu}
-              className="text-gray-700"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-            <div className="flex flex-col space-y-2">
-              {/* Public Blog Link */}
-              <Link 
-                to="/blog-overview" 
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                  isActive('/blog-overview') 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                }`}
-                onClick={closeMenu}
-              >
-                <BookOpen size={18} />
-                <span>Blog</span>
-              </Link>
+        {isMobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-gray-200">
+            <div className="flex flex-col space-y-3">
+              {!isOnboardingPage && (
+                <>
+                  <NavLink to="/features" className="text-gray-600 hover:text-green-600 transition-colors py-2">
+                    Features
+                  </NavLink>
+                  <NavLink to="/free-lawn-analysis" className="text-gray-600 hover:text-green-600 transition-colors py-2">
+                    Kostenlose Analyse
+                  </NavLink>
+                  <NavLink to="/pricing" className="text-gray-600 hover:text-green-600 transition-colors py-2">
+                    Preise
+                  </NavLink>
+                  <NavLink to="/blog" className="text-gray-600 hover:text-green-600 transition-colors py-2">
+                    Blog
+                  </NavLink>
+                </>
+              )}
               
               {isAuthenticated ? (
                 <>
-                  <Link 
-                    to="/dashboard" 
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive('/dashboard') 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    <Home size={18} />
-                    <span>Dashboard</span>
-                  </Link>
-                  
-                  <Link 
-                    to="/care-plan" 
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive('/care-plan') 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    <Calendar size={18} />
-                    <span>Pflegeplan</span>
-                  </Link>
-                  
-                  <Link 
-                    to="/chat" 
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive('/chat') 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    <MessageSquare size={18} />
-                    <span>KI-Assistent</span>
-                  </Link>
-                  
-                  {/* Admin Blog Management Link */}
-                  {isAdmin && (
-                    <Link 
-                      to="/blog" 
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                        isActive('/blog') 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                      }`}
-                      onClick={closeMenu}
-                    >
-                      <FileText size={18} />
-                      <span>Blog-Admin</span>
-                    </Link>
-                  )}
-                  
-                  <Link 
-                    to="/subscription" 
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive('/subscription') 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    <Crown size={18} />
-                    <span>Mitgliedschaft</span>
-                  </Link>
-                  
-                  <Link 
-                    to="/profile" 
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive('/profile') 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    <User size={18} />
-                    <span>Profil</span>
-                  </Link>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm"
+                  <NavLink to="/dashboard" className="text-gray-600 hover:text-green-600 transition-colors py-2">
+                    Dashboard
+                  </NavLink>
+                  <NavLink to="/lawn-analysis" className="text-gray-600 hover:text-green-600 transition-colors py-2">
+                    KI-Analyse
+                  </NavLink>
+                  <Button
                     onClick={handleSignOut}
-                    className="justify-start border-gray-300 text-gray-700 hover:bg-gray-50 w-full"
+                    variant="outline"
+                    size="sm"
+                    className="self-start border-green-200 text-green-700 hover:bg-green-50"
                   >
                     Abmelden
                   </Button>
                 </>
               ) : (
-                <Link to="/auth" onClick={closeMenu}>
-                  <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                    Anmelden
-                  </Button>
-                </Link>
+                <div className="flex flex-col space-y-2">
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm" className="w-full border-green-200 text-green-700 hover:bg-green-50">
+                      Anmelden
+                    </Button>
+                  </Link>
+                  <Link to="/auth?tab=register">
+                    <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 text-white">
+                      Registrieren
+                    </Button>
+                  </Link>
+                </div>
               )}
             </div>
           </div>

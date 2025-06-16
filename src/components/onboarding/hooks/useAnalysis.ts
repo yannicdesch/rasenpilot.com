@@ -211,6 +211,10 @@ export const useAnalysis = () => {
         console.log('Comprehensive formatted analysis:', formattedAnalysis);
         setAnalysisResults(formattedAnalysis);
         setShowAnalysis(true);
+        
+        // Store results in localStorage for the standalone analysis feature
+        localStorage.setItem('lastAnalysisResults', formattedAnalysis);
+        
         updateData({ analysisCompleted: true });
         toast.success('Umfassende KI-Bildanalyse erfolgreich abgeschlossen!');
       } else {
@@ -221,6 +225,10 @@ export const useAnalysis = () => {
         console.log('Using comprehensive mock analysis as fallback');
         setAnalysisResults(comprehensiveAnalysis);
         setShowAnalysis(true);
+        
+        // Store results in localStorage
+        localStorage.setItem('lastAnalysisResults', comprehensiveAnalysis);
+        
         updateData({ analysisCompleted: true });
         toast.info('Erweiterte Demo-Analyse wird angezeigt (KI-Service vorübergehend nicht verfügbar)');
       }
@@ -232,6 +240,10 @@ export const useAnalysis = () => {
       console.log('Using comprehensive mock analysis as fallback due to error');
       setAnalysisResults(comprehensiveAnalysis);
       setShowAnalysis(true);
+      
+      // Store results in localStorage
+      localStorage.setItem('lastAnalysisResults', comprehensiveAnalysis);
+      
       updateData({ analysisCompleted: true });
       toast.info('Erweiterte Demo-Analyse wird angezeigt (Fehler bei KI-Analyse)');
     } finally {
