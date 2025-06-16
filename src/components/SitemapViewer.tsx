@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
-import { Sitemap, Copy } from 'lucide-react';
+import { Map, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateSitemap, generateSitemapUrls } from '@/lib/sitemapGenerator';
 
@@ -25,7 +25,7 @@ const SitemapViewer = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sitemap className="h-5 w-5" />
+          <Map className="h-5 w-5" />
           Dynamische Sitemap
         </CardTitle>
         <CardDescription>

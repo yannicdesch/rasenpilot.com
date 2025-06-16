@@ -1,10 +1,9 @@
-
 import React, { useEffect } from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import SEOContentEditor from '@/components/SEOContentEditor';
 import SitemapViewer from '@/components/SitemapViewer';
-import { Book, ArrowRight, FileText, Globe, Sitemap as SitemapIcon } from 'lucide-react';
+import { Book, ArrowRight, FileText, Globe, Map } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLawn } from '@/context/LawnContext';
 import SEO from '@/components/SEO';
@@ -70,7 +69,7 @@ const SEOManagement = () => {
                 Inhalte
               </TabsTrigger>
               <TabsTrigger value="sitemap" className="flex items-center gap-2">
-                <SitemapIcon className="h-4 w-4" />
+                <Map className="h-4 w-4" />
                 Sitemap
               </TabsTrigger>
             </TabsList>
