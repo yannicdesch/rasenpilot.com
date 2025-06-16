@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ const MainNavigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, setIsAuthenticated, setUserData, setProfile, setTemporaryProfile } = useLawn();
+  const { isAuthenticated } = useLawn();
   const [isOnboardingPage, setIsOnboardingPage] = useState(false);
 
   useEffect(() => {
@@ -26,11 +27,7 @@ const MainNavigation = () => {
     localStorage.removeItem('supabase.auth.user');
     localStorage.removeItem('freeAnalysisUsed');
     
-    // Clear LawnContext state
-    setIsAuthenticated(false);
-    setUserData(null);
-    setProfile(null);
-    setTemporaryProfile(null);
+    // Clear auth cache
     clearAuthCache();
     
     // Redirect to home page
