@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -122,6 +121,12 @@ const BlogOverview = () => {
             <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
           </div>
           <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/highscore')}
+            >
+              Bestenliste
+            </Button>
             <Button 
               variant="ghost" 
               onClick={() => navigate('/lawn-analysis')}

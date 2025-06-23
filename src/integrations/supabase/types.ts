@@ -93,6 +93,45 @@ export type Database = {
         }
         Relationships: []
       }
+      lawn_highscores: {
+        Row: {
+          analysis_date: string
+          created_at: string
+          grass_type: string | null
+          id: string
+          lawn_image_url: string | null
+          lawn_score: number
+          lawn_size: string | null
+          location: string | null
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          analysis_date?: string
+          created_at?: string
+          grass_type?: string | null
+          id?: string
+          lawn_image_url?: string | null
+          lawn_score: number
+          lawn_size?: string | null
+          location?: string | null
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          analysis_date?: string
+          created_at?: string
+          grass_type?: string | null
+          id?: string
+          lawn_image_url?: string | null
+          lawn_score?: number
+          lawn_size?: string | null
+          location?: string | null
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
       lawn_profiles: {
         Row: {
           analysis_results: Json | null
@@ -372,6 +411,18 @@ export type Database = {
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      update_user_highscore: {
+        Args: {
+          p_user_id: string
+          p_user_name: string
+          p_lawn_score: number
+          p_lawn_image_url?: string
+          p_location?: string
+          p_grass_type?: string
+          p_lawn_size?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

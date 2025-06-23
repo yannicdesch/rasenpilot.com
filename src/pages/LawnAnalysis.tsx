@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -68,6 +67,12 @@ const LawnAnalysis = () => {
             <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
           </div>
           <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/highscore')}
+            >
+              Bestenliste
+            </Button>
             <Button 
               variant="ghost" 
               onClick={() => navigate('/blog-overview')}

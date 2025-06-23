@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -10,6 +9,7 @@ import SimplifiedAuth from "./pages/SimplifiedAuth";
 import CarePlan from "./pages/CarePlan";
 import Blog from "./pages/Blog";
 import BlogOverview from "./pages/BlogOverview";
+import Highscore from "./pages/Highscore";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +26,7 @@ const App = () => (
             <Route path="/care-plan" element={<CarePlan />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-overview" element={<BlogOverview />} />
+            <Route path="/highscore" element={<Highscore />} />
           </Routes>
         </BrowserRouter>
       </LawnProvider>
