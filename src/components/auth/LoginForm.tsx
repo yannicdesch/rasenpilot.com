@@ -71,12 +71,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPa
       }
 
       if (data.user) {
-        console.log('LoginForm: Sign in successful');
+        console.log('LoginForm: Sign in successful, user:', data.user.email);
         await trackSuccessfulLogin(data.user.email || email);
         
         toast.success('Erfolgreich angemeldet!');
         
-        // The auth state change listener in Auth.tsx will handle the redirect
+        // Call success callback if provided
+        if (onSuccess) {
+          onSuccess();
+        }
+        
+        // The auth state change listener will handle the redirect
       }
 
     } catch (error) {
