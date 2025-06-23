@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,35 +61,22 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
     try {
       let analysisResult: AIAnalysisResult;
 
-      if (isAuthenticated) {
-        // Use real AI analysis for authenticated users
-        console.log("Using AI analysis for authenticated user...");
-        const result = await analyzeImageWithAI(
-          selectedFile,
-          temporaryProfile?.grassType || profile?.grassType,
-          temporaryProfile?.lawnGoal || profile?.lawnGoal
-        );
+      // Use real AI analysis for both authenticated users AND free users (1 time)
+      console.log("Using real AI analysis...");
+      const result = await analyzeImageWithAI(
+        selectedFile,
+        temporaryProfile?.grassType || profile?.grassType,
+        temporaryProfile?.lawnGoal || profile?.lawnGoal
+      );
 
-        if (result.success && result.analysis) {
-          analysisResult = result.analysis;
-          toast("KI-Analyse erfolgreich abgeschlossen!");
-          console.log("AI analysis successful:", analysisResult);
-        } else {
-          console.warn("AI analysis failed, falling back to mock:", result.error);
-          analysisResult = getMockAnalysis();
-          toast("Analyse abgeschlossen (Fallback-Modus).");
-        }
+      if (result.success && result.analysis) {
+        analysisResult = result.analysis;
+        toast("KI-Analyse erfolgreich abgeschlossen!");
+        console.log("AI analysis successful:", analysisResult);
       } else {
-        // Use mock analysis for free users
-        console.log("Using mock analysis for free user...");
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
+        console.warn("AI analysis failed, falling back to mock:", result.error);
         analysisResult = getMockAnalysis();
-        toast("Kostenlose Demo-Analyse abgeschlossen!");
-        
-        // Mark free analysis as used for non-onboarding flows
-        if (!isOnboarding) {
-          localStorage.setItem('freeAnalysisUsed', 'true');
-        }
+        toast("Analyse abgeschlossen (Fallback-Modus).");
       }
 
       setAnalysisResults(analysisResult);
@@ -119,6 +105,11 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
           
           setTemporaryProfile(newTempProfile);
         }
+      }
+
+      // Mark free analysis as used for non-onboarding flows and non-authenticated users
+      if (!isOnboarding && !isAuthenticated) {
+        localStorage.setItem('freeAnalysisUsed', 'true');
       }
       
       if (onAnalysisComplete) {
@@ -157,7 +148,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               </div>
             </div>
             <CardDescription>
-              Lade ein Foto deines Rasens hoch und erhalte eine {isAuthenticated ? 'KI-basierte' : 'Demo'} Analyse und Pflegeempfehlungen
+              Lade ein Foto deines Rasens hoch und erhalte eine KI-basierte Analyse und Pflegeempfehlungen
             </CardDescription>
           </CardHeader>
         )}
@@ -167,12 +158,12 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
                 <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <AlertTitle className="text-blue-800 dark:text-blue-400">
-                  {isAuthenticated ? 'KI-Analyse verfügbar' : 'Demo-Analyse'}
+                  KI-Analyse verfügbar
                 </AlertTitle>
                 <AlertDescription className="text-blue-700 dark:text-blue-300">
                   {isAuthenticated 
                     ? 'Unsere KI erkennt Probleme wie Krankheiten, Nährstoffmangel und Schädlingsbefall mit fortschrittlicher Bildanalyse.'
-                    : 'Diese Demo zeigt beispielhafte Analyseergebnisse. Registriere dich für echte KI-basierte Analysen.'
+                    : 'Erhalte eine echte KI-basierte Analyse deines Rasens! Nach der kostenlosen Analyse kannst du dich registrieren für weitere Analysen.'
                   }
                 </AlertDescription>
               </Alert>
@@ -231,21 +222,21 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
               {isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isAuthenticated ? 'KI analysiert Rasen...' : 'Analysiere Rasen...'}
+                  KI analysiert Rasen...
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  {isAuthenticated ? 'KI-Analyse starten' : isOnboarding ? 'Kostenlose Analyse starten' : 'Demo-Analyse starten'}
+                  {isAuthenticated ? 'KI-Analyse starten' : isOnboarding ? 'Kostenlose Analyse starten' : 'Kostenlose KI-Analyse starten'}
                 </>
               )}
             </Button>
             
             {!isOnboarding && !isAuthenticated && (
               <p className="text-xs text-gray-500 text-center">
-                {!freeAnalysisUsed ? '1 kostenlose Demo-Analyse verfügbar' : 'Demo-Analyse bereits genutzt'} • 
+                {!freeAnalysisUsed ? '1 kostenlose KI-Analyse verfügbar' : 'Kostenlose Analyse bereits genutzt'} • 
                 <Button variant="link" className="text-xs p-0 h-auto" onClick={() => navigate('/auth')}>
-                  Für echte KI-Analysen registrieren
+                  Für weitere Analysen registrieren
                 </Button>
               </p>
             )}
@@ -258,10 +249,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
           <CardHeader>
             <CardTitle>Analyse-Ergebnisse</CardTitle>
             <CardDescription>
-              {isAuthenticated 
-                ? 'KI-basierte Analyse deines Rasens'
-                : 'Demo-Analyseergebnisse (Registriere dich für echte KI-Analysen)'
-              }
+              KI-basierte Analyse deines Rasens
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -342,7 +330,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               {isAuthenticated 
                 ? 'Für kontinuierliche Überwachung empfehlen wir regelmäßige Analysen.'
-                : 'Für echte KI-basierte Analysen und detailliertere Empfehlungen registriere dich jetzt.'
+                : 'Für weitere KI-basierte Analysen und detailliertere Empfehlungen registriere dich jetzt.'
               }
             </p>
             {!isAuthenticated && (
@@ -350,7 +338,7 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
                 onClick={() => navigate('/auth')} 
                 className="bg-green-600 hover:bg-green-700"
               >
-                Kostenlos registrieren für KI-Analysen
+                Kostenlos registrieren für weitere KI-Analysen
               </Button>
             )}
           </CardFooter>
