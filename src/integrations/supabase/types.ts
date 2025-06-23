@@ -365,6 +365,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
