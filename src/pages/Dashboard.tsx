@@ -17,10 +17,13 @@ const Dashboard = () => {
   
   const [loading, setLoading] = useState(false);
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Simple initialization - just check authentication once
+    // Simple one-time authentication check
     const initializeDashboard = async () => {
+      if (authChecked) return; // Prevent multiple checks
+      
       try {
         console.log('Dashboard: Checking authentication...');
         await checkAuthentication();
@@ -32,13 +35,23 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error('Dashboard: Initialization error:', error);
+      } finally {
+        setAuthChecked(true);
       }
     };
 
-    if (isAuthenticated) {
-      initializeDashboard();
-    }
-  }, [isAuthenticated, checkAuthentication, syncProfileWithSupabase, temporaryProfile, profile]);
+    initializeDashboard();
+  }, []); // Remove dependencies to prevent loops
+
+  // Wait for auth check to complete
+  if (!authChecked) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
+        <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2"></div>
+        <p className="text-green-800 text-sm">Dashboard wird geladen...</p>
+      </div>
+    );
+  }
 
   // Calculate profile completion
   const calculateProfileCompletion = () => {
