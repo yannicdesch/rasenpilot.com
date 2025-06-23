@@ -60,7 +60,7 @@ export const fetchUserData = async (): Promise<UserData | null> => {
   }
 };
 
-// Optimized profile fetching with better error handling
+// Fixed profile fetching with proper single row handling
 export const fetchProfileFromSupabase = async (): Promise<LawnProfile | null> => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -68,52 +68,57 @@ export const fetchProfileFromSupabase = async (): Promise<LawnProfile | null> =>
     
     console.log("Fetching profile from Supabase for user:", session.user.id);
     
+    // Use limit(1) and first() instead of single() to handle multiple rows gracefully
     const { data: profileData, error } = await supabase
       .from('lawn_profiles')
       .select('*')
       .eq('user_id', session.user.id)
-      .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no data
+      .order('created_at', { ascending: false })
+      .limit(1);
       
     if (error) {
       console.error("Error fetching profile:", error);
       return null;
     }
       
-    if (!profileData) {
+    if (!profileData || profileData.length === 0) {
       console.log("No profile found for user");
       return null;
     }
 
+    // Use the first (most recent) profile
+    const profile = profileData[0];
+
     // Convert from snake_case to camelCase
-    const profile: LawnProfile = {
-      id: profileData.id,
-      userId: profileData.user_id,
-      zipCode: profileData.zip_code || '',
-      grassType: profileData.grass_type || '',
-      lawnSize: profileData.lawn_size || '',
-      lawnGoal: profileData.lawn_goal || '',
-      name: profileData.name,
-      lastMowed: profileData.last_mowed,
-      lastFertilized: profileData.last_fertilized,
-      soilType: profileData.soil_type,
-      hasChildren: profileData.has_children || false,
-      hasPets: profileData.has_pets || false,
-      lawnPicture: profileData.lawn_picture,
-      analysisResults: profileData.analysis_results,
-      analyzesUsed: profileData.analyzes_used || 0,
-      rasenproblem: profileData.rasenproblem,
-      rasenbild: profileData.rasenbild
+    const lawnProfile: LawnProfile = {
+      id: profile.id,
+      userId: profile.user_id,
+      zipCode: profile.zip_code || '',
+      grassType: profile.grass_type || '',
+      lawnSize: profile.lawn_size || '',
+      lawnGoal: profile.lawn_goal || '',
+      name: profile.name,
+      lastMowed: profile.last_mowed,
+      lastFertilized: profile.last_fertilized,
+      soilType: profile.soil_type,
+      hasChildren: profile.has_children || false,
+      hasPets: profile.has_pets || false,
+      lawnPicture: profile.lawn_picture,
+      analysisResults: profile.analysis_results,
+      analyzesUsed: profile.analyzes_used || 0,
+      rasenproblem: profile.rasenproblem,
+      rasenbild: profile.rasenbild
     };
     
-    console.log("Profile loaded from Supabase:", profile);
-    return profile;
+    console.log("Profile loaded from Supabase:", lawnProfile);
+    return lawnProfile;
   } catch (error) {
     console.error("Error fetching profile from Supabase:", error);
     return null;
   }
 };
 
-// Optimized sync with batched operations
+// Optimized sync with better error handling
 export const syncProfileWithSupabase = async (
   profile: LawnProfile | null, 
   temporaryProfile: LawnProfile | null,
@@ -163,6 +168,30 @@ export const syncProfileWithSupabase = async (
     if (!profileToSync) {
       console.log("No profile to sync");
       return null;
+    }
+
+    // Check if profile already exists
+    const { data: existingProfiles } = await supabase
+      .from('lawn_profiles')
+      .select('id')
+      .eq('user_id', session.user.id);
+
+    // If multiple profiles exist, delete old ones
+    if (existingProfiles && existingProfiles.length > 1) {
+      console.log("Multiple profiles found, cleaning up duplicates");
+      const { data: sortedProfiles } = await supabase
+        .from('lawn_profiles')
+        .select('id, created_at')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (sortedProfiles && sortedProfiles.length > 1) {
+        const idsToDelete = sortedProfiles.slice(1).map(p => p.id);
+        await supabase
+          .from('lawn_profiles')
+          .delete()
+          .in('id', idsToDelete);
+      }
     }
 
     // Upsert operation for better performance

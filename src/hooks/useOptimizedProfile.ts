@@ -32,15 +32,16 @@ export const useOptimizedProfile = () => {
 
       console.log('Loading profile for user:', user.email);
 
-      // Get profile data from database
+      // Get profile data from database with proper error handling
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('role, is_active, full_name, email')
         .eq('id', user.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle to handle no data gracefully
 
-      if (profileError && profileError.code !== 'PGRST116') {
+      if (profileError) {
         console.error('Profile fetch error:', profileError);
+        // Don't fail completely if profile doesn't exist, use auth data
       }
 
       // Use profile data if available, otherwise fall back to auth metadata
@@ -112,7 +113,7 @@ export const useOptimizedProfile = () => {
 
       console.log('Auth metadata updated successfully');
 
-      // Update profiles table
+      // Update profiles table with proper upsert
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({ 
