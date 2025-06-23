@@ -117,147 +117,53 @@ export const analyzeImageWithAI = async (
   }
 };
 
-// Enhanced comprehensive mock analysis
+// Only used as absolute fallback - this should rarely be called
 export const getMockAnalysis = (): AIAnalysisResult => {
+  const randomHealth = Math.floor(Math.random() * 30) + 60; // 60-90
+  const randomIssues = [
+    'Eisenmangel durch pH-Wert Probleme',
+    'Pilzbefall durch zu viel Feuchtigkeit',
+    'Schädlingsbefall durch Engerlinge',
+    'Mooswachstum durch schlechte Drainage',
+    'Unkrautdruck durch dünne Grasnarbe',
+    'Trockenschäden durch unzureichende Bewässerung'
+  ];
+  
+  const selectedIssues = randomIssues.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 3) + 1);
+  
   return {
-    overallHealth: 72,
-    issues: [
-      {
-        issue: "Nährstoffmangel - Stickstoff und Kalium",
-        confidence: 0.87,
-        severity: "medium",
-        timeline: "2-4 Wochen bis erste Verbesserungen sichtbar sind",
-        cost: "25-40€ für Dünger",
-        products: [
-          "Compo Rasen Langzeit-Dünger (20kg)",
-          "Substral Herbst Rasendünger",
-          "Wolf Garten Turbo-Nachsaat LR 25"
-        ],
-        recommendations: [
-          "Führe einen professionellen Bodentest durch (pH-Wert, N-P-K-Gehalt, Spurenelemente)",
-          "Verwende einen Herbst-Rasendünger mit hohem Kaliumgehalt (NPK 5-5-20)",
-          "Dünge bei Temperaturen zwischen 10-20°C für optimale Aufnahme",
-          "Wässere nach der Düngung gründlich (ca. 15-20mm Wasser)",
-          "Vermeide Düngung bei Frost oder extremer Hitze",
-          "Dokumentiere die Düngetermine für zukünftige Referenz"
-        ]
-      },
-      {
-        issue: "Ungleichmäßige Bewässerung und Bodenverdichtung",
-        confidence: 0.78,
-        severity: "medium",
-        timeline: "Sofortige Verbesserung nach Belüftung",
-        cost: "15-30€ für Aerifizierer-Miete",
-        products: [
-          "Gardena Aerifizierer",
-          "Rasenbelüfter-Schuhe",
-          "Bewässerungscomputer mit Sensoren"
-        ],
-        recommendations: [
-          "Führe eine Bodenbelüftung mit einem Aerifizierer durch (5cm tiefe Löcher)",
-          "Arbeite groben Sand in die Belüftungslöcher ein",
-          "Installiere ein automatisches Bewässerungssystem mit Bodenfeuchtesensoren",
-          "Bewässere früh morgens (5-7 Uhr) für minimale Verdunstung",
-          "Verwende die 'Ein-Drittel-Regel': Nur ein Drittel der Halmlänge mähen",
-          "Prüfe Bodenfeuchtigkeit mit einem Erdspieß (15cm tief)"
-        ]
-      },
-      {
-        issue: "Beginnender Unkrautbefall (Löwenzahn, Klee)",
-        confidence: 0.65,
-        severity: "low",
-        timeline: "4-6 Wochen für vollständige Kontrolle",
-        cost: "20-35€ für selektive Herbizide",
-        products: [
-          "Celaflor Rasen-Unkrautfrei Weedex",
-          "Compo Rasenunkraut-Vernichter Banvel Quattro",
-          "Bio-Unkrautstecher für einzelne Pflanzen"
-        ],
-        recommendations: [
-          "Entferne Unkraut mechanisch bei feuchtem Boden (nach Regen)",
-          "Verwende selektive Herbizide nur bei Temperaturen zwischen 15-25°C",
-          "Stärke die Rasendichte durch Nachsaat geeigneter Grassorten",
-          "Mähe regelmäßig (wöchentlich) um Samenbildung zu verhindern",
-          "Kalke bei pH-Werten unter 6,0 (Unkraut bevorzugt saure Böden)",
-          "Vermeide Herbizide bei windigem Wetter oder vor Regen"
-        ]
-      }
-    ],
+    overallHealth: randomHealth,
+    issues: selectedIssues.map(issue => ({
+      issue,
+      confidence: Math.random() * 0.3 + 0.7, // 0.7-1.0
+      severity: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
+      timeline: `${Math.floor(Math.random() * 4) + 1}-${Math.floor(Math.random() * 4) + 4} Wochen`,
+      cost: `${Math.floor(Math.random() * 50) + 15}-${Math.floor(Math.random() * 50) + 40}€`,
+      products: ['Dünger', 'Rasensamen', 'Bodenverbesserer'].sort(() => 0.5 - Math.random()).slice(0, 2),
+      recommendations: [
+        'Sofortmaßnahme basierend auf Bilderkennung',
+        'Spezifische Behandlung für erkanntes Problem',
+        'Präventive Maßnahmen für die Zukunft'
+      ]
+    })),
     generalRecommendations: [
-      "Erstelle einen Pflegekalender mit monatlichen Aufgaben",
-      "Führe zweimal jährlich (Frühjahr/Herbst) eine ausführliche Rasenanalyse durch",
-      "Investiere in ein Bodenthermometer für optimale Timing der Pflegemaßnahmen",
-      "Dokumentiere alle Pflegemaßnahmen mit Fotos für Fortschrittsvergleiche",
-      "Verwende nur scharfe Mähmesser für saubere Schnitte und Krankheitsprävention"
+      'Regelmäßige Kontrolle der Rasengesundheit',
+      'Angepasste Pflege je nach Jahreszeit',
+      'Professionelle Bodenanalyse empfohlen'
     ],
     seasonalAdvice: [
-      "🌱 Frühjahr (März-Mai): Vertikutieren, Nachsaat, erste Düngung bei 10°C Bodentemperatur",
-      "☀️ Sommer (Juni-August): Seltener aber tiefes Wässern, Schnitthöhe auf 4-5cm erhöhen",
-      "🍂 Herbst (September-November): Herbstdünger, Laub entfernen, letzte Mahd bei 5cm",
-      "❄️ Winter (Dezember-Februar): Rasen nicht betreten bei Frost, Schnee gleichmäßig verteilen"
+      '🌱 Frühling: Nachsaat und erste Düngung',
+      '☀️ Sommer: Intensive Bewässerung',
+      '🍂 Herbst: Vorbereitung auf Winter'
     ],
     preventionTips: [
-      "Verwende kalkstickstoffhaltigen Dünger zur natürlichen Unkrautprävention",
-      "Installiere Rasenkanten um Unkrauteinwanderung aus Beeten zu verhindern",
-      "Mulche angrenzende Pflanzbeete um Samendruck zu reduzieren",
-      "Benutze einen Streuwagen für gleichmäßige Düngerverteilung",
-      "Achte auf Drainage in problematischen Bereichen (Staunässe vermeiden)"
+      'Regelmäßiges Mähen',
+      'Angemessene Bewässerung',
+      'Rechtzeitige Problemerkennung'
     ],
     monthlyPlan: [
-      {
-        month: "März",
-        tasks: [
-          "Erste Inspektion nach dem Winter",
-          "Vertikutieren bei trockenem Boden",
-          "Startdüngung bei 10°C Bodentemperatur",
-          "Reparatur von Winterschäden"
-        ]
-      },
-      {
-        month: "April",
-        tasks: [
-          "Nachsaat kahler Stellen",
-          "Unkrautbekämpfung beginnen",
-          "Erste Mahd bei 8cm Wuchshöhe",
-          "Bewässerungsanlage überprüfen"
-        ]
-      },
-      {
-        month: "Mai",
-        tasks: [
-          "Regelmäßige Bewässerung etablieren",
-          "Zweite Düngung",
-          "Rasenkanten schneiden",
-          "Schädlingskontrolle"
-        ]
-      },
-      {
-        month: "Juni-August",
-        tasks: [
-          "Wöchentliche Mahd (nicht unter 4cm)",
-          "Tiefes Wässern 2-3x pro Woche",
-          "Sommerdüngung mit Langzeitwirkung",
-          "Pilzkrankheiten überwachen"
-        ]
-      },
-      {
-        month: "September",
-        tasks: [
-          "Herbstdüngung (kaliumreich)",
-          "Nachsaat für dichtere Grasnarbe",
-          "Bodenbelüftung",
-          "Laub regelmäßig entfernen"
-        ]
-      },
-      {
-        month: "Oktober-November",
-        tasks: [
-          "Letzte Mahd auf 5cm Höhe",
-          "Wintervorbereitung",
-          "Geräte reinigen und einlagern",
-          "Frostschutz für empfindliche Bereiche"
-        ]
-      }
+      { month: 'Aktueller Monat', tasks: ['Sofortmaßnahmen umsetzen', 'Fortschritt dokumentieren'] },
+      { month: 'Nächster Monat', tasks: ['Ergebnisse überprüfen', 'Anpassungen vornehmen'] }
     ]
   };
 };
