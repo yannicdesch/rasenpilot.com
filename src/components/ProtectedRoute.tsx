@@ -20,7 +20,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     
     const checkAuth = async () => {
       try {
-        console.log('ProtectedRoute: Starting auth check for path:', location.pathname);
+        console.log('ProtectedRoute: Checking authentication for path:', location.pathname);
         
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -34,7 +34,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         }
 
         const isLoggedIn = !!session;
-        console.log('ProtectedRoute: Session check result:', isLoggedIn);
+        console.log('ProtectedRoute: Authentication status:', isLoggedIn);
         
         if (mounted) {
           setIsAuthenticated(isLoggedIn);
@@ -85,25 +85,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
     checkAuth();
 
-    // Simplified auth listener - only handle sign out
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('ProtectedRoute: Auth state changed:', event, !!session);
-      
-      if (!mounted) return;
-      
-      if (event === 'SIGNED_OUT') {
-        setIsAuthenticated(false);
-        setIsAdmin(false);
-        setIsLoading(false);
-      }
-      // Don't handle SIGNED_IN here to avoid conflicts with other auth listeners
-    });
-
     return () => {
       mounted = false;
-      if (authListener?.subscription) {
-        authListener.subscription.unsubscribe();
-      }
     };
   }, [requireAdmin, location.pathname]);
 
@@ -112,7 +95,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2"></div>
-        <p className="text-green-800 text-sm">Wird geladen...</p>
+        <p className="text-green-800 text-sm">Berechtigung wird überprüft...</p>
       </div>
     );
   }
