@@ -74,10 +74,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPa
         console.log('LoginForm: Sign in successful');
         await trackSuccessfulLogin(data.user.email || email);
         
-        // Call onSuccess immediately without waiting for auth state change
-        onSuccess?.();
+        toast.success('Erfolgreich angemeldet!');
         
-        // The auth state change listener will handle the redirect
+        // Don't call onSuccess here - let the auth state change handle navigation
+        // The ProtectedRoute and auth listeners will handle the redirect automatically
       }
 
     } catch (error) {

@@ -85,22 +85,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
     checkAuth();
 
-    // Set up auth listener
+    // Simplified auth listener - only handle sign out
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('ProtectedRoute: Auth state changed:', event, !!session);
       
       if (!mounted) return;
       
-      const isLoggedIn = !!session;
-      setIsAuthenticated(isLoggedIn);
-      
-      if (event === 'SIGNED_IN' && session) {
-        console.log('ProtectedRoute: User signed in');
-        setIsLoading(false);
-      } else if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
         setIsAdmin(false);
         setIsLoading(false);
       }
+      // Don't handle SIGNED_IN here to avoid conflicts with other auth listeners
     });
 
     return () => {

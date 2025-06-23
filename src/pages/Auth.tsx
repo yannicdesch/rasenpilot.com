@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import AuthForm from '@/components/AuthForm';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import MainNavigation from '@/components/MainNavigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useLawn } from '@/context/LawnContext';
@@ -31,7 +33,7 @@ const Auth = () => {
   useEffect(() => {
     let mounted = true;
     
-    // Quick auth check with shorter timeout
+    // Check for existing authentication
     const checkExistingAuth = async () => {
       if (!isSupabaseReady) {
         if (mounted) setCheckingAuth(false);
@@ -71,62 +73,52 @@ const Auth = () => {
           console.log('Auth page: No active session found');
           setCheckingAuth(false);
         }
+        
       } catch (error) {
         console.error('Auth page: Unexpected error:', error);
         if (mounted) setCheckingAuth(false);
       }
     };
 
-    // Reduce timeout to 500ms to prevent hanging
+    // Timeout to prevent hanging
     const authCheckTimeout = setTimeout(() => {
       if (mounted) {
         console.log('Auth page: Auth check timeout, proceeding to show auth form');
         setCheckingAuth(false);
       }
-    }, 500);
+    }, 1000);
 
     checkExistingAuth();
+
+    return () => {
+      mounted = false;
+      clearTimeout(authCheckTimeout);
+    };
     
-    // Set up auth listener for sign-in events
+  }, [from, navigate, isSupabaseReady, temporaryProfile, syncProfileWithSupabase]);
+
+  // Set up auth listener for sign-in events - simplified
+  useEffect(() => {
+    if (!isSupabaseReady) return;
+
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth page: Auth state changed:', event, !!session);
       
-      if (!mounted) return;
-      
       if (event === 'SIGNED_IN' && session) {
-        console.log('Auth page: User signed in, syncing profile and redirecting...');
+        console.log('Auth page: User signed in, redirecting to dashboard...');
         
-        // If we have temporary profile data, sync it
-        if (temporaryProfile) {
-          console.log('Auth page: Found temporary profile data, syncing after sign in');
-          try {
-            await syncProfileWithSupabase();
-            console.log('Auth page: Profile sync completed successfully');
-          } catch (error) {
-            console.error('Auth page: Error syncing profile:', error);
-            toast.error('Fehler beim Speichern des Profils');
-          }
-        }
-        
+        // Simple redirect without complex profile syncing to avoid conflicts
         toast.success('Erfolgreich eingeloggt!');
-        
-        // Navigate to dashboard immediately
         navigate('/dashboard', { replace: true });
-        
-      } else if (event === 'SIGNED_OUT') {
-        toast.info('Abgemeldet');
       }
     });
   
     return () => {
-      mounted = false;
-      clearTimeout(authCheckTimeout);
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
-    
-  }, [from, navigate, isSupabaseReady, temporaryProfile, syncProfileWithSupabase]);
+  }, [navigate, isSupabaseReady]);
 
   const handleRegistrationSuccess = () => {
     setRegistrationComplete(true);
@@ -141,7 +133,7 @@ const Auth = () => {
     navigate(from, { replace: true });
   };
 
-  // If checking auth state, show minimal loading with shorter duration
+  // Show loading with longer timeout
   if (checkingAuth) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
