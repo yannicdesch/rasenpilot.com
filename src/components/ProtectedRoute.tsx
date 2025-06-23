@@ -17,20 +17,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
     
     const checkAuth = async () => {
       try {
         console.log('ProtectedRoute: Checking authentication for path:', location.pathname);
-        
-        // Set a timeout to prevent infinite loading
-        timeoutId = setTimeout(() => {
-          if (mounted) {
-            console.log('ProtectedRoute: Auth check timeout, assuming not authenticated');
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
-        }, 5000);
         
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -47,7 +37,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         console.log('ProtectedRoute: Authentication status:', isLoggedIn);
         
         if (mounted) {
-          clearTimeout(timeoutId);
           setIsAuthenticated(isLoggedIn);
           
           if (isLoggedIn && requireAdmin) {
@@ -87,7 +76,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
       } catch (error) {
         console.error('ProtectedRoute: Auth check error:', error);
         if (mounted) {
-          clearTimeout(timeoutId);
           setIsAuthenticated(false);
           setIsAdmin(false);
           setIsLoading(false);
@@ -99,13 +87,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
     return () => {
       mounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
     };
   }, [requireAdmin, location.pathname]);
 
-  // Show loading with timeout protection
+  // Show loading
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">

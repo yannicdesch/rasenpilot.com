@@ -36,8 +36,11 @@ const Auth = () => {
       console.log('Auth page: Auth state changed:', event, !!session);
       
       if (event === 'SIGNED_IN' && session) {
-        console.log('Auth page: User signed in, redirecting...');
-        navigate('/dashboard', { replace: true });
+        console.log('Auth page: User signed in, redirecting to:', from);
+        // Small delay to ensure state is properly set
+        setTimeout(() => {
+          navigate(from, { replace: true });
+        }, 100);
       }
     });
   
@@ -46,7 +49,7 @@ const Auth = () => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [navigate, isSupabaseReady]);
+  }, [navigate, isSupabaseReady, from]);
 
   const handleRegistrationSuccess = () => {
     setRegistrationComplete(true);
