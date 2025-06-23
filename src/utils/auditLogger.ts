@@ -5,7 +5,7 @@ interface AuditEvent {
   category: string;
   action: string;
   label?: string;
-  value?: string | number | null;
+  value?: number;
   timestamp?: string;
 }
 
@@ -25,7 +25,7 @@ export class AuditLogger {
         category,
         action,
         label,
-        value: null, // Always set to null for complex data
+        value: undefined, // Set to undefined for complex data
         timestamp: new Date().toISOString()
       };
 
@@ -63,4 +63,17 @@ export const auditLogger = AuditLogger.getInstance();
 
 export const trackSecurityViolation = async (action: string, details?: Record<string, any>): Promise<void> => {
   await auditLogger.security(`violation_${action}`, details);
+};
+
+// Add the missing login tracking functions
+export const trackFailedLogin = async (email: string, reason: string): Promise<void> => {
+  await auditLogger.security('login_failed', { email, reason });
+};
+
+export const trackSuccessfulLogin = async (email: string): Promise<void> => {
+  await auditLogger.security('login_successful', { email });
+};
+
+export const trackAdminAction = async (action: string, email: string): Promise<void> => {
+  await auditLogger.security(`admin_${action}`, { email });
 };

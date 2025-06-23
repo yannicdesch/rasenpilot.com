@@ -86,7 +86,7 @@ export const trackConversion = async (
   const sessionId = getSessionId();
   
   await trackEvent('conversion', conversionType, page, value);
-  await auditLogger.user('conversion', { conversionType, page, value, ...additionalData });
+  await auditLogger.userAction('conversion', { conversionType, page, value, ...additionalData });
   
   console.log(`🎯 Conversion: ${conversionType} on ${page}`, { 
     sessionId, 
