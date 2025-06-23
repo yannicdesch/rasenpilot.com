@@ -17,7 +17,6 @@ const Auth = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const { temporaryProfile, syncProfileWithSupabase } = useLawn();
   
   // Get initial active tab from URL search params
@@ -29,33 +28,11 @@ const Auth = () => {
   // Get pre-filled email from location state if available
   const prefillEmail = location.state?.prefillEmail || '';
 
-  // Check if user is already authenticated
-  useEffect(() => {
-    if (!isSupabaseReady) {
-      setIsCheckingAuth(false);
-      return;
-    }
-
-    const checkInitialAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          console.log('Auth page: User already authenticated, redirecting to:', from);
-          navigate(from, { replace: true });
-          return;
-        }
-      } catch (error) {
-        console.error('Auth page: Error checking initial session:', error);
-      }
-      setIsCheckingAuth(false);
-    };
-
-    checkInitialAuth();
-  }, [isSupabaseReady, navigate, from]);
-
-  // Set up auth listener for sign-in events
+  // Simple auth listener for successful sign-ins - no initial session check
   useEffect(() => {
     if (!isSupabaseReady) return;
+
+    console.log('Auth page: Setting up auth listener');
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth page: Auth state changed:', event, !!session);
@@ -85,16 +62,6 @@ const Auth = () => {
   const handleOnboardingSkip = () => {
     navigate(from, { replace: true });
   };
-
-  // Show loading while checking auth
-  if (isCheckingAuth) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
-        <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2"></div>
-        <p className="text-green-800 text-sm">Authentifizierung wird überprüft...</p>
-      </div>
-    );
-  }
 
   // Main auth form display
   return (

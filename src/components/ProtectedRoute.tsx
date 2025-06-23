@@ -12,12 +12,9 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    let mounted = true;
-    
     const checkAuth = async () => {
       try {
         console.log('ProtectedRoute: Checking authentication for path:', location.pathname);
@@ -26,72 +23,58 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         
         if (error) {
           console.error('ProtectedRoute: Session error:', error);
-          if (mounted) {
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
+          setIsAuthenticated(false);
           return;
         }
 
         const isLoggedIn = !!session;
         console.log('ProtectedRoute: Authentication status:', isLoggedIn);
         
-        if (mounted) {
-          setIsAuthenticated(isLoggedIn);
-          
-          if (isLoggedIn && requireAdmin) {
-            try {
-              console.log('ProtectedRoute: Checking admin role for user:', session?.user.email);
+        setIsAuthenticated(isLoggedIn);
+        
+        if (isLoggedIn && requireAdmin) {
+          try {
+            console.log('ProtectedRoute: Checking admin role for user:', session?.user.email);
+            
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session?.user.id)
+              .single();
               
-              const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', session?.user.id)
-                .single();
-                
-              if (profileError) {
-                console.error('ProtectedRoute: Profile error:', profileError);
-                setIsAdmin(false);
-                toast.error('Profil nicht gefunden. Admin-Berechtigung erforderlich.');
-              } else {
-                const adminStatus = profile?.role === 'admin';
-                console.log('ProtectedRoute: Admin status:', adminStatus, 'Role:', profile?.role);
-                setIsAdmin(adminStatus);
-                
-                if (!adminStatus) {
-                  toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
-                }
-              }
-            } catch (adminError) {
-              console.error('ProtectedRoute: Admin check error:', adminError);
+            if (profileError) {
+              console.error('ProtectedRoute: Profile error:', profileError);
               setIsAdmin(false);
+              toast.error('Profil nicht gefunden. Admin-Berechtigung erforderlich.');
+            } else {
+              const adminStatus = profile?.role === 'admin';
+              console.log('ProtectedRoute: Admin status:', adminStatus, 'Role:', profile?.role);
+              setIsAdmin(adminStatus);
+              
+              if (!adminStatus) {
+                toast.error('Nur Administratoren dürfen auf diesen Bereich zugreifen');
+              }
             }
-          } else if (!requireAdmin) {
-            setIsAdmin(true); // Not needed for non-admin routes
+          } catch (adminError) {
+            console.error('ProtectedRoute: Admin check error:', adminError);
+            setIsAdmin(false);
           }
-          
-          setIsLoading(false);
+        } else if (!requireAdmin) {
+          setIsAdmin(true); // Not needed for non-admin routes
         }
         
       } catch (error) {
         console.error('ProtectedRoute: Auth check error:', error);
-        if (mounted) {
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          setIsLoading(false);
-        }
+        setIsAuthenticated(false);
+        setIsAdmin(false);
       }
     };
 
     checkAuth();
-
-    return () => {
-      mounted = false;
-    };
   }, [requireAdmin, location.pathname]);
 
   // Show loading
-  if (isLoading) {
+  if (isAuthenticated === null) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2"></div>

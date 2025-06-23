@@ -17,12 +17,12 @@ const Dashboard = () => {
   
   const [loading, setLoading] = useState(false);
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
     // Simple one-time authentication check
     const initializeDashboard = async () => {
-      if (authChecked) return; // Prevent multiple checks
+      if (authInitialized) return; // Prevent multiple checks
       
       try {
         console.log('Dashboard: Checking authentication...');
@@ -36,15 +36,15 @@ const Dashboard = () => {
       } catch (error) {
         console.error('Dashboard: Initialization error:', error);
       } finally {
-        setAuthChecked(true);
+        setAuthInitialized(true);
       }
     };
 
     initializeDashboard();
-  }, []); // Remove dependencies to prevent loops
+  }, []); // Empty dependency array to run only once
 
-  // Wait for auth check to complete
-  if (!authChecked) {
+  // Wait for auth initialization
+  if (!authInitialized) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2"></div>
