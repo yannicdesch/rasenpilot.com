@@ -1,95 +1,89 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Leaf } from 'lucide-react';
+import { Leaf, Mail, Lock, User, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import MainNavigation from '@/components/MainNavigation';
+import { useLawn } from '@/context/LawnContext';
 
 const SimplifiedAuth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { isAuthenticated } = useLawn();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
-  const redirectTo = location.state?.redirectTo || '/care-plan';
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: ''
+  });
 
   useEffect(() => {
-    // Check if user is already authenticated
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate(redirectTo);
-      }
-    };
-    
-    checkAuth();
+    if (isAuthenticated) {
+      const redirectTo = location.state?.redirectTo || '/care-plan';
+      navigate(redirectTo, { state: location.state });
+    }
+  }, [isAuthenticated, navigate, location]);
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        navigate(redirectTo);
-      }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
-
-    return () => subscription.unsubscribe();
-  }, [navigate, redirectTo]);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: formData.email,
+        password: formData.password,
       });
 
       if (error) {
-        setError(error.message);
+        toast.error('Anmeldung fehlgeschlagen: ' + error.message);
       } else {
-        toast.success('Logged in successfully!');
+        toast.success('Erfolgreich angemeldet!');
+        const redirectTo = location.state?.redirectTo || '/care-plan';
+        navigate(redirectTo, { state: location.state });
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (error) {
+      toast.error('Ein Fehler ist aufgetreten');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}${redirectTo}`
+          data: {
+            name: formData.name
+          }
         }
       });
 
       if (error) {
-        setError(error.message);
+        toast.error('Registrierung fehlgeschlagen: ' + error.message);
       } else {
-        toast.success('Account created! Please check your email to verify your account.');
+        toast.success('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails.');
+        const redirectTo = location.state?.redirectTo || '/care-plan';
+        navigate(redirectTo, { state: location.state });
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (error) {
+      toast.error('Ein Fehler ist aufgetreten');
     } finally {
       setLoading(false);
     }
@@ -97,64 +91,77 @@ const SimplifiedAuth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <MainNavigation />
-      
-      <div className="container mx-auto px-4 py-8 flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Leaf className="h-8 w-8 text-green-600" />
-              <h1 className="text-2xl font-bold text-green-800">Rasenpilot</h1>
-            </div>
-            <p className="text-gray-600">
-              Sign in to access your personalized lawn care plan
-            </p>
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <div 
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => navigate('/')}
+          >
+            <Leaf className="h-8 w-8 text-green-600" />
+            <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
           </div>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/')}
+          >
+            Zurück zur Startseite
+          </Button>
+        </nav>
+      </header>
 
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-md mx-auto">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-center">Welcome</CardTitle>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-green-800">
+                Willkommen bei Rasenpilot
+              </CardTitle>
+              <p className="text-gray-600">
+                Melden Sie sich an oder erstellen Sie ein kostenloses Konto
+              </p>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue={initialTab}>
+              <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="register">Sign Up</TabsTrigger>
+                  <TabsTrigger value="login">Anmelden</TabsTrigger>
+                  <TabsTrigger value="register">Registrieren</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="login">
                   <form onSubmit={handleLogin} className="space-y-4">
-                    {error && (
-                      <Alert className="border-red-200 bg-red-50">
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="text-red-800">
-                          {error}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="login-email">Email</Label>
-                      <Input
-                        id="login-email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        disabled={loading}
-                      />
+                    <div>
+                      <Label htmlFor="login-email">E-Mail</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="login-email"
+                          name="email"
+                          type="email"
+                          placeholder="ihre@email.de"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="login-password">Password</Label>
-                      <Input
-                        id="login-password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={loading}
-                      />
+                    <div>
+                      <Label htmlFor="login-password">Passwort</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="login-password"
+                          name="password"
+                          type="password"
+                          placeholder="Ihr Passwort"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
                     
                     <Button 
@@ -162,45 +169,63 @@ const SimplifiedAuth = () => {
                       className="w-full bg-green-600 hover:bg-green-700"
                       disabled={loading}
                     >
-                      {loading ? 'Signing in...' : 'Sign In'}
+                      {loading ? 'Anmeldung läuft...' : 'Anmelden'}
                     </Button>
                   </form>
                 </TabsContent>
                 
                 <TabsContent value="register">
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    {error && (
-                      <Alert className="border-red-200 bg-red-50">
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="text-red-800">
-                          {error}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="register-email">Email</Label>
-                      <Input
-                        id="register-email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        disabled={loading}
-                      />
+                  <form onSubmit={handleRegister} className="space-y-4">
+                    <div>
+                      <Label htmlFor="register-name">Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="register-name"
+                          name="name"
+                          type="text"
+                          placeholder="Ihr Name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="register-password">Password</Label>
-                      <Input
-                        id="register-password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={loading}
-                        minLength={6}
-                      />
+                    <div>
+                      <Label htmlFor="register-email">E-Mail</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="register-email"
+                          name="email"
+                          type="email"
+                          placeholder="ihre@email.de"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="register-password">Passwort</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="register-password"
+                          name="password"
+                          type="password"
+                          placeholder="Mindestens 6 Zeichen"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          className="pl-10"
+                          minLength={6}
+                          required
+                        />
+                      </div>
                     </div>
                     
                     <Button 
@@ -208,11 +233,34 @@ const SimplifiedAuth = () => {
                       className="w-full bg-green-600 hover:bg-green-700"
                       disabled={loading}
                     >
-                      {loading ? 'Creating account...' : 'Create Account'}
+                      {loading ? 'Registrierung läuft...' : 'Kostenloses Konto erstellen'}
                     </Button>
                   </form>
                 </TabsContent>
               </Tabs>
+
+              {/* Benefits */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="font-semibold text-gray-800 mb-3">Ihre Vorteile:</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm text-gray-600">Personalisierte Pflegepläne</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm text-gray-600">Unbegrenzte Rasenanalysen</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm text-gray-600">Schritt-für-Schritt Anleitungen</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm text-gray-600">Saisonale Erinnerungen</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

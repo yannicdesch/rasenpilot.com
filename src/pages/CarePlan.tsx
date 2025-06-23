@@ -1,10 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle, Info } from 'lucide-react';
+import { Calendar, CheckCircle, Info, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -41,7 +40,7 @@ const CarePlan = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to load care plan');
+      toast.error('Fehler beim Laden des Pflegeplans');
     } finally {
       setLoading(false);
     }
@@ -50,45 +49,45 @@ const CarePlan = () => {
   const generateCarePlan = (analysisResult: any) => {
     const plan = {
       score: analysisResult.score,
-      timeframe: '4-6 weeks',
+      timeframe: '4-6 Wochen',
       tasks: [
         {
           week: 1,
-          title: 'Soil Preparation',
+          title: 'Bodenvorbereitung',
           tasks: [
-            'Test soil pH and nutrient levels',
-            'Apply pre-emergent herbicide if needed',
-            'Remove debris and dead grass'
+            'pH-Wert und Nährstoffgehalt des Bodens testen',
+            'Vorauflaufherbizid anwenden falls erforderlich',
+            'Unkraut und abgestorbenes Gras entfernen'
           ],
           completed: false
         },
         {
           week: 2,
-          title: 'Fertilization',
+          title: 'Düngung',
           tasks: [
-            'Apply nitrogen-rich fertilizer',
-            'Water thoroughly after application',
-            'Monitor for early growth signs'
+            'Stickstoffreichen Dünger ausbringen',
+            'Nach der Anwendung gründlich wässern',
+            'Erste Wachstumszeichen beobachten'
           ],
           completed: false
         },
         {
           week: 3,
-          title: 'Overseeding',
+          title: 'Nachsaat',
           tasks: [
-            'Overseed thin areas with appropriate grass type',
-            'Keep soil consistently moist',
-            'Avoid heavy foot traffic'
+            'Kahle Stellen mit geeignetem Grassamen nachsäen',
+            'Boden gleichmäßig feucht halten',
+            'Starke Belastung vermeiden'
           ],
           completed: false
         },
         {
           week: 4,
-          title: 'Maintenance',
+          title: 'Pflege',
           tasks: [
-            'Begin regular mowing schedule',
-            'Adjust watering based on weather',
-            'Monitor for pests and diseases'
+            'Regelmäßigen Mähplan beginnen',
+            'Bewässerung je nach Wetterlage anpassen',
+            'Auf Schädlinge und Krankheiten überwachen'
           ],
           completed: false
         }
@@ -100,25 +99,25 @@ const CarePlan = () => {
 
   const getDefaultCarePlan = () => ({
     score: 75,
-    timeframe: '4-6 weeks',
+    timeframe: '4-6 Wochen',
     tasks: [
       {
         week: 1,
-        title: 'Assessment & Preparation',
+        title: 'Bestandsaufnahme & Vorbereitung',
         tasks: [
-          'Take photos of current lawn condition',
-          'Test soil pH and nutrient levels',
-          'Plan your lawn care schedule'
+          'Fotos vom aktuellen Rasenzustand machen',
+          'pH-Wert und Nährstoffgehalt des Bodens testen',
+          'Ihren Rasenpflegeplan erstellen'
         ],
         completed: false
       },
       {
         week: 2,
-        title: 'Initial Treatment',
+        title: 'Erste Behandlung',
         tasks: [
-          'Apply appropriate fertilizer',
-          'Address any weed issues',
-          'Set up proper watering schedule'
+          'Geeigneten Dünger ausbringen',
+          'Unkrautprobleme angehen',
+          'Bewässerungsplan einrichten'
         ],
         completed: false
       }
@@ -130,7 +129,7 @@ const CarePlan = () => {
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your care plan...</p>
+          <p className="text-gray-600">Ihr Pflegeplan wird geladen...</p>
         </div>
       </div>
     );
@@ -138,16 +137,39 @@ const CarePlan = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <MainNavigation />
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Leaf className="h-8 w-8 text-green-600" />
+            <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/blog-overview')}
+            >
+              Ratgeber
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Startseite
+            </Button>
+          </div>
+        </nav>
+      </header>
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-green-800 mb-4">
-              Your Personalized Lawn Care Plan
+              Ihr persönlicher Rasenpflegeplan
             </h1>
             <p className="text-gray-600 text-lg">
-              Follow this step-by-step plan to improve your lawn health
+              Befolgen Sie diesen Schritt-für-Schritt Plan um Ihre Rasengesundheit zu verbessern
             </p>
           </div>
 
@@ -158,7 +180,7 @@ const CarePlan = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Info className="h-5 w-5" />
-                    Plan Overview
+                    Plan-Übersicht
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -167,19 +189,19 @@ const CarePlan = () => {
                       <div className="text-3xl font-bold text-green-600 mb-2">
                         {carePlan.score}/100
                       </div>
-                      <p className="text-gray-600">Current Score</p>
+                      <p className="text-gray-600">Aktueller Score</p>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-blue-600 mb-2">
                         {carePlan.timeframe}
                       </div>
-                      <p className="text-gray-600">Estimated Timeline</p>
+                      <p className="text-gray-600">Geschätzte Dauer</p>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-purple-600 mb-2">
                         {carePlan.tasks.length}
                       </div>
-                      <p className="text-gray-600">Phases</p>
+                      <p className="text-gray-600">Phasen</p>
                     </div>
                   </div>
                 </CardContent>
@@ -192,7 +214,7 @@ const CarePlan = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Calendar className="h-5 w-5" />
-                        Week {phase.week}: {phase.title}
+                        Woche {phase.week}: {phase.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -210,19 +232,29 @@ const CarePlan = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-8 text-center">
+              <div className="mt-8 text-center space-y-4">
                 <Button 
                   onClick={() => navigate('/lawn-analysis')}
                   className="bg-green-600 hover:bg-green-700 mr-4"
                 >
-                  Analyze Another Photo
+                  Neues Foto analysieren
                 </Button>
                 <Button 
                   variant="outline"
                   onClick={() => window.print()}
                 >
-                  Print Plan
+                  Plan drucken
                 </Button>
+                
+                <div className="bg-green-50 p-6 rounded-lg border border-green-200 mt-6">
+                  <h3 className="text-lg font-semibold text-green-800 mb-2">
+                    💡 Tipp: Unbegrenzte Analysen
+                  </h3>
+                  <p className="text-green-700">
+                    Sie können jederzeit neue Fotos Ihres Rasens hochladen und analysieren lassen. 
+                    Beobachten Sie den Fortschritt und passen Sie Ihren Pflegeplan entsprechend an!
+                  </p>
+                </div>
               </div>
             </>
           )}

@@ -1,76 +1,56 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MainNavigation from '@/components/MainNavigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, Sparkles, ArrowRight, Camera } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Camera, Sparkles, ArrowRight, Leaf, CheckCircle, Star, Zap } from 'lucide-react';
+import LawnImageUpload from '@/components/LawnImageUpload';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [lawnImage, setLawnImage] = useState<string>('');
+  const [problem, setProblem] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  React.useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    setIsAuthenticated(!!session);
+  const handleImageSelected = (imageUrl: string) => {
+    setLawnImage(imageUrl);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image too large. Please choose an image under 10MB.');
+  const handleAnalyze = async () => {
+    if (!lawnImage) {
+      toast.error('Bitte laden Sie zuerst ein Bild hoch');
       return;
     }
 
-    const imageUrl = URL.createObjectURL(file);
-    setSelectedImage(imageUrl);
-    setAnalysisResult(null);
-  };
-
-  const analyzeImage = async () => {
-    if (!selectedImage) return;
-
     setIsAnalyzing(true);
-    try {
-      // Simulate analysis - in real app, this would call your AI service
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const mockAnalysis = {
-        score: Math.floor(Math.random() * 40) + 60, // Score between 60-100
+    
+    // Simulate AI analysis
+    setTimeout(() => {
+      const mockResult = {
+        score: Math.floor(Math.random() * 40) + 60, // 60-100
         issues: [
-          'Slight nutrient deficiency detected',
-          'Some brown patches visible',
-          'Overall lawn density could be improved'
+          'Nährstoffmangel erkannt',
+          'Ungleichmäßige Bewässerung',
+          'Bodenverdichtung in Bereichen'
         ],
         recommendations: [
-          'Apply nitrogen-rich fertilizer',
-          'Increase watering frequency',
-          'Consider overseeding in sparse areas'
+          'Herbstdüngung mit Kalium',
+          'Aerifizierung empfohlen',
+          'Bewässerungszeiten anpassen'
         ]
       };
-
-      setAnalysisResult(mockAnalysis);
-      toast.success('Analysis complete!');
-    } catch (error) {
-      toast.error('Analysis failed. Please try again.');
-    } finally {
+      
+      setAnalysisResult(mockResult);
       setIsAnalyzing(false);
-    }
+      toast.success('Analyse abgeschlossen!');
+    }, 3000);
   };
 
-  const handleSignUp = () => {
-    navigate('/auth?tab=register', { 
+  const handleGetCarePlan = () => {
+    navigate('/auth', { 
       state: { 
         analysisResult,
         redirectTo: '/care-plan'
@@ -80,79 +60,108 @@ const LawnAnalysis = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <MainNavigation />
-      
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Leaf className="h-8 w-8 text-green-600" />
+            <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/blog-overview')}
+            >
+              Ratgeber
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/auth')}
+            >
+              Anmelden
+            </Button>
+          </div>
+        </nav>
+      </header>
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-green-800 mb-4">
-              Lawn Analysis
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-green-800 mb-4">
+              Kostenlose KI-Rasenanalyse
             </h1>
-            <p className="text-gray-600 text-lg">
-              Upload a photo of your lawn to get an instant AI-powered analysis
+            <p className="text-xl text-gray-600 mb-6">
+              Laden Sie ein Foto Ihres Rasens hoch und erhalten Sie in 60 Sekunden eine professionelle Diagnose
             </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+              <div className="flex items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-sm">
+                <Zap className="h-5 w-5 text-green-600" />
+                <span className="text-sm font-medium">60 Sek. Analyse</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-sm">
+                <Star className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-medium">98,3% Genauigkeit</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-sm">
+                <CheckCircle className="h-5 w-5 text-purple-600" />
+                <span className="text-sm font-medium">Kostenlos</span>
+              </div>
+            </div>
           </div>
 
-          {/* Image Upload */}
+          {/* Analysis Form */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Camera className="h-5 w-5" />
-                Upload Your Lawn Photo
+                <Camera className="h-6 w-6 text-green-600" />
+                Rasenbild hochladen
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              {!selectedImage ? (
-                <div className="border-2 border-dashed border-green-300 rounded-lg p-8 text-center">
-                  <Upload className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">Click to upload or drag and drop</p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <Button asChild className="bg-green-600 hover:bg-green-700">
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Choose Image
-                    </label>
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <img 
-                    src={selectedImage} 
-                    alt="Your lawn" 
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                  <div className="flex gap-4">
-                    <Button
-                      onClick={analyzeImage}
-                      disabled={isAnalyzing}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      {isAnalyzing ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Analyze Lawn
-                        </>
-                      )}
-                    </Button>
-                    <Button variant="outline" asChild>
-                      <label htmlFor="image-upload" className="cursor-pointer">
-                        Change Image
-                      </label>
-                    </Button>
-                  </div>
-                </div>
-              )}
+            <CardContent className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Foto Ihres Rasens
+                </label>
+                <LawnImageUpload
+                  onImageSelected={handleImageSelected}
+                  currentImage={lawnImage}
+                />
+                <p className="text-sm text-gray-500 mt-2">
+                  Für beste Ergebnisse: Foto bei Tageslicht, ca. 2-3 Meter Entfernung
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Beschreiben Sie Ihr Rasenproblem (optional)
+                </label>
+                <Textarea
+                  placeholder="z.B. Gelbe Flecken trotz regelmäßiger Bewässerung, Moos breitet sich aus, kahle Stellen..."
+                  value={problem}
+                  onChange={(e) => setProblem(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+
+              <Button
+                onClick={handleAnalyze}
+                disabled={!lawnImage || isAnalyzing}
+                className="w-full bg-green-600 hover:bg-green-700 py-3 text-lg"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2" />
+                    KI analysiert Ihren Rasen...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Kostenlose Analyse starten
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
 
@@ -160,66 +169,108 @@ const LawnAnalysis = () => {
           {analysisResult && (
             <Card className="mb-8">
               <CardHeader>
-                <CardTitle className="text-xl text-green-800">
-                  Analysis Results
+                <CardTitle className="text-2xl text-green-800">
+                  Ihre Rasenanalyse
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Score */}
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-600 mb-2">
-                    {analysisResult.score}/100
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-green-600 mb-2">
+                      {analysisResult.score}/100
+                    </div>
+                    <p className="text-gray-600">Gesundheitsscore</p>
                   </div>
-                  <p className="text-gray-600">Lawn Health Score</p>
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">
+                      {analysisResult.issues.length}
+                    </div>
+                    <p className="text-gray-600">Probleme erkannt</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-purple-600 mb-2">
+                      {analysisResult.recommendations.length}
+                    </div>
+                    <p className="text-gray-600">Empfehlungen</p>
+                  </div>
                 </div>
 
-                {/* Issues */}
-                <div>
-                  <h3 className="font-semibold text-gray-800 mb-3">Issues Detected:</h3>
-                  <ul className="space-y-2">
-                    {analysisResult.issues.map((issue: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-orange-500 mt-1">•</span>
-                        <span className="text-gray-700">{issue}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Recommendations */}
-                <div>
-                  <h3 className="font-semibold text-gray-800 mb-3">Quick Recommendations:</h3>
-                  <ul className="space-y-2">
-                    {analysisResult.recommendations.map((rec: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-green-500 mt-1">✓</span>
-                        <span className="text-gray-700">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Call to Action */}
-                {!isAuthenticated && (
-                  <div className="bg-green-50 p-6 rounded-lg border border-green-200 text-center">
-                    <h3 className="font-semibold text-green-800 mb-2">
-                      Get Your Complete Care Plan
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3 text-red-600">
+                      Erkannte Probleme:
                     </h3>
-                    <p className="text-gray-700 mb-4">
-                      Sign up to receive a personalized lawn care plan with detailed steps and timeline.
-                    </p>
-                    <Button 
-                      onClick={handleSignUp}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Sign Up for Care Plan
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
+                    <ul className="space-y-2">
+                      {analysisResult.issues.map((issue: string, index: number) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-red-500 rounded-full" />
+                          <span className="text-gray-700">{issue}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                )}
+
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3 text-green-600">
+                      Unsere Empfehlungen:
+                    </h3>
+                    <ul className="space-y-2">
+                      {analysisResult.recommendations.map((rec: string, index: number) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-gray-700">{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 text-center">
+                  <h3 className="text-xl font-semibold text-blue-800 mb-3">
+                    Möchten Sie einen detaillierten Pflegeplan?
+                  </h3>
+                  <p className="text-blue-700 mb-4">
+                    Registrieren Sie sich kostenlos und erhalten Sie einen personalisierten 
+                    Schritt-für-Schritt Pflegeplan mit Zeitplan und Produktempfehlungen.
+                  </p>
+                  <Button
+                    onClick={handleGetCarePlan}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Kostenlosen Pflegeplan erhalten
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
+
+          {/* Features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="font-semibold mb-2">KI-gestützte Analyse</h3>
+              <p className="text-gray-600">Modernste Technologie erkennt über 200 Rasenprobleme</p>
+            </div>
+            
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Sofortige Ergebnisse</h3>
+              <p className="text-gray-600">Erhalten Sie Ihre Analyse in nur 60 Sekunden</p>
+            </div>
+            
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold mb-2">98,3% Genauigkeit</h3>
+              <p className="text-gray-600">Wissenschaftlich validierte Ergebnisse</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

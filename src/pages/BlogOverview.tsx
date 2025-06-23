@@ -1,10 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, User } from 'lucide-react';
+import { ArrowRight, Calendar, User, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface BlogPost {
@@ -51,32 +50,32 @@ const BlogOverview = () => {
   const defaultPosts = [
     {
       id: 1,
-      title: "When to Fertilize Your Lawn in Spring",
-      excerpt: "Learn the optimal timing for spring fertilization to get your lawn ready for the growing season.",
+      title: "Wann sollten Sie Ihren Rasen im Frühling düngen?",
+      excerpt: "Erfahren Sie den optimalen Zeitpunkt für die Frühjahrsdüngung, um Ihren Rasen auf die Wachstumssaison vorzubereiten.",
       image: "/placeholder.svg",
-      author: "Lawn Expert",
+      author: "Rasenexperte",
       date: "2024-03-15",
-      slug: "spring-fertilization-timing",
+      slug: "fruehjahr-duengung-timing",
       read_time: 5
     },
     {
       id: 2,
-      title: "Identifying Common Lawn Diseases",
-      excerpt: "Spot the signs of common lawn diseases early and learn how to treat them effectively.",
+      title: "Häufige Rasenkrankheiten erkennen",
+      excerpt: "Frühe Anzeichen häufiger Rasenkrankheiten erkennen und lernen, wie Sie diese effektiv behandeln können.",
       image: "/placeholder.svg",
-      author: "Plant Pathologist",
+      author: "Pflanzenpathologie",
       date: "2024-03-10",
-      slug: "common-lawn-diseases",
+      slug: "haeufige-rasenkrankheiten",
       read_time: 7
     },
     {
       id: 3,
-      title: "The Complete Guide to Overseeding",
-      excerpt: "Transform thin, patchy grass into a thick, lush lawn with our comprehensive overseeding guide.",
+      title: "Der komplette Leitfaden zur Nachsaat",
+      excerpt: "Verwandeln Sie dünnen, lückenhaften Rasen in eine dichte, üppige Rasenfläche mit unserem umfassenden Nachsaat-Leitfaden.",
       image: "/placeholder.svg",
-      author: "Turf Specialist",
+      author: "Rasen-Spezialist",
       date: "2024-03-05",
-      slug: "overseeding-guide",
+      slug: "nachsaat-leitfaden",
       read_time: 10
     }
   ];
@@ -86,11 +85,27 @@ const BlogOverview = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-        <MainNavigation />
+        {/* Header */}
+        <header className="container mx-auto px-4 py-6">
+          <nav className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Leaf className="h-8 w-8 text-green-600" />
+              <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
+            </div>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Startseite
+            </Button>
+          </nav>
+        </header>
+        
         <div className="container mx-auto px-4 py-8 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading blog posts...</p>
+            <p className="text-gray-600">Blog-Artikel werden geladen...</p>
           </div>
         </div>
       </div>
@@ -99,17 +114,40 @@ const BlogOverview = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <MainNavigation />
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Leaf className="h-8 w-8 text-green-600" />
+            <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/lawn-analysis')}
+            >
+              Rasenanalyse
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Startseite
+            </Button>
+          </div>
+        </nav>
+      </header>
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-green-800 mb-4">
-              Lawn Care Blog
+              Rasenpflege Ratgeber
             </h1>
             <p className="text-xl text-gray-600">
-              Expert tips and guides for a healthier, greener lawn
+              Expertentipps und Anleitungen für einen gesünderen, grüneren Rasen
             </p>
           </div>
 
@@ -141,20 +179,20 @@ const BlogOverview = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      <span>{new Date(post.date).toLocaleDateString()}</span>
+                      <span>{new Date(post.date).toLocaleDateString('de-DE')}</span>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
-                      {post.read_time} min read
+                      {post.read_time} Min. Lesezeit
                     </span>
                     <Button 
                       variant="ghost" 
                       size="sm"
                       className="text-green-600 hover:text-green-700"
                     >
-                      Read More
+                      Mehr lesen
                       <ArrowRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
@@ -166,16 +204,16 @@ const BlogOverview = () => {
           {/* CTA Section */}
           <div className="mt-16 text-center bg-green-50 p-8 rounded-lg">
             <h2 className="text-2xl font-bold text-green-800 mb-4">
-              Ready to Improve Your Lawn?
+              Bereit, Ihren Rasen zu verbessern?
             </h2>
             <p className="text-gray-600 mb-6">
-              Start with a free AI analysis of your lawn today
+              Starten Sie noch heute mit einer kostenlosen KI-Analyse Ihres Rasens
             </p>
             <Button 
               onClick={() => navigate('/lawn-analysis')}
               className="bg-green-600 hover:bg-green-700"
             >
-              Analyze Your Lawn
+              Rasen analysieren lassen
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
