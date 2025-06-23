@@ -49,9 +49,17 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
       return;
     }
 
+    console.log("=== STARTING ANALYSIS DEBUG ===");
+    console.log("isAuthenticated:", isAuthenticated);
+    console.log("isOnboarding:", isOnboarding);
+    console.log("selectedFile:", selectedFile?.name, selectedFile?.size);
+
     // Check if free analyze is already used and not in onboarding mode
     const freeAnalysisUsed = localStorage.getItem('freeAnalysisUsed') === 'true';
+    console.log("freeAnalysisUsed from localStorage:", freeAnalysisUsed);
+    
     if (!isOnboarding && freeAnalysisUsed && !isAuthenticated) {
+      console.log("BLOCKED: Free analysis already used");
       toast("Du hast deine kostenlose Analyse bereits genutzt. Registriere dich für unbegrenzte Analysen.");
       return;
     }
@@ -61,22 +69,30 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
     try {
       let analysisResult: AIAnalysisResult;
 
-      // Use real AI analysis for both authenticated users AND free users (1 time)
-      console.log("Using real AI analysis...");
+      console.log("=== CALLING AI ANALYSIS ===");
+      console.log("Grass type:", temporaryProfile?.grassType || profile?.grassType);
+      console.log("Lawn goal:", temporaryProfile?.lawnGoal || profile?.lawnGoal);
+      
       const result = await analyzeImageWithAI(
         selectedFile,
         temporaryProfile?.grassType || profile?.grassType,
         temporaryProfile?.lawnGoal || profile?.lawnGoal
       );
 
+      console.log("=== AI ANALYSIS RESULT ===");
+      console.log("Success:", result.success);
+      console.log("Error:", result.error);
+      console.log("Analysis data:", result.analysis);
+
       if (result.success && result.analysis) {
         analysisResult = result.analysis;
         toast("KI-Analyse erfolgreich abgeschlossen!");
-        console.log("AI analysis successful:", analysisResult);
+        console.log("Using REAL AI analysis result");
       } else {
-        console.warn("AI analysis failed, falling back to mock:", result.error);
+        console.warn("AI analysis failed, using fallback mock analysis");
+        console.warn("Error details:", result.error);
         analysisResult = getMockAnalysis();
-        toast("Analyse abgeschlossen (Fallback-Modus).");
+        toast("Analyse abgeschlossen (Fallback-Modus verwendet).");
       }
 
       setAnalysisResults(analysisResult);
@@ -109,14 +125,18 @@ const LawnAnalyzer: React.FC<LawnAnalyzerProps> = ({
 
       // Mark free analysis as used for non-onboarding flows and non-authenticated users
       if (!isOnboarding && !isAuthenticated) {
+        console.log("Marking free analysis as used");
         localStorage.setItem('freeAnalysisUsed', 'true');
       }
       
       if (onAnalysisComplete) {
         onAnalysisComplete(analysisResult);
       }
+
+      console.log("=== ANALYSIS COMPLETE ===");
     } catch (error) {
-      console.error("Error analyzing image:", error);
+      console.error("=== ANALYSIS ERROR ===");
+      console.error("Error details:", error);
       toast("Bei der Analyse ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.");
     } finally {
       setIsAnalyzing(false);

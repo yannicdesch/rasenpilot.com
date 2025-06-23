@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AIAnalysisResult {
@@ -40,7 +39,10 @@ export const analyzeImageWithAI = async (
   lawnGoal?: string
 ): Promise<AnalysisResponse> => {
   try {
-    console.log('Starting AI image analysis with OpenAI...');
+    console.log('=== AI ANALYSIS SERVICE START ===');
+    console.log('Image input type:', typeof imageInput);
+    console.log('Grass type:', grassType);
+    console.log('Lawn goal:', lawnGoal);
     
     let imageFile: File;
     
@@ -48,14 +50,18 @@ export const analyzeImageWithAI = async (
     if (typeof imageInput === 'string') {
       console.log('Converting blob URL to File:', imageInput);
       imageFile = await blobUrlToFile(imageInput);
+      console.log('Converted file size:', imageFile.size, 'bytes');
     } else {
       imageFile = imageInput;
+      console.log('Using provided file, size:', imageFile.size, 'bytes');
     }
     
     // Upload the image to Supabase Storage
     const fileName = `lawn-analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${imageFile.name.split('.').pop()}`;
     
-    console.log('Uploading image to Supabase Storage:', fileName);
+    console.log('=== UPLOADING TO SUPABASE STORAGE ===');
+    console.log('File name:', fileName);
+    
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('lawn-images')
       .upload(fileName, imageFile, {
@@ -64,11 +70,13 @@ export const analyzeImageWithAI = async (
       });
 
     if (uploadError) {
-      console.error('Image upload failed:', uploadError);
+      console.error('=== UPLOAD ERROR ===');
+      console.error('Upload error details:', uploadError);
       throw new Error(`Image upload failed: ${uploadError.message}`);
     }
 
-    console.log('Image uploaded successfully:', uploadData);
+    console.log('=== UPLOAD SUCCESS ===');
+    console.log('Upload data:', uploadData);
 
     // Get the public URL of the uploaded image
     const { data: urlData } = supabase.storage
@@ -76,13 +84,22 @@ export const analyzeImageWithAI = async (
       .getPublicUrl(fileName);
 
     if (!urlData.publicUrl) {
+      console.error('=== URL GENERATION FAILED ===');
       throw new Error('Failed to get image URL');
     }
 
-    console.log('Image URL obtained:', urlData.publicUrl);
+    console.log('=== PUBLIC URL GENERATED ===');
+    console.log('Public URL:', urlData.publicUrl);
 
     // Call the Edge Function for AI analysis
-    console.log('Calling analyze-lawn-image edge function...');
+    console.log('=== CALLING EDGE FUNCTION ===');
+    console.log('Function: analyze-lawn-image');
+    console.log('Payload:', {
+      imageUrl: urlData.publicUrl,
+      grassType,
+      lawnGoal
+    });
+    
     const { data, error } = await supabase.functions.invoke('analyze-lawn-image', {
       body: {
         imageUrl: urlData.publicUrl,
@@ -91,25 +108,35 @@ export const analyzeImageWithAI = async (
       }
     });
 
-    console.log('Edge function response:', data, error);
+    console.log('=== EDGE FUNCTION RESPONSE ===');
+    console.log('Data:', data);
+    console.log('Error:', error);
 
     if (error) {
-      console.error('Edge function error:', error);
+      console.error('=== EDGE FUNCTION ERROR ===');
+      console.error('Error details:', error);
       throw new Error(`Analysis failed: ${error.message}`);
     }
 
     // Clean up uploaded image after analysis
     try {
+      console.log('=== CLEANING UP TEMP IMAGE ===');
       await supabase.storage.from('lawn-images').remove([fileName]);
-      console.log('Temporary image cleaned up');
+      console.log('Cleanup successful');
     } catch (cleanupError) {
+      console.warn('=== CLEANUP WARNING ===');
       console.warn('Failed to cleanup temporary image:', cleanupError);
     }
 
+    console.log('=== AI ANALYSIS SUCCESS ===');
     return data as AnalysisResponse;
 
   } catch (error) {
-    console.error('AI Analysis error:', error);
+    console.error('=== AI ANALYSIS SERVICE ERROR ===');
+    console.error('Error type:', typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Full error:', error);
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
