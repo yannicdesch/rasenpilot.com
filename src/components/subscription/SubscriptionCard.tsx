@@ -29,6 +29,7 @@ const SubscriptionCard = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             Free Plan
+            <Badge className="bg-green-600 text-white">Aktueller Plan</Badge>
             {!isPremium && <Badge className="bg-green-600">Aktueller Plan</Badge>}
           </CardTitle>
           <CardDescription>Grundlegende Rasenpflege-Features</CardDescription>
