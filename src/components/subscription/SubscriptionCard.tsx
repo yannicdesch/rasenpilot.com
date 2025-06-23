@@ -29,8 +29,7 @@ const SubscriptionCard = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             Free Plan
-            <Badge className="bg-green-600 text-white">Aktueller Plan</Badge>
-            {!isPremium && <Badge className="bg-green-600">Aktueller Plan</Badge>}
+            {!isPremium && <Badge className="bg-green-600 text-white">Aktueller Plan</Badge>}
           </CardTitle>
           <CardDescription>Grundlegende Rasenpflege-Features</CardDescription>
           <div className="text-2xl font-bold">€0 <span className="text-sm font-normal text-gray-500">für immer</span></div>
@@ -59,7 +58,7 @@ const SubscriptionCard = () => {
           <CardTitle className="flex items-center gap-2">
             <Crown className="h-5 w-5 text-yellow-500" />
             Premium Plan
-            {isPremium && <Badge className="bg-green-600">Aktueller Plan</Badge>}
+            {isPremium && <Badge className="bg-green-600 text-white">Aktueller Plan</Badge>}
           </CardTitle>
           <CardDescription>Vollständige Rasenpflege-Lösung</CardDescription>
           <div className="text-2xl font-bold">€9,99 <span className="text-sm font-normal text-gray-500">pro Monat</span></div>
