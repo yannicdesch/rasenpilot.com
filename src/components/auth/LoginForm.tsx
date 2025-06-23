@@ -76,8 +76,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo, onForgotPa
         
         toast.success('Erfolgreich angemeldet!');
         
-        // Don't call onSuccess here - let the auth state change handle navigation
-        // The ProtectedRoute and auth listeners will handle the redirect automatically
+        // The auth state change listener in Auth.tsx will handle the redirect
       }
 
     } catch (error) {

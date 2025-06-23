@@ -9,7 +9,6 @@ import { AlertTriangle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
 import { useLawn } from '@/context/LawnContext';
 
 const Auth = () => {
@@ -18,7 +17,6 @@ const Auth = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const { temporaryProfile, syncProfileWithSupabase } = useLawn();
   
   // Get initial active tab from URL search params
@@ -30,74 +28,7 @@ const Auth = () => {
   // Get pre-filled email from location state if available
   const prefillEmail = location.state?.prefillEmail || '';
 
-  useEffect(() => {
-    let mounted = true;
-    
-    // Check for existing authentication
-    const checkExistingAuth = async () => {
-      if (!isSupabaseReady) {
-        if (mounted) setCheckingAuth(false);
-        return;
-      }
-      
-      try {
-        console.log('Auth page: Checking for existing session...');
-        
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Auth page: Session check error:', error);
-          if (mounted) setCheckingAuth(false);
-          return;
-        }
-        
-        if (data.session && mounted) {
-          console.log('Auth page: User already authenticated, redirecting to:', from);
-          
-          // If we have temporary profile data, sync it first
-          if (temporaryProfile) {
-            console.log('Auth page: Found temporary profile, syncing before redirect');
-            try {
-              await syncProfileWithSupabase();
-            } catch (syncError) {
-              console.error('Auth page: Profile sync error:', syncError);
-            }
-          }
-          
-          // Navigate immediately
-          navigate(from, { replace: true });
-          return;
-        }
-        
-        if (mounted) {
-          console.log('Auth page: No active session found');
-          setCheckingAuth(false);
-        }
-        
-      } catch (error) {
-        console.error('Auth page: Unexpected error:', error);
-        if (mounted) setCheckingAuth(false);
-      }
-    };
-
-    // Timeout to prevent hanging
-    const authCheckTimeout = setTimeout(() => {
-      if (mounted) {
-        console.log('Auth page: Auth check timeout, proceeding to show auth form');
-        setCheckingAuth(false);
-      }
-    }, 1000);
-
-    checkExistingAuth();
-
-    return () => {
-      mounted = false;
-      clearTimeout(authCheckTimeout);
-    };
-    
-  }, [from, navigate, isSupabaseReady, temporaryProfile, syncProfileWithSupabase]);
-
-  // Set up auth listener for sign-in events - simplified
+  // Simple auth listener for successful sign-ins
   useEffect(() => {
     if (!isSupabaseReady) return;
 
@@ -105,10 +36,7 @@ const Auth = () => {
       console.log('Auth page: Auth state changed:', event, !!session);
       
       if (event === 'SIGNED_IN' && session) {
-        console.log('Auth page: User signed in, redirecting to dashboard...');
-        
-        // Simple redirect without complex profile syncing to avoid conflicts
-        toast.success('Erfolgreich eingeloggt!');
+        console.log('Auth page: User signed in, redirecting...');
         navigate('/dashboard', { replace: true });
       }
     });
@@ -132,18 +60,6 @@ const Auth = () => {
   const handleOnboardingSkip = () => {
     navigate(from, { replace: true });
   };
-
-  // Show loading with longer timeout
-  if (checkingAuth) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 to-white">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-green-200 border-t-green-600 rounded-full animate-spin mb-2 mx-auto"></div>
-          <p className="text-sm text-gray-500">Anmeldestatus wird überprüft...</p>
-        </div>
-      </div>
-    );
-  }
 
   // Main auth form display
   return (
