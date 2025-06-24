@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AIAnalysisResult {
@@ -33,6 +34,41 @@ const blobUrlToFile = async (blobUrl: string, filename: string = 'lawn-image.jpg
   return new File([blob], filename, { type: blob.type });
 };
 
+// Function to ensure the bucket exists
+const ensureBucketExists = async (): Promise<void> => {
+  try {
+    console.log('=== CHECKING IF BUCKET EXISTS ===');
+    
+    // Try to list buckets to see if lawn-images exists
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) {
+      console.error('Error listing buckets:', listError);
+      throw listError;
+    }
+    
+    const bucketExists = buckets?.some(bucket => bucket.name === 'lawn-images');
+    console.log('Bucket exists:', bucketExists);
+    
+    if (!bucketExists) {
+      console.log('=== CREATING BUCKET ===');
+      
+      // Try to call the edge function to create the bucket
+      const { data, error } = await supabase.functions.invoke('create-lawn-images-bucket');
+      
+      if (error) {
+        console.error('Error creating bucket via edge function:', error);
+        throw error;
+      }
+      
+      console.log('Bucket creation result:', data);
+    }
+  } catch (error) {
+    console.error('Error ensuring bucket exists:', error);
+    throw error;
+  }
+};
+
 export const analyzeImageWithAI = async (
   imageInput: File | string, // Can be File or blob URL
   grassType?: string,
@@ -55,6 +91,9 @@ export const analyzeImageWithAI = async (
       imageFile = imageInput;
       console.log('Using provided file, size:', imageFile.size, 'bytes');
     }
+    
+    // Ensure the bucket exists before trying to upload
+    await ensureBucketExists();
     
     // Upload the image to Supabase Storage
     const fileName = `lawn-analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${imageFile.name.split('.').pop()}`;

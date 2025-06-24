@@ -13,37 +13,44 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase configuration')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Create the lawn-images bucket
-    const { data, error } = await supabaseClient.storage.createBucket('lawn-images', {
+    const { data: bucketData, error: bucketError } = await supabase.storage.createBucket('lawn-images', {
       public: true,
-      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
       fileSizeLimit: 10485760 // 10MB
     })
 
-    if (error) {
-      console.log('Bucket creation error (might already exist):', error)
-    } else {
-      console.log('Bucket created successfully:', data)
+    if (bucketError && !bucketError.message.includes('already exists')) {
+      console.error('Bucket creation error:', bucketError)
+      throw bucketError
     }
 
-    return new Response(
-      JSON.stringify({ success: true, message: 'Bucket setup complete' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    console.log('Bucket created or already exists:', bucketData)
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'Lawn images bucket created successfully' 
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
 
   } catch (error) {
-    console.error('Error setting up bucket:', error)
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    console.error('Error creating bucket:', error)
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: error.message 
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
   }
 })
