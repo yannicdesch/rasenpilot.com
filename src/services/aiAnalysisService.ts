@@ -27,7 +27,7 @@ export interface AnalysisResponse {
   error?: string;
 }
 
-// New function to handle blob URL to File conversion
+// Helper function to convert blob URL to File
 const blobUrlToFile = async (blobUrl: string, filename: string = 'lawn-image.jpg'): Promise<File> => {
   const response = await fetch(blobUrl);
   const blob = await response.blob();
@@ -57,13 +57,13 @@ export const analyzeImageWithAI = async (
       console.log('Using provided file, size:', imageFile.size, 'bytes');
     }
     
-    // Upload the image to Supabase Storage (skip bucket existence check - let it fail gracefully)
+    // Generate unique filename for upload
     const fileName = `lawn-analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${imageFile.name.split('.').pop()}`;
     
     console.log('=== UPLOADING TO SUPABASE STORAGE ===');
     console.log('File name:', fileName);
     
-    // Add timeout to upload operation
+    // Upload the image to Supabase Storage with timeout
     const uploadPromise = supabase.storage
       .from('lawn-images')
       .upload(fileName, imageFile, {
@@ -71,21 +71,21 @@ export const analyzeImageWithAI = async (
         upsert: false
       });
     
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Upload timeout')), 30000)
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Upload timeout')), 15000)
     );
     
     const { data: uploadData, error: uploadError } = await Promise.race([
       uploadPromise,
       timeoutPromise
-    ]) as any;
+    ]);
 
     if (uploadError) {
       console.error('=== UPLOAD ERROR ===');
       console.error('Upload error details:', uploadError);
       
-      // If upload fails, use fallback analysis without image upload
-      console.log('=== USING FALLBACK ANALYSIS (no image upload) ===');
+      // Use fallback analysis without image upload
+      console.log('=== USING FALLBACK ANALYSIS (upload failed) ===');
       const fallbackResult = getMockAnalysis();
       return {
         success: true,
@@ -131,14 +131,14 @@ export const analyzeImageWithAI = async (
       }
     });
     
-    const edgeTimeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Edge function timeout')), 60000)
+    const edgeTimeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Edge function timeout')), 30000)
     );
     
     const { data, error } = await Promise.race([
       edgeFunctionPromise,
       edgeTimeoutPromise
-    ]) as any;
+    ]);
 
     console.log('=== EDGE FUNCTION RESPONSE ===');
     console.log('Data:', data);
@@ -185,7 +185,7 @@ export const analyzeImageWithAI = async (
   }
 };
 
-// Only used as absolute fallback - this should rarely be called
+// Mock analysis for fallback scenarios
 export const getMockAnalysis = (): AIAnalysisResult => {
   const randomHealth = Math.floor(Math.random() * 30) + 60; // 60-90
   const randomIssues = [
