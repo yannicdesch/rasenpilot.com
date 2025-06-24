@@ -4,22 +4,59 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, Sparkles, ArrowRight, Leaf, CheckCircle, Star, Zap, Loader2 } from 'lucide-react';
+import { Camera, Sparkles, ArrowRight, Leaf, CheckCircle, Star, Zap, Loader2, TestTube } from 'lucide-react';
 import LawnImageUpload from '@/components/LawnImageUpload';
 import { toast } from 'sonner';
 import { analyzeImageWithAI, getMockAnalysis, AIAnalysisResult } from '@/services/aiAnalysisService';
+import { supabase } from '@/integrations/supabase/client';
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
   const [lawnImage, setLawnImage] = useState<string>('');
   const [problem, setProblem] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null);
 
   const handleImageSelected = (imageUrl: string) => {
     console.log('=== IMAGE SELECTED IN LAWN ANALYSIS PAGE ===');
     console.log('Image URL:', imageUrl);
     setLawnImage(imageUrl);
+  };
+
+  const testOpenAI = async () => {
+    setIsTesting(true);
+    try {
+      console.log('=== TESTING OPENAI API KEY ===');
+      const { data, error } = await supabase.functions.invoke('test-openai');
+      
+      console.log('Test response:', data, error);
+      
+      if (error) {
+        toast.error(`Test failed: ${error.message}`);
+        console.error('Test error:', error);
+        return;
+      }
+      
+      if (data.success) {
+        toast.success(`✅ ${data.message}`);
+        console.log('✅ OpenAI API Key Test Results:');
+        console.log('Key Present:', data.keyPresent);
+        console.log('Key Valid:', data.keyValid);
+        console.log('OpenAI Response:', data.response);
+      } else {
+        toast.error(`❌ ${data.error}`);
+        console.error('❌ OpenAI API Key Test Results:');
+        console.error('Key Present:', data.keyPresent);
+        console.error('Key Valid:', data.keyValid);
+        console.error('Error:', data.error);
+      }
+    } catch (error) {
+      toast.error('Test function call failed');
+      console.error('Test function error:', error);
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   const handleAnalyze = async () => {
@@ -133,6 +170,28 @@ const LawnAnalysis = () => {
                 <CheckCircle className="h-5 w-5 text-purple-600" />
                 <span className="text-sm font-medium">Kostenlos</span>
               </div>
+            </div>
+
+            {/* Debug Test Button */}
+            <div className="mt-8">
+              <Button
+                onClick={testOpenAI}
+                disabled={isTesting}
+                variant="outline"
+                className="border-blue-300 text-blue-700 hover:bg-blue-50"
+              >
+                {isTesting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Testing...
+                  </>
+                ) : (
+                  <>
+                    <TestTube className="mr-2 h-4 w-4" />
+                    Test OpenAI API Key
+                  </>
+                )}
+              </Button>
             </div>
           </div>
 
