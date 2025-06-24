@@ -27,15 +27,34 @@ export interface AnalysisResponse {
   error?: string;
 }
 
-// Helper function to convert blob URL to File
-const blobUrlToFile = async (blobUrl: string, filename: string = 'lawn-image.jpg'): Promise<File> => {
-  const response = await fetch(blobUrl);
-  const blob = await response.blob();
-  return new File([blob], filename, { type: blob.type });
+// Helper function to convert image to base64
+const imageToBase64 = async (imageInput: File | string): Promise<string> => {
+  let imageFile: File;
+  
+  if (typeof imageInput === 'string') {
+    // Convert blob URL to File
+    const response = await fetch(imageInput);
+    const blob = await response.blob();
+    imageFile = new File([blob], 'lawn-image.jpg', { type: blob.type });
+  } else {
+    imageFile = imageInput;
+  }
+  
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove data URL prefix to get just the base64 data
+      const base64Data = result.split(',')[1];
+      resolve(base64Data);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(imageFile);
+  });
 };
 
 export const analyzeImageWithAI = async (
-  imageInput: File | string, // Can be File or blob URL
+  imageInput: File | string,
   grassType?: string,
   lawnGoal?: string
 ): Promise<AnalysisResponse> => {
@@ -45,87 +64,18 @@ export const analyzeImageWithAI = async (
     console.log('Grass type:', grassType);
     console.log('Lawn goal:', lawnGoal);
     
-    let imageFile: File;
-    
-    // If imageInput is a string (blob URL), convert it to File
-    if (typeof imageInput === 'string') {
-      console.log('Converting blob URL to File:', imageInput);
-      imageFile = await blobUrlToFile(imageInput);
-      console.log('Converted file size:', imageFile.size, 'bytes');
-    } else {
-      imageFile = imageInput;
-      console.log('Using provided file, size:', imageFile.size, 'bytes');
-    }
-    
-    // Generate unique filename for upload
-    const fileName = `lawn-analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${imageFile.name.split('.').pop()}`;
-    
-    console.log('=== UPLOADING TO SUPABASE STORAGE ===');
-    console.log('File name:', fileName);
-    
-    // Upload the image to Supabase Storage with timeout
-    const uploadPromise = supabase.storage
-      .from('lawn-images')
-      .upload(fileName, imageFile, {
-        cacheControl: '3600',
-        upsert: false
-      });
-    
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Upload timeout')), 15000)
-    );
-    
-    const { data: uploadData, error: uploadError } = await Promise.race([
-      uploadPromise,
-      timeoutPromise
-    ]);
+    // Convert image to base64 for direct analysis
+    console.log('=== CONVERTING IMAGE TO BASE64 ===');
+    const base64Image = await imageToBase64(imageInput);
+    console.log('Base64 conversion completed, length:', base64Image.length);
 
-    if (uploadError) {
-      console.error('=== UPLOAD ERROR ===');
-      console.error('Upload error details:', uploadError);
-      
-      // Use fallback analysis without image upload
-      console.log('=== USING FALLBACK ANALYSIS (upload failed) ===');
-      const fallbackResult = getMockAnalysis();
-      return {
-        success: true,
-        analysis: fallbackResult
-      };
-    }
-
-    console.log('=== UPLOAD SUCCESS ===');
-    console.log('Upload data:', uploadData);
-
-    // Get the public URL of the uploaded image
-    const { data: urlData } = supabase.storage
-      .from('lawn-images')
-      .getPublicUrl(fileName);
-
-    if (!urlData.publicUrl) {
-      console.error('=== URL GENERATION FAILED ===');
-      console.log('=== USING FALLBACK ANALYSIS (no URL) ===');
-      const fallbackResult = getMockAnalysis();
-      return {
-        success: true,
-        analysis: fallbackResult
-      };
-    }
-
-    console.log('=== PUBLIC URL GENERATED ===');
-    console.log('Public URL:', urlData.publicUrl);
-
-    // Call the Edge Function for AI analysis with timeout
-    console.log('=== CALLING EDGE FUNCTION ===');
+    // Call the Edge Function for AI analysis with base64 image
+    console.log('=== CALLING EDGE FUNCTION WITH BASE64 IMAGE ===');
     console.log('Function: analyze-lawn-image');
-    console.log('Payload:', {
-      imageUrl: urlData.publicUrl,
-      grassType,
-      lawnGoal
-    });
     
     const edgeFunctionPromise = supabase.functions.invoke('analyze-lawn-image', {
       body: {
-        imageUrl: urlData.publicUrl,
+        imageBase64: base64Image,
         grassType,
         lawnGoal
       }
@@ -153,17 +103,6 @@ export const analyzeImageWithAI = async (
         success: true,
         analysis: fallbackResult
       };
-    }
-
-    // Clean up uploaded image after analysis (don't wait for it)
-    try {
-      console.log('=== CLEANING UP TEMP IMAGE ===');
-      supabase.storage.from('lawn-images').remove([fileName]).catch(err => {
-        console.warn('Cleanup failed:', err);
-      });
-    } catch (cleanupError) {
-      console.warn('=== CLEANUP WARNING ===');
-      console.warn('Failed to cleanup temporary image:', cleanupError);
     }
 
     console.log('=== AI ANALYSIS SUCCESS ===');

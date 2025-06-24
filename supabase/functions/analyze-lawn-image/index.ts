@@ -13,9 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    const { imageUrl, grassType, lawnGoal } = await req.json()
+    const { imageBase64, grassType, lawnGoal } = await req.json()
     
-    console.log('Analyzing image:', imageUrl, 'with grass type:', grassType, 'and goal:', lawnGoal);
+    console.log('Analyzing base64 image with grass type:', grassType, 'and goal:', lawnGoal);
+    console.log('Base64 image length:', imageBase64?.length || 0);
     
     // Get OpenAI API key from Supabase secrets
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
@@ -52,7 +53,7 @@ serve(async (req) => {
       "generalRecommendations": ["string array"]
     }`;
 
-    // Call OpenAI Vision API
+    // Call OpenAI Vision API with base64 image
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -76,7 +77,7 @@ serve(async (req) => {
               {
                 type: 'image_url',
                 image_url: {
-                  url: imageUrl
+                  url: `data:image/jpeg;base64,${imageBase64}`
                 }
               }
             ]
