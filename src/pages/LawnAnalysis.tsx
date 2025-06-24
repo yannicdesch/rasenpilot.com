@@ -1,20 +1,24 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, Sparkles, ArrowRight, Leaf, CheckCircle, Star, Zap } from 'lucide-react';
+import { Camera, Sparkles, ArrowRight, Leaf, CheckCircle, Star, Zap, Loader2 } from 'lucide-react';
 import LawnImageUpload from '@/components/LawnImageUpload';
 import { toast } from 'sonner';
+import { analyzeImageWithAI, getMockAnalysis, AIAnalysisResult } from '@/services/aiAnalysisService';
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
   const [lawnImage, setLawnImage] = useState<string>('');
   const [problem, setProblem] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null);
 
   const handleImageSelected = (imageUrl: string) => {
+    console.log('=== IMAGE SELECTED IN LAWN ANALYSIS PAGE ===');
+    console.log('Image URL:', imageUrl);
     setLawnImage(imageUrl);
   };
 
@@ -24,28 +28,44 @@ const LawnAnalysis = () => {
       return;
     }
 
+    console.log('=== STARTING ANALYSIS IN LAWN ANALYSIS PAGE ===');
+    console.log('Image URL:', lawnImage);
+    console.log('Problem description:', problem);
+
     setIsAnalyzing(true);
     
-    // Simulate AI analysis
-    setTimeout(() => {
-      const mockResult = {
-        score: Math.floor(Math.random() * 40) + 60, // 60-100
-        issues: [
-          'Nährstoffmangel erkannt',
-          'Ungleichmäßige Bewässerung',
-          'Bodenverdichtung in Bereichen'
-        ],
-        recommendations: [
-          'Herbstdüngung mit Kalium',
-          'Aerifizierung empfohlen',
-          'Bewässerungszeiten anpassen'
-        ]
-      };
+    try {
+      console.log('=== CALLING AI ANALYSIS SERVICE ===');
       
-      setAnalysisResult(mockResult);
+      const result = await analyzeImageWithAI(
+        lawnImage,
+        'unknown', // default grass type
+        problem || 'Umfassende Rasenanalyse'
+      );
+
+      console.log('=== AI ANALYSIS RESULT ===');
+      console.log('Success:', result.success);
+      console.log('Error:', result.error);
+      console.log('Analysis data:', result.analysis);
+
+      if (result.success && result.analysis) {
+        setAnalysisResult(result.analysis);
+        toast.success('KI-Analyse erfolgreich abgeschlossen!');
+        console.log('Using REAL AI analysis result');
+      } else {
+        console.warn('AI analysis failed, using fallback mock analysis');
+        console.warn('Error details:', result.error);
+        setAnalysisResult(getMockAnalysis());
+        toast.success('Analyse abgeschlossen (Fallback-Modus verwendet).');
+      }
+    } catch (error) {
+      console.error('=== ANALYSIS ERROR ===');
+      console.error('Error details:', error);
+      setAnalysisResult(getMockAnalysis());
+      toast.error('Bei der Analyse ist ein Fehler aufgetreten. Fallback-Analyse wird verwendet.');
+    } finally {
       setIsAnalyzing(false);
-      toast.success('Analyse abgeschlossen!');
-    }, 3000);
+    }
   };
 
   const handleGetCarePlan = () => {
@@ -157,13 +177,13 @@ const LawnAnalysis = () => {
               >
                 {isAnalyzing ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     KI analysiert Ihren Rasen...
                   </>
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Kostenlose Analyse starten
+                    Kostenlose KI-Analyse starten
                   </>
                 )}
               </Button>
@@ -175,26 +195,26 @@ const LawnAnalysis = () => {
             <Card className="mb-8">
               <CardHeader>
                 <CardTitle className="text-2xl text-green-800">
-                  Ihre Rasenanalyse
+                  Ihre KI-Rasenanalyse
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div className="text-center">
                     <div className="text-4xl font-bold text-green-600 mb-2">
-                      {analysisResult.score}/100
+                      {analysisResult.overallHealth}/10
                     </div>
                     <p className="text-gray-600">Gesundheitsscore</p>
                   </div>
                   <div className="text-center">
                     <div className="text-4xl font-bold text-blue-600 mb-2">
-                      {analysisResult.issues.length}
+                      {analysisResult.issues?.length || 0}
                     </div>
                     <p className="text-gray-600">Probleme erkannt</p>
                   </div>
                   <div className="text-center">
                     <div className="text-4xl font-bold text-purple-600 mb-2">
-                      {analysisResult.recommendations.length}
+                      {analysisResult.generalRecommendations?.length || 0}
                     </div>
                     <p className="text-gray-600">Empfehlungen</p>
                   </div>
@@ -206,12 +226,14 @@ const LawnAnalysis = () => {
                       Erkannte Probleme:
                     </h3>
                     <ul className="space-y-2">
-                      {analysisResult.issues.map((issue: string, index: number) => (
+                      {analysisResult.issues?.map((issue, index) => (
                         <li key={index} className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-red-500 rounded-full" />
-                          <span className="text-gray-700">{issue}</span>
+                          <span className="text-gray-700">{issue.issue}</span>
                         </li>
-                      ))}
+                      )) || (
+                        <li className="text-gray-500">Keine spezifischen Probleme erkannt</li>
+                      )}
                     </ul>
                   </div>
 
@@ -220,12 +242,14 @@ const LawnAnalysis = () => {
                       Unsere Empfehlungen:
                     </h3>
                     <ul className="space-y-2">
-                      {analysisResult.recommendations.map((rec: string, index: number) => (
+                      {analysisResult.generalRecommendations?.map((rec, index) => (
                         <li key={index} className="flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-green-500" />
                           <span className="text-gray-700">{rec}</span>
                         </li>
-                      ))}
+                      )) || (
+                        <li className="text-gray-500">Keine spezifischen Empfehlungen verfügbar</li>
+                      )}
                     </ul>
                   </div>
                 </div>
