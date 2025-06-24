@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AIAnalysisResult {
@@ -34,38 +33,70 @@ const blobUrlToFile = async (blobUrl: string, filename: string = 'lawn-image.jpg
   return new File([blob], filename, { type: blob.type });
 };
 
-// Function to ensure the bucket exists
+// Simplified function to ensure the bucket exists with timeout
 const ensureBucketExists = async (): Promise<void> => {
   try {
-    console.log('=== CHECKING IF BUCKET EXISTS ===');
+    console.log('=== CHECKING IF BUCKET EXISTS (with timeout) ===');
     
-    // Try to list buckets to see if lawn-images exists
-    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Bucket check timeout')), 5000)
+    );
+    
+    // Try to list buckets with timeout
+    const listBucketsPromise = supabase.storage.listBuckets();
+    
+    const { data: buckets, error: listError } = await Promise.race([
+      listBucketsPromise,
+      timeoutPromise
+    ]) as any;
     
     if (listError) {
-      console.error('Error listing buckets:', listError);
-      throw listError;
+      console.warn('Error listing buckets, attempting to create:', listError);
+      // If we can't list buckets, just try to create it
+      await createBucket();
+      return;
     }
     
-    const bucketExists = buckets?.some(bucket => bucket.name === 'lawn-images');
+    const bucketExists = buckets?.some((bucket: any) => bucket.name === 'lawn-images');
     console.log('Bucket exists:', bucketExists);
     
     if (!bucketExists) {
       console.log('=== CREATING BUCKET ===');
-      
-      // Try to call the edge function to create the bucket
-      const { data, error } = await supabase.functions.invoke('create-lawn-images-bucket');
-      
-      if (error) {
-        console.error('Error creating bucket via edge function:', error);
-        throw error;
-      }
-      
-      console.log('Bucket creation result:', data);
+      await createBucket();
     }
   } catch (error) {
-    console.error('Error ensuring bucket exists:', error);
-    throw error;
+    console.warn('Bucket check failed, attempting to create bucket anyway:', error);
+    // If bucket check fails, try to create it anyway
+    await createBucket();
+  }
+};
+
+// Separate function to create bucket
+const createBucket = async (): Promise<void> => {
+  try {
+    console.log('=== CALLING CREATE BUCKET EDGE FUNCTION ===');
+    
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Bucket creation timeout')), 10000)
+    );
+    
+    const createPromise = supabase.functions.invoke('create-lawn-images-bucket');
+    
+    const { data, error } = await Promise.race([
+      createPromise,
+      timeoutPromise
+    ]) as any;
+    
+    if (error) {
+      console.error('Error creating bucket via edge function:', error);
+      throw error;
+    }
+    
+    console.log('Bucket creation result:', data);
+  } catch (error) {
+    console.error('Bucket creation failed:', error);
+    // Don't throw here - we'll proceed with upload anyway and let Supabase handle the error
   }
 };
 
@@ -92,8 +123,13 @@ export const analyzeImageWithAI = async (
       console.log('Using provided file, size:', imageFile.size, 'bytes');
     }
     
-    // Ensure the bucket exists before trying to upload
-    await ensureBucketExists();
+    // Ensure the bucket exists before trying to upload (with timeout)
+    try {
+      await ensureBucketExists();
+      console.log('=== BUCKET CHECK COMPLETED ===');
+    } catch (error) {
+      console.warn('Bucket setup failed, proceeding with upload anyway:', error);
+    }
     
     // Upload the image to Supabase Storage
     const fileName = `lawn-analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${imageFile.name.split('.').pop()}`;
