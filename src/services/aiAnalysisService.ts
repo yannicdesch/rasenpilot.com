@@ -32,10 +32,11 @@ const imageToBase64 = async (imageInput: File | string): Promise<string> => {
   let imageFile: File;
   
   if (typeof imageInput === 'string') {
-    // Convert blob URL to File
+    console.log('Converting blob URL to File:', imageInput);
     const response = await fetch(imageInput);
     const blob = await response.blob();
     imageFile = new File([blob], 'lawn-image.jpg', { type: blob.type });
+    console.log('Converted file size:', imageFile.size, 'bytes');
   } else {
     imageFile = imageInput;
   }
@@ -44,8 +45,8 @@ const imageToBase64 = async (imageInput: File | string): Promise<string> => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      // Remove data URL prefix to get just the base64 data
       const base64Data = result.split(',')[1];
+      console.log('Base64 conversion completed, length:', base64Data.length);
       resolve(base64Data);
     };
     reader.onerror = reject;
@@ -64,40 +65,56 @@ export const analyzeImageWithAI = async (
     console.log('Grass type:', grassType);
     console.log('Lawn goal:', lawnGoal);
     
-    // Convert image to base64 for direct analysis
-    console.log('=== CONVERTING IMAGE TO BASE64 ===');
+    // Convert image to base64
     const base64Image = await imageToBase64(imageInput);
-    console.log('Base64 conversion completed, length:', base64Image.length);
+    console.log('Base64 image ready for edge function, length:', base64Image.length);
 
     // Call the Edge Function for AI analysis with base64 image
     console.log('=== CALLING EDGE FUNCTION WITH BASE64 IMAGE ===');
     console.log('Function: analyze-lawn-image');
+    console.log('Payload size check - base64 length:', base64Image.length);
     
-    const edgeFunctionPromise = supabase.functions.invoke('analyze-lawn-image', {
-      body: {
-        imageBase64: base64Image,
-        grassType,
-        lawnGoal
-      }
-    });
-    
-    const edgeTimeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Edge function timeout')), 30000)
-    );
+    const edgeFunctionStart = Date.now();
     
     const { data, error } = await Promise.race([
-      edgeFunctionPromise,
-      edgeTimeoutPromise
+      supabase.functions.invoke('analyze-lawn-image', {
+        body: {
+          imageBase64: base64Image,
+          grassType,
+          lawnGoal
+        }
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Edge function timeout after 45 seconds')), 45000)
+      )
     ]);
 
+    const edgeFunctionDuration = Date.now() - edgeFunctionStart;
     console.log('=== EDGE FUNCTION RESPONSE ===');
-    console.log('Data:', data);
-    console.log('Error:', error);
+    console.log('Duration:', edgeFunctionDuration + 'ms');
+    console.log('Data received:', !!data);
+    console.log('Error received:', !!error);
+    
+    if (error) {
+      console.error('=== EDGE FUNCTION ERROR DETAILS ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
+      console.error('Error hint:', error.hint);
+      console.error('Error code:', error.code);
+    }
+    
+    if (data) {
+      console.log('=== EDGE FUNCTION DATA DETAILS ===');
+      console.log('Data keys:', Object.keys(data));
+      console.log('Success field:', data.success);
+      console.log('Analysis field present:', !!data.analysis);
+      console.log('Error field:', data.error);
+    }
 
     if (error) {
-      console.error('=== EDGE FUNCTION ERROR ===');
-      console.error('Error details:', error);
-      console.log('=== USING FALLBACK ANALYSIS (edge function failed) ===');
+      console.log('=== EDGE FUNCTION FAILED, USING FALLBACK ===');
+      console.log('Error details:', error);
       const fallbackResult = getMockAnalysis();
       return {
         success: true,
@@ -105,8 +122,18 @@ export const analyzeImageWithAI = async (
       };
     }
 
-    console.log('=== AI ANALYSIS SUCCESS ===');
-    return data as AnalysisResponse;
+    if (data && data.success && data.analysis) {
+      console.log('=== REAL AI ANALYSIS SUCCESS ===');
+      return data as AnalysisResponse;
+    } else {
+      console.log('=== EDGE FUNCTION RETURNED NO VALID DATA ===');
+      console.log('Response data:', data);
+      const fallbackResult = getMockAnalysis();
+      return {
+        success: true,
+        analysis: fallbackResult
+      };
+    }
 
   } catch (error) {
     console.error('=== AI ANALYSIS SERVICE ERROR ===');
