@@ -86,9 +86,6 @@ export const startImageAnalysis = async (
     
     if (jobError) {
       console.error('Job creation error details:', jobError);
-      console.error('Job error message:', jobError.message);
-      console.error('Job error details:', jobError.details);
-      console.error('Job error hint:', jobError.hint);
       throw new Error(`Job creation failed: ${jobError.message}`);
     }
     
@@ -98,12 +95,13 @@ export const startImageAnalysis = async (
       throw new Error('Job creation returned null/undefined');
     }
     
-    // Trigger background processing
+    // Trigger background processing with proper payload
     console.log('Invoking start-analysis function...');
-    console.log('Function payload:', { jobId: jobData });
+    const functionPayload = { jobId: jobData };
+    console.log('Function payload being sent:', JSON.stringify(functionPayload));
     
     const { data: functionResponse, error: functionError } = await supabase.functions.invoke('start-analysis', {
-      body: { jobId: jobData }
+      body: functionPayload
     });
     
     console.log('Function response received:', functionResponse);
@@ -111,8 +109,6 @@ export const startImageAnalysis = async (
     
     if (functionError) {
       console.error('Function error details:', functionError);
-      console.error('Function error message:', functionError.message);
-      console.error('Function error context:', functionError.context);
       throw new Error(`Failed to start analysis: ${functionError.message}`);
     }
     

@@ -14,11 +14,27 @@ serve(async (req) => {
 
   try {
     console.log('=== START ANALYSIS FUNCTION ===');
+    console.log('Request method:', req.method);
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
-    const { jobId } = await req.json();
-    console.log('Processing job ID:', jobId);
+    // Read and log the raw request body
+    const requestText = await req.text();
+    console.log('Raw request body:', requestText);
+    
+    let requestBody;
+    try {
+      requestBody = JSON.parse(requestText);
+      console.log('Parsed request body:', requestBody);
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      throw new Error('Invalid JSON in request body');
+    }
+    
+    const { jobId } = requestBody;
+    console.log('Extracted jobId:', jobId);
     
     if (!jobId) {
+      console.error('Job ID is missing from request body');
       throw new Error('Job ID is required');
     }
 
@@ -28,6 +44,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Update job status to processing
+    console.log('Updating job status to processing for job:', jobId);
     const { error: updateError } = await supabase
       .from('analysis_jobs')
       .update({ 
@@ -44,6 +61,7 @@ serve(async (req) => {
     console.log('Job status updated to processing');
 
     // Start background processing (call process-analysis function)
+    console.log('Invoking process-analysis function with jobId:', jobId);
     const { error: processError } = await supabase.functions.invoke('process-analysis', {
       body: { jobId }
     });
