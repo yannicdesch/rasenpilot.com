@@ -26,34 +26,50 @@ const LawnAnalysis = () => {
 
   const testOpenAI = async () => {
     setIsTesting(true);
+    console.log('=== STARTING OPENAI TEST ===');
+    
     try {
-      console.log('=== TESTING OPENAI API KEY ===');
-      const { data, error } = await supabase.functions.invoke('test-openai');
+      console.log('Calling test-openai edge function...');
       
-      console.log('Test response:', data, error);
+      const { data, error } = await supabase.functions.invoke('test-openai', {
+        body: {}
+      });
+      
+      console.log('=== TEST RESPONSE RECEIVED ===');
+      console.log('Data:', data);
+      console.log('Error:', error);
       
       if (error) {
+        console.error('❌ Supabase function error:', error);
         toast.error(`Test failed: ${error.message}`);
-        console.error('Test error:', error);
         return;
       }
       
-      if (data.success) {
-        toast.success(`✅ ${data.message}`);
-        console.log('✅ OpenAI API Key Test Results:');
-        console.log('Key Present:', data.keyPresent);
-        console.log('Key Valid:', data.keyValid);
-        console.log('OpenAI Response:', data.response);
+      if (data) {
+        console.log('✅ Test completed successfully');
+        console.log('Response data:', JSON.stringify(data, null, 2));
+        
+        if (data.success) {
+          toast.success(`✅ ${data.message}`);
+          console.log('✅ OpenAI API Key Test Results:');
+          console.log('Key Present:', data.keyPresent);
+          console.log('Key Valid:', data.keyValid);
+          console.log('OpenAI Response:', data.response);
+        } else {
+          toast.error(`❌ ${data.error}`);
+          console.error('❌ OpenAI API Key Test Results:');
+          console.error('Key Present:', data.keyPresent);
+          console.error('Key Valid:', data.keyValid || false);
+          console.error('Error:', data.error);
+        }
       } else {
-        toast.error(`❌ ${data.error}`);
-        console.error('❌ OpenAI API Key Test Results:');
-        console.error('Key Present:', data.keyPresent);
-        console.error('Key Valid:', data.keyValid);
-        console.error('Error:', data.error);
+        console.error('❌ No data received from test function');
+        toast.error('No response from test function');
       }
+      
     } catch (error) {
-      toast.error('Test function call failed');
-      console.error('Test function error:', error);
+      console.error('❌ Test function call failed:', error);
+      toast.error(`Test function call failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsTesting(false);
     }
