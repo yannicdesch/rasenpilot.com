@@ -58,23 +58,18 @@ export const startImageAnalysis = async (
     
     console.log('Upload successful:', uploadData);
     
-    // Create analysis job
-    const { data: jobData, error: jobError } = await supabase
-      .from('analysis_jobs')
-      .insert({
-        user_id: user?.id,
-        image_path: filePath,
-        grass_type: grassType,
-        lawn_goal: lawnGoal,
-        status: 'pending',
-        metadata: {
-          original_size: imageFile.size,
-          compressed_size: compressedFile.size,
-          file_name: compressedFile.name
-        }
-      })
-      .select()
-      .single();
+    // Create analysis job using RPC to bypass type issues
+    const { data: jobData, error: jobError } = await supabase.rpc('create_analysis_job', {
+      p_user_id: user?.id,
+      p_image_path: filePath,
+      p_grass_type: grassType,
+      p_lawn_goal: lawnGoal,
+      p_metadata: {
+        original_size: imageFile.size,
+        compressed_size: compressedFile.size,
+        file_name: compressedFile.name
+      }
+    });
     
     if (jobError) {
       console.error('Job creation error:', jobError);
@@ -85,12 +80,12 @@ export const startImageAnalysis = async (
     
     // Trigger background processing
     await supabase.functions.invoke('start-analysis', {
-      body: { jobId: jobData.id }
+      body: { jobId: jobData }
     });
     
     return {
       success: true,
-      jobId: jobData.id
+      jobId: jobData
     };
     
   } catch (error) {
@@ -103,18 +98,16 @@ export const startImageAnalysis = async (
   }
 };
 
-// Get analysis job status and result
+// Get analysis job status and result using RPC
 export const getAnalysisResult = async (jobId: string): Promise<{
   success: boolean;
   job?: AnalysisJob;
   error?: string;
 }> => {
   try {
-    const { data: job, error } = await supabase
-      .from('analysis_jobs')
-      .select('*')
-      .eq('id', jobId)
-      .single();
+    const { data: job, error } = await supabase.rpc('get_analysis_job', {
+      p_job_id: jobId
+    });
     
     if (error) {
       throw new Error(error.message);
@@ -122,7 +115,7 @@ export const getAnalysisResult = async (jobId: string): Promise<{
     
     return {
       success: true,
-      job
+      job: job as AnalysisJob
     };
     
   } catch (error) {
