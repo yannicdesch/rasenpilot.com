@@ -29,11 +29,21 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
   const [statusMessage, setStatusMessage] = useState('');
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [isTestingStorage, setIsTestingStorage] = useState(false);
+  const [currentCleanup, setCurrentCleanup] = useState<(() => void) | null>(null);
 
   const addDebugLog = (message: string) => {
     console.log(message);
     setDebugLogs(prev => [...prev.slice(-9), `${new Date().toLocaleTimeString()}: ${message}`]);
   };
+
+  // Cleanup polling when component unmounts
+  useEffect(() => {
+    return () => {
+      if (currentCleanup) {
+        currentCleanup();
+      }
+    };
+  }, [currentCleanup]);
 
   const testStorageConnection = async () => {
     setIsTestingStorage(true);
@@ -99,6 +109,12 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
       return;
     }
 
+    // Clean up any existing polling
+    if (currentCleanup) {
+      currentCleanup();
+      setCurrentCleanup(null);
+    }
+
     setIsProcessing(true);
     setProgress(10);
     setStatusMessage('Bild wird hochgeladen...');
@@ -110,6 +126,7 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
     addDebugLog(`Lawn goal: ${lawnGoal || 'default'}`);
 
     try {
+      addDebugLog('Calling startImageAnalysis...');
       const result = await startImageAnalysis(selectedFile, grassType, lawnGoal);
       
       addDebugLog(`Start analysis result: ${JSON.stringify(result)}`);
@@ -124,6 +141,7 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
       toast.success('Analyse gestartet! Dies kann einige Minuten dauern.');
 
       // Start polling for results
+      addDebugLog('Starting job polling...');
       const cleanup = pollJobStatus(
         result.jobId,
         (job) => {
@@ -146,6 +164,7 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
           setProgress(100);
           setStatusMessage('Analyse abgeschlossen!');
           setIsProcessing(false);
+          setCurrentCleanup(null);
           addDebugLog('Analysis completed successfully');
           
           if (job.result && onAnalysisComplete) {
@@ -158,13 +177,14 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
           setIsProcessing(false);
           setProgress(0);
           setStatusMessage('');
+          setCurrentCleanup(null);
           addDebugLog(`Analysis failed: ${error}`);
           toast.error('Fehler bei der Analyse: ' + error);
         }
       );
 
-      // Cleanup polling when component unmounts or new analysis starts
-      return () => cleanup();
+      // Store cleanup function
+      setCurrentCleanup(() => cleanup);
 
     } catch (error) {
       setIsProcessing(false);
@@ -221,7 +241,7 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
           <div className="flex items-center gap-2">
             <Button
               onClick={testStorageConnection}
-              disabled={isTestingStorage}
+              disabled={isTestingStorage || isProcessing}
               variant="outline"
               size="sm"
               className="text-xs"
