@@ -85,7 +85,7 @@ export const startImageAnalysis = async (
     
     return {
       success: true,
-      jobId: jobData
+      jobId: jobData as string
     };
     
   } catch (error) {
@@ -115,7 +115,7 @@ export const getAnalysisResult = async (jobId: string): Promise<{
     
     return {
       success: true,
-      job: job as AnalysisJob
+      job: job as unknown as AnalysisJob
     };
     
   } catch (error) {
