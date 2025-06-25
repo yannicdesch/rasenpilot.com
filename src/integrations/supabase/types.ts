@@ -408,9 +408,32 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_analysis_job: {
+        Args: {
+          p_user_id: string
+          p_image_path: string
+          p_grass_type?: string
+          p_lawn_goal?: string
+          p_metadata?: Json
+        }
+        Returns: string
+      }
+      get_analysis_job: {
+        Args: { p_job_id: string }
+        Returns: Json
+      }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      update_analysis_job: {
+        Args: {
+          p_job_id: string
+          p_status?: string
+          p_result?: Json
+          p_error_message?: string
+        }
+        Returns: boolean
       }
       update_user_highscore: {
         Args: {
