@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import imageCompression from 'browser-image-compression';
 
@@ -28,6 +27,7 @@ export const startImageAnalysis = async (
     console.log('Original file size:', imageFile.size, 'bytes');
     
     // Compress the image
+    console.log('Starting image compression...');
     const compressedFile = await imageCompression(imageFile, {
       maxSizeMB: 1,
       maxWidthOrHeight: 1024,
@@ -35,10 +35,12 @@ export const startImageAnalysis = async (
     });
     
     console.log('Compressed file size:', compressedFile.size, 'bytes');
+    console.log('Compression ratio:', ((imageFile.size - compressedFile.size) / imageFile.size * 100).toFixed(1) + '%');
     
     // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log('Current user:', user ? user.id : 'anonymous');
+    console.log('Getting current user...');
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    console.log('Current user:', user ? user.id : 'anonymous', userError ? 'Error: ' + userError.message : 'Success');
     
     // Create unique file path
     const fileExt = compressedFile.name.split('.').pop();
@@ -48,24 +50,33 @@ export const startImageAnalysis = async (
     console.log('Uploading to path:', filePath);
     
     // Upload to Supabase Storage
+    console.log('Starting storage upload...');
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('lawn-images')
       .upload(filePath, compressedFile);
     
     if (uploadError) {
-      console.error('Upload error:', uploadError);
+      console.error('Upload error details:', uploadError);
       throw new Error(`Upload failed: ${uploadError.message}`);
     }
     
     console.log('Upload successful:', uploadData);
+    console.log('Upload path confirmed:', uploadData.path);
     
     // Create analysis job using RPC to bypass type issues
     console.log('Creating analysis job with RPC...');
-    const { data: jobData, error: jobError } = await supabase.rpc('create_analysis_job', {
-      p_user_id: user?.id,
+    console.log('RPC parameters:', {
+      p_user_id: user?.id || null,
       p_image_path: filePath,
-      p_grass_type: grassType,
-      p_lawn_goal: lawnGoal,
+      p_grass_type: grassType || null,
+      p_lawn_goal: lawnGoal || null
+    });
+    
+    const { data: jobData, error: jobError } = await supabase.rpc('create_analysis_job', {
+      p_user_id: user?.id || null,
+      p_image_path: filePath,
+      p_grass_type: grassType || null,
+      p_lawn_goal: lawnGoal || null,
       p_metadata: {
         original_size: imageFile.size,
         compressed_size: compressedFile.size,
@@ -74,23 +85,43 @@ export const startImageAnalysis = async (
     });
     
     if (jobError) {
-      console.error('Job creation error:', jobError);
+      console.error('Job creation error details:', jobError);
+      console.error('Job error message:', jobError.message);
+      console.error('Job error details:', jobError.details);
+      console.error('Job error hint:', jobError.hint);
       throw new Error(`Job creation failed: ${jobError.message}`);
     }
     
-    console.log('Job created with ID:', jobData);
+    console.log('Job created successfully with ID:', jobData);
+    
+    if (!jobData) {
+      throw new Error('Job creation returned null/undefined');
+    }
     
     // Trigger background processing
     console.log('Invoking start-analysis function...');
+    console.log('Function payload:', { jobId: jobData });
+    
     const { data: functionResponse, error: functionError } = await supabase.functions.invoke('start-analysis', {
       body: { jobId: jobData }
     });
     
-    console.log('Function response:', functionResponse);
+    console.log('Function response received:', functionResponse);
+    console.log('Function error:', functionError);
+    
     if (functionError) {
-      console.error('Function error:', functionError);
+      console.error('Function error details:', functionError);
+      console.error('Function error message:', functionError.message);
+      console.error('Function error context:', functionError.context);
       throw new Error(`Failed to start analysis: ${functionError.message}`);
     }
+    
+    if (!functionResponse || !functionResponse.success) {
+      console.error('Function returned unsuccessful response:', functionResponse);
+      throw new Error(functionResponse?.error || 'Function returned unsuccessful response');
+    }
+    
+    console.log('Analysis started successfully, returning job ID:', jobData);
     
     return {
       success: true,
@@ -99,7 +130,11 @@ export const startImageAnalysis = async (
     
   } catch (error) {
     console.error('=== ASYNC ANALYSIS ERROR ===');
-    console.error('Error details:', error);
+    console.error('Error type:', typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Full error object:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
