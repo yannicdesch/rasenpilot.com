@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import imageCompression from 'browser-image-compression';
 
 export interface AIAnalysisResult {
   overallHealth: number;
@@ -27,7 +28,7 @@ export interface AnalysisResponse {
   error?: string;
 }
 
-// Helper function to convert image to base64
+// Helper function to convert image to base64 with compression
 const imageToBase64 = async (imageInput: File | string): Promise<string> => {
   let imageFile: File;
   
@@ -36,10 +37,22 @@ const imageToBase64 = async (imageInput: File | string): Promise<string> => {
     const response = await fetch(imageInput);
     const blob = await response.blob();
     imageFile = new File([blob], 'lawn-image.jpg', { type: blob.type });
-    console.log('Converted file size:', imageFile.size, 'bytes');
+    console.log('Original file size:', imageFile.size, 'bytes');
   } else {
     imageFile = imageInput;
+    console.log('Original file size:', imageFile.size, 'bytes');
   }
+  
+  // Compress the image before converting to base64
+  console.log('=== COMPRESSING IMAGE ===');
+  const compressedFile = await imageCompression(imageFile, {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1024,
+    useWebWorker: false // Disable web worker to avoid potential issues
+  });
+  
+  console.log('Compressed file size:', compressedFile.size, 'bytes');
+  console.log('Compression ratio:', Math.round((1 - compressedFile.size / imageFile.size) * 100) + '%');
   
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -50,7 +63,7 @@ const imageToBase64 = async (imageInput: File | string): Promise<string> => {
       resolve(base64Data);
     };
     reader.onerror = reject;
-    reader.readAsDataURL(imageFile);
+    reader.readAsDataURL(compressedFile);
   });
 };
 

@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { Upload, Image } from 'lucide-react';
+import { Upload, Image, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import imageCompression from 'browser-image-compression';
 
 interface LawnImageUploadProps {
   onImageSelected: (imageUrl: string) => void;
@@ -14,14 +15,14 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
   const [preview, setPreview] = useState<string | undefined>(currentImage);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 10MB - increased from 5MB)
-    if (file.size > 10 * 1024 * 1024) {
+    // Check file size (max 50MB for original)
+    if (file.size > 50 * 1024 * 1024) {
       toast.error("Das Bild ist zu groß", {
-        description: "Bitte wähle ein Bild unter 10MB."
+        description: "Bitte wähle ein Bild unter 50MB."
       });
       return;
     }
@@ -36,19 +37,37 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
 
     setIsUploading(true);
 
-    // Create a URL for preview
-    const imageUrl = URL.createObjectURL(file);
-    setPreview(imageUrl);
-    onImageSelected(imageUrl);
-    
-    // In a real-world scenario, you would upload the image to a server or storage service here
-    // For now, we'll just simulate a delay
-    setTimeout(() => {
-      setIsUploading(false);
-      toast.success("Bild erfolgreich hochgeladen", {
-        description: "Dein Rasenbild wurde gespeichert."
+    try {
+      console.log('=== COMPRESSING IMAGE IN UPLOAD ===');
+      console.log('Original file size:', file.size, 'bytes');
+      
+      // Compress the image
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: false
       });
-    }, 1000);
+      
+      console.log('Compressed file size:', compressedFile.size, 'bytes');
+      const compressionRatio = Math.round((1 - compressedFile.size / file.size) * 100);
+      console.log('Compression ratio:', compressionRatio + '%');
+
+      // Create a URL for preview
+      const imageUrl = URL.createObjectURL(compressedFile);
+      setPreview(imageUrl);
+      onImageSelected(imageUrl);
+      
+      toast.success("Bild erfolgreich komprimiert und hochgeladen", {
+        description: `Größe reduziert um ${compressionRatio}%`
+      });
+    } catch (error) {
+      console.error('Image compression error:', error);
+      toast.error("Fehler beim Komprimieren des Bildes", {
+        description: "Bitte versuchen Sie es erneut."
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const triggerFileInput = () => {
@@ -74,8 +93,17 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
               onClick={triggerFileInput}
               disabled={isUploading}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Ändern
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Komprimiere...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Ändern
+                </>
+              )}
             </Button>
           </div>
         ) : (
@@ -86,11 +114,20 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
               disabled={isUploading}
               className="bg-green-600 hover:bg-green-700 text-white mb-2"
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Rasenbild hochladen
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Komprimiere...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Rasenbild hochladen
+                </>
+              )}
             </Button>
             <span className="text-sm text-gray-500 font-medium">oder hier klicken zum Hochladen</span>
-            <span className="text-xs text-gray-400 mt-1">JPG, PNG (max. 10MB)</span>
+            <span className="text-xs text-gray-400 mt-1">JPG, PNG (wird automatisch komprimiert)</span>
           </div>
         )}
         <input 
@@ -105,7 +142,7 @@ const LawnImageUpload: React.FC<LawnImageUploadProps> = ({ onImageSelected, curr
       
       {isUploading && (
         <div className="text-sm text-center text-gray-500">
-          Bild wird hochgeladen...
+          Bild wird komprimiert und hochgeladen...
         </div>
       )}
     </div>
