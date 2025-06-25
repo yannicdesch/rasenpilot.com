@@ -5,24 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Camera, Sparkles, ArrowRight, Leaf, CheckCircle, Star, Zap, Loader2, TestTube } from 'lucide-react';
-import LawnImageUpload from '@/components/LawnImageUpload';
+import AsyncLawnAnalyzer from '@/components/AsyncLawnAnalyzer';
 import { toast } from 'sonner';
-import { analyzeImageWithAI, getMockAnalysis, AIAnalysisResult } from '@/services/aiAnalysisService';
+import { AIAnalysisResult } from '@/services/aiAnalysisService';
 import { supabase } from '@/integrations/supabase/client';
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
-  const [lawnImage, setLawnImage] = useState<string>('');
   const [problem, setProblem] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null);
-
-  const handleImageSelected = (imageUrl: string) => {
-    console.log('=== IMAGE SELECTED IN LAWN ANALYSIS PAGE ===');
-    console.log('Image URL:', imageUrl);
-    setLawnImage(imageUrl);
-  };
 
   const testOpenAI = async () => {
     setIsTesting(true);
@@ -75,50 +67,11 @@ const LawnAnalysis = () => {
     }
   };
 
-  const handleAnalyze = async () => {
-    if (!lawnImage) {
-      toast.error('Bitte laden Sie zuerst ein Bild hoch');
-      return;
-    }
-
-    console.log('=== STARTING ANALYSIS IN LAWN ANALYSIS PAGE ===');
-    console.log('Image URL:', lawnImage);
-    console.log('Problem description:', problem);
-
-    setIsAnalyzing(true);
-    
-    try {
-      console.log('=== CALLING AI ANALYSIS SERVICE ===');
-      
-      const result = await analyzeImageWithAI(
-        lawnImage,
-        'unknown', // default grass type
-        problem || 'Umfassende Rasenanalyse'
-      );
-
-      console.log('=== AI ANALYSIS RESULT ===');
-      console.log('Success:', result.success);
-      console.log('Error:', result.error);
-      console.log('Analysis data:', result.analysis);
-
-      if (result.success && result.analysis) {
-        setAnalysisResult(result.analysis);
-        toast.success('KI-Analyse erfolgreich abgeschlossen!');
-        console.log('Using REAL AI analysis result');
-      } else {
-        console.warn('AI analysis failed, using fallback mock analysis');
-        console.warn('Error details:', result.error);
-        setAnalysisResult(getMockAnalysis());
-        toast.success('Analyse abgeschlossen (Fallback-Modus verwendet).');
-      }
-    } catch (error) {
-      console.error('=== ANALYSIS ERROR ===');
-      console.error('Error details:', error);
-      setAnalysisResult(getMockAnalysis());
-      toast.error('Bei der Analyse ist ein Fehler aufgetreten. Fallback-Analyse wird verwendet.');
-    } finally {
-      setIsAnalyzing(false);
-    }
+  const handleAnalysisComplete = (results: AIAnalysisResult) => {
+    console.log('=== ANALYSIS COMPLETE ===');
+    console.log('Results:', results);
+    setAnalysisResult(results);
+    toast.success('KI-Analyse erfolgreich abgeschlossen!');
   };
 
   const handleGetCarePlan = () => {
@@ -167,24 +120,24 @@ const LawnAnalysis = () => {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-green-800 mb-4">
-              Kostenlose KI-Rasenanalyse
+              Neue Asynchrone KI-Rasenanalyse
             </h1>
             <p className="text-xl text-gray-600 mb-6">
-              Laden Sie ein Foto Ihres Rasens hoch und erhalten Sie in 60 Sekunden eine professionelle Diagnose
+              Ohne Timeouts! Lade ein Foto hoch und erhalte eine zuverlässige Analyse im Hintergrund
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
               <div className="flex items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-sm">
                 <Zap className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium">60 Sek. Analyse</span>
+                <span className="text-sm font-medium">Keine Timeouts</span>
               </div>
               <div className="flex items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-sm">
                 <Star className="h-5 w-5 text-blue-600" />
-                <span className="text-sm font-medium">98,3% Genauigkeit</span>
+                <span className="text-sm font-medium">Zuverlässig</span>
               </div>
               <div className="flex items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-sm">
                 <CheckCircle className="h-5 w-5 text-purple-600" />
-                <span className="text-sm font-medium">Kostenlos</span>
+                <span className="text-sm font-medium">Hintergrundverarbeitung</span>
               </div>
             </div>
 
@@ -212,30 +165,26 @@ const LawnAnalysis = () => {
           </div>
 
           {/* Analysis Form */}
+          <div className="mb-8">
+            <AsyncLawnAnalyzer
+              onAnalysisComplete={handleAnalysisComplete}
+              grassType="unknown"
+              lawnGoal={problem || 'Umfassende Rasenanalyse'}
+            />
+          </div>
+
+          {/* Problem Description */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Camera className="h-6 w-6 text-green-600" />
-                Rasenbild hochladen
+                Zusätzliche Beschreibung (optional)
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Foto Ihres Rasens
-                </label>
-                <LawnImageUpload
-                  onImageSelected={handleImageSelected}
-                  currentImage={lawnImage}
-                />
-                <p className="text-sm text-gray-500 mt-2">
-                  Für beste Ergebnisse: Foto bei Tageslicht, ca. 2-3 Meter Entfernung
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Beschreiben Sie Ihr Rasenproblem (optional)
+                  Beschreibe dein Rasenproblem im Detail
                 </label>
                 <Textarea
                   placeholder="z.B. Gelbe Flecken trotz regelmäßiger Bewässerung, Moos breitet sich aus, kahle Stellen..."
@@ -244,24 +193,6 @@ const LawnAnalysis = () => {
                   className="min-h-[100px]"
                 />
               </div>
-
-              <Button
-                onClick={handleAnalyze}
-                disabled={!lawnImage || isAnalyzing}
-                className="w-full bg-green-600 hover:bg-green-700 py-3 text-lg"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    KI analysiert Ihren Rasen...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Kostenlose KI-Analyse starten
-                  </>
-                )}
-              </Button>
             </CardContent>
           </Card>
 
@@ -270,7 +201,7 @@ const LawnAnalysis = () => {
             <Card className="mb-8">
               <CardHeader>
                 <CardTitle className="text-2xl text-green-800">
-                  Ihre KI-Rasenanalyse
+                  Deine KI-Rasenanalyse
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -355,24 +286,24 @@ const LawnAnalysis = () => {
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="h-6 w-6 text-green-600" />
               </div>
-              <h3 className="font-semibold mb-2">KI-gestützte Analyse</h3>
-              <p className="text-gray-600">Modernste Technologie erkennt über 200 Rasenprobleme</p>
+              <h3 className="font-semibold mb-2">Asynchrone KI-Analyse</h3>
+              <p className="text-gray-600">Keine Timeouts mehr - die Analyse läuft zuverlässig im Hintergrund</p>
             </div>
             
             <div className="text-center p-6 bg-white rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="h-6 w-6 text-blue-600" />
               </div>
-              <h3 className="font-semibold mb-2">Sofortige Ergebnisse</h3>
-              <p className="text-gray-600">Erhalten Sie Ihre Analyse in nur 60 Sekunden</p>
+              <h3 className="font-semibold mb-2">Zuverlässige Ergebnisse</h3>
+              <p className="text-gray-600">Robuste Verarbeitung großer Bilder ohne Verbindungsabbrüche</p>
             </div>
             
             <div className="text-center p-6 bg-white rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="h-6 w-6 text-purple-600" />
               </div>
-              <h3 className="font-semibold mb-2">98,3% Genauigkeit</h3>
-              <p className="text-gray-600">Wissenschaftlich validierte Ergebnisse</p>
+              <h3 className="font-semibold mb-2">Fortschritts-Tracking</h3>
+              <p className="text-gray-600">Verfolge den Status deiner Analyse in Echtzeit</p>
             </div>
           </div>
         </div>
