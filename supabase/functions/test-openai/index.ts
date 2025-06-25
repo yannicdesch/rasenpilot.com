@@ -21,12 +21,15 @@ serve(async (req) => {
     console.log('OpenAI API key first 10 chars:', openaiApiKey?.substring(0, 10) || 'N/A');
     
     if (!openaiApiKey) {
+      const errorResponse = {
+        success: false, 
+        error: 'OPENAI_API_KEY not found in environment',
+        keyPresent: false,
+        keyValid: false
+      };
+      console.log('Returning error response:', errorResponse);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'OPENAI_API_KEY not found in environment',
-          keyPresent: false
-        }),
+        JSON.stringify(errorResponse),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -57,13 +60,15 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('OpenAI API error:', response.status, errorText);
+      const errorResponse = {
+        success: false, 
+        error: `OpenAI API error: ${response.status} - ${errorText}`,
+        keyPresent: true,
+        keyValid: false
+      };
+      console.log('Returning API error response:', errorResponse);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: `OpenAI API error: ${response.status} - ${errorText}`,
-          keyPresent: true,
-          keyValid: false
-        }),
+        JSON.stringify(errorResponse),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -71,25 +76,31 @@ serve(async (req) => {
     const data = await response.json();
     console.log('OpenAI response success:', data);
 
+    const successResponse = {
+      success: true, 
+      message: 'OpenAI API key is working correctly!',
+      keyPresent: true,
+      keyValid: true,
+      response: data.choices[0].message.content
+    };
+    
+    console.log('Returning success response:', successResponse);
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'OpenAI API key is working correctly!',
-        keyPresent: true,
-        keyValid: true,
-        response: data.choices[0].message.content
-      }),
+      JSON.stringify(successResponse),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Test error:', error);
+    const errorResponse = {
+      success: false, 
+      error: error.message,
+      keyPresent: !!Deno.env.get('OPENAI_API_KEY'),
+      keyValid: false
+    };
+    console.log('Returning catch error response:', errorResponse);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message,
-        keyPresent: !!Deno.env.get('OPENAI_API_KEY')
-      }),
+      JSON.stringify(errorResponse),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
