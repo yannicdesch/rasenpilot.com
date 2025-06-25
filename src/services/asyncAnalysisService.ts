@@ -38,6 +38,7 @@ export const startImageAnalysis = async (
     
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
+    console.log('Current user:', user ? user.id : 'anonymous');
     
     // Create unique file path
     const fileExt = compressedFile.name.split('.').pop();
@@ -59,6 +60,7 @@ export const startImageAnalysis = async (
     console.log('Upload successful:', uploadData);
     
     // Create analysis job using RPC to bypass type issues
+    console.log('Creating analysis job with RPC...');
     const { data: jobData, error: jobError } = await supabase.rpc('create_analysis_job', {
       p_user_id: user?.id,
       p_image_path: filePath,
@@ -76,12 +78,19 @@ export const startImageAnalysis = async (
       throw new Error(`Job creation failed: ${jobError.message}`);
     }
     
-    console.log('Job created:', jobData);
+    console.log('Job created with ID:', jobData);
     
     // Trigger background processing
-    await supabase.functions.invoke('start-analysis', {
+    console.log('Invoking start-analysis function...');
+    const { data: functionResponse, error: functionError } = await supabase.functions.invoke('start-analysis', {
       body: { jobId: jobData }
     });
+    
+    console.log('Function response:', functionResponse);
+    if (functionError) {
+      console.error('Function error:', functionError);
+      throw new Error(`Failed to start analysis: ${functionError.message}`);
+    }
     
     return {
       success: true,
@@ -105,13 +114,17 @@ export const getAnalysisResult = async (jobId: string): Promise<{
   error?: string;
 }> => {
   try {
+    console.log('Getting analysis result for job:', jobId);
     const { data: job, error } = await supabase.rpc('get_analysis_job', {
       p_job_id: jobId
     });
     
     if (error) {
+      console.error('Error getting job:', error);
       throw new Error(error.message);
     }
+    
+    console.log('Job status:', job ? (job as any).status : 'No job data');
     
     return {
       success: true,
@@ -138,10 +151,14 @@ export const pollJobStatus = (
   let attempts = 0;
   const maxAttempts = 60; // 5 minutes with 5-second intervals
   
+  console.log('Starting job polling for:', jobId);
+  
   const poll = async () => {
     attempts++;
+    console.log(`Polling attempt ${attempts}/${maxAttempts} for job:`, jobId);
     
     if (attempts > maxAttempts) {
+      console.error('Polling timeout reached');
       clearInterval(intervalId);
       onError('Analysis timeout - please try again');
       return;
@@ -150,18 +167,22 @@ export const pollJobStatus = (
     const result = await getAnalysisResult(jobId);
     
     if (!result.success || !result.job) {
+      console.error('Failed to get job status:', result.error);
       onError(result.error || 'Failed to get job status');
       clearInterval(intervalId);
       return;
     }
     
     const job = result.job;
+    console.log(`Job ${jobId} status: ${job.status}`);
     onUpdate(job);
     
     if (job.status === 'completed') {
+      console.log('Job completed successfully');
       clearInterval(intervalId);
       onComplete(job);
     } else if (job.status === 'failed') {
+      console.log('Job failed:', job.error_message);
       clearInterval(intervalId);
       onError(job.error_message || 'Analysis failed');
     }
@@ -176,6 +197,7 @@ export const pollJobStatus = (
   // Return cleanup function
   return () => {
     if (intervalId) {
+      console.log('Stopping polling for job:', jobId);
       clearInterval(intervalId);
     }
   };
