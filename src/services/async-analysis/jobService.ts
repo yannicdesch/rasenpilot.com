@@ -9,34 +9,52 @@ export const createAnalysisJob = async (
   lawnGoal?: string,
   metadata: Record<string, any> = {}
 ): Promise<string> => {
-  console.log('Creating analysis job with RPC...');
-  console.log('RPC parameters:', {
-    p_user_id: userId || null,
-    p_image_path: imagePath,
-    p_grass_type: grassType || null,
-    p_lawn_goal: lawnGoal || null
-  });
-  
-  const { data: jobData, error: jobError } = await supabase.rpc('create_analysis_job', {
-    p_user_id: userId || null,
-    p_image_path: imagePath,
-    p_grass_type: grassType || null,
-    p_lawn_goal: lawnGoal || null,
-    p_metadata: metadata
-  });
-  
-  if (jobError) {
-    console.error('Job creation error details:', jobError);
-    throw new Error(`Job creation failed: ${jobError.message}`);
+  try {
+    console.log('=== CREATING ANALYSIS JOB ===');
+    console.log('User ID:', userId || 'anonymous');
+    console.log('Image path:', imagePath);
+    console.log('Grass type:', grassType || 'not specified');
+    console.log('Lawn goal:', lawnGoal || 'not specified');
+    console.log('Metadata:', metadata);
+    
+    console.log('Calling RPC function: create_analysis_job');
+    const rpcParams = {
+      p_user_id: userId || null,
+      p_image_path: imagePath,
+      p_grass_type: grassType || null,
+      p_lawn_goal: lawnGoal || null,
+      p_metadata: metadata
+    };
+    console.log('RPC parameters:', rpcParams);
+    
+    const { data: jobData, error: jobError } = await supabase.rpc('create_analysis_job', rpcParams);
+    
+    console.log('=== JOB CREATION RESPONSE ===');
+    console.log('Job data:', jobData);
+    console.log('Job error:', jobError);
+    
+    if (jobError) {
+      console.error('=== JOB CREATION ERROR ===');
+      console.error('Error message:', jobError.message);
+      console.error('Error details:', jobError);
+      throw new Error(`Job creation failed: ${jobError.message}`);
+    }
+    
+    if (!jobData) {
+      console.error('Job creation returned null/undefined');
+      throw new Error('Job creation returned null/undefined');
+    }
+    
+    console.log('=== JOB CREATION SUCCESS ===');
+    console.log('Created job ID:', jobData);
+    
+    return jobData as string;
+    
+  } catch (error) {
+    console.error('=== JOB SERVICE ERROR ===');
+    console.error('Error in createAnalysisJob:', error);
+    throw error;
   }
-  
-  console.log('Job created successfully with ID:', jobData);
-  
-  if (!jobData) {
-    throw new Error('Job creation returned null/undefined');
-  }
-  
-  return jobData as string;
 };
 
 export const getAnalysisResult = async (jobId: string): Promise<AnalysisResultResponse> => {

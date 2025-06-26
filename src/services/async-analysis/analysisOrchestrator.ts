@@ -17,15 +17,40 @@ export const startImageAnalysis = async (
     // Compress the image
     const compressedFile = await compressImage(imageFile);
     
-    // Get current user
+    // Get current user with timeout and retry logic
     console.log('Getting current user...');
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    console.log('Current user:', user ? user.id : 'anonymous', userError ? 'Error: ' + userError.message : 'Success');
+    let user = null;
+    let userError = null;
+    
+    try {
+      // First try to get the session
+      console.log('Attempting to get session...');
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      console.log('Session response:', { sessionData: !!sessionData.session, sessionError });
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        userError = sessionError;
+      } else if (sessionData.session) {
+        user = sessionData.session.user;
+        console.log('User from session:', user ? user.id : 'No user');
+      } else {
+        console.log('No active session found');
+      }
+    } catch (authError) {
+      console.error('Auth error:', authError);
+      userError = authError;
+    }
+    
+    console.log('Current user result:', user ? user.id : 'anonymous', userError ? 'Error: ' + userError.message : 'Success');
     
     // Upload to storage
+    console.log('Starting storage upload...');
     const filePath = await uploadImageToStorage(compressedFile, user?.id);
+    console.log('Storage upload completed, file path:', filePath);
     
     // Create analysis job
+    console.log('Creating analysis job...');
     const jobId = await createAnalysisJob(
       user?.id,
       filePath,
@@ -37,9 +62,12 @@ export const startImageAnalysis = async (
         file_name: compressedFile.name
       }
     );
+    console.log('Analysis job created with ID:', jobId);
     
     // Start background processing
+    console.log('Starting background processing...');
     await startBackgroundProcessing(jobId);
+    console.log('Background processing started successfully');
     
     console.log('Analysis started successfully, returning job ID:', jobId);
     
