@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import imageCompression from 'browser-image-compression';
 
@@ -51,12 +52,16 @@ export const startImageAnalysis = async (
     
     // Upload to Supabase Storage
     console.log('Starting storage upload...');
+    console.log('Bucket: lawn-images, File path:', filePath, 'File size:', compressedFile.size);
+    
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('lawn-images')
       .upload(filePath, compressedFile);
     
     if (uploadError) {
       console.error('Upload error details:', uploadError);
+      console.error('Upload error message:', uploadError.message);
+      console.error('Upload error cause:', uploadError.cause);
       throw new Error(`Upload failed: ${uploadError.message}`);
     }
     
