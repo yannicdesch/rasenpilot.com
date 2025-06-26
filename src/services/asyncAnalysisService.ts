@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import imageCompression from 'browser-image-compression';
 
@@ -61,7 +60,6 @@ export const startImageAnalysis = async (
     if (uploadError) {
       console.error('Upload error details:', uploadError);
       console.error('Upload error message:', uploadError.message);
-      console.error('Upload error cause:', uploadError.cause);
       throw new Error(`Upload failed: ${uploadError.message}`);
     }
     
