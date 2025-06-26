@@ -17,32 +17,38 @@ export const startImageAnalysis = async (
     // Compress the image
     const compressedFile = await compressImage(imageFile);
     
-    // Get current user with timeout and retry logic
-    console.log('Getting current user...');
+    // Get current user with simplified approach and timeout
+    console.log('Getting current user with timeout...');
     let user = null;
-    let userError = null;
     
     try {
-      // First try to get the session
-      console.log('Attempting to get session...');
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      console.log('Session response:', { sessionData: !!sessionData.session, sessionError });
+      // Use Promise.race to add timeout to session retrieval
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session timeout')), 5000)
+      );
+      
+      console.log('Attempting to get session with 5s timeout...');
+      const { data: sessionData, error: sessionError } = await Promise.race([
+        sessionPromise,
+        timeoutPromise
+      ]) as any;
+      
+      console.log('Session retrieval completed');
+      console.log('Session data exists:', !!sessionData?.session);
+      console.log('Session error:', sessionError?.message || 'none');
       
       if (sessionError) {
-        console.error('Session error:', sessionError);
-        userError = sessionError;
-      } else if (sessionData.session) {
+        console.warn('Session error (continuing as anonymous):', sessionError.message);
+      } else if (sessionData?.session?.user) {
         user = sessionData.session.user;
-        console.log('User from session:', user ? user.id : 'No user');
+        console.log('User authenticated:', user.id);
       } else {
-        console.log('No active session found');
+        console.log('No active session, continuing as anonymous');
       }
     } catch (authError) {
-      console.error('Auth error:', authError);
-      userError = authError;
+      console.warn('Auth timeout or error (continuing as anonymous):', authError instanceof Error ? authError.message : 'Unknown error');
     }
-    
-    console.log('Current user result:', user ? user.id : 'anonymous', userError ? 'Error: ' + userError.message : 'Success');
     
     // Upload to storage
     console.log('Starting storage upload...');

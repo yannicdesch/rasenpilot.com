@@ -27,7 +27,16 @@ export const createAnalysisJob = async (
     };
     console.log('RPC parameters:', rpcParams);
     
-    const { data: jobData, error: jobError } = await supabase.rpc('create_analysis_job', rpcParams);
+    // Add timeout to RPC call
+    const rpcPromise = supabase.rpc('create_analysis_job', rpcParams);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('RPC timeout')), 10000)
+    );
+    
+    const { data: jobData, error: jobError } = await Promise.race([
+      rpcPromise,
+      timeoutPromise
+    ]) as any;
     
     console.log('=== JOB CREATION RESPONSE ===');
     console.log('Job data:', jobData);
@@ -60,9 +69,19 @@ export const createAnalysisJob = async (
 export const getAnalysisResult = async (jobId: string): Promise<AnalysisResultResponse> => {
   try {
     console.log('Getting analysis result for job:', jobId);
-    const { data: job, error } = await supabase.rpc('get_analysis_job', {
+    
+    // Add timeout to get job call
+    const getJobPromise = supabase.rpc('get_analysis_job', {
       p_job_id: jobId
     });
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Get job timeout')), 10000)
+    );
+    
+    const { data: job, error } = await Promise.race([
+      getJobPromise,
+      timeoutPromise
+    ]) as any;
     
     if (error) {
       console.error('Error getting job:', error);
