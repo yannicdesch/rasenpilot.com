@@ -75,35 +75,36 @@ export const runStorageTest = async (): Promise<TestResultData[]> => {
       }
     }
     
-    // Test 3: Check storage policies
-    try {
-      const { data: policies, error: policiesError } = await supabase
-        .from('storage.objects')
-        .select('*')
-        .limit(1);
-      
-      if (policiesError) {
+    // Test 3: Try to list files in bucket to verify read access
+    if (lawnImagesBucket) {
+      try {
+        const { data: files, error: listError } = await supabase.storage
+          .from('lawn-images')
+          .list('', { limit: 1 });
+        
+        if (listError) {
+          results.push({
+            name: 'Storage Read Access',
+            status: 'warning',
+            message: 'Cannot list files in bucket',
+            details: listError.message
+          });
+        } else {
+          results.push({
+            name: 'Storage Read Access',
+            status: 'success',
+            message: 'Can read from storage bucket',
+            details: `Found ${files?.length || 0} files/folders`
+          });
+        }
+      } catch (listError) {
         results.push({
-          name: 'Storage Policies',
+          name: 'Storage Read Access',
           status: 'warning',
-          message: 'Cannot check storage policies',
-          details: policiesError.message
-        });
-      } else {
-        results.push({
-          name: 'Storage Policies',
-          status: 'success',
-          message: 'Storage policies accessible',
-          details: 'RLS policies are configured'
+          message: 'File listing failed',
+          details: listError instanceof Error ? listError.message : 'Unknown error'
         });
       }
-    } catch (policyError) {
-      results.push({
-        name: 'Storage Policies',
-        status: 'warning',
-        message: 'Policy check failed',
-        details: 'This is expected for security reasons'
-      });
     }
     
   } catch (error) {
