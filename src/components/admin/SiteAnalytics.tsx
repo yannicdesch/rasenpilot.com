@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAnalytics } from '@/hooks/useAnalytics';
+import useAnalytics from '@/hooks/useAnalytics';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp, Users, Eye, Clock } from 'lucide-react';
 

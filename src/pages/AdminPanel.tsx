@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Users, Settings, FileText, Globe, Database } from 'lucide-react';
 import SiteAnalytics from '@/components/admin/SiteAnalytics';
 import UserManagement from '@/components/admin/UserManagement';
-import { SiteSettings } from '@/components/admin/SiteSettings';
+import SiteSettings from '@/components/admin/SiteSettings';
 import ContentManagement from '@/components/admin/ContentManagement';
 import SEOManagement from '@/pages/SEOManagement';
 import { DatabaseSetup } from '@/components/admin/DatabaseSetup';

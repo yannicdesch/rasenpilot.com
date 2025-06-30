@@ -58,3 +58,27 @@ export const getDatabaseInfo = async () => {
     };
   }
 };
+
+// Run all connection tests
+export const runAllConnectionTests = async () => {
+  try {
+    const basicConnection = await testDatabaseConnection();
+    
+    const tablesExist = await testTableAccess('page_views') && await testTableAccess('events');
+    
+    return {
+      basicConnection,
+      sqlFunction: false, // Not available in current setup
+      tablesExist,
+      timestamp: new Date().toISOString()
+    };
+  } catch (err) {
+    console.error('Error running all connection tests:', err);
+    return {
+      basicConnection: false,
+      sqlFunction: false,
+      tablesExist: false,
+      timestamp: new Date().toISOString()
+    };
+  }
+};

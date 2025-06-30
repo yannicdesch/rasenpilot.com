@@ -1,7 +1,10 @@
 
 // Re-export all analytics functionality from the submodules
 export { initializeGA } from './initialize';
-export { createExecuteSqlFunction } from './sqlFunctions';
+export { 
+  checkAnalyticsTablesExist,
+  getAnalyticsTableStatus
+} from './sqlFunctions';
 export { 
   testDirectTableAccess,
   testDatabaseConnection,
@@ -12,8 +15,8 @@ export {
 export { 
   trackPageView,
   trackEvent,
-  getSupabaseConnectionInfo,
-  createTestTable
+  getAnalyticsData,
+  testAnalyticsConnection
 } from './tracking';
 export {
   trackRegistrationStart,
@@ -24,7 +27,10 @@ export {
 } from './trackingHelpers';
 
 // Export test functions
-export { testSupabaseConnection, runAllConnectionTests } from './connectionTests';
+export { 
+  testDatabaseConnection as testSupabaseConnection, 
+  runAllConnectionTests 
+} from './connectionTests';
 
 // Export new user journey tracking
 export {
