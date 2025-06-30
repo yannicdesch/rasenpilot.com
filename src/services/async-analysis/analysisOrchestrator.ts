@@ -21,15 +21,15 @@ export const startImageAnalysis = async (
     console.log('Compressed file size:', compressedFile.size, 'bytes');
     console.log('Compression ratio:', ((compressedFile.size / imageFile.size) * 100).toFixed(1) + '%');
     
-    // Get current user with timeout
-    console.log('Getting current user with timeout...');
+    // Get current user with extended timeout and better error handling
+    console.log('Getting current user...');
     let user = null;
     
     try {
-      console.log('Attempting to get session...');
+      console.log('Attempting to get session with 10 second timeout...');
       const sessionPromise = supabase.auth.getSession();
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session timeout after 5 seconds')), 5000)
+        setTimeout(() => reject(new Error('Session timeout after 10 seconds')), 10000)
       );
       
       const { data: sessionData, error: sessionError } = await Promise.race([
@@ -54,38 +54,62 @@ export const startImageAnalysis = async (
       console.warn('Auth timeout or error (continuing as anonymous):', authError instanceof Error ? authError.message : 'Unknown error');
     }
     
-    // Upload to storage
+    // Upload to storage with enhanced error handling
     console.log('Starting storage upload...');
-    const filePath = await uploadImageToStorage(compressedFile, user?.id);
-    console.log('Storage upload completed, file path:', filePath);
-    
-    // Create analysis job
-    console.log('Creating analysis job...');
-    const jobId = await createAnalysisJob(
-      user?.id,
-      filePath,
-      grassType,
-      lawnGoal,
-      {
-        original_size: imageFile.size,
-        compressed_size: compressedFile.size,
-        file_name: compressedFile.name
+    try {
+      const filePath = await uploadImageToStorage(compressedFile, user?.id);
+      console.log('Storage upload completed, file path:', filePath);
+      
+      // Create analysis job
+      console.log('Creating analysis job...');
+      const jobId = await createAnalysisJob(
+        user?.id,
+        filePath,
+        grassType,
+        lawnGoal,
+        {
+          original_size: imageFile.size,
+          compressed_size: compressedFile.size,
+          file_name: compressedFile.name
+        }
+      );
+      console.log('Analysis job created with ID:', jobId);
+      
+      // Start background processing
+      console.log('Starting background processing...');
+      await startBackgroundProcessing(jobId);
+      console.log('Background processing started successfully');
+      
+      console.log('=== ANALYSIS ORCHESTRATION COMPLETE ===');
+      console.log('Returning job ID:', jobId);
+      
+      return {
+        success: true,
+        jobId: jobId
+      };
+      
+    } catch (storageError) {
+      console.error('=== STORAGE ERROR ===');
+      console.error('Storage error details:', storageError);
+      
+      // Check if it's a bucket not found error
+      if (storageError instanceof Error && storageError.message.includes('bucket')) {
+        return {
+          success: false,
+          error: 'Storage bucket not found. Please contact support to set up image storage.'
+        };
       }
-    );
-    console.log('Analysis job created with ID:', jobId);
-    
-    // Start background processing
-    console.log('Starting background processing...');
-    await startBackgroundProcessing(jobId);
-    console.log('Background processing started successfully');
-    
-    console.log('=== ANALYSIS ORCHESTRATION COMPLETE ===');
-    console.log('Returning job ID:', jobId);
-    
-    return {
-      success: true,
-      jobId: jobId
-    };
+      
+      // Check if it's a permission error
+      if (storageError instanceof Error && storageError.message.includes('permission')) {
+        return {
+          success: false,
+          error: 'Storage permission denied. Please check your account status.'
+        };
+      }
+      
+      throw storageError; // Re-throw for general error handling
+    }
     
   } catch (error) {
     console.error('=== ASYNC ANALYSIS ERROR ===');

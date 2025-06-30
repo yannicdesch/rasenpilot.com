@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -116,8 +115,8 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
     }
 
     setIsProcessing(true);
-    setProgress(10);
-    setStatusMessage('Bild wird hochgeladen...');
+    setProgress(5);
+    setStatusMessage('Wird vorbereitet...');
     setDebugLogs([]);
     
     addDebugLog('=== STARTING ASYNC ANALYSIS ===');
@@ -126,13 +125,41 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
     addDebugLog(`Lawn goal: ${lawnGoal || 'default'}`);
 
     try {
+      setProgress(10);
+      setStatusMessage('Bild wird komprimiert...');
+      
       addDebugLog('Calling startImageAnalysis...');
       const result = await startImageAnalysis(selectedFile, grassType, lawnGoal);
       
       addDebugLog(`Start analysis result: ${JSON.stringify(result)}`);
       
-      if (!result.success || !result.jobId) {
-        throw new Error(result.error || 'Failed to start analysis');
+      if (!result.success) {
+        // Handle specific storage errors with user-friendly messages
+        if (result.error?.includes('bucket')) {
+          setStatusMessage('Storage-Problem erkannt');
+          toast.error('Speicher-Setup erforderlich', {
+            description: 'Das Bild-Speichersystem muss konfiguriert werden. Bitte kontaktiere den Support.'
+          });
+        } else if (result.error?.includes('permission')) {
+          setStatusMessage('Berechtigung verweigert');
+          toast.error('Zugriff verweigert', {
+            description: 'Du hast keine Berechtigung zum Hochladen von Bildern.'
+          });
+        } else {
+          setStatusMessage('Fehler beim Starten');
+          toast.error('Analyse konnte nicht gestartet werden', {
+            description: result.error || 'Unbekannter Fehler'
+          });
+        }
+        
+        setIsProcessing(false);
+        setProgress(0);
+        addDebugLog(`Analysis failed to start: ${result.error}`);
+        return;
+      }
+
+      if (!result.jobId) {
+        throw new Error('No job ID returned from analysis start');
       }
 
       setProgress(30);
@@ -193,7 +220,19 @@ const AsyncLawnAnalyzer: React.FC<AsyncLawnAnalyzerProps> = ({
       const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
       addDebugLog(`Analysis error: ${errorMessage}`);
       console.error('Analysis error:', error);
-      toast.error('Fehler beim Starten der Analyse: ' + errorMessage);
+      
+      // Show specific error message based on error type
+      if (errorMessage.includes('bucket')) {
+        toast.error('Speicher-Setup erforderlich', {
+          description: 'Das Bild-Speichersystem muss konfiguriert werden.'
+        });
+      } else if (errorMessage.includes('timeout')) {
+        toast.error('Verbindungs-Timeout', {
+          description: 'Die Verbindung war zu langsam. Bitte versuche es erneut.'
+        });
+      } else {
+        toast.error('Fehler beim Starten der Analyse: ' + errorMessage);
+      }
     }
   };
 

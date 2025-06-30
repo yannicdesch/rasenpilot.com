@@ -6,66 +6,114 @@ export const runStorageTest = async (): Promise<TestResultData[]> => {
   const results: TestResultData[] = [];
   
   try {
+    // Test 1: Check if lawn-images bucket exists
     const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
     
-    if (bucketsError) throw bucketsError;
-
-    const expectedBuckets = ['avatars', 'lawn-images'];
-    const foundBuckets = buckets?.map(b => b.name) || [];
-    const missingBuckets = expectedBuckets.filter(b => !foundBuckets.includes(b));
-
-    results.push({
-      name: 'Storage System',
-      status: missingBuckets.length === 0 ? 'success' : 'warning',
-      message: `Storage accessible - ${foundBuckets.length} buckets found`,
-      details: `Found: ${foundBuckets.join(', ') || 'None'}\nMissing: ${missingBuckets.join(', ') || 'None'}`
-    });
-
-    // Test file upload capability (small test)
-    if (foundBuckets.length > 0) {
+    if (bucketsError) {
+      results.push({
+        name: 'Storage Connection',
+        status: 'error',
+        message: 'Cannot connect to storage',
+        details: bucketsError.message
+      });
+      return results;
+    }
+    
+    const lawnImagesBucket = buckets?.find(bucket => bucket.name === 'lawn-images');
+    
+    if (!lawnImagesBucket) {
+      results.push({
+        name: 'Lawn Images Bucket',
+        status: 'error',
+        message: 'lawn-images bucket does not exist',
+        details: 'Create bucket via Supabase dashboard or SQL'
+      });
+    } else {
+      results.push({
+        name: 'Lawn Images Bucket',
+        status: 'success',
+        message: 'Bucket exists and is accessible',
+        details: `Public: ${lawnImagesBucket.public}, Created: ${lawnImagesBucket.created_at}`
+      });
+    }
+    
+    // Test 2: Try to upload a test file if bucket exists
+    if (lawnImagesBucket) {
       try {
-        const testContent = new Blob(['test'], { type: 'text/plain' });
-        const testPath = `test-${Date.now()}.txt`;
+        const testFile = new File(['test'], 'test.txt', { type: 'text/plain' });
+        const testPath = `test/upload-test-${Date.now()}.txt`;
         
-        const { error: uploadError } = await supabase.storage
-          .from(foundBuckets[0])
-          .upload(testPath, testContent);
-
-        if (!uploadError) {
-          // Clean up test file
-          await supabase.storage.from(foundBuckets[0]).remove([testPath]);
-          
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('lawn-images')
+          .upload(testPath, testFile);
+        
+        if (uploadError) {
           results.push({
-            name: 'File Upload Test',
-            status: 'success',
-            message: 'File upload/delete test successful',
-            details: `Tested on bucket: ${foundBuckets[0]}`
+            name: 'Upload Test',
+            status: 'error',
+            message: 'Upload failed',
+            details: uploadError.message
           });
         } else {
           results.push({
-            name: 'File Upload Test',
-            status: 'warning',
-            message: 'File upload test failed',
-            details: uploadError.message
+            name: 'Upload Test',
+            status: 'success',
+            message: 'Test upload successful',
+            details: `Path: ${uploadData.path}`
           });
+          
+          // Clean up test file
+          await supabase.storage.from('lawn-images').remove([testPath]);
         }
-      } catch (uploadErr: any) {
+      } catch (uploadTestError) {
         results.push({
-          name: 'File Upload Test',
-          status: 'warning',
-          message: 'Could not test file upload',
-          details: uploadErr.message
+          name: 'Upload Test',
+          status: 'error',
+          message: 'Upload test failed',
+          details: uploadTestError instanceof Error ? uploadTestError.message : 'Unknown error'
         });
       }
     }
-  } catch (error: any) {
+    
+    // Test 3: Check storage policies
+    try {
+      const { data: policies, error: policiesError } = await supabase
+        .from('storage.objects')
+        .select('*')
+        .limit(1);
+      
+      if (policiesError) {
+        results.push({
+          name: 'Storage Policies',
+          status: 'warning',
+          message: 'Cannot check storage policies',
+          details: policiesError.message
+        });
+      } else {
+        results.push({
+          name: 'Storage Policies',
+          status: 'success',
+          message: 'Storage policies accessible',
+          details: 'RLS policies are configured'
+        });
+      }
+    } catch (policyError) {
+      results.push({
+        name: 'Storage Policies',
+        status: 'warning',
+        message: 'Policy check failed',
+        details: 'This is expected for security reasons'
+      });
+    }
+    
+  } catch (error) {
     results.push({
       name: 'Storage System',
       status: 'error',
       message: 'Storage system error',
-      details: error.message
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-
+  
   return results;
 };

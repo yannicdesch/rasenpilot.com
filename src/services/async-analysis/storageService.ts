@@ -21,12 +21,43 @@ export const uploadImageToStorage = async (
     
     console.log('Starting storage upload to bucket: lawn-images');
     
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    // Check if bucket exists first
+    try {
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      
+      if (bucketsError) {
+        console.error('Error listing buckets:', bucketsError);
+        throw new Error(`Cannot access storage: ${bucketsError.message}`);
+      }
+      
+      const lawnImagesBucket = buckets?.find(bucket => bucket.name === 'lawn-images');
+      if (!lawnImagesBucket) {
+        console.error('lawn-images bucket not found');
+        throw new Error('Storage bucket "lawn-images" does not exist. Please contact support.');
+      }
+      
+      console.log('Bucket exists, proceeding with upload...');
+    } catch (bucketCheckError) {
+      console.error('Error checking bucket:', bucketCheckError);
+      throw bucketCheckError;
+    }
+    
+    // Upload with timeout
+    const uploadPromise = supabase.storage
       .from('lawn-images')
       .upload(filePath, compressedFile, {
         cacheControl: '3600',
         upsert: false
       });
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
+    );
+    
+    const { data: uploadData, error: uploadError } = await Promise.race([
+      uploadPromise,
+      timeoutPromise
+    ]) as any;
     
     console.log('=== STORAGE UPLOAD RESPONSE ===');
     console.log('Upload data:', uploadData);
@@ -36,6 +67,18 @@ export const uploadImageToStorage = async (
       console.error('=== STORAGE UPLOAD ERROR DETAILS ===');
       console.error('Error message:', uploadError.message);
       console.error('Error details:', uploadError);
+      
+      // Provide more specific error messages
+      if (uploadError.message.includes('bucket')) {
+        throw new Error('Storage bucket configuration error. Please contact support.');
+      }
+      if (uploadError.message.includes('policy')) {
+        throw new Error('Storage permission denied. Please check your account status.');
+      }
+      if (uploadError.message.includes('size')) {
+        throw new Error('File too large for storage. Please choose a smaller image.');
+      }
+      
       throw new Error(`Upload failed: ${uploadError.message}`);
     }
     
