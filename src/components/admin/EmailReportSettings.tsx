@@ -52,8 +52,10 @@ const EmailReportSettings = () => {
         if (settings && settings.email_reports) {
           // Parse the JSON data safely
           const emailReportsData = settings.email_reports;
-          if (typeof emailReportsData === 'object' && emailReportsData !== null) {
-            setConfig(emailReportsData as EmailReportConfig);
+          if (typeof emailReportsData === 'object' && emailReportsData !== null && !Array.isArray(emailReportsData)) {
+            // Type assertion after validation
+            const configData = emailReportsData as unknown as EmailReportConfig;
+            setConfig(configData);
           }
         }
       } catch (err) {

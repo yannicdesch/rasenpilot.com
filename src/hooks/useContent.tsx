@@ -6,15 +6,16 @@ import { toast } from 'sonner';
 export interface BlogPost {
   id: number;
   title: string;
-  status: 'published' | 'draft';
-  views: number;
-  author: string;
-  category: string;
-  date: string;
-  slug?: string;
+  slug: string;
   excerpt?: string;
   content?: string;
+  author: string;
+  category: string;
   tags?: string;
+  status: 'published' | 'draft';
+  views: number;
+  readTime: number;
+  date: string;
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -26,407 +27,382 @@ export interface Page {
   id: number;
   title: string;
   path: string;
-  lastUpdated: string;
   content?: string;
+  lastUpdated: string;
+  meta?: {
+    title?: string;
+    description?: string;
+    keywords?: string;
+  };
 }
 
-// Sample data as fallback
-const sampleBlogPosts: BlogPost[] = [
-  {
-    id: 1,
-    title: 'Die beste Zeit zum Rasenmähen: Morgens oder abends?',
-    status: 'published',
-    views: 1245,
-    author: 'Max Mustermann',
-    category: 'Rasenpflege',
-    date: '2025-05-10',
-  },
-  {
-    id: 2,
-    title: 'Natürliche Düngemittel für einen gesunden und umweltfreundlichen Rasen',
-    status: 'published',
-    views: 867,
-    author: 'Lisa Schmidt',
-    category: 'Düngemittel',
-    date: '2025-05-05',
-  },
-  {
-    id: 3,
-    title: 'Wie bekämpft man Moos im Rasen? Die 5 besten Methoden',
-    status: 'published',
-    views: 1532,
-    author: 'Thomas Weber',
-    category: 'Probleme',
-    date: '2025-04-28',
-  },
-  {
-    id: 4,
-    title: 'Vorbereitung auf den Winter: So schützen Sie Ihren Rasen',
-    status: 'draft',
-    views: 0,
-    author: 'Lisa Schmidt',
-    category: 'Saisonale Pflege',
-    date: '2025-05-12',
-  },
-  {
-    id: 5,
-    title: 'Die richtige Bewässerung in Trockenperioden',
-    status: 'draft',
-    views: 0,
-    author: 'Max Mustermann',
-    category: 'Bewässerung',
-    date: '2025-05-14',
-  }
-];
-
-const samplePages: Page[] = [
-  {
-    id: 1,
-    title: 'Startseite',
-    path: '/',
-    lastUpdated: '2025-05-01',
-  },
-  {
-    id: 2,
-    title: 'Über uns',
-    path: '/about',
-    lastUpdated: '2025-04-20',
-  },
-  {
-    id: 3,
-    title: 'Kontakt',
-    path: '/contact',
-    lastUpdated: '2025-03-15',
-  },
-  {
-    id: 4,
-    title: 'Datenschutz',
-    path: '/privacy',
-    lastUpdated: '2025-01-10',
-  },
-  {
-    id: 5,
-    title: 'Impressum',
-    path: '/imprint',
-    lastUpdated: '2025-01-10',
-  }
-];
-
-export const useContent = () => {
+const useContent = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [pages, setPages] = useState<Page[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchContent = async () => {
+  const fetchBlogPosts = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
-      
-      // Check if the blog_posts table exists by trying to query it
-      let hasBlogTable = false;
-      let hasPagesTable = false;
-      
-      try {
-        const { error: blogTableError } = await supabase
-          .from('blog_posts')
-          .select('id')
-          .limit(1);
-        
-        hasBlogTable = !blogTableError || blogTableError.message.includes('permission');
-      } catch (err) {
-        console.log('Blog posts table check failed:', err);
-        hasBlogTable = false;
+      const { data, error: fetchError } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (fetchError) {
+        console.error('Error fetching blog posts:', fetchError);
+        throw fetchError;
       }
-      
-      try {
-        const { error: pagesTableError } = await supabase
-          .from('pages')
-          .select('id')
-          .limit(1);
-        
-        hasPagesTable = !pagesTableError || pagesTableError.message.includes('permission');
-      } catch (err) {
-        console.log('Pages table check failed:', err);
-        hasPagesTable = false;
-      }
-      
-      // Fetch blog posts if table exists
-      if (hasBlogTable) {
-        const { data: blogData, error: blogError } = await supabase
-          .from('blog_posts')
-          .select('*')
-          .order('date', { ascending: false });
-        
-        if (blogError) {
-          console.error('Error fetching blog posts:', blogError);
-          throw new Error('Failed to fetch blog posts');
-        }
-        
-        if (blogData && blogData.length > 0) {
-          // Transform the data to match our BlogPost interface
-          const transformedBlogPosts = blogData.map(post => ({
-            id: post.id,
-            title: post.title,
-            status: (post.status === 'published' || post.status === 'draft') ? post.status as 'published' | 'draft' : 'draft',
-            views: post.views || 0,
-            author: post.author,
-            category: post.category,
-            date: post.date,
-            slug: post.slug,
-            excerpt: post.excerpt,
-            content: post.content,
-            tags: post.tags,
-            seo: post.seo ? (typeof post.seo === 'object' ? post.seo as any : undefined) : undefined
-          }));
-          setBlogPosts(transformedBlogPosts);
-        } else {
-          console.log('No blog posts found, using sample data');
-          setBlogPosts(sampleBlogPosts);
-        }
-      } else {
-        console.log('Blog posts table does not exist, using sample data');
-        setBlogPosts(sampleBlogPosts);
-        
-        toast.warning('Blog-Tabelle existiert nicht in der Datenbank', {
-          description: 'Verwende Beispieldaten. Erstellen Sie die Tabelle "blog_posts" in Supabase.'
-        });
-      }
-      
-      // Fetch pages if table exists
-      if (hasPagesTable) {
-        const { data: pagesData, error: pagesError } = await supabase
-          .from('pages')
-          .select('*')
-          .order('updated_at', { ascending: false });
-        
-        if (pagesError) {
-          console.error('Error fetching pages:', pagesError);
-          throw new Error('Failed to fetch pages');
-        }
-        
-        if (pagesData && pagesData.length > 0) {
-          // Transform the data to match our Page interface
-          const transformedPages = pagesData.map(page => ({
-            id: page.id,
-            title: page.title,
-            path: page.path,
-            lastUpdated: page.last_updated,
-            content: page.content
-          }));
-          setPages(transformedPages);
-        } else {
-          console.log('No pages found, using sample data');
-          setPages(samplePages);
-        }
-      } else {
-        console.log('Pages table does not exist, using sample data');
-        setPages(samplePages);
-        
-        toast.warning('Seiten-Tabelle existiert nicht in der Datenbank', {
-          description: 'Verwende Beispieldaten. Erstellen Sie die Tabelle "pages" in Supabase.'
-        });
-      }
-      
-    } catch (err: any) {
-      console.error('Error in fetchContent:', err);
-      setError(err.message);
-      
-      // Use sample data as fallback
-      setBlogPosts(sampleBlogPosts);
-      setPages(samplePages);
-      
-      toast.error('Fehler beim Laden der Inhalte', {
-        description: 'Verwende Beispieldaten als Fallback.'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const createBlogPost = async (post: Omit<BlogPost, 'id' | 'views'>): Promise<number | null> => {
-    try {
-      // Check if table exists first
-      let hasBlogTable = false;
-      try {
-        const { error: tableCheckError } = await supabase
-          .from('blog_posts')
-          .select('id')
-          .limit(1);
-        hasBlogTable = !tableCheckError;
-      } catch (err) {
-        hasBlogTable = false;
-      }
-      
-      if (!hasBlogTable) {
-        console.log('Blog posts table does not exist, cannot create post');
-        toast.error('Blog-Tabelle existiert nicht in der Datenbank', {
-          description: 'Erstellen Sie die Tabelle "blog_posts" in Supabase.'
-        });
-        return null;
-      }
-      
-      const newPost = {
+
+      // Transform database data to match BlogPost interface
+      const transformedPosts: BlogPost[] = (data || []).map(post => ({
+        id: post.id,
         title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt || undefined,
+        content: post.content || undefined,
         author: post.author,
         category: post.category,
-        content: post.content,
+        tags: post.tags || undefined,
+        status: (post.status === 'published' || post.status === 'draft') ? post.status : 'draft',
+        views: post.views || 0,
+        readTime: post.read_time || 5,
         date: post.date,
-        excerpt: post.excerpt,
-        seo: post.seo,
-        slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-'),
-        status: post.status,
-        tags: post.tags,
-        views: 0
-      };
-      
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert([newPost])
-        .select();
-      
-      if (error) {
-        console.error('Error creating blog post:', error);
-        throw new Error('Failed to create blog post');
-      }
-      
-      const createdPost = data![0];
-      
-      // Update local state
-      const transformedPost: BlogPost = {
-        id: createdPost.id,
-        title: createdPost.title,
-        status: createdPost.status as 'published' | 'draft',
-        views: createdPost.views || 0,
-        author: createdPost.author,
-        category: createdPost.category,
-        date: createdPost.date,
-        slug: createdPost.slug,
-        excerpt: createdPost.excerpt,
-        content: createdPost.content,
-        tags: createdPost.tags,
-        seo: createdPost.seo
-      };
-      setBlogPosts(prev => [transformedPost, ...prev]);
-      
-      toast.success('Blogbeitrag erstellt', {
-        description: 'Ihr Blogbeitrag wurde erfolgreich erstellt'
-      });
-      
-      return createdPost.id;
+        seo: post.seo ? {
+          metaTitle: (post.seo as any)?.metaTitle,
+          metaDescription: (post.seo as any)?.metaDescription,
+          keywords: (post.seo as any)?.keywords
+        } : undefined
+      }));
+
+      setBlogPosts(transformedPosts);
     } catch (err: any) {
-      console.error('Error in createBlogPost:', err);
-      
-      toast.error('Fehler beim Erstellen des Blogbeitrags', {
-        description: err.message
-      });
-      return null;
+      console.error('Error in fetchBlogPosts:', err);
+      setError(err.message);
     }
   };
-  
-  const updateBlogPost = async (id: number, post: Partial<BlogPost>): Promise<boolean> => {
+
+  const fetchPages = async () => {
     try {
-      // Check if table exists first
-      let hasBlogTable = false;
-      try {
-        const { error: tableCheckError } = await supabase
-          .from('blog_posts')
-          .select('id')
-          .limit(1);
-        hasBlogTable = !tableCheckError;
-      } catch (err) {
-        hasBlogTable = false;
+      const { data, error: fetchError } = await supabase
+        .from('pages')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      if (fetchError) {
+        console.error('Error fetching pages:', fetchError);
+        throw fetchError;
       }
-      
-      if (!hasBlogTable) {
-        // If table doesn't exist, update in local state only
-        setBlogPosts(prev => 
-          prev.map(p => p.id === id ? { ...p, ...post } : p)
-        );
-        
-        toast.success('Blogbeitrag aktualisiert (lokaler Modus)', {
-          description: 'Änderungen wurden lokal gespeichert.'
-        });
-        
-        return true;
-      }
-      
-      const { error } = await supabase
-        .from('blog_posts')
-        .update(post)
-        .eq('id', id);
-      
-      if (error) {
-        console.error('Error updating blog post:', error);
-        throw new Error('Failed to update blog post');
-      }
-      
-      // Update local state
-      setBlogPosts(prev => 
-        prev.map(p => p.id === id ? { ...p, ...post } : p)
-      );
-      
-      toast.success('Blogbeitrag aktualisiert', {
-        description: 'Ihre Änderungen wurden erfolgreich gespeichert'
-      });
-      
-      return true;
+
+      // Transform database data to match Page interface
+      const transformedPages: Page[] = (data || []).map(page => ({
+        id: page.id,
+        title: page.title,
+        path: page.path,
+        content: page.content || undefined,
+        lastUpdated: page.last_updated,
+        meta: page.meta ? {
+          title: (page.meta as any)?.title,
+          description: (page.meta as any)?.description,
+          keywords: (page.meta as any)?.keywords
+        } : undefined
+      }));
+
+      setPages(transformedPages);
     } catch (err: any) {
-      console.error('Error in updateBlogPost:', err);
-      
-      toast.error('Fehler beim Aktualisieren des Blogbeitrags', {
-        description: err.message
-      });
-      return false;
+      console.error('Error in fetchPages:', err);
+      setError(err.message);
     }
   };
-  
-  const deleteBlogPost = async (id: number): Promise<boolean> => {
+
+  const checkTablesExist = async () => {
     try {
-      // Check if table exists first
-      let hasBlogTable = false;
-      try {
-        const { error: tableCheckError } = await supabase
-          .from('blog_posts')
-          .select('id')
-          .limit(1);
-        hasBlogTable = !tableCheckError;
-      } catch (err) {
-        hasBlogTable = false;
-      }
+      // Try to query both tables to see if they exist
+      const { error: blogError } = await supabase.from('blog_posts').select('count(*)', { count: 'exact' }).limit(1);
+      const { error: pagesError } = await supabase.from('pages').select('count(*)', { count: 'exact' }).limit(1);
       
-      if (hasBlogTable) {
-        const { error } = await supabase
-          .from('blog_posts')
-          .delete()
-          .eq('id', id);
-        
-        if (error) {
-          console.error('Error deleting blog post:', error);
-          throw new Error('Failed to delete blog post');
-        }
-      }
-      
-      // Update local state regardless of whether table exists
-      setBlogPosts(prev => prev.filter(p => p.id !== id));
-      
-      toast.success('Blogbeitrag gelöscht', {
-        description: 'Der Blogbeitrag wurde erfolgreich gelöscht'
-      });
-      
-      return true;
-    } catch (err: any) {
-      console.error('Error in deleteBlogPost:', err);
-      
-      toast.error('Fehler beim Löschen des Blogbeitrags', {
-        description: err.message
-      });
+      return !blogError && !pagesError;
+    } catch (err) {
+      console.error('Error checking tables:', err);
       return false;
     }
   };
 
+  const createBlogPost = async (postData: Omit<BlogPost, 'id' | 'views' | 'readTime'>) => {
+    try {
+      // Ensure required fields are present
+      const dataToInsert = {
+        title: postData.title,
+        slug: postData.slug || postData.title.toLowerCase().replace(/\s+/g, '-'),
+        author: postData.author,
+        category: postData.category,
+        status: postData.status,
+        date: postData.date,
+        excerpt: postData.excerpt,
+        content: postData.content,
+        tags: postData.tags,
+        seo: postData.seo || {},
+        views: 0,
+        read_time: 5
+      };
+
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .insert([dataToInsert])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating blog post:', error);
+        throw error;
+      }
+
+      // Transform and add to local state
+      const newPost: BlogPost = {
+        id: data.id,
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt || undefined,
+        content: data.content || undefined,
+        author: data.author,
+        category: data.category,
+        tags: data.tags || undefined,
+        status: (data.status === 'published' || data.status === 'draft') ? data.status : 'draft',
+        views: data.views || 0,
+        readTime: data.read_time || 5,
+        date: data.date,
+        seo: data.seo ? {
+          metaTitle: (data.seo as any)?.metaTitle,
+          metaDescription: (data.seo as any)?.metaDescription,
+          keywords: (data.seo as any)?.keywords
+        } : undefined
+      };
+
+      setBlogPosts(prev => [newPost, ...prev]);
+      toast.success('Blog-Post erstellt!');
+      return newPost;
+    } catch (err: any) {
+      console.error('Error creating blog post:', err);
+      toast.error('Fehler beim Erstellen des Blog-Posts', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const updateBlogPost = async (id: number, updates: Partial<BlogPost>) => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .update({
+          title: updates.title,
+          slug: updates.slug,
+          excerpt: updates.excerpt,
+          content: updates.content,
+          author: updates.author,
+          category: updates.category,
+          tags: updates.tags,
+          status: updates.status,
+          seo: updates.seo || {},
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating blog post:', error);
+        throw error;
+      }
+
+      // Transform and update local state
+      const updatedPost: BlogPost = {
+        id: data.id,
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt || undefined,
+        content: data.content || undefined,
+        author: data.author,
+        category: data.category,
+        tags: data.tags || undefined,
+        status: (data.status === 'published' || data.status === 'draft') ? data.status : 'draft',
+        views: data.views || 0,
+        readTime: data.read_time || 5,
+        date: data.date,
+        seo: data.seo ? {
+          metaTitle: (data.seo as any)?.metaTitle,
+          metaDescription: (data.seo as any)?.metaDescription,
+          keywords: (data.seo as any)?.keywords
+        } : undefined
+      };
+
+      setBlogPosts(prev => prev.map(post => post.id === id ? updatedPost : post));
+      toast.success('Blog-Post aktualisiert!');
+      return updatedPost;
+    } catch (err: any) {
+      console.error('Error updating blog post:', err);
+      toast.error('Fehler beim Aktualisieren des Blog-Posts', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const deleteBlogPost = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting blog post:', error);
+        throw error;
+      }
+
+      setBlogPosts(prev => prev.filter(post => post.id !== id));
+      toast.success('Blog-Post gelöscht!');
+    } catch (err: any) {
+      console.error('Error deleting blog post:', err);
+      toast.error('Fehler beim Löschen des Blog-Posts', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const createPage = async (pageData: Omit<Page, 'id' | 'lastUpdated'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('pages')
+        .insert([{
+          title: pageData.title,
+          path: pageData.path,
+          content: pageData.content,
+          meta: pageData.meta || {}
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating page:', error);
+        throw error;
+      }
+
+      const newPage: Page = {
+        id: data.id,
+        title: data.title,
+        path: data.path,
+        content: data.content || undefined,
+        lastUpdated: data.last_updated,
+        meta: data.meta ? {
+          title: (data.meta as any)?.title,
+          description: (data.meta as any)?.description,
+          keywords: (data.meta as any)?.keywords
+        } : undefined
+      };
+
+      setPages(prev => [newPage, ...prev]);
+      toast.success('Seite erstellt!');
+      return newPage;
+    } catch (err: any) {
+      console.error('Error creating page:', err);
+      toast.error('Fehler beim Erstellen der Seite', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const updatePage = async (id: number, updates: Partial<Page>) => {
+    try {
+      const { data, error } = await supabase
+        .from('pages')
+        .update({
+          title: updates.title,
+          path: updates.path,
+          content: updates.content,
+          meta: updates.meta || {},
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating page:', error);
+        throw error;
+      }
+
+      const updatedPage: Page = {
+        id: data.id,
+        title: data.title,
+        path: data.path,
+        content: data.content || undefined,
+        lastUpdated: data.last_updated,
+        meta: data.meta ? {
+          title: (data.meta as any)?.title,
+          description: (data.meta as any)?.description,
+          keywords: (data.meta as any)?.keywords
+        } : undefined
+      };
+
+      setPages(prev => prev.map(page => page.id === id ? updatedPage : page));
+      toast.success('Seite aktualisiert!');
+      return updatedPage;
+    } catch (err: any) {
+      console.error('Error updating page:', err);
+      toast.error('Fehler beim Aktualisieren der Seite', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const deletePage = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from('pages')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting page:', error);
+        throw error;
+      }
+
+      setPages(prev => prev.filter(page => page.id !== id));
+      toast.success('Seite gelöscht!');
+    } catch (err: any) {
+      console.error('Error deleting page:', err);
+      toast.error('Fehler beim Löschen der Seite', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
   useEffect(() => {
-    fetchContent();
+    const loadContent = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const tablesExist = await checkTablesExist();
+        if (tablesExist) {
+          await Promise.all([fetchBlogPosts(), fetchPages()]);
+        } else {
+          console.log('Content tables do not exist yet');
+        }
+      } catch (err: any) {
+        console.error('Error loading content:', err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadContent();
   }, []);
 
   return {
@@ -434,9 +410,14 @@ export const useContent = () => {
     pages,
     isLoading,
     error,
-    refreshContent: fetchContent,
     createBlogPost,
     updateBlogPost,
-    deleteBlogPost
+    deleteBlogPost,
+    createPage,
+    updatePage,
+    deletePage,
+    refetch: () => Promise.all([fetchBlogPosts(), fetchPages()])
   };
 };
+
+export default useContent;

@@ -19,215 +19,204 @@ export interface SiteSettings {
     robotsTxt: string;
   };
   security: {
-    enableTwoFactor: boolean;
     passwordMinLength: number;
-    sessionTimeout: number;
-    blockFailedLogins: boolean;
     maxFailedAttempts: number;
+    blockFailedLogins: boolean;
     blockDuration: number;
+    sessionTimeout: number;
+    enableTwoFactor: boolean;
   };
-  updated_at?: string;
 }
 
-const DEFAULT_SETTINGS: SiteSettings = {
+const defaultSettings: SiteSettings = {
   siteName: 'Rasenpilot',
-  siteTagline: 'Ihr intelligenter Rasenberater',
+  siteTagline: 'Ihr KI-Experte für Rasenpflege',
   siteEmail: 'info@rasenpilot.de',
   sitePhone: '+49 123 456789',
-  siteAddress: 'Rasenweg 1, 10115 Berlin',
+  siteAddress: 'Musterstraße 1, 12345 Musterstadt',
   googleAnalyticsId: 'G-7F24N28JNH',
   showLovableBadge: true,
   seo: {
-    defaultMetaTitle: 'Rasenpilot - Ihr intelligenter Rasenberater',
-    defaultMetaDescription: 'Rasenpilot - Ihr KI-gestützter Rasenpflege-Assistent für einen gesunden, schönen Rasen',
-    defaultKeywords: 'Rasenpflege, KI-Rasenberater, Rasen-Assistent, Rasen düngen, Rasen mähen, Rasenpilot',
-    robotsTxt: 'User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\nDisallow: /profile',
+    defaultMetaTitle: 'Rasenpilot - KI-Rasenanalyse',
+    defaultMetaDescription: 'Professionelle KI-gestützte Rasenanalyse und Pflegeempfehlungen',
+    defaultKeywords: 'Rasen, Garten, KI, Analyse, Rasenpflege',
+    robotsTxt: 'User-agent: *\nAllow: /'
   },
   security: {
-    enableTwoFactor: false,
     passwordMinLength: 8,
-    sessionTimeout: 30,
-    blockFailedLogins: true,
     maxFailedAttempts: 5,
+    blockFailedLogins: true,
     blockDuration: 15,
+    sessionTimeout: 30,
+    enableTwoFactor: false
   }
 };
 
-export const useSettings = () => {
-  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
+const useSettings = () => {
+  const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSettings = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Statt information_schema.tables zu verwenden, versuchen wir einen direkteren Ansatz
-      // Versuche, die Tabelle direkt abzufragen
-      try {
-        const { error: tableCheckError } = await supabase
-          .from('site_settings')
-          .select('id')
-          .limit(1);
-        
-        // Wenn die Tabelle nicht existiert, erhalten wir einen anderen Fehler als bei Berechtigungsproblemen
-        if (tableCheckError && !tableCheckError.message.includes('permission')) {
-          console.log('Settings table does not exist:', tableCheckError);
-          toast.warning('Einstellungstabelle existiert nicht in der Datenbank', {
-            description: 'Verwende Standardeinstellungen. Erstellen Sie die Tabelle "site_settings" in Supabase.'
-          });
-          return;
-        }
-      } catch (err) {
-        console.error('Error checking for settings table existence:', err);
-        return;
-      }
-      
-      // Fetch settings from the database
-      const { data, error } = await supabase
+
+      const { data, error: fetchError } = await supabase
         .from('site_settings')
         .select('*')
         .order('updated_at', { ascending: false })
         .limit(1)
         .single();
-      
-      if (error) {
-        if (error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-          console.error('Error fetching settings:', error);
-          throw new Error('Failed to fetch settings');
-        }
-        
-        // No settings found, create default settings
-        const { error: insertError } = await supabase
-          .from('site_settings')
-          .insert([DEFAULT_SETTINGS]);
-        
-        if (insertError) {
-          console.error('Error creating default settings:', insertError);
-          throw new Error('Failed to create default settings');
-        }
-        
-        // Return default settings
-        return;
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error fetching settings:', fetchError);
+        throw fetchError;
       }
-      
-      // Successfully fetched settings
-      setSettings(data);
-      
+
+      if (data) {
+        // Transform database data to match SiteSettings interface
+        const transformedSettings: SiteSettings = {
+          id: data.id,
+          siteName: data.site_name,
+          siteTagline: data.site_tagline,
+          siteEmail: data.site_email,
+          sitePhone: data.site_phone || '',
+          siteAddress: data.site_address || '',
+          googleAnalyticsId: data.google_analytics_id || '',
+          showLovableBadge: data.show_lovable_badge ?? true,
+          seo: data.seo ? {
+            defaultMetaTitle: (data.seo as any)?.defaultMetaTitle || defaultSettings.seo.defaultMetaTitle,
+            defaultMetaDescription: (data.seo as any)?.defaultMetaDescription || defaultSettings.seo.defaultMetaDescription,
+            defaultKeywords: (data.seo as any)?.defaultKeywords || defaultSettings.seo.defaultKeywords,
+            robotsTxt: (data.seo as any)?.robotsTxt || defaultSettings.seo.robotsTxt
+          } : defaultSettings.seo,
+          security: data.security ? {
+            passwordMinLength: (data.security as any)?.passwordMinLength || defaultSettings.security.passwordMinLength,
+            maxFailedAttempts: (data.security as any)?.maxFailedAttempts || defaultSettings.security.maxFailedAttempts,
+            blockFailedLogins: (data.security as any)?.blockFailedLogins ?? defaultSettings.security.blockFailedLogins,
+            blockDuration: (data.security as any)?.blockDuration || defaultSettings.security.blockDuration,
+            sessionTimeout: (data.security as any)?.sessionTimeout || defaultSettings.security.sessionTimeout,
+            enableTwoFactor: (data.security as any)?.enableTwoFactor ?? defaultSettings.security.enableTwoFactor
+          } : defaultSettings.security
+        };
+
+        setSettings(transformedSettings);
+      } else {
+        setSettings(defaultSettings);
+      }
     } catch (err: any) {
       console.error('Error in fetchSettings:', err);
       setError(err.message);
-      toast.error('Fehler beim Laden der Einstellungen', {
-        description: 'Verwende Standardeinstellungen als Fallback.'
-      });
+      setSettings(defaultSettings);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const saveSettings = async (newSettings: SiteSettings): Promise<boolean> => {
+
+  const saveSettings = async (newSettings: SiteSettings) => {
     try {
-      setIsLoading(true);
-      
-      // Statt information_schema.tables zu verwenden, versuchen wir einen direkteren Ansatz
-      // Versuche, die Tabelle direkt abzufragen
-      try {
-        const { error: tableCheckError } = await supabase
-          .from('site_settings')
-          .select('id')
-          .limit(1);
-        
-        // Wenn die Tabelle nicht existiert, erhalten wir einen anderen Fehler als bei Berechtigungsproblemen
-        if (tableCheckError && !tableCheckError.message.includes('permission')) {
-          console.log('Settings table does not exist, cannot save settings');
-          toast.error('Einstellungstabelle existiert nicht in der Datenbank', {
-            description: 'Erstellen Sie die Tabelle "site_settings" in Supabase.'
-          });
-          return false;
-        }
-      } catch (err) {
-        console.error('Error checking for settings table existence:', err);
-        return false;
-      }
-      
-      // If we have an id, update the existing record
+      setIsSaving(true);
+      setError(null);
+
+      // Transform settings to database format
+      const dataToSave = {
+        site_name: newSettings.siteName,
+        site_tagline: newSettings.siteTagline,
+        site_email: newSettings.siteEmail,
+        site_phone: newSettings.sitePhone,
+        site_address: newSettings.siteAddress,
+        google_analytics_id: newSettings.googleAnalyticsId,
+        show_lovable_badge: newSettings.showLovableBadge,
+        seo: newSettings.seo,
+        security: newSettings.security,
+        updated_at: new Date().toISOString()
+      };
+
+      let result;
       if (settings.id) {
-        const { error } = await supabase
+        // Update existing settings
+        result = await supabase
           .from('site_settings')
-          .update({
-            ...newSettings,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', settings.id);
-        
-        if (error) {
-          console.error('Error updating settings:', error);
-          throw new Error('Failed to update settings');
-        }
+          .update(dataToSave)
+          .eq('id', settings.id)
+          .select()
+          .single();
       } else {
-        // Create a new record
-        const { error } = await supabase
+        // Create new settings
+        result = await supabase
           .from('site_settings')
-          .insert([{
-            ...newSettings,
-            updated_at: new Date().toISOString()
-          }]);
-        
-        if (error) {
-          console.error('Error creating settings:', error);
-          throw new Error('Failed to create settings');
-        }
+          .insert([dataToSave])
+          .select()
+          .single();
       }
-      
-      // Update local state
-      setSettings(newSettings);
-      
-      toast.success('Einstellungen gespeichert', {
-        description: 'Ihre Änderungen wurden erfolgreich übernommen'
-      });
-      
-      return true;
+
+      const { data, error } = result;
+
+      if (error) {
+        console.error('Error saving settings:', error);
+        throw error;
+      }
+
+      // Update local state with saved data
+      const savedSettings: SiteSettings = {
+        id: data.id,
+        siteName: data.site_name,
+        siteTagline: data.site_tagline,
+        siteEmail: data.site_email,
+        sitePhone: data.site_phone || '',
+        siteAddress: data.site_address || '',
+        googleAnalyticsId: data.google_analytics_id || '',
+        showLovableBadge: data.show_lovable_badge ?? true,
+        seo: data.seo ? {
+          defaultMetaTitle: (data.seo as any)?.defaultMetaTitle || '',
+          defaultMetaDescription: (data.seo as any)?.defaultMetaDescription || '',
+          defaultKeywords: (data.seo as any)?.defaultKeywords || '',
+          robotsTxt: (data.seo as any)?.robotsTxt || ''
+        } : defaultSettings.seo,
+        security: data.security ? {
+          passwordMinLength: (data.security as any)?.passwordMinLength || 8,
+          maxFailedAttempts: (data.security as any)?.maxFailedAttempts || 5,
+          blockFailedLogins: (data.security as any)?.blockFailedLogins ?? true,
+          blockDuration: (data.security as any)?.blockDuration || 15,
+          sessionTimeout: (data.security as any)?.sessionTimeout || 30,
+          enableTwoFactor: (data.security as any)?.enableTwoFactor ?? false
+        } : defaultSettings.security
+      };
+
+      setSettings(savedSettings);
+      toast.success('Einstellungen gespeichert!');
+      return savedSettings;
     } catch (err: any) {
-      console.error('Error in saveSettings:', err);
+      console.error('Error saving settings:', err);
       setError(err.message);
       toast.error('Fehler beim Speichern der Einstellungen', {
         description: err.message
       });
-      return false;
+      throw err;
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
-  
-  const clearCache = async (): Promise<boolean> => {
-    try {
-      // In a real app, this would clear server-side caches
-      // For this demo, we'll simulate clearing the cache
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Cache geleert', {
-        description: 'Der Cache wurde erfolgreich geleert'
-      });
-      
-      return true;
-    } catch (err: any) {
-      toast.error('Fehler beim Leeren des Caches', {
-        description: err.message
-      });
-      return false;
-    }
+
+  const updateSettings = (updates: Partial<SiteSettings>) => {
+    setSettings(prev => ({ ...prev, ...updates }));
   };
 
   useEffect(() => {
     fetchSettings();
   }, []);
 
-  return { 
-    settings, 
-    isLoading, 
+  return {
+    settings,
+    isLoading,
+    isSaving,
     error,
     saveSettings,
-    clearCache
+    updateSettings,
+    refetch: fetchSettings
   };
 };
+
+export default useSettings;

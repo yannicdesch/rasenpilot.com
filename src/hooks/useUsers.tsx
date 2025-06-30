@@ -1,18 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export interface User {
   id: string;
-  name: string | null;
   email: string;
-  status: 'active' | 'inactive';
+  name: string;
   role: 'user' | 'admin';
-  created_at: string;
-  last_sign_in_at: string | null;
+  isActive: boolean;
+  lastSignIn?: string;
+  createdAt: string;
 }
 
-export const useUsers = () => {
+const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,166 +22,196 @@ export const useUsers = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      console.log('Fetching users from Supabase...');
-      
-      // Check if profiles table exists using the execute_sql RPC
-      const { data: profilesData, error: profilesError } = await supabase.rpc('execute_sql', {
-        sql: `SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public'
-          AND table_name = 'profiles'
-        );`
-      });
-      
-      const hasProfilesTable = !profilesError && profilesData?.[0]?.exists;
-      
-      // If the table doesn't exist, use example data
-      if (!hasProfilesTable) {
-        console.log('Profiles table does not exist:', profilesError);
-        
-        // Fall back to example data
+
+      // Check if users table exists first
+      const { error: checkError } = await supabase
+        .from('profiles')
+        .select('count(*)', { count: 'exact' })
+        .limit(1);
+
+      if (checkError) {
+        console.error('Profiles table does not exist:', checkError);
+        // Create mock data for development
         setUsers([
-          { 
-            id: '1', 
-            name: 'Max Mustermann', 
-            email: 'max@example.com', 
-            status: 'active', 
-            role: 'user',
-            created_at: '2025-04-12',
-            last_sign_in_at: '2025-05-14'
-          },
-          { 
-            id: '2', 
-            name: 'Lisa Schmidt', 
-            email: 'lisa@example.com', 
-            status: 'active', 
+          {
+            id: '1',
+            email: 'admin@example.com',
+            name: 'Admin User',
             role: 'admin',
-            created_at: '2025-03-28',
-            last_sign_in_at: '2025-05-15'
+            isActive: true,
+            createdAt: new Date().toISOString()
           },
-          { 
-            id: '3', 
-            name: 'Thomas Weber', 
-            email: 'thomas@example.com', 
-            status: 'inactive', 
+          {
+            id: '2',
+            email: 'user@example.com',
+            name: 'Regular User',
             role: 'user',
-            created_at: '2025-01-05',
-            last_sign_in_at: '2025-03-22'
+            isActive: true,
+            createdAt: new Date().toISOString()
           }
         ]);
-        
-        toast.warning('Profilstabelle existiert nicht in der Datenbank', {
-          description: 'Verwende Beispieldaten. Erstellen Sie eine "profiles"-Tabelle in Supabase.'
-        });
-        
-        setIsLoading(false);
         return;
       }
-      
-      // Fetch user profiles from the profiles table
-      const { data: profilesResultData, error: fetchError } = await supabase
+
+      const { data, error: fetchError } = await supabase
         .from('profiles')
-        .select('*');
-      
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (fetchError) {
-        throw new Error(`Fehler beim Abrufen der Profile: ${fetchError.message}`);
+        console.error('Error fetching users:', fetchError);
+        throw fetchError;
       }
 
-      console.log('Fetched profile data:', profilesResultData);
-      
-      if (profilesResultData && Array.isArray(profilesResultData)) {
-        // Transform the data to our User format
-        const transformedUsers: User[] = profilesResultData.map(profile => ({
-          id: profile.id || '',
-          name: profile.full_name || profile.name || null,
-          email: profile.email || '',
-          status: profile.is_active ? 'active' as const : 'inactive' as const,
-          role: profile.role === 'admin' ? 'admin' as const : 'user' as const,
-          created_at: profile.created_at || '',
-          last_sign_in_at: profile.last_sign_in_at || null
-        }));
-        
-        setUsers(transformedUsers);
-        
-        if (transformedUsers.length === 0) {
-          console.log('No users found, adding example data');
-          // Use example data when list is empty
-          setUsers([
-            { 
-              id: '1', 
-              name: 'Max Mustermann', 
-              email: 'max@example.com', 
-              status: 'active', 
-              role: 'user',
-              created_at: '2025-04-12',
-              last_sign_in_at: '2025-05-14'
-            },
-            { 
-              id: '2', 
-              name: 'Lisa Schmidt', 
-              email: 'lisa@example.com', 
-              status: 'active', 
-              role: 'admin',
-              created_at: '2025-03-28',
-              last_sign_in_at: '2025-05-15'
-            },
-            { 
-              id: '3', 
-              name: 'Thomas Weber', 
-              email: 'thomas@example.com', 
-              status: 'inactive', 
-              role: 'user',
-              created_at: '2025-01-05',
-              last_sign_in_at: '2025-03-22'
-            }
-          ]);
-        }
-      } else {
-        throw new Error('Unexpected data format for profiles');
-      }
+      // Transform data to match User interface
+      const transformedUsers: User[] = (data || []).map(profile => ({
+        id: profile.id,
+        email: profile.email,
+        name: profile.full_name || profile.email, // Use full_name or fallback to email
+        role: (profile.role === 'admin' || profile.role === 'user') ? profile.role : 'user',
+        isActive: profile.is_active ?? true,
+        lastSignIn: profile.last_sign_in_at || undefined,
+        createdAt: profile.created_at
+      }));
+
+      setUsers(transformedUsers);
     } catch (err: any) {
-      console.error('Error fetching users:', err);
-      
-      const errorMsg = err.message || 'Failed to fetch users';
-      setError(`${errorMsg}. Check your database connection.`);
-      
-      toast.error('Error fetching user data', {
-        description: 'Make sure Supabase is correctly configured.'
-      });
-      
-      // Fallback to example data so the UI isn't empty
-      setUsers([
-        { 
-          id: '1', 
-          name: 'Max Mustermann', 
-          email: 'max@example.com', 
-          status: 'active', 
-          role: 'user',
-          created_at: '2025-04-12',
-          last_sign_in_at: '2025-05-14'
-        },
-        { 
-          id: '2', 
-          name: 'Lisa Schmidt', 
-          email: 'lisa@example.com', 
-          status: 'active', 
-          role: 'admin',
-          created_at: '2025-03-28',
-          last_sign_in_at: '2025-05-15'
-        },
-        { 
-          id: '3', 
-          name: 'Thomas Weber', 
-          email: 'thomas@example.com', 
-          status: 'inactive', 
-          role: 'user',
-          created_at: '2025-01-05',
-          last_sign_in_at: '2025-03-22'
-        }
-      ]);
+      console.error('Error in fetchUsers:', err);
+      setError(err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateUserRole = async (userId: string, newRole: 'user' | 'admin') => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ 
+          role: newRole,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating user role:', error);
+        throw error;
+      }
+
+      setUsers(prev => prev.map(user => 
+        user.id === userId 
+          ? { ...user, role: newRole }
+          : user
+      ));
+
+      toast.success(`Benutzerrolle zu ${newRole === 'admin' ? 'Administrator' : 'Benutzer'} geändert`);
+    } catch (err: any) {
+      console.error('Error updating user role:', err);
+      toast.error('Fehler beim Ändern der Benutzerrolle', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const toggleUserStatus = async (userId: string, isActive: boolean) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ 
+          is_active: isActive,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating user status:', error);
+        throw error;
+      }
+
+      setUsers(prev => prev.map(user => 
+        user.id === userId 
+          ? { ...user, isActive }
+          : user
+      ));
+
+      toast.success(`Benutzer ${isActive ? 'aktiviert' : 'deaktiviert'}`);
+    } catch (err: any) {
+      console.error('Error updating user status:', err);
+      toast.error('Fehler beim Ändern des Benutzerstatus', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Error deleting user:', error);
+        throw error;
+      }
+
+      setUsers(prev => prev.filter(user => user.id !== userId));
+      toast.success('Benutzer gelöscht');
+    } catch (err: any) {
+      console.error('Error deleting user:', err);
+      toast.error('Fehler beim Löschen des Benutzers', {
+        description: err.message
+      });
+      throw err;
+    }
+  };
+
+  const createUser = async (userData: { email: string; full_name: string; role: 'user' | 'admin'; is_active: boolean }) => {
+    try {
+      // Generate a UUID for the new user
+      const userId = crypto.randomUUID();
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert([{
+          id: userId,
+          email: userData.email,
+          full_name: userData.full_name,
+          role: userData.role,
+          is_active: userData.is_active
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating user:', error);
+        throw error;
+      }
+
+      const newUser: User = {
+        id: data.id,
+        email: data.email,
+        name: data.full_name || data.email,
+        role: (data.role === 'admin' || data.role === 'user') ? data.role : 'user',
+        isActive: data.is_active ?? true,
+        createdAt: data.created_at
+      };
+
+      setUsers(prev => [newUser, ...prev]);
+      toast.success('Benutzer erstellt!');
+      return newUser;
+    } catch (err: any) {
+      console.error('Error creating user:', err);
+      toast.error('Fehler beim Erstellen des Benutzers', {
+        description: err.message
+      });
+      throw err;
     }
   };
 
@@ -188,98 +219,16 @@ export const useUsers = () => {
     fetchUsers();
   }, []);
 
-  // Add functionality to create a new user
-  const addUser = async (userData: Omit<User, 'id' | 'created_at' | 'last_sign_in_at'>) => {
-    try {
-      setIsLoading(true);
-      
-      const newUser = {
-        email: userData.email,
-        full_name: userData.name,
-        is_active: userData.status === 'active',
-        role: userData.role
-      };
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert(newUser)
-        .select();
-        
-      if (error) throw error;
-      
-      toast.success('User successfully added');
-      fetchUsers();
-      
-    } catch (error: any) {
-      toast.error('Error adding user', {
-        description: error.message
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Add functionality to update a user
-  const updateUser = async (id: string, userData: Partial<Omit<User, 'id' | 'created_at'>>) => {
-    try {
-      setIsLoading(true);
-      
-      const updateData: any = {};
-      if (userData.name !== undefined) updateData.full_name = userData.name;
-      if (userData.email !== undefined) updateData.email = userData.email;
-      if (userData.status !== undefined) updateData.is_active = userData.status === 'active';
-      if (userData.role !== undefined) updateData.role = userData.role;
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', id);
-        
-      if (error) throw error;
-      
-      toast.success('User successfully updated');
-      fetchUsers();
-      
-    } catch (error: any) {
-      toast.error('Error updating user', {
-        description: error.message
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Add functionality to delete a user
-  const deleteUser = async (id: string) => {
-    try {
-      setIsLoading(true);
-      
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', id);
-        
-      if (error) throw error;
-      
-      toast.success('User successfully deleted');
-      fetchUsers();
-      
-    } catch (error: any) {
-      toast.error('Error deleting user', {
-        description: error.message
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { 
-    users, 
-    isLoading, 
-    error, 
-    refreshUsers: fetchUsers,
-    addUser,
-    updateUser,
-    deleteUser
+  return {
+    users,
+    isLoading,
+    error,
+    updateUserRole,
+    toggleUserStatus,
+    deleteUser,
+    createUser,
+    refetch: fetchUsers
   };
 };
+
+export default useUsers;

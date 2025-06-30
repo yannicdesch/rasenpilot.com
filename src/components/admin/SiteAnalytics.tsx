@@ -1,195 +1,137 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import AnalyticsHeader from './analytics/AnalyticsHeader';
-import TableCreationAlert from './analytics/TableCreationAlert';
-import StatisticCards from './analytics/StatisticCards';
-import VisitorChart from './analytics/VisitorChart';
-import AnalyticsInfoCard from './analytics/AnalyticsInfoCard';
-import AnalyticsDebugInfo from './analytics/AnalyticsDebugInfo';
-import { getSupabaseConnectionInfo, testSupabaseConnection } from '@/lib/analytics';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { RefreshCw, TrendingUp, Users, Eye, Clock } from 'lucide-react';
 
 const SiteAnalytics = () => {
-  const [timeFrame, setTimeFrame] = useState('daily');
-  const [metricType, setMetricType] = useState('all');
-  const [showDebugInfo, setShowDebugInfo] = useState(false);
-  const { analyticsData, isLoading, refreshAnalytics, tablesExist, createTables } = useAnalytics();
-  const [isCreatingTables, setIsCreatingTables] = useState(false);
-  const [tableCreationError, setTableCreationError] = useState<string | null>(null);
-  const [supabaseInfo, setSupabaseInfo] = useState({
-    url: null as string | null,
-    hasApiKey: false,
-    connectionStatus: 'testing' as 'testing' | 'connected' | 'error'
-  });
-  
-  // Get Supabase connection info and test the connection
-  useEffect(() => {
-    const connectionInfo = getSupabaseConnectionInfo();
-    setSupabaseInfo(prev => ({ 
-      ...prev, 
-      ...connectionInfo, 
-      connectionStatus: 'testing' 
-    }));
-    
-    // Test the connection
-    const testConnection = async () => {
-      try {
-        const connected = await testSupabaseConnection();
-        setSupabaseInfo(prev => ({ 
-          ...prev, 
-          connectionStatus: connected ? 'connected' : 'error'
-        }));
-      } catch (err) {
-        console.error('Error testing connection:', err);
-        setSupabaseInfo(prev => ({ 
-          ...prev, 
-          connectionStatus: 'error'
-        }));
-      }
-    };
-    
-    testConnection();
-  }, []);
-  
-  // Handle creating tables
-  const handleCreateTables = async () => {
-    console.log('Creating analytics tables...');
-    setIsCreatingTables(true);
-    setTableCreationError(null);
-    
-    try {
-      // First check if Supabase is connected
-      if (supabaseInfo.connectionStatus === 'error') {
-        setTableCreationError('Keine Verbindung zur Datenbank möglich. Bitte überprüfen Sie Ihre Supabase-Konfiguration.');
-        setIsCreatingTables(false);
-        return;
-      }
-      
-      // Call the createTables function directly from useAnalytics
-      const success = await createTables();
-      
-      console.log('Table creation result:', success);
-      
-      if (success) {
-        // Refresh analytics to show real data
-        refreshAnalytics();
-      } else {
-        setTableCreationError('Die Tabellenerstellung ist fehlgeschlagen. Bitte überprüfen Sie die Konsolenausgabe für Details.');
-      }
-    } catch (error: any) {
-      console.error('Error creating tables:', error);
-      setTableCreationError(error.message || 'Ein unerwarteter Fehler ist aufgetreten');
-    } finally {
-      setIsCreatingTables(false);
-    }
-  };
+  const { data: analyticsData, isLoading, error, refetch } = useAnalytics();
 
-  // Force refresh function
-  const handleForceRefresh = () => {
-    console.log('Force refreshing analytics data...');
-    refreshAnalytics();
-  };
-  
-  // Select data based on timeframe
-  const chartData = timeFrame === 'daily' ? analyticsData.dailyVisitors : 
-                    timeFrame === 'weekly' ? analyticsData.weeklyVisitors : analyticsData.monthlyVisitors;
-  
-  // Get summary statistics
-  const totalVisits = analyticsData.totalVisits;
-  const totalSignups = analyticsData.totalSignups;
-  const conversionRate = analyticsData.conversionRate.toFixed(1);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+        <span>Analytics werden geladen...</span>
+      </div>
+    );
+  }
 
-  console.log('SiteAnalytics render:', {
-    isLoading,
-    tablesExist,
-    totalVisits,
-    supabaseConnectionStatus: supabaseInfo.connectionStatus,
-    chartDataLength: chartData?.length || 0
-  });
-  
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-red-600">
+            <p>Fehler beim Laden der Analytics: {error}</p>
+            <Button onClick={refetch} className="mt-4">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Erneut versuchen
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-green-800">Website-Statistiken</h2>
-          <p className="text-gray-600">Übersicht über Besucher und Aktivitäten</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowDebugInfo(!showDebugInfo)}
-          >
-            {showDebugInfo ? 'Debug ausblenden' : 'Debug anzeigen'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleForceRefresh}
-            disabled={isLoading}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Aktualisieren
-          </Button>
-        </div>
+        <h2 className="text-2xl font-bold">Website Analytics</h2>
+        <Button onClick={refetch} variant="outline">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Aktualisieren
+        </Button>
       </div>
 
-      {showDebugInfo && (
-        <AnalyticsDebugInfo
-          tablesExist={tablesExist}
-          isLoading={isLoading}
-          error={null}
-          analyticsData={analyticsData}
-          supabaseConnectionStatus={supabaseInfo.connectionStatus}
-        />
-      )}
-      
-      <AnalyticsHeader 
-        timeFrame={timeFrame}
-        setTimeFrame={setTimeFrame}
-        refreshAnalytics={refreshAnalytics}
-        isLoading={isLoading}
-      />
-      
-      {/* Connection error alert */}
-      {supabaseInfo.connectionStatus === 'error' && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Verbindung zur Supabase-Datenbank fehlgeschlagen. Analytics-Daten sind möglicherweise nicht verfügbar.
-            Bitte überprüfen Sie Ihre Supabase-Konfiguration.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {tablesExist === false && supabaseInfo.connectionStatus === 'connected' && (
-        <TableCreationAlert 
-          isCreatingTables={isCreatingTables}
-          tableCreationError={tableCreationError}
-          handleCreateTables={handleCreateTables}
-          supabaseInfo={supabaseInfo}
-        />
-      )}
-      
-      <StatisticCards 
-        totalVisits={totalVisits}
-        totalSignups={totalSignups}
-        conversionRate={conversionRate}
-      />
-      
-      <VisitorChart 
-        chartData={chartData}
-        metricType={metricType}
-        setMetricType={setMetricType}
-        isLoading={isLoading}
-        tablesExist={tablesExist}
-      />
-      
-      <AnalyticsInfoCard tablesExist={tablesExist} />
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Gesamte Seitenaufrufe
+            </CardTitle>
+            <Eye className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analyticsData.totalPageViews}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Gesamte Events
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analyticsData.totalEvents}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Top Seiten
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analyticsData.topPages.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Letzte Aktivitäten
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analyticsData.recentActivity.length}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top Pages */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Meistbesuchte Seiten</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {analyticsData.topPages.slice(0, 10).map((page, index) => (
+              <div key={page.path} className="flex items-center justify-between">
+                <span className="text-sm">{page.path}</span>
+                <span className="text-sm font-medium">{page.count} Aufrufe</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Letzte Aktivitäten</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {analyticsData.recentActivity.slice(0, 20).map((activity, index) => (
+              <div key={index} className="flex items-center justify-between text-sm">
+                <div>
+                  <span className="font-medium">{activity.type}</span>
+                  {activity.path && <span className="text-muted-foreground ml-2">{activity.path}</span>}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(activity.timestamp).toLocaleString('de-DE')}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
