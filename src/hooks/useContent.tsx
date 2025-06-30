@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -122,20 +123,33 @@ export const useContent = () => {
       setIsLoading(true);
       setError(null);
       
-      // Prüfen, ob die blog_posts-Tabelle existiert
-      const { error: blogTableError } = await supabase
-        .from('blog_posts')
-        .select('id')
-        .limit(1);
+      // Check if the blog_posts table exists by trying to query it
+      let hasBlogTable = false;
+      let hasPagesTable = false;
       
-      // Prüfen, ob die pages-Tabelle existiert
-      const { error: pagesTableError } = await supabase
-        .from('pages')
-        .select('id')
-        .limit(1);
+      try {
+        const { error: blogTableError } = await supabase
+          .from('blog_posts')
+          .select('id')
+          .limit(1);
+        
+        hasBlogTable = !blogTableError || blogTableError.message.includes('permission');
+      } catch (err) {
+        console.log('Blog posts table check failed:', err);
+        hasBlogTable = false;
+      }
       
-      const hasBlogTable = !blogTableError || blogTableError.message.includes('permission');
-      const hasPagesTable = !pagesTableError || pagesTableError.message.includes('permission');
+      try {
+        const { error: pagesTableError } = await supabase
+          .from('pages')
+          .select('id')
+          .limit(1);
+        
+        hasPagesTable = !pagesTableError || pagesTableError.message.includes('permission');
+      } catch (err) {
+        console.log('Pages table check failed:', err);
+        hasPagesTable = false;
+      }
       
       // Fetch blog posts if table exists
       if (hasBlogTable) {
@@ -150,7 +164,22 @@ export const useContent = () => {
         }
         
         if (blogData && blogData.length > 0) {
-          setBlogPosts(blogData);
+          // Transform the data to match our BlogPost interface
+          const transformedBlogPosts = blogData.map(post => ({
+            id: post.id,
+            title: post.title,
+            status: (post.status === 'published' || post.status === 'draft') ? post.status as 'published' | 'draft' : 'draft',
+            views: post.views || 0,
+            author: post.author,
+            category: post.category,
+            date: post.date,
+            slug: post.slug,
+            excerpt: post.excerpt,
+            content: post.content,
+            tags: post.tags,
+            seo: post.seo ? (typeof post.seo === 'object' ? post.seo as any : undefined) : undefined
+          }));
+          setBlogPosts(transformedBlogPosts);
         } else {
           console.log('No blog posts found, using sample data');
           setBlogPosts(sampleBlogPosts);
@@ -169,7 +198,7 @@ export const useContent = () => {
         const { data: pagesData, error: pagesError } = await supabase
           .from('pages')
           .select('*')
-          .order('lastUpdated', { ascending: false });
+          .order('updated_at', { ascending: false });
         
         if (pagesError) {
           console.error('Error fetching pages:', pagesError);
@@ -177,7 +206,15 @@ export const useContent = () => {
         }
         
         if (pagesData && pagesData.length > 0) {
-          setPages(pagesData);
+          // Transform the data to match our Page interface
+          const transformedPages = pagesData.map(page => ({
+            id: page.id,
+            title: page.title,
+            path: page.path,
+            lastUpdated: page.last_updated,
+            content: page.content
+          }));
+          setPages(transformedPages);
         } else {
           console.log('No pages found, using sample data');
           setPages(samplePages);
@@ -209,18 +246,17 @@ export const useContent = () => {
   
   const createBlogPost = async (post: Omit<BlogPost, 'id' | 'views'>): Promise<number | null> => {
     try {
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'blog_posts');
-      
-      if (tablesError) {
-        console.error('Error checking for blog_posts table:', tablesError);
-        throw new Error('Failed to check for blog_posts table');
+      // Check if table exists first
+      let hasBlogTable = false;
+      try {
+        const { error: tableCheckError } = await supabase
+          .from('blog_posts')
+          .select('id')
+          .limit(1);
+        hasBlogTable = !tableCheckError;
+      } catch (err) {
+        hasBlogTable = false;
       }
-      
-      const hasBlogTable = existingTables && existingTables.length > 0;
       
       if (!hasBlogTable) {
         console.log('Blog posts table does not exist, cannot create post');
@@ -231,7 +267,16 @@ export const useContent = () => {
       }
       
       const newPost = {
-        ...post,
+        title: post.title,
+        author: post.author,
+        category: post.category,
+        content: post.content,
+        date: post.date,
+        excerpt: post.excerpt,
+        seo: post.seo,
+        slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-'),
+        status: post.status,
+        tags: post.tags,
         views: 0
       };
       
@@ -248,7 +293,21 @@ export const useContent = () => {
       const createdPost = data![0];
       
       // Update local state
-      setBlogPosts(prev => [createdPost, ...prev]);
+      const transformedPost: BlogPost = {
+        id: createdPost.id,
+        title: createdPost.title,
+        status: createdPost.status as 'published' | 'draft',
+        views: createdPost.views || 0,
+        author: createdPost.author,
+        category: createdPost.category,
+        date: createdPost.date,
+        slug: createdPost.slug,
+        excerpt: createdPost.excerpt,
+        content: createdPost.content,
+        tags: createdPost.tags,
+        seo: createdPost.seo
+      };
+      setBlogPosts(prev => [transformedPost, ...prev]);
       
       toast.success('Blogbeitrag erstellt', {
         description: 'Ihr Blogbeitrag wurde erfolgreich erstellt'
@@ -267,18 +326,17 @@ export const useContent = () => {
   
   const updateBlogPost = async (id: number, post: Partial<BlogPost>): Promise<boolean> => {
     try {
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'blog_posts');
-      
-      if (tablesError) {
-        console.error('Error checking for blog_posts table:', tablesError);
-        throw new Error('Failed to check for blog_posts table');
+      // Check if table exists first
+      let hasBlogTable = false;
+      try {
+        const { error: tableCheckError } = await supabase
+          .from('blog_posts')
+          .select('id')
+          .limit(1);
+        hasBlogTable = !tableCheckError;
+      } catch (err) {
+        hasBlogTable = false;
       }
-      
-      const hasBlogTable = existingTables && existingTables.length > 0;
       
       if (!hasBlogTable) {
         // If table doesn't exist, update in local state only
@@ -325,18 +383,17 @@ export const useContent = () => {
   
   const deleteBlogPost = async (id: number): Promise<boolean> => {
     try {
-      const { data: existingTables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'blog_posts');
-      
-      if (tablesError) {
-        console.error('Error checking for blog_posts table:', tablesError);
-        throw new Error('Failed to check for blog_posts table');
+      // Check if table exists first
+      let hasBlogTable = false;
+      try {
+        const { error: tableCheckError } = await supabase
+          .from('blog_posts')
+          .select('id')
+          .limit(1);
+        hasBlogTable = !tableCheckError;
+      } catch (err) {
+        hasBlogTable = false;
       }
-      
-      const hasBlogTable = existingTables && existingTables.length > 0;
       
       if (hasBlogTable) {
         const { error } = await supabase

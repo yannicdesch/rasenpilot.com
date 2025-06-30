@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +46,15 @@ const SecurityMonitoring: React.FC = () => {
         throw error;
       }
 
-      return data as SecurityEvent[];
+      // Transform the data to match our SecurityEvent interface
+      return (data || []).map(event => ({
+        id: event.id,
+        category: event.category,
+        action: event.action,
+        label: event.label || '',
+        value: event.value ? event.value.toString() : null,
+        timestamp: event.timestamp || new Date().toISOString()
+      })) as SecurityEvent[];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });

@@ -50,7 +50,11 @@ const EmailReportSettings = () => {
         }
         
         if (settings && settings.email_reports) {
-          setConfig(settings.email_reports);
+          // Parse the JSON data safely
+          const emailReportsData = settings.email_reports;
+          if (typeof emailReportsData === 'object' && emailReportsData !== null) {
+            setConfig(emailReportsData as EmailReportConfig);
+          }
         }
       } catch (err) {
         console.error('Error fetching email config:', err);

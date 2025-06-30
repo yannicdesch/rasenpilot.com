@@ -69,12 +69,16 @@ const ConnectionChecker = () => {
           setConnectionDetails("Auth API connection successful");
         }
         
-        // Try a simple query that should work even without special permissions
-        const { data: versionData, error: versionError } = await supabase.rpc('version', {});
-        console.log('Version RPC check:', versionError ? 'Error' : 'Success');
-        
-        if (versionError && versionError.message.includes('not found')) {
-          console.log('Version RPC not found, this is expected. Trying a simple query instead.');
+        // Try a simple query that should work - test with an existing function
+        try {
+          const { data: userIdData, error: userIdError } = await supabase.rpc('get_current_user_id');
+          console.log('User ID RPC check:', userIdError ? 'Error' : 'Success');
+          
+          if (userIdError) {
+            console.log('get_current_user_id RPC error:', userIdError.message);
+          }
+        } catch (rpcError) {
+          console.log('RPC test error (expected if not authenticated):', rpcError);
         }
         
       } catch (directError: any) {
