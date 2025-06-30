@@ -1,146 +1,22 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { CalendarIcon, CheckSquare, Clock, Plus, X } from 'lucide-react';
+import { CheckSquare, Plus, X } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { supabase } from '@/lib/supabase';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLawn } from '@/context/LawnContext';
 
 interface Task {
   id: string;
   title: string;
-  description?: string;
-  due_date?: string;
   completed: boolean;
-  user_id: string;
   created_at: string;
-  lawn_profile_id?: string; // Reference to the lawn profile
 }
 
 const TaskManager = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const queryClient = useQueryClient();
-  const { profile, temporaryProfile } = useLawn();
-  
-  // Check if user is authenticated
-  const checkAuthStatus = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return !!session;
-  };
-  
-  const fetchTasks = async (): Promise<Task[]> => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      // Return empty array if not authenticated
-      return [];
-    }
-    
-    // Fetch tasks associated with the user's current lawn profile
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      throw new Error(error.message);
-    }
-    
-    return data || [];
-  };
-  
-  const { data: tasks = [], isLoading, refetch } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: fetchTasks,
-  });
-  
-  // Effect to refetch tasks when profile changes
-  useEffect(() => {
-    if (profile) {
-      refetch();
-    }
-  }, [profile, refetch]);
-  
-  const createTaskMutation = useMutation({
-    mutationFn: async (title: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error('Sie müssen angemeldet sein, um Aufgaben zu erstellen');
-      }
-      
-      const newTask = {
-        title,
-        user_id: session.user.id,
-        completed: false,
-        lawn_profile_id: profile?.zipCode // Use zipCode as a simple reference to the lawn profile
-      };
-      
-      const { data, error } = await supabase
-        .from('tasks')
-        .insert(newTask)
-        .select()
-        .single();
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      
-      return data;
-    },
-    onSuccess: () => {
-      setNewTaskTitle('');
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast.success('Aufgabe erstellt');
-    },
-    onError: (error) => {
-      toast.error(`Fehler: ${error.message}`);
-    }
-  });
-  
-  const toggleTaskMutation = useMutation({
-    mutationFn: async ({ taskId, completed }: { taskId: string, completed: boolean }) => {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ completed })
-        .eq('id', taskId);
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-    },
-    onError: (error) => {
-      toast.error(`Fehler: ${error.message}`);
-    }
-  });
-  
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (taskId: string) => {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast.success('Aufgabe gelöscht');
-    },
-    onError: (error) => {
-      toast.error(`Fehler: ${error.message}`);
-    }
-  });
+  const [tasks, setTasks] = useState<Task[]>([]);
   
   const handleCreateTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,27 +26,27 @@ const TaskManager = () => {
       return;
     }
     
-    // Check if user is authenticated
-    checkAuthStatus().then(isAuthenticated => {
-      if (isAuthenticated) {
-        createTaskMutation.mutate(newTaskTitle.trim());
-      } else {
-        toast.error('Sie müssen angemeldet sein, um Aufgaben zu speichern', {
-          action: {
-            label: 'Anmelden',
-            onClick: () => window.location.href = '/auth'
-          },
-        });
-      }
-    });
+    const newTask: Task = {
+      id: Date.now().toString(),
+      title: newTaskTitle.trim(),
+      completed: false,
+      created_at: new Date().toISOString()
+    };
+    
+    setTasks(prev => [newTask, ...prev]);
+    setNewTaskTitle('');
+    toast.success('Aufgabe erstellt (lokale Speicherung)');
   };
   
   const handleToggleTask = (taskId: string, completed: boolean) => {
-    toggleTaskMutation.mutate({ taskId, completed });
+    setTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, completed } : task
+    ));
   };
   
   const handleDeleteTask = (taskId: string) => {
-    deleteTaskMutation.mutate(taskId);
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+    toast.success('Aufgabe gelöscht');
   };
   
   const formatDate = (dateStr: string) => {
@@ -191,6 +67,13 @@ const TaskManager = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              <strong>Hinweis:</strong> Die Aufgaben werden lokal gespeichert und gehen beim Neuladen der Seite verloren. 
+              Für dauerhafte Speicherung ist eine Anmeldung erforderlich.
+            </p>
+          </div>
+          
           <form onSubmit={handleCreateTask} className="flex gap-2 mb-6">
             <Input
               placeholder="Neue Aufgabe hinzufügen..."
@@ -198,14 +81,12 @@ const TaskManager = () => {
               onChange={(e) => setNewTaskTitle(e.target.value)}
               className="flex-1"
             />
-            <Button type="submit" size="sm" disabled={createTaskMutation.isPending}>
+            <Button type="submit" size="sm">
               <Plus className="h-4 w-4" />
             </Button>
           </form>
           
-          {isLoading ? (
-            <div className="text-center py-6">Lade Aufgaben...</div>
-          ) : tasks.length === 0 ? (
+          {tasks.length === 0 ? (
             <div className="text-center py-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <CheckSquare className="h-12 w-12 mx-auto text-gray-400 mb-3" />
               <p className="text-gray-500">Keine Aufgaben vorhanden</p>
@@ -230,18 +111,15 @@ const TaskManager = () => {
                       onCheckedChange={(checked) => {
                         handleToggleTask(task.id, checked === true);
                       }}
-                      className="mt-0.5" // Align with first line of text
+                      className="mt-0.5"
                     />
                     <div>
                       <p className={`${task.completed ? 'line-through' : ''}`}>
                         {task.title}
                       </p>
-                      {task.due_date && (
-                        <div className="flex items-center mt-1 text-xs text-gray-500">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {formatDate(task.due_date)}
-                        </div>
-                      )}
+                      <div className="text-xs text-gray-500 mt-1">
+                        Erstellt: {formatDate(task.created_at)}
+                      </div>
                     </div>
                   </div>
                   <Button

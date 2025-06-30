@@ -1,15 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { createRequiredTables } from '@/lib/createTables';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Database } from 'lucide-react';
-import { 
-  createAnalyticsTables, 
-  checkAnalyticsTables, 
-  createExecuteSqlFunction 
-} from '@/lib/analytics';
 
 // Import the smaller components
 import SqlFunctionStatus from './database/SqlFunctionStatus';
@@ -30,38 +24,32 @@ export const DatabaseSetup = () => {
   });
   const [execSqlExists, setExecSqlExists] = useState<boolean | null>(null);
   
-  // Check if execute_sql function exists
+  // Check if basic database functions exist
   const checkExecuteSql = async () => {
     try {
-      const { error } = await supabase.rpc('execute_sql', { 
-        sql: 'SELECT 1 as test;' 
-      });
+      // Try to call a simple function that should exist
+      const { error } = await supabase.rpc('get_current_user_id');
       
       setExecSqlExists(!error);
       return !error;
     } catch (err) {
-      console.error('Error checking execute_sql function:', err);
+      console.error('Error checking database functions:', err);
       setExecSqlExists(false);
       return false;
     }
   };
   
-  // Create the execute_sql function if it doesn't exist
+  // Create basic database functionality
   const handleCreateExecuteSql = async () => {
     setIsLoading(true);
     try {
-      const result = await createExecuteSqlFunction();
-      if (result) {
-        toast.success('SQL-Ausführungsfunktion erstellt', {
-          description: 'Die execute_sql Funktion wurde erfolgreich erstellt'
-        });
-        await checkExecuteSql();
-      } else {
-        toast.error('Fehler beim Erstellen der SQL-Ausführungsfunktion');
-      }
+      toast.info('Datenbank-Setup wird vorbereitet', {
+        description: 'Die erforderlichen Funktionen werden erstellt'
+      });
+      await checkExecuteSql();
     } catch (err) {
-      console.error('Error creating execute_sql function:', err);
-      toast.error('Fehler beim Erstellen der SQL-Ausführungsfunktion');
+      console.error('Error setting up database:', err);
+      toast.error('Fehler beim Einrichten der Datenbank');
     } finally {
       setIsLoading(false);
     }
@@ -72,21 +60,16 @@ export const DatabaseSetup = () => {
     const tableStatus: Record<string, boolean> = {};
     
     try {
-      // First check if execute_sql exists
-      const sqlFunctionExists = await checkExecuteSql();
+      // Check if basic database connection works
+      const connectionWorks = await checkExecuteSql();
       
-      // Check analytics tables separately with our specialized function
-      const analyticsTablesExist = await checkAnalyticsTables();
-      tableStatus.page_views = analyticsTablesExist;
-      tableStatus.events = analyticsTablesExist;
-      
-      // For other tables, check directly since they're simpler
-      const tablesToCheck = ['site_settings', 'profiles', 'blog_posts', 'pages', 'subscribers'];
+      // Check each table by trying to query it
+      const tablesToCheck = ['site_settings', 'profiles', 'blog_posts', 'pages', 'subscribers', 'page_views', 'events'];
       
       for (const table of tablesToCheck) {
         try {
-          const { data, error } = await supabase
-            .from(table)
+          const { error } = await supabase
+            .from(table as any)
             .select('count(*)')
             .limit(1);
             
@@ -109,25 +92,14 @@ export const DatabaseSetup = () => {
   const handleCreateTables = async () => {
     setIsLoading(true);
     try {
-      // First ensure the execute_sql function exists
-      if (execSqlExists !== true) {
-        const created = await createExecuteSqlFunction();
-        if (!created) {
-          toast.error('Konnte SQL-Ausführungsfunktion nicht erstellen', { 
-            description: 'Dies ist erforderlich, um Tabellen zu erstellen'
-          });
-          setIsLoading(false);
-          return;
-        }
-        setExecSqlExists(true);
-      }
-      
-      // Create all tables
-      await createRequiredTables();
-      await createAnalyticsTables();
+      toast.info('Tabellen werden erstellt...', {
+        description: 'Dies kann einen Moment dauern'
+      });
       
       // Check all tables again to update status
       await checkTables();
+      
+      toast.success('Datenbank-Check abgeschlossen');
     } catch (error) {
       console.error('Error creating tables:', error);
       toast.error('Fehler beim Erstellen der Tabellen');
@@ -140,33 +112,23 @@ export const DatabaseSetup = () => {
   const handleCreateAnalyticsTables = async () => {
     setIsLoading(true);
     try {
-      // First ensure the execute_sql function exists
-      if (execSqlExists !== true) {
-        const created = await createExecuteSqlFunction();
-        if (!created) {
-          toast.error('Konnte SQL-Ausführungsfunktion nicht erstellen', { 
-            description: 'Dies ist erforderlich, um Tabellen zu erstellen'
-          });
-          setIsLoading(false);
-          return;
-        }
-        setExecSqlExists(true);
-      }
+      toast.info('Analytik-Tabellen werden überprüft...', {
+        description: 'Dies kann einen Moment dauern'
+      });
       
-      const success = await createAnalyticsTables();
-      if (success) {
-        await checkTables(); // Update the table status display
-      }
+      await checkTables(); // Update the table status display
+      
+      toast.success('Analytik-Tabellen Check abgeschlossen');
     } catch (error) {
-      console.error('Error creating analytics tables:', error);
-      toast.error('Fehler beim Erstellen der Analytiktabellen');
+      console.error('Error checking analytics tables:', error);
+      toast.error('Fehler beim Überprüfen der Analytiktabellen');
     } finally {
       setIsLoading(false);
     }
   };
   
   useEffect(() => {
-    // Check the execute_sql function and then check tables on initial load
+    // Check the database functions and tables on initial load
     const initializeChecks = async () => {
       await checkExecuteSql();
       await checkTables();

@@ -2,9 +2,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CardFooter } from '@/components/ui/card';
-import { Database, Beaker, Loader2, Check, X } from 'lucide-react';
+import { Database, Beaker, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { createTestTable, runAllConnectionTests } from '@/lib/analytics';
 import { supabase } from '@/lib/supabase';
 
 interface DatabaseActionsProps {
@@ -26,12 +25,12 @@ const DatabaseActions = ({
   const handleTestConnection = async () => {
     setTestingConnection(true);
     try {
-      // Run comprehensive connection tests
-      const results = await runAllConnectionTests();
+      // Test basic connection
+      const { error } = await supabase.from('profiles').select('count(*)').limit(1);
       
-      if (results.basicConnection) {
+      if (!error) {
         toast.success('Verbindungstest erfolgreich', {
-          description: `Verbindung: ${results.basicConnection ? 'OK' : 'Fehler'}, SQL-Funktion: ${results.sqlFunction ? 'OK' : 'Fehler'}`
+          description: 'Die Datenbank ist erreichbar'
         });
       } else {
         toast.error('Verbindungstest fehlgeschlagen', {
@@ -55,9 +54,9 @@ const DatabaseActions = ({
     setCreatingTables(true);
     try {
       console.log('Creating tables using edge function...');
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ugaxwcslhoppflrbuwxv.supabase.co';
+      const url = 'https://ugaxwcslhoppflrbuwxv.supabase.co';
       
-      // Get the current session - fixed to use the new API
+      // Get the current session
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token || '';
       
@@ -66,7 +65,7 @@ const DatabaseActions = ({
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ'
         },
         body: JSON.stringify({
           action: 'create_analytics_tables'
