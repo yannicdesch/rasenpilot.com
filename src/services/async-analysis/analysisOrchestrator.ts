@@ -15,20 +15,23 @@ export const startImageAnalysis = async (
     console.log('=== STARTING ASYNC IMAGE ANALYSIS ===');
     
     // Compress the image
+    console.log('Starting image compression...');
+    console.log('Original file size:', imageFile.size, 'bytes');
     const compressedFile = await compressImage(imageFile);
+    console.log('Compressed file size:', compressedFile.size, 'bytes');
+    console.log('Compression ratio:', ((compressedFile.size / imageFile.size) * 100).toFixed(1) + '%');
     
-    // Get current user with simplified approach and timeout
+    // Get current user with timeout
     console.log('Getting current user with timeout...');
     let user = null;
     
     try {
-      // Use Promise.race to add timeout to session retrieval
+      console.log('Attempting to get session...');
       const sessionPromise = supabase.auth.getSession();
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session timeout')), 5000)
+        setTimeout(() => reject(new Error('Session timeout after 5 seconds')), 5000)
       );
       
-      console.log('Attempting to get session with 5s timeout...');
       const { data: sessionData, error: sessionError } = await Promise.race([
         sessionPromise,
         timeoutPromise
@@ -36,6 +39,7 @@ export const startImageAnalysis = async (
       
       console.log('Session retrieval completed');
       console.log('Session data exists:', !!sessionData?.session);
+      console.log('Session user exists:', !!sessionData?.session?.user);
       console.log('Session error:', sessionError?.message || 'none');
       
       if (sessionError) {
@@ -75,7 +79,8 @@ export const startImageAnalysis = async (
     await startBackgroundProcessing(jobId);
     console.log('Background processing started successfully');
     
-    console.log('Analysis started successfully, returning job ID:', jobId);
+    console.log('=== ANALYSIS ORCHESTRATION COMPLETE ===');
+    console.log('Returning job ID:', jobId);
     
     return {
       success: true,

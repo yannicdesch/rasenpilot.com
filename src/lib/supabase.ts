@@ -1,9 +1,6 @@
-
-import { createClient } from '@supabase/supabase-js';
-import { auditLogger, trackSecurityViolation } from '@/utils/auditLogger';
-
 // Import the singleton instance to avoid multiple clients
 import { supabase } from '@/integrations/supabase/client';
+import { auditLogger, trackSecurityViolation } from '@/utils/auditLogger';
 
 // Re-export the singleton instance
 export { supabase };
