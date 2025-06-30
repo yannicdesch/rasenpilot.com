@@ -1,445 +1,366 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Book, BookOpen, AlertTriangle } from 'lucide-react';
-import { toast } from 'sonner';
-import { useContent } from '@/hooks/useContent';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
+import useContent, { BlogPost } from '@/hooks/useContent';
+import { Save, Eye, ArrowLeft } from 'lucide-react';
 
-type BlogPostType = {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  image: string;
-  category: string;
-  readTime: number;
-  tags: string;
-  date: string;
-  author: string;
-  status: 'published' | 'draft';
-  views: number;
-  seo: {
-    metaTitle: string;
-    metaDescription: string;
-    keywords: string;
-  };
-};
+interface BlogPostEditorProps {
+  post?: BlogPost;
+  onSave?: (post: BlogPost) => void;
+  onCancel?: () => void;
+}
 
-const initialBlogPost: BlogPostType = {
-  id: Date.now(),
-  title: '',
-  slug: '',
-  excerpt: '',
-  content: '',
-  image: '/placeholder.svg',
-  category: 'Rasenpflege',
-  readTime: 5,
-  tags: '',
-  date: new Date().toISOString().split('T')[0],
-  author: 'Admin',
-  status: 'draft',
-  views: 0,
-  seo: {
-    metaTitle: '',
-    metaDescription: '',
-    keywords: '',
-  }
-};
+const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, onSave, onCancel }) => {
+  const { addBlogPost, updateBlogPost } = useContent();
+  const [formData, setFormData] = useState<Partial<BlogPost>>({
+    title: '',
+    slug: '',
+    excerpt: '',
+    content: '',
+    category: '',
+    tags: '',
+    author: '',
+    status: 'draft',
+    date: new Date().toISOString().split('T')[0],
+    seo: {
+      metaTitle: '',
+      metaDescription: '',
+      keywords: ''
+    }
+  });
 
-const BlogPostEditor = () => {
-  const [blogPost, setBlogPost] = useState<BlogPostType>(initialBlogPost);
-  const [savedStatus, setSavedStatus] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const { blogPosts, createBlogPost, updateBlogPost } = useContent();
-  
+
   useEffect(() => {
-    if (id) {
-      // Try to find the post in our content hook data
-      const foundPost = blogPosts.find(post => post.id === parseInt(id));
-      
-      if (foundPost) {
-        // Convert the post to our full BlogPostType format
-        const fullPost: BlogPostType = {
-          id: foundPost.id,
-          title: foundPost.title || '',
-          slug: foundPost.slug || '',
-          excerpt: foundPost.excerpt || '',
-          content: foundPost.content || '',
-          image: '/placeholder.svg',
-          category: foundPost.category || 'Rasenpflege',
-          readTime: 5,
-          tags: foundPost.tags || '',
-          date: foundPost.date || new Date().toISOString().split('T')[0],
-          author: foundPost.author || 'Admin',
-          status: foundPost.status || 'draft',
-          views: foundPost.views || 0,
-          seo: {
-            metaTitle: foundPost.seo?.metaTitle || '',
-            metaDescription: foundPost.seo?.metaDescription || '',
-            keywords: foundPost.seo?.keywords || '',
-          }
-        };
-        
-        setBlogPost(fullPost);
-        return;
-      }
-      
-      // Fallback to localStorage
-      const savedPosts = localStorage.getItem('blogPosts');
-      if (savedPosts) {
-        try {
-          const parsedPosts = JSON.parse(savedPosts);
-          const foundPost = parsedPosts.find((post: BlogPostType) => post.id === parseInt(id));
-          if (foundPost) {
-            setBlogPost(foundPost);
-            return;
-          }
-        } catch (e) {
-          console.error('Error parsing saved blog posts:', e);
+    if (post) {
+      setFormData({
+        ...post,
+        seo: post.seo || {
+          metaTitle: '',
+          metaDescription: '',
+          keywords: ''
         }
-      }
-      
-      // Fallback to sample data if ID is 1, 2, or 3
-      if (['1', '2', '3'].includes(id)) {
-        console.log(`Loading sample post ${id}`);
-        // In a real app, you'd fetch from an API here
-      }
-    }
-  }, [id, blogPosts]);
-  
-  const handleChange = (field: keyof BlogPostType | string, value: string | number) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      if (parent === 'seo') {
-        setBlogPost(prev => ({
-          ...prev,
-          seo: {
-            ...prev.seo,
-            [child]: value
-          }
-        }));
-      }
-    } else {
-      setBlogPost(prev => ({
-        ...prev,
-        [field]: value
-      }));
-    }
-    
-    // If title changes, generate a slug
-    if (field === 'title' && typeof value === 'string') {
-      const slug = value
-        .toLowerCase()
-        .replace(/[äöüß]/g, match => {
-          if (match === 'ä') return 'ae';
-          if (match === 'ö') return 'oe';
-          if (match === 'ü') return 'ue';
-          if (match === 'ß') return 'ss';
-          return match;
-        })
-        .replace(/[^\w\s]/g, '') // Remove special chars
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(/-+/g, '-'); // Replace multiple - with single -
-      
-      setBlogPost(prev => ({
-        ...prev,
-        slug
-      }));
-    }
-    
-    setSavedStatus(null);
-  };
-  
-  const handleSave = async () => {
-    try {
-      // Prepare the post data in the format expected by our hooks
-      const postData = {
-        title: blogPost.title,
-        slug: blogPost.slug,
-        excerpt: blogPost.excerpt,
-        content: blogPost.content,
-        category: blogPost.category,
-        tags: blogPost.tags,
-        date: blogPost.date,
-        author: blogPost.author,
-        status: blogPost.status,
-        seo: blogPost.seo
-      };
-      
-      let success;
-      
-      if (id) {
-        // Update existing post
-        success = await updateBlogPost(parseInt(id), postData);
-      } else {
-        // Create new post
-        const newId = await createBlogPost(postData);
-        success = !!newId;
-        if (newId) {
-          // Redirect to edit page with the new ID
-          navigate(`/blog/edit/${newId}`);
-        }
-      }
-      
-      if (success) {
-        setSavedStatus('Blogbeitrag erfolgreich gespeichert!');
-        
-        setTimeout(() => {
-          setSavedStatus(null);
-        }, 3000);
-      }
-    } catch (error) {
-      toast.error('Fehler beim Speichern', {
-        description: 'Der Blogbeitrag konnte nicht gespeichert werden.'
       });
-      console.error('Error saving blog post:', error);
     }
-  };
-  
-  const handlePreview = () => {
-    setPreviewMode(!previewMode);
-  };
-  
-  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleChange('tags', e.target.value);
+  }, [post]);
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim();
   };
 
-  // Check if SEO title exceeds recommended length
-  const seoTitleTooLong = (blogPost.seo.metaTitle || blogPost.title).length > 60;
-  
-  // Check if SEO description exceeds recommended length  
-  const seoDescriptionTooLong = (blogPost.seo.metaDescription || blogPost.excerpt).length > 160;
-  
+  const handleTitleChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title: value,
+      slug: !post ? generateSlug(value) : prev.slug // Only auto-generate slug for new posts
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!formData.title || !formData.content || !formData.category || !formData.author) {
+      toast.error('Bitte füllen Sie alle Pflichtfelder aus');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const postData = {
+        ...formData,
+        slug: formData.slug || generateSlug(formData.title),
+        readTime: Math.ceil((formData.content?.length || 0) / 200), // Estimate reading time
+      } as BlogPost;
+
+      let savedPost: BlogPost;
+      if (post && post.id) {
+        savedPost = await updateBlogPost(post.id, postData);
+      } else {
+        savedPost = await addBlogPost(postData);
+      }
+
+      if (onSave) {
+        onSave(savedPost);
+      }
+      
+      toast.success(post ? 'Blog-Post aktualisiert!' : 'Blog-Post erstellt!');
+    } catch (error) {
+      console.error('Error saving blog post:', error);
+      toast.error('Fehler beim Speichern des Blog-Posts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const categories = [
+    'Rasenpflege',
+    'Gartentipps',
+    'Saisonale Pflege',
+    'Pflanzenschutz',
+    'Werkzeuge',
+    'Tutorials'
+  ];
+
+  if (previewMode) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <Button onClick={() => setPreviewMode(false)} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Zurück zum Editor
+          </Button>
+          <Badge variant={formData.status === 'published' ? 'default' : 'secondary'}>
+            {formData.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
+          </Badge>
+        </div>
+
+        <article className="prose prose-lg max-w-none">
+          <h1>{formData.title}</h1>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8">
+            <span>Von {formData.author}</span>
+            <span>•</span>
+            <span>{formData.date}</span>
+            <span>•</span>
+            <span>{formData.readTime} Min. Lesezeit</span>
+          </div>
+          
+          {formData.excerpt && (
+            <p className="text-lg text-muted-foreground border-l-4 border-primary pl-4 my-6">
+              {formData.excerpt}
+            </p>
+          )}
+          
+          <div className="whitespace-pre-wrap">
+            {formData.content}
+          </div>
+        </article>
+      </div>
+    );
+  }
+
   return (
-    <Card className="w-full">
-      <Tabs defaultValue="content" className="w-full">
-        <TabsList className="w-full grid grid-cols-3">
-          <TabsTrigger value="content" className="flex items-center gap-2">
-            <Book className="h-4 w-4" />
-            Inhalt
-          </TabsTrigger>
-          <TabsTrigger value="seo" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            SEO
-          </TabsTrigger>
-          <TabsTrigger value="preview" className="flex items-center gap-2" onClick={handlePreview}>
-            <BookOpen className="h-4 w-4" />
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">
+          {post ? 'Blog-Post bearbeiten' : 'Neuer Blog-Post'}
+        </h1>
+        <div className="flex gap-2">
+          <Button onClick={() => setPreviewMode(true)} variant="outline">
+            <Eye className="h-4 w-4 mr-2" />
             Vorschau
-          </TabsTrigger>
+          </Button>
+          {onCancel && (
+            <Button onClick={onCancel} variant="outline">
+              Abbrechen
+            </Button>
+          )}
+          <Button onClick={handleSave} disabled={isLoading}>
+            <Save className="h-4 w-4 mr-2" />
+            {isLoading ? 'Speichern...' : 'Speichern'}
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="content" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="content">Inhalt</TabsTrigger>
+          <TabsTrigger value="settings">Einstellungen</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="content" className="p-4 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titel</Label>
-            <Input 
-              id="title"
-              value={blogPost.title} 
-              onChange={(e) => handleChange('title', e.target.value)}
-              placeholder="Titel des Blogbeitrags"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="slug">URL-Slug</Label>
-            <Input 
-              id="slug"
-              value={blogPost.slug} 
-              onChange={(e) => handleChange('slug', e.target.value)}
-              placeholder="url-freundlicher-slug"
-            />
-            <p className="text-xs text-muted-foreground">
-              Dies ist der Teil der URL, der für diesen Beitrag verwendet wird.
-            </p>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="excerpt">Auszug / Teaser</Label>
-            <Textarea 
-              id="excerpt"
-              value={blogPost.excerpt} 
-              onChange={(e) => handleChange('excerpt', e.target.value)}
-              placeholder="Kurze Zusammenfassung des Inhalts (wird in Vorschau angezeigt)"
-              className="resize-y h-20"
-            />
-            <p className="text-xs text-muted-foreground">
-              {blogPost.excerpt.length}/160 Zeichen
-            </p>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="content">Inhalt</Label>
-            <Textarea 
-              id="content"
-              value={blogPost.content} 
-              onChange={(e) => handleChange('content', e.target.value)}
-              placeholder="Hauptinhalt des Blogbeitrags"
-              className="resize-y min-h-[300px]"
-            />
-            <p className="text-xs text-muted-foreground">
-              {blogPost.content.length} Zeichen (empfohlen: mindestens 2000)
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Kategorie</Label>
-              <Input 
-                id="category"
-                value={blogPost.category} 
-                onChange={(e) => handleChange('category', e.target.value)}
-                placeholder="z.B. Rasenpflege"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="readTime">Lesezeit (Minuten)</Label>
-              <Input 
-                id="readTime"
-                type="number"
-                value={blogPost.readTime.toString()} 
-                onChange={(e) => handleChange('readTime', parseInt(e.target.value) || 1)}
-                min={1}
-                max={60}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="tags">Tags (mit Kommas trennen)</Label>
-            <Input 
-              id="tags"
-              value={blogPost.tags} 
-              onChange={handleTagsChange}
-              placeholder="z.B. Rasenmähen, Düngen, Sommerpflege"
-            />
-          </div>
+        <TabsContent value="content" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Inhalt</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Titel *</Label>
+                <Input
+                  id="title"
+                  value={formData.title || ''}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  placeholder="Blog-Post Titel"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="slug">URL-Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                  placeholder="url-slug"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="excerpt">Kurzbeschreibung</Label>
+                <Textarea
+                  id="excerpt"
+                  value={formData.excerpt || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                  placeholder="Kurze Beschreibung des Blog-Posts"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="content">Inhalt *</Label>
+                <Textarea
+                  id="content"
+                  value={formData.content || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                  placeholder="Blog-Post Inhalt"
+                  rows={15}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="seo" className="p-4 space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="seo-title">SEO Titel</Label>
-              {seoTitleTooLong && (
-                <Badge variant="destructive" className="flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" />
-                  Zu lang
-                </Badge>
-              )}
-            </div>
-            <Input 
-              id="seo-title"
-              value={blogPost.seo.metaTitle || blogPost.title} 
-              onChange={(e) => handleChange('seo.metaTitle', e.target.value)}
-              placeholder="SEO-optimierter Titel (oft gleich wie Haupttitel)"
-              className={seoTitleTooLong ? 'border-red-300 focus-visible:ring-red-300' : ''}
-            />
-            <p className={`text-xs ${seoTitleTooLong ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
-              {(blogPost.seo.metaTitle || blogPost.title).length}/60 Zeichen (Empfohlen: 50-60)
-            </p>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="seo-description">Meta-Beschreibung</Label>
-              {seoDescriptionTooLong && (
-                <Badge variant="destructive" className="flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" />
-                  Zu lang
-                </Badge>
-              )}
-            </div>
-            <Textarea 
-              id="seo-description"
-              value={blogPost.seo.metaDescription || blogPost.excerpt} 
-              onChange={(e) => handleChange('seo.metaDescription', e.target.value)}
-              placeholder="Kurze Beschreibung für Suchmaschinen"
-              className={`resize-y h-20 ${seoDescriptionTooLong ? 'border-red-300 focus-visible:ring-red-300' : ''}`}
-            />
-            <p className={`text-xs ${seoDescriptionTooLong ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
-              {(blogPost.seo.metaDescription || blogPost.excerpt).length}/160 Zeichen (Empfohlen: 150-160)
-            </p>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="seo-keywords">Keywords (mit Kommas getrennt)</Label>
-            <Input 
-              id="seo-keywords"
-              value={blogPost.seo.keywords} 
-              onChange={(e) => handleChange('seo.keywords', e.target.value)}
-              placeholder="z.B. Rasen mähen, Rasenpflege Tipps, gesunder Rasen"
-            />
-          </div>
+        <TabsContent value="settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Einstellungen</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="category">Kategorie *</Label>
+                  <Select 
+                    value={formData.category || ''} 
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Kategorie wählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="author">Autor *</Label>
+                  <Input
+                    id="author"
+                    value={formData.author || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
+                    placeholder="Autor Name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="date">Datum</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select 
+                    value={formData.status || 'draft'} 
+                    onValueChange={(value: 'published' | 'draft') => setFormData(prev => ({ ...prev, status: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Entwurf</SelectItem>
+                      <SelectItem value="published">Veröffentlicht</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tags">Tags</Label>
+                <Input
+                  id="tags"
+                  value={formData.tags || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                  placeholder="Tag1, Tag2, Tag3"
+                />
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="preview" className="p-4">
-          {previewMode && (
-            <div className="border rounded-md p-6 max-w-3xl mx-auto bg-white">
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-3">{blogPost.title || 'Titel des Beitrags'}</h1>
-                <div className="flex items-center text-sm text-gray-500 gap-4 mb-4">
-                  <span>{blogPost.date}</span>
-                  <span>{blogPost.category}</span>
-                  <span>{blogPost.readTime} min Lesezeit</span>
-                </div>
-                <p className="text-gray-700 italic">{blogPost.excerpt || 'Auszug des Beitrags...'}</p>
+        <TabsContent value="seo" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>SEO-Einstellungen</CardTitle>
+              <CardDescription>
+                Optimieren Sie Ihren Blog-Post für Suchmaschinen
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="metaTitle">Meta-Titel</Label>
+                <Input
+                  id="metaTitle"
+                  value={formData.seo?.metaTitle || ''}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    seo: { ...prev.seo, metaTitle: e.target.value } 
+                  }))}
+                  placeholder="SEO-Titel (max. 60 Zeichen)"
+                  maxLength={60}
+                />
               </div>
-              
-              <div className="prose max-w-none">
-                {blogPost.content ? (
-                  <p style={{ whiteSpace: 'pre-wrap' }}>{blogPost.content}</p>
-                ) : (
-                  <p className="text-gray-400">Noch kein Inhalt verfügbar.</p>
-                )}
+
+              <div className="space-y-2">
+                <Label htmlFor="metaDescription">Meta-Beschreibung</Label>
+                <Textarea
+                  id="metaDescription"
+                  value={formData.seo?.metaDescription || ''}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    seo: { ...prev.seo, metaDescription: e.target.value } 
+                  }))}
+                  placeholder="SEO-Beschreibung (max. 160 Zeichen)"
+                  maxLength={160}
+                  rows={3}
+                />
               </div>
-              
-              {blogPost.tags && (
-                <div className="mt-6 pt-4 border-t">
-                  <div className="flex flex-wrap gap-2">
-                    {blogPost.tags.split(',').map((tag, index) => (
-                      <span key={index} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+
+              <div className="space-y-2">
+                <Label htmlFor="keywords">Keywords</Label>
+                <Input
+                  id="keywords"
+                  value={formData.seo?.keywords || ''}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    seo: { ...prev.seo, keywords: e.target.value } 
+                  }))}
+                  placeholder="Keyword1, Keyword2, Keyword3"
+                />
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
-
-      <CardFooter className="flex justify-between items-center p-4 border-t">
-        <div>
-          {savedStatus && (
-            <p className="text-sm text-green-600">{savedStatus}</p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/blog')}
-          >
-            Abbrechen
-          </Button>
-          <Button 
-            onClick={handleSave} 
-            className="bg-green-600 hover:bg-green-700"
-            disabled={seoTitleTooLong || seoDescriptionTooLong}
-          >
-            Blogbeitrag speichern
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+    </div>
   );
 };
 

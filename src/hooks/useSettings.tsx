@@ -68,9 +68,9 @@ const useSettings = () => {
         .select('*')
         .order('updated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
+      if (fetchError) {
         console.error('Error fetching settings:', fetchError);
         throw fetchError;
       }
