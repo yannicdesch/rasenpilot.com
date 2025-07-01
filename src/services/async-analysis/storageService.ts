@@ -21,28 +21,7 @@ export const uploadImageToStorage = async (
     
     console.log('Starting storage upload to bucket: lawn-images');
     
-    // Check if bucket exists first
-    try {
-      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-      
-      if (bucketsError) {
-        console.error('Error listing buckets:', bucketsError);
-        throw new Error(`Cannot access storage: ${bucketsError.message}`);
-      }
-      
-      const lawnImagesBucket = buckets?.find(bucket => bucket.name === 'lawn-images');
-      if (!lawnImagesBucket) {
-        console.error('lawn-images bucket not found');
-        throw new Error('Storage bucket "lawn-images" does not exist. Please contact support.');
-      }
-      
-      console.log('Bucket exists, proceeding with upload...');
-    } catch (bucketCheckError) {
-      console.error('Error checking bucket:', bucketCheckError);
-      throw bucketCheckError;
-    }
-    
-    // Upload with timeout
+    // Upload with timeout (removed bucket check as it's now guaranteed to exist)
     const uploadPromise = supabase.storage
       .from('lawn-images')
       .upload(filePath, compressedFile, {

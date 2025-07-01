@@ -54,62 +54,38 @@ export const startImageAnalysis = async (
       console.warn('Auth timeout or error (continuing as anonymous):', authError instanceof Error ? authError.message : 'Unknown error');
     }
     
-    // Upload to storage with enhanced error handling
+    // Upload to storage (bucket is now guaranteed to exist)
     console.log('Starting storage upload...');
-    try {
-      const filePath = await uploadImageToStorage(compressedFile, user?.id);
-      console.log('Storage upload completed, file path:', filePath);
-      
-      // Create analysis job
-      console.log('Creating analysis job...');
-      const jobId = await createAnalysisJob(
-        user?.id,
-        filePath,
-        grassType,
-        lawnGoal,
-        {
-          original_size: imageFile.size,
-          compressed_size: compressedFile.size,
-          file_name: compressedFile.name
-        }
-      );
-      console.log('Analysis job created with ID:', jobId);
-      
-      // Start background processing
-      console.log('Starting background processing...');
-      await startBackgroundProcessing(jobId);
-      console.log('Background processing started successfully');
-      
-      console.log('=== ANALYSIS ORCHESTRATION COMPLETE ===');
-      console.log('Returning job ID:', jobId);
-      
-      return {
-        success: true,
-        jobId: jobId
-      };
-      
-    } catch (storageError) {
-      console.error('=== STORAGE ERROR ===');
-      console.error('Storage error details:', storageError);
-      
-      // Check if it's a bucket not found error
-      if (storageError instanceof Error && storageError.message.includes('bucket')) {
-        return {
-          success: false,
-          error: 'Storage bucket not found. Please contact support to set up image storage.'
-        };
+    const filePath = await uploadImageToStorage(compressedFile, user?.id);
+    console.log('Storage upload completed, file path:', filePath);
+    
+    // Create analysis job
+    console.log('Creating analysis job...');
+    const jobId = await createAnalysisJob(
+      user?.id,
+      filePath,
+      grassType,
+      lawnGoal,
+      {
+        original_size: imageFile.size,
+        compressed_size: compressedFile.size,
+        file_name: compressedFile.name
       }
-      
-      // Check if it's a permission error
-      if (storageError instanceof Error && storageError.message.includes('permission')) {
-        return {
-          success: false,
-          error: 'Storage permission denied. Please check your account status.'
-        };
-      }
-      
-      throw storageError; // Re-throw for general error handling
-    }
+    );
+    console.log('Analysis job created with ID:', jobId);
+    
+    // Start background processing
+    console.log('Starting background processing...');
+    await startBackgroundProcessing(jobId);
+    console.log('Background processing started successfully');
+    
+    console.log('=== ANALYSIS ORCHESTRATION COMPLETE ===');
+    console.log('Returning job ID:', jobId);
+    
+    return {
+      success: true,
+      jobId: jobId
+    };
     
   } catch (error) {
     console.error('=== ASYNC ANALYSIS ERROR ===');
