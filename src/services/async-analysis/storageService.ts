@@ -33,7 +33,7 @@ export const uploadImageToStorage = async (
     
     console.log('Starting storage upload to bucket: lawn-images');
     
-    // Simplified upload without complex retry logic first
+    // Simple upload without any timeout logic - let Supabase handle it
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('lawn-images')
       .upload(filePath, compressedFile, {
