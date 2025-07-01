@@ -21,15 +21,15 @@ export const startImageAnalysis = async (
     console.log('Compressed file size:', compressedFile.size, 'bytes');
     console.log('Compression ratio:', ((compressedFile.size / imageFile.size) * 100).toFixed(1) + '%');
     
-    // Get current user with extended timeout and better error handling
+    // Get current user with more lenient timeout and better error handling
     console.log('Getting current user...');
     let user = null;
     
     try {
-      console.log('Attempting to get session with 10 second timeout...');
+      console.log('Attempting to get session with 5 second timeout...');
       const sessionPromise = supabase.auth.getSession();
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session timeout after 10 seconds')), 10000)
+        setTimeout(() => reject(new Error('Session timeout after 5 seconds')), 5000)
       );
       
       const { data: sessionData, error: sessionError } = await Promise.race([
@@ -54,7 +54,7 @@ export const startImageAnalysis = async (
       console.warn('Auth timeout or error (continuing as anonymous):', authError instanceof Error ? authError.message : 'Unknown error');
     }
     
-    // Upload to storage (bucket is now guaranteed to exist)
+    // Upload to storage
     console.log('Starting storage upload...');
     const filePath = await uploadImageToStorage(compressedFile, user?.id);
     console.log('Storage upload completed, file path:', filePath);

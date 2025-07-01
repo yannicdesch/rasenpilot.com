@@ -21,26 +21,54 @@ export const uploadImageToStorage = async (
     
     console.log('Starting storage upload to bucket: lawn-images');
     
-    // Upload with timeout (removed bucket check as it's now guaranteed to exist)
-    const uploadPromise = supabase.storage
-      .from('lawn-images')
-      .upload(filePath, compressedFile, {
-        cacheControl: '3600',
-        upsert: false
-      });
+    // Upload with longer timeout and retry logic
+    const uploadWithRetry = async (retryCount = 0): Promise<any> => {
+      const maxRetries = 2;
+      const timeoutMs = 60000; // 60 seconds
+      
+      try {
+        const uploadPromise = supabase.storage
+          .from('lawn-images')
+          .upload(filePath, compressedFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+        
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error(`Upload timeout after ${timeoutMs/1000} seconds`)), timeoutMs)
+        );
+        
+        const result = await Promise.race([uploadPromise, timeoutPromise]) as any;
+        
+        console.log('=== STORAGE UPLOAD RESPONSE ===');
+        console.log('Upload data:', result.data);
+        console.log('Upload error:', result.error);
+        
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+        
+        return result;
+      } catch (error) {
+        console.error(`Upload attempt ${retryCount + 1} failed:`, error);
+        
+        if (retryCount < maxRetries && (
+          error instanceof Error && (
+            error.message.includes('timeout') || 
+            error.message.includes('network') ||
+            error.message.includes('fetch')
+          )
+        )) {
+          console.log(`Retrying upload... (${retryCount + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, 2000 * (retryCount + 1))); // Exponential backoff
+          return uploadWithRetry(retryCount + 1);
+        }
+        
+        throw error;
+      }
+    };
     
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
-    );
-    
-    const { data: uploadData, error: uploadError } = await Promise.race([
-      uploadPromise,
-      timeoutPromise
-    ]) as any;
-    
-    console.log('=== STORAGE UPLOAD RESPONSE ===');
-    console.log('Upload data:', uploadData);
-    console.log('Upload error:', uploadError);
+    const { data: uploadData, error: uploadError } = await uploadWithRetry();
     
     if (uploadError) {
       console.error('=== STORAGE UPLOAD ERROR DETAILS ===');
