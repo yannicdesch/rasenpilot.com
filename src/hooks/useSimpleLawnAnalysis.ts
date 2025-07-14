@@ -84,9 +84,9 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
         }
       });
 
-      // Add a timeout wrapper (increased to 30 seconds to allow for server processing)
+      // Add a timeout wrapper (reduced to 20 seconds for optimized function)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Function call timed out after 30 seconds')), 30000);
+        setTimeout(() => reject(new Error('Function call timed out after 20 seconds')), 20000);
       });
 
       const result = await Promise.race([functionCall, timeoutPromise]);

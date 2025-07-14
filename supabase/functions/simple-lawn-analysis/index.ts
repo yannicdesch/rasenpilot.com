@@ -1,6 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,13 +14,10 @@ serve(async (req) => {
   const startTime = Date.now();
   
   try {
-    console.log('=== SIMPLE LAWN ANALYSIS EDGE FUNCTION START ===');
+    console.log('=== SIMPLE LAWN ANALYSIS START ===');
     console.log('⏱️ Function started at:', startTime);
-    console.log('🚀 Edge function is definitely being called!');
     
-    const parseStart = Date.now();
     const { imageUrl, imageBase64, grassType, lawnGoal } = await req.json();
-    console.log('⏱️ Request parsing took:', Date.now() - parseStart, 'ms');
     console.log('Request received:', { 
       hasImageUrl: !!imageUrl, 
       hasImageBase64: !!imageBase64,
@@ -36,7 +32,6 @@ serve(async (req) => {
     // If using base64, ensure it's in the right format for OpenAI
     if (imageBase64 && !imageBase64.startsWith('data:')) {
       imageToUse = `data:image/jpeg;base64,${imageBase64}`;
-      console.log('🔧 Added data URL prefix to base64');
     }
     
     if (!imageToUse) {
@@ -46,121 +41,107 @@ serve(async (req) => {
     console.log('📸 Using image type:', imageBase64 ? 'base64' : 'URL');
 
     // Get OpenAI API key
-    const keyStart = Date.now();
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    console.log('⏱️ API key retrieval took:', Date.now() - keyStart, 'ms');
-    
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
     }
 
     console.log('⏱️ Starting OpenAI call at:', Date.now() - startTime, 'ms');
-    console.log('Calling OpenAI Vision API...');
-    console.log('Using model: gpt-4.1-2025-04-14 (flagship model)');
+    console.log('Using model: gpt-4.1-2025-04-14');
 
-    // Create a timeout promise (increased to 20 seconds for better reliability)
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('OpenAI API call timed out after 20 seconds')), 20000);
-    });
-
-    // Call OpenAI Vision API with timeout
+    // Call OpenAI Vision API with optimized settings
     const openaiStart = Date.now();
-    const apiCall = fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14', // Using current flagship model
+        model: 'gpt-4.1-2025-04-14',
         messages: [
           {
             role: 'system',
-            content: `Du bist ein professioneller Rasenexperte. Analysiere das Rasenbild und gib eine umfassende Analyse auf Deutsch zurück.
-            
-            Konzentriere dich auf:
-            - Rasengesundheit (Bewertung 0-100)
-            - Identifizierte Probleme
-            - Spezifische Empfehlungen
-            - Zeitplan für Verbesserungen
-            
-            Gib deine Antwort als JSON-Objekt mit folgender Struktur zurück:
-            {
-              "overall_health": "Prozentzahl (0-100)",
-              "grass_condition": "Detaillierte Beschreibung auf Deutsch",
-              "problems": ["Liste der identifizierten Probleme"],
-              "recommendations": ["Liste spezifischer Empfehlungen"],
-              "timeline": "Erwarteter Verbesserungszeitplan",
-              "score": "Gesamtbewertung des Rasens (0-100)"
-            }`
+            content: `Du bist ein professioneller Rasenexperte. Analysiere das Rasenbild schnell und präzise auf Deutsch.
+
+Gib IMMER eine gültige JSON-Antwort zurück:
+{
+  "overall_health": "Zahl zwischen 0-100",
+  "grass_condition": "Kurze Beschreibung des Rasenzustands",
+  "problems": ["Liste der Hauptprobleme"],
+  "recommendations": ["Liste der wichtigsten Empfehlungen"],
+  "timeline": "Zeitrahmen für Verbesserungen",
+  "score": "Zahl zwischen 0-100"
+}
+
+Antworte NUR mit diesem JSON-Format, ohne zusätzlichen Text.`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Bitte analysiere diesen Rasen. Rasentyp: ${grassType || 'unbekannt'}, Ziel: ${lawnGoal || 'Allgemeine Verbesserung'}. Gib eine detaillierte Analyse auf Deutsch.`
+                text: `Analysiere diesen Rasen. Rasentyp: ${grassType || 'unbekannt'}, Ziel: ${lawnGoal || 'Allgemeine Verbesserung'}.`
               },
               {
                 type: 'image_url',
                 image_url: {
-                  url: imageToUse
+                  url: imageToUse,
+                  detail: 'low' // Use low detail for faster processing
                 }
               }
             ]
           }
         ],
-        max_tokens: 1000
+        max_tokens: 800,
+        temperature: 0.3 // Lower temperature for more consistent results
       }),
     });
 
-    const response = await Promise.race([apiCall, timeoutPromise]);
-
     console.log('⏱️ OpenAI API call took:', Date.now() - openaiStart, 'ms');
-    console.log('⏱️ Total function time so far:', Date.now() - startTime, 'ms');
     console.log('OpenAI response status:', response.status);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error response:', errorText);
+      console.error('OpenAI API error:', errorText);
       throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const result = await response.json();
-    console.log('OpenAI response received, parsing...');
-    console.log('Response data:', JSON.stringify(result, null, 2));
+    console.log('OpenAI response received');
 
     let analysisResult;
     try {
-      // Try to parse the JSON response from OpenAI
-      const content = result.choices[0].message.content;
-      console.log('Raw OpenAI content:', content);
+      const content = result.choices[0].message.content.trim();
+      console.log('Raw content:', content);
       
-      // Extract JSON from the content if it's wrapped in markdown or other text
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysisResult = JSON.parse(jsonMatch[0]);
-        console.log('Successfully parsed JSON from OpenAI response');
-      } else {
-        // If no JSON found, try parsing the entire content
-        analysisResult = JSON.parse(content);
-        console.log('Successfully parsed entire content as JSON');
+      // Clean up the content and extract JSON
+      const cleanedContent = content.replace(/```json\n?|\n?```/g, '').trim();
+      analysisResult = JSON.parse(cleanedContent);
+      
+      // Validate required fields
+      if (!analysisResult.overall_health || !analysisResult.score) {
+        throw new Error('Missing required fields in response');
       }
+      
+      console.log('Successfully parsed analysis result');
+      
     } catch (parseError) {
-      // If JSON parsing fails, create a structured response
-      console.log('JSON parsing failed, using fallback structure');
-      console.log('Parse error:', parseError.message);
+      console.warn('JSON parsing failed, using fallback:', parseError.message);
+      
+      // Create a fallback response
       const content = result.choices[0].message.content;
       analysisResult = {
         overall_health: "75",
-        grass_condition: content,
-        problems: ["JSON-Parsing fehlgeschlagen - Vollständige Analyse verfügbar"],
-        recommendations: ["Detaillierte Analyse im Grass Condition Feld verfügbar"],
+        grass_condition: content.length > 200 ? content.substring(0, 200) + "..." : content,
+        problems: ["Detaillierte Analyse verfügbar"],
+        recommendations: ["Siehe Rasenzustand für Details"],
         timeline: "2-4 Wochen",
         score: "75"
       };
     }
 
+    console.log('⏱️ Total function time:', Date.now() - startTime, 'ms');
     console.log('Analysis completed successfully');
 
     return new Response(
@@ -173,9 +154,8 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('=== EDGE FUNCTION ERROR ===');
-    console.error('Error details:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
+    console.error('Error:', error.message);
+    console.error('Stack:', error.stack);
     console.log('⏱️ Function failed after:', Date.now() - startTime, 'ms');
     
     return new Response(
