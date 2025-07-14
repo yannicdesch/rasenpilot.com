@@ -49,30 +49,37 @@ serve(async (req) => {
     console.log('⏱️ Starting OpenAI call at:', Date.now() - startTime, 'ms');
     console.log('Using model: gpt-4o (more stable model)');
 
-    // Call OpenAI Vision API with optimized settings
+    // Call OpenAI Vision API with timeout and optimized settings
     const openaiStart = Date.now();
+    console.log('📡 Making OpenAI request with timeout...');
     
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      // Create a timeout promise that rejects after 15 seconds
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('OpenAI API timeout after 15 seconds')), 15000);
+      });
+      
+      // Create the actual API call promise
+      const apiPromise = fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${openAIApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o', // Using more stable model
+          model: 'gpt-4o-mini', // Using faster model
           messages: [
             {
               role: 'system',
-              content: `Du bist ein Rasenexperte. Analysiere das Bild und gib eine JSON-Antwort zurück:
+              content: `Du bist ein Rasenexperte. Analysiere das Bild schnell und gib nur JSON zurück:
 
 {
-  "overall_health": "Zahl 0-100",
+  "overall_health": "75",
   "grass_condition": "Kurze Beschreibung",
-  "problems": ["Problem 1", "Problem 2"],
-  "recommendations": ["Empfehlung 1", "Empfehlung 2"],
-  "timeline": "Zeitrahmen",
-  "score": "Zahl 0-100"
+  "problems": ["Problem 1"],
+  "recommendations": ["Empfehlung 1"],
+  "timeline": "2-4 Wochen",
+  "score": "75"
 }
 
 Nur JSON, kein anderer Text.`
@@ -94,10 +101,13 @@ Nur JSON, kein anderer Text.`
               ]
             }
           ],
-          max_tokens: 500,
+          max_tokens: 300,
           temperature: 0.1
         }),
       });
+      
+      // Race the API call against the timeout
+      const response = await Promise.race([apiPromise, timeoutPromise]);
 
       console.log('⏱️ OpenAI API call took:', Date.now() - openaiStart, 'ms');
       console.log('OpenAI response status:', response.status);
