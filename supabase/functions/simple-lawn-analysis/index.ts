@@ -12,10 +12,15 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+  
   try {
-    console.log('=== SIMPLE LAWN ANALYSIS ===');
+    console.log('=== SIMPLE LAWN ANALYSIS EDGE FUNCTION START ===');
+    console.log('⏱️ Function started at:', startTime);
     
+    const parseStart = Date.now();
     const { imageUrl, grassType, lawnGoal } = await req.json();
+    console.log('⏱️ Request parsing took:', Date.now() - parseStart, 'ms');
     console.log('Request received:', { imageUrl: !!imageUrl, grassType, lawnGoal });
 
     if (!imageUrl) {
@@ -23,20 +28,25 @@ serve(async (req) => {
     }
 
     // Get OpenAI API key
+    const keyStart = Date.now();
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    console.log('⏱️ API key retrieval took:', Date.now() - keyStart, 'ms');
+    
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
     }
 
+    console.log('⏱️ Starting OpenAI call at:', Date.now() - startTime, 'ms');
     console.log('Calling OpenAI Vision API...');
     console.log('Using model: gpt-4o-mini (switching from gpt-4.1 for better reliability)');
 
-    // Create a timeout promise
+    // Create a timeout promise (reduced to 15 seconds for faster response)
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('OpenAI API call timed out after 30 seconds')), 30000);
+      setTimeout(() => reject(new Error('OpenAI API call timed out after 15 seconds')), 15000);
     });
 
     // Call OpenAI Vision API with timeout
+    const openaiStart = Date.now();
     const apiCall = fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -88,6 +98,8 @@ serve(async (req) => {
 
     const response = await Promise.race([apiCall, timeoutPromise]);
 
+    console.log('⏱️ OpenAI API call took:', Date.now() - openaiStart, 'ms');
+    console.log('⏱️ Total function time so far:', Date.now() - startTime, 'ms');
     console.log('OpenAI response status:', response.status);
     
     if (!response.ok) {

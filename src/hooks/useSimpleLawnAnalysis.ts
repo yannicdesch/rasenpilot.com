@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import imageCompression from 'browser-image-compression';
 
 interface AnalysisResult {
   overall_health: string;
@@ -29,26 +30,57 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
     setError(null);
 
     try {
+      const startTime = Date.now();
       console.log('=== SIMPLE ANALYSIS START ===');
       console.log('File:', imageFile.name, imageFile.size, 'bytes');
+
+      // Step 0: Compress image if it's large
+      let processedFile = imageFile;
+      if (imageFile.size > 1024 * 1024) { // If larger than 1MB
+        console.log('⏱️ Starting compression at:', Date.now() - startTime, 'ms');
+        const compressionStart = Date.now();
+        
+        const options = {
+          maxSizeMB: 1, // Max 1MB
+          maxWidthOrHeight: 1920, // Max dimension
+          useWebWorker: true,
+          fileType: 'image/jpeg'
+        };
+        
+        try {
+          processedFile = await imageCompression(imageFile, options);
+          console.log('⏱️ Compression completed in:', Date.now() - compressionStart, 'ms');
+          console.log('📦 File size reduced from', imageFile.size, 'to', processedFile.size, 'bytes');
+        } catch (compressionError) {
+          console.warn('⚠️ Compression failed, using original file:', compressionError);
+        }
+      }
 
       // Step 1: Upload image to storage
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
       const filePath = `temp/${fileName}`;
       
+      console.log('⏱️ Starting upload at:', Date.now() - startTime, 'ms');
       console.log('Uploading to storage...');
+      const uploadStart = Date.now();
+      
       const { error: uploadError } = await supabase.storage
         .from('lawn-images')
-        .upload(filePath, imageFile);
+        .upload(filePath, processedFile);
+
+      console.log('⏱️ Upload completed in:', Date.now() - uploadStart, 'ms');
 
       if (uploadError) {
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       // Step 2: Get public URL
+      const urlStart = Date.now();
       const { data: publicUrlData } = supabase.storage
         .from('lawn-images')
         .getPublicUrl(filePath);
+
+      console.log('⏱️ URL generation took:', Date.now() - urlStart, 'ms');
 
       if (!publicUrlData?.publicUrl) {
         throw new Error('Failed to get image URL');
@@ -58,7 +90,10 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
       console.log('Public URL:', publicUrlData.publicUrl);
 
       // Step 3: Call simple analysis function
+      console.log('⏱️ Starting API call at:', Date.now() - startTime, 'ms');
       console.log('Invoking edge function...');
+      const apiStart = Date.now();
+      
       const { data, error: functionError } = await supabase.functions.invoke('simple-lawn-analysis', {
         body: {
           imageUrl: publicUrlData.publicUrl,
@@ -67,6 +102,8 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
         }
       });
 
+      console.log('⏱️ API call completed in:', Date.now() - apiStart, 'ms');
+      console.log('⏱️ Total time so far:', Date.now() - startTime, 'ms');
       console.log('Edge function response:', { data, error: functionError });
 
       if (functionError) {
