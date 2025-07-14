@@ -81,15 +81,15 @@ export const SimpleLawnAnalyzer: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+      {/* File Upload Section - Moved to top for mobile */}
       <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2 text-xl md:text-2xl">
+        <CardHeader className="text-center pb-4">
+          <CardTitle className="flex items-center justify-center gap-2 text-lg md:text-xl">
             <Camera className="h-5 w-5 md:h-6 md:w-6" />
             Einfache Rasenanalyse mit KI
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* File Upload - Centered and Mobile Friendly */}
+        <CardContent>
           <div className="text-center">
             <Label htmlFor="image-upload" className="text-base md:text-lg font-medium">Rasenbild hochladen</Label>
             <div className="mt-4">
@@ -111,7 +111,15 @@ export const SimpleLawnAnalyzer: React.FC = () => {
               </div>
             )}
           </div>
+        </CardContent>
+      </Card>
 
+      {/* Optional Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Zusätzliche Einstellungen (optional)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
           {/* Form Fields - Stack on mobile */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {/* Grass Type */}
