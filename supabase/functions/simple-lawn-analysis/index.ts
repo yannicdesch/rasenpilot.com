@@ -56,11 +56,11 @@ serve(async (req) => {
 
     console.log('⏱️ Starting OpenAI call at:', Date.now() - startTime, 'ms');
     console.log('Calling OpenAI Vision API...');
-    console.log('Using model: gpt-4o-mini (switching from gpt-4.1 for better reliability)');
+    console.log('Using model: gpt-4.1-2025-04-14 (flagship model)');
 
-    // Create a timeout promise (reduced to 15 seconds for faster response)
+    // Create a timeout promise (increased to 20 seconds for better reliability)
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('OpenAI API call timed out after 15 seconds')), 15000);
+      setTimeout(() => reject(new Error('OpenAI API call timed out after 20 seconds')), 20000);
     });
 
     // Call OpenAI Vision API with timeout
@@ -72,7 +72,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini', // Using more reliable model
+        model: 'gpt-4.1-2025-04-14', // Using current flagship model
         messages: [
           {
             role: 'system',
