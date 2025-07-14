@@ -111,84 +111,96 @@ export const SimpleLawnAnalyzer: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-6 space-y-6">
-      {/* Upload Section */}
+      {/* Main Upload Card - Always Visible */}
       <Card className="overflow-hidden">
         <CardContent className="p-0">
-          {!previewUrl ? (
-            <div
-              className={`relative border-2 border-dashed rounded-lg transition-colors cursor-pointer
-                ${isDragOver 
-                  ? 'border-primary bg-primary/5' 
+          <div
+            className={`relative border-2 border-dashed transition-colors cursor-pointer
+              ${isDragOver 
+                ? 'border-primary bg-primary/5' 
+                : previewUrl 
+                  ? 'border-gray-200' 
                   : 'border-gray-300 hover:border-gray-400'
-                }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
+              }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {!previewUrl ? (
               <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <ImageIcon className="w-8 h-8 text-gray-400" />
+                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <Camera className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Rasenbild hochladen
                 </h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  Ziehen Sie ein Bild hierher oder klicken Sie zum Auswählen
+                <p className="text-gray-600 mb-4 max-w-sm">
+                  Ziehen Sie ein Foto Ihres Rasens hierher oder klicken Sie zum Auswählen
                 </p>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
+                <Button variant="outline" size="lg" className="pointer-events-none">
+                  <ImageIcon className="w-5 h-5 mr-2" />
+                  Bild auswählen
+                </Button>
+                <div className="flex items-center gap-2 text-xs text-gray-400 mt-3">
                   <span>JPG, PNG bis 10MB</span>
                 </div>
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleInputChange}
-                className="hidden"
-              />
-            </div>
-          ) : (
-            <div className="relative">
-              <img 
-                src={previewUrl} 
-                alt="Hochgeladenes Rasenbild" 
-                className="w-full h-48 sm:h-64 object-cover"
-              />
-              <button
-                onClick={removeImage}
-                className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                <p className="text-white text-sm font-medium">
-                  {selectedFile?.name}
-                </p>
+            ) : (
+              <div className="relative">
+                <img 
+                  src={previewUrl} 
+                  alt="Hochgeladenes Rasenbild" 
+                  className="w-full h-48 sm:h-64 object-cover"
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeImage();
+                  }}
+                  className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                  <p className="text-white text-sm font-medium">
+                    {selectedFile?.name}
+                  </p>
+                  <p className="text-white/80 text-xs">
+                    Klicken Sie hier, um ein anderes Bild auszuwählen
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleInputChange}
+              className="hidden"
+            />
+          </div>
         </CardContent>
       </Card>
 
-      {/* Options Section - Only show when image is uploaded */}
+      {/* Options Section - Show when image is uploaded */}
       {selectedFile && (
         <Card>
           <CardContent className="p-6 space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Zusätzliche Informationen
+              Zusätzliche Informationen (optional)
             </h3>
             
             {/* Grass Type */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">
-                Rasentyp (optional)
+                Welchen Rasentyp haben Sie?
               </Label>
               <Select value={grassType} onValueChange={setGrassType}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Wählen Sie Ihren Rasentyp" />
+                <SelectTrigger className="w-full bg-white">
+                  <SelectValue placeholder="Rasentyp auswählen (optional)" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border shadow-lg z-50">
                   <SelectItem value="unknown">Unbekannt</SelectItem>
                   <SelectItem value="english-lawn">Englischer Rasen</SelectItem>
                   <SelectItem value="sport-lawn">Sportrasen</SelectItem>
@@ -201,36 +213,36 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             {/* Lawn Goal */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">
-                Ihr Rasenziel (optional)
+                Was ist Ihr Ziel mit dem Rasen?
               </Label>
               <Textarea
-                placeholder="Beschreiben Sie, wie Ihr Rasen aussehen soll..."
+                placeholder="z.B. Dichter Rasen für Kinder zum Spielen, Unkraut entfernen, gleichmäßiges Grün..."
                 value={lawnGoal}
                 onChange={(e) => setLawnGoal(e.target.value)}
-                className="min-h-[80px] resize-none"
+                className="min-h-[80px] resize-none bg-white"
               />
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Analyze Button */}
+      {/* Analyze Button - Show when image is uploaded */}
       {selectedFile && (
         <Button 
           onClick={handleAnalyze} 
           disabled={isLoading}
-          className="w-full h-12 text-base font-semibold"
+          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
           size="lg"
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              <Loader2 className="mr-3 h-6 w-6 animate-spin" />
               KI analysiert Ihren Rasen...
             </>
           ) : (
             <>
-              <Upload className="mr-2 h-5 w-5" />
-              Jetzt analysieren
+              <Upload className="mr-3 h-6 w-6" />
+              🚀 Jetzt mit Multi-LLM analysieren
             </>
           )}
         </Button>
