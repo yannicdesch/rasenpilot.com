@@ -76,23 +76,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Du bist ein professioneller Rasenexperte. Analysiere das Rasenbild und gib eine umfassende Analyse auf Deutsch zurück.
-            
-            Konzentriere dich auf:
-            - Rasengesundheit (Bewertung 0-100)
-            - Identifizierte Probleme
-            - Spezifische Empfehlungen
-            - Zeitplan für Verbesserungen
-            
-            Gib deine Antwort als JSON-Objekt mit folgender Struktur zurück:
-            {
-              "overall_health": "Prozentzahl (0-100)",
-              "grass_condition": "Detaillierte Beschreibung auf Deutsch",
-              "problems": ["Liste der identifizierten Probleme"],
-              "recommendations": ["Liste spezifischer Empfehlungen"],
-              "timeline": "Erwarteter Verbesserungszeitplan",
-              "score": "Gesamtbewertung des Rasens (0-100)"
-            }`
+            content: 'Du bist ein professioneller Rasenexperte. Analysiere das Rasenbild und gib eine umfassende Analyse auf Deutsch zurück. Konzentriere dich auf: Rasengesundheit (Bewertung 0-100), Identifizierte Probleme, Spezifische Empfehlungen, Zeitplan für Verbesserungen. Gib deine Antwort als JSON-Objekt mit folgender Struktur zurück: {"overall_health": "Prozentzahl (0-100)", "grass_condition": "Detaillierte Beschreibung auf Deutsch", "problems": ["Liste der identifizierten Probleme"], "recommendations": ["Liste spezifischer Empfehlungen"], "timeline": "Erwarteter Verbesserungszeitplan", "score": "Gesamtbewertung des Rasens (0-100)"}'
           },
           {
             role: 'user',
