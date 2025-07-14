@@ -7,8 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Upload, Camera, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, Camera, CheckCircle, AlertCircle, Trophy, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ScoreSubmissionForm from '@/components/ScoreSubmissionForm';
+import CarePlanDownload from '@/components/CarePlanDownload';
 
 interface AnalysisResult {
   overall_health: string;
@@ -78,86 +80,94 @@ export const SimpleLawnAnalyzer: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Camera className="h-5 w-5" />
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2 text-xl md:text-2xl">
+            <Camera className="h-5 w-5 md:h-6 md:w-6" />
             Einfache Rasenanalyse mit KI
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* File Upload */}
-          <div>
-            <Label htmlFor="image-upload">Rasenbild hochladen</Label>
-            <Input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="mt-1"
-            />
+        <CardContent className="space-y-6">
+          {/* File Upload - Centered and Mobile Friendly */}
+          <div className="text-center">
+            <Label htmlFor="image-upload" className="text-base md:text-lg font-medium">Rasenbild hochladen</Label>
+            <div className="mt-4">
+              <Input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="max-w-sm mx-auto"
+              />
+            </div>
             {previewUrl && (
-              <div className="mt-4">
+              <div className="mt-6 flex justify-center">
                 <img 
                   src={previewUrl} 
                   alt="Vorschau" 
-                  className="max-w-xs rounded-lg border"
+                  className="max-w-full max-h-64 md:max-h-80 rounded-lg border shadow-lg"
                 />
               </div>
             )}
           </div>
 
-          {/* Grass Type */}
-          <div>
-            <Label htmlFor="grass-type">Rasentyp (optional)</Label>
-            <Select value={grassType} onValueChange={setGrassType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Rasentyp auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="unknown">Unbekannt</SelectItem>
-                <SelectItem value="english-lawn">Englischer Rasen</SelectItem>
-                <SelectItem value="sport-lawn">Sportrasen</SelectItem>
-                <SelectItem value="shadow-lawn">Schattenrasen</SelectItem>
-                <SelectItem value="utility-lawn">Gebrauchsrasen</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Form Fields - Stack on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {/* Grass Type */}
+            <div>
+              <Label htmlFor="grass-type">Rasentyp (optional)</Label>
+              <Select value={grassType} onValueChange={setGrassType}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Rasentyp auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unknown">Unbekannt</SelectItem>
+                  <SelectItem value="english-lawn">Englischer Rasen</SelectItem>
+                  <SelectItem value="sport-lawn">Sportrasen</SelectItem>
+                  <SelectItem value="shadow-lawn">Schattenrasen</SelectItem>
+                  <SelectItem value="utility-lawn">Gebrauchsrasen</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Lawn Goal */}
+            <div>
+              <Label htmlFor="lawn-goal">Rasenziel (optional)</Label>
+              <Textarea
+                id="lawn-goal"
+                placeholder="z.B. Dichten Rasen für Kinder zum Spielen, Unkraut entfernen..."
+                value={lawnGoal}
+                onChange={(e) => setLawnGoal(e.target.value)}
+                className="mt-1"
+                rows={3}
+              />
+            </div>
           </div>
 
-          {/* Lawn Goal */}
-          <div>
-            <Label htmlFor="lawn-goal">Rasenziel (optional)</Label>
-            <Textarea
-              id="lawn-goal"
-              placeholder="z.B. Dichten Rasen für Kinder zum Spielen, Unkraut entfernen..."
-              value={lawnGoal}
-              onChange={(e) => setLawnGoal(e.target.value)}
-            />
-          </div>
-
-          {/* Analyze Button */}
+          {/* Analyze Button - Full width on mobile */}
           <Button 
             onClick={handleAnalyze} 
             disabled={!selectedFile || isLoading}
-            className="w-full"
+            className="w-full text-base md:text-lg py-3 md:py-4"
+            size="lg"
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Analysiere...
               </>
             ) : (
               <>
-                <Upload className="mr-2 h-4 w-4" />
+                <Upload className="mr-2 h-5 w-5" />
                 Rasen analysieren
               </>
             )}
           </Button>
 
           {error && (
-            <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
-              <AlertCircle className="h-4 w-4" />
+            <div className="flex items-start gap-2 text-red-600 bg-red-50 p-3 rounded-lg text-sm md:text-base">
+              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -248,6 +258,48 @@ export const SimpleLawnAnalyzer: React.FC = () => {
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Score Submission Form */}
+      {analysisResult && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-yellow-500" />
+              Score zur Bestenliste hinzufügen
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScoreSubmissionForm 
+              score={parseInt(analysisResult.score)} 
+              onSubmitSuccess={() => {
+                toast({
+                  title: "Score eingereicht!",
+                  description: "Ihr Score wurde erfolgreich zur Bestenliste hinzugefügt.",
+                });
+              }} 
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Care Plan Download */}
+      {analysisResult && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5 text-blue-500" />
+              14-Tage Pflegeplan
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CarePlanDownload 
+              analysisResult={analysisResult}
+              grassType={grassType}
+              lawnGoal={lawnGoal}
+            />
           </CardContent>
         </Card>
       )}
