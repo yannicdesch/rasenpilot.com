@@ -75,13 +75,22 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
       console.log('Calling analysis with base64 image...');
       const apiStart = Date.now();
       
-      const { data, error: functionError } = await supabase.functions.invoke('simple-lawn-analysis', {
+      // Add timeout to the Supabase function call
+      const functionCall = supabase.functions.invoke('simple-lawn-analysis', {
         body: {
           imageBase64: base64,
           grassType: grassType || 'unknown',
           lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
         }
       });
+
+      // Add a timeout wrapper
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Function call timed out after 25 seconds')), 25000);
+      });
+
+      const result = await Promise.race([functionCall, timeoutPromise]);
+      const { data, error: functionError } = result;
 
       console.log('⏱️ API call completed in:', Date.now() - apiStart, 'ms');
       console.log('⏱️ Total time:', Date.now() - startTime, 'ms');

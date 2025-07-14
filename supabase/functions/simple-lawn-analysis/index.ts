@@ -17,23 +17,33 @@ serve(async (req) => {
   try {
     console.log('=== SIMPLE LAWN ANALYSIS EDGE FUNCTION START ===');
     console.log('⏱️ Function started at:', startTime);
+    console.log('🚀 Edge function is definitely being called!');
     
     const parseStart = Date.now();
     const { imageUrl, imageBase64, grassType, lawnGoal } = await req.json();
     console.log('⏱️ Request parsing took:', Date.now() - parseStart, 'ms');
     console.log('Request received:', { 
       hasImageUrl: !!imageUrl, 
-      hasImageBase64: !!imageBase64, 
+      hasImageBase64: !!imageBase64,
+      base64Length: imageBase64?.length || 0,
       grassType, 
       lawnGoal 
     });
 
     // Use base64 if provided, otherwise fall back to URL
-    const imageToUse = imageBase64 || imageUrl;
+    let imageToUse = imageBase64 || imageUrl;
+    
+    // If using base64, ensure it's in the right format for OpenAI
+    if (imageBase64 && !imageBase64.startsWith('data:')) {
+      imageToUse = `data:image/jpeg;base64,${imageBase64}`;
+      console.log('🔧 Added data URL prefix to base64');
+    }
     
     if (!imageToUse) {
       throw new Error('Either imageBase64 or imageUrl is required');
     }
+
+    console.log('📸 Using image type:', imageBase64 ? 'base64' : 'URL');
 
     // Get OpenAI API key
     const keyStart = Date.now();
@@ -162,12 +172,17 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Analysis error:', error);
+    console.error('=== EDGE FUNCTION ERROR ===');
+    console.error('Error details:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.log('⏱️ Function failed after:', Date.now() - startTime, 'ms');
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Analysis failed' 
+        error: error.message || 'Analysis failed',
+        details: 'Check edge function logs for more details'
       }),
       { 
         status: 500,
