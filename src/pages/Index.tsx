@@ -10,14 +10,9 @@ import Logo from '@/components/Logo';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useLawn();
   const [seoContent, setSeoContent] = useState<SEOContentType | null>(null);
   
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    }
-    
     // Load SEO content
     const savedSeoContent = localStorage.getItem('seoContent');
     if (savedSeoContent) {
@@ -28,10 +23,10 @@ const Index = () => {
         console.error("Error parsing saved SEO content:", e);
       }
     }
-  }, [isAuthenticated, navigate]);
+  }, []);
   
   const handleGetStarted = () => {
-    navigate('/onboarding');
+    navigate('/lawn-analysis');
   };
   
   return (
@@ -71,15 +66,6 @@ const Index = () => {
                   className="bg-green-600 hover:bg-green-700 py-6"
                 >
                   Kostenlos starten <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                
-                <Button
-                  onClick={() => navigate('/auth')}
-                  size="lg"
-                  variant="outline"
-                  className="border-green-600 text-green-700 hover:bg-green-50 py-6"
-                >
-                  Anmelden
                 </Button>
               </div>
               
@@ -223,26 +209,6 @@ const Index = () => {
               className="bg-green-600 hover:bg-green-700"
             >
               Kostenlos testen <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
-      
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">Jetzt anmelden</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Registrieren Sie sich für ein kostenloses Konto
-            </p>
-          </div>
-          
-          <div className="text-center mt-12">
-            <Button 
-              onClick={() => navigate('/auth')}
-              className="bg-green-600 hover:bg-green-700 py-3 px-8 text-lg"
-            >
-              Kostenlos registrieren <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>

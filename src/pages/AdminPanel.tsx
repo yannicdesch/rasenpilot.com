@@ -8,7 +8,7 @@ import SiteAnalytics from '@/components/admin/SiteAnalytics';
 import UserManagement from '@/components/admin/UserManagement';
 import SiteSettings from '@/components/admin/SiteSettings';
 import ContentManagement from '@/components/admin/ContentManagement';
-import SEOManagement from '@/pages/SEOManagement';
+
 import { DatabaseSetup } from '@/components/admin/DatabaseSetup';
 
 const AdminPanel = () => {
@@ -29,7 +29,7 @@ const AdminPanel = () => {
             </div>
 
             <Tabs defaultValue="analytics" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="analytics" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="hidden sm:inline">Statistiken</span>
@@ -41,10 +41,6 @@ const AdminPanel = () => {
                 <TabsTrigger value="content" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   <span className="hidden sm:inline">Inhalte</span>
-                </TabsTrigger>
-                <TabsTrigger value="seo" className="flex items-center gap-2">
-                  <Globe className="h-4 w-4" />
-                  <span className="hidden sm:inline">SEO</span>
                 </TabsTrigger>
                 <TabsTrigger value="database" className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
@@ -68,9 +64,6 @@ const AdminPanel = () => {
                 <ContentManagement />
               </TabsContent>
 
-              <TabsContent value="seo">
-                <SEOManagement />
-              </TabsContent>
 
               <TabsContent value="database">
                 <DatabaseSetup />

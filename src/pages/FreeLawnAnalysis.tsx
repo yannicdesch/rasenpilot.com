@@ -1,24 +1,13 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
-import LawnAnalyzer from '@/components/LawnAnalyzer';
+import { SimpleLawnAnalyzer } from '@/components/SimpleLawnAnalyzer';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Leaf, Camera, Sparkles, BrainCircuit, Check, UserRound, Lock } from 'lucide-react';
-import FeatureCallToAction from '@/components/FeatureCallToAction';
-import { useLawn } from '@/context/LawnContext';
+import { Camera, Sparkles, BrainCircuit } from 'lucide-react';
 
 const FreeLawnAnalysis = () => {
   const navigate = useNavigate();
-  const [freeAnalysisUsed, setFreeAnalysisUsed] = useState(false);
-  const { isAuthenticated } = useLawn();
-  
-  useEffect(() => {
-    // Check if the user has already used their free analysis
-    const hasUsedFreeAnalysis = localStorage.getItem('freeAnalysisUsed') === 'true';
-    setFreeAnalysisUsed(hasUsedFreeAnalysis);
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -35,32 +24,9 @@ const FreeLawnAnalysis = () => {
               Laden Sie ein Foto Ihres Rasens hoch und erhalten Sie sofortige KI-gestützte Analyse und Pflegeempfehlungen.
             </p>
 
-            {!isAuthenticated && freeAnalysisUsed ? (
-              <Card className="mb-8 border-amber-200 bg-amber-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="h-5 w-5 text-amber-600" />
-                    <span>Kostenlose Analyse bereits genutzt</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center space-y-4">
-                    <p className="text-gray-700">Du hast deine kostenlose Rasenanalyse bereits genutzt. Registriere dich für ein Konto, um unbegrenzte Analysen zu erhalten.</p>
-                    <Button 
-                      onClick={() => navigate('/auth')}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <UserRound className="mr-2 h-4 w-4" />
-                      Kostenlos registrieren
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="mb-8">
-                <LawnAnalyzer />
-              </div>
-            )}
+            <div className="mb-8">
+              <SimpleLawnAnalyzer />
+            </div>
 
             <Card className="mb-8 border-green-200 shadow-md">
               <CardHeader className="bg-green-50">
@@ -101,51 +67,6 @@ const FreeLawnAnalysis = () => {
               </CardContent>
             </Card>
 
-            <Card className="mb-8 bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-xl text-green-800">Premium-Funktionen</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-gray-700 font-medium">
-                    Mit einem kostenlosen Konto erhalten Sie Zugang zu erweiterten Analysefunktionen:
-                  </p>
-                  
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <li className="flex items-start bg-white p-3 rounded-lg shadow-sm border border-green-100">
-                      <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
-                      <span className="text-gray-700">Detaillierte Bodenanalyse und pH-Wert-Empfehlungen</span>
-                    </li>
-                    <li className="flex items-start bg-white p-3 rounded-lg shadow-sm border border-green-100">
-                      <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
-                      <span className="text-gray-700">Fortschrittsüberwachung mit Foto-Zeitverlauf</span>
-                    </li>
-                    <li className="flex items-start bg-white p-3 rounded-lg shadow-sm border border-green-100">
-                      <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
-                      <span className="text-gray-700">Saisonale Pflegepläne basierend auf Ihren Fotos</span>
-                    </li>
-                    <li className="flex items-start bg-white p-3 rounded-lg shadow-sm border border-green-100">
-                      <Check className="h-5 w-5 text-green-600 mr-2 shrink-0" />
-                      <span className="text-gray-700">Unbegrenzte Bildanalysen und Empfehlungen</span>
-                    </li>
-                  </ul>
-
-                  <div className="mt-4 flex justify-center">
-                    <Button
-                      className="bg-green-600 hover:bg-green-700 font-medium shadow-sm"
-                      onClick={() => navigate('/auth')}
-                    >
-                      <UserRound className="mr-2 h-4 w-4" />
-                      Kostenlos registrieren
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="mt-8">
-              <FeatureCallToAction />
-            </div>
           </div>
         </div>
       </main>

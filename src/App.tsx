@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import SimplifiedLanding from "./pages/SimplifiedLanding";
 import LawnAnalysis from "./pages/LawnAnalysis";
-import SimplifiedAuth from "./pages/SimplifiedAuth";
+
 import CarePlan from "./pages/CarePlan";
 import Blog from "./pages/Blog";
 import BlogOverview from "./pages/BlogOverview";
@@ -22,7 +22,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<SimplifiedLanding />} />
             <Route path="/lawn-analysis" element={<LawnAnalysis />} />
-            <Route path="/auth" element={<SimplifiedAuth />} />
+            
             <Route path="/care-plan" element={<CarePlan />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-overview" element={<BlogOverview />} />
