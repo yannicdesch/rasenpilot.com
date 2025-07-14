@@ -4,8 +4,12 @@ import { supabase } from '@/lib/supabase';
 // Simple database connection test
 export const testDatabaseConnection = async (): Promise<boolean> => {
   try {
-    // Try a simple auth session check instead of table query
-    const { error } = await supabase.auth.getSession();
+    // Try a simple query to test connection
+    const { error } = await supabase
+      .from('profiles')
+      .select('count(*)', { count: 'exact' })
+      .limit(1);
+    
     return !error;
   } catch (err) {
     console.error('Database connection test failed:', err);

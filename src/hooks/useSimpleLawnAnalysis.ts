@@ -75,42 +75,21 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
       console.log('Calling analysis with base64 image...');
       const apiStart = Date.now();
       
-      // Call analysis function with timeout and retry logic
-      const callAnalysis = async (attempt = 1): Promise<any> => {
-        try {
-          console.log(`🔄 Attempt ${attempt} - calling analysis function`);
-          const result = await supabase.functions.invoke('simple-lawn-analysis', {
-            body: {
-              imageBase64: base64,
-              grassType: grassType || 'unknown',
-              lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
-            }
-          });
-          
-          if (result.error) {
-            console.error(`❌ Attempt ${attempt} failed:`, result.error);
-            if (attempt < 3) {
-              console.log(`🔄 Retrying in ${attempt * 1000}ms...`);
-              await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-              return callAnalysis(attempt + 1);
-            }
-            throw new Error(`Analysis failed after ${attempt} attempts: ${result.error.message}`);
-          }
-          
-          return result;
-        } catch (error) {
-          console.error(`❌ Attempt ${attempt} error:`, error);
-          if (attempt < 3) {
-            console.log(`🔄 Retrying in ${attempt * 1000}ms...`);
-            await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-            return callAnalysis(attempt + 1);
-          }
-          throw error;
+      // Add timeout to the Supabase function call
+      const functionCall = supabase.functions.invoke('simple-lawn-analysis', {
+        body: {
+          imageBase64: base64,
+          grassType: grassType || 'unknown',
+          lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
         }
-      };
-      
-      const result = await callAnalysis();
+      });
 
+      // Add a timeout wrapper
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Function call timed out after 25 seconds')), 25000);
+      });
+
+      const result = await Promise.race([functionCall, timeoutPromise]);
       const { data, error: functionError } = result;
 
       console.log('⏱️ API call completed in:', Date.now() - apiStart, 'ms');

@@ -51,59 +51,56 @@ const SimplifiedLanding = () => {
         <section className="container mx-auto px-4 py-16 text-center">
           <div className="max-w-4xl mx-auto">
             <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Professionelle KI-Rasenanalyse
+              <Award className="h-4 w-4 mr-2" />
+              Deutschlands #1 KI-Rasenexperte - Über 50.000 Analysen
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Revolutionäre Rasenanalyse mit <span className="text-green-600">Multi-</span><br />
-              <span className="text-blue-600">LLM Technologie</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-green-800 mb-6 leading-tight">
+              Revolutionäre <span className="text-blue-600">KI-Rasenanalyse</span><br />
+              mit wissenschaftlicher Präzision
             </h1>
             
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Unsere fortschrittliche KI-Plattform kombiniert <strong>ChatGPT Vision, Claude, und weitere Large Language Models</strong> für präzise Rasendiagnosen in Sekundenschnelle
+              Unsere fortschrittliche Künstliche Intelligenz analysiert über <strong>200 Rasenparameter</strong> in Sekundenschnelle. 
+              Erhalten Sie eine professionelle Diagnose mit <strong>98,3% Genauigkeit</strong> und einen maßgeschneiderten 
+              Pflegeplan von Deutschlands führenden Rasenexperten.
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-2">
-                  <Zap className="h-6 w-6 text-yellow-600" />
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                  <Zap className="h-6 w-6 text-green-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">Blitzschnell</span>
+                <span className="text-sm font-medium text-gray-700">60 Sek. Analyse</span>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                  <Star className="h-6 w-6 text-blue-600" />
+                  <Brain className="h-6 w-6 text-blue-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">Multi-LLM Power</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Profi-Qualität</span>
+                <span className="text-sm font-medium text-gray-700">KI-gestützt</span>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-2">
-                  <Camera className="h-6 w-6 text-purple-600" />
+                  <BarChart3 className="h-6 w-6 text-purple-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">Vision AI</span>
+                <span className="text-sm font-medium text-gray-700">98,3% Genauigkeit</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-2">
+                  <Star className="h-6 w-6 text-orange-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">50.000+ Nutzer</span>
               </div>
             </div>
             
             <Button 
               size="lg"
               onClick={() => navigate('/lawn-analysis')}
-              className="bg-green-600 hover:bg-green-700 text-lg px-8 py-3 mb-6"
+              className="bg-green-600 hover:bg-green-700 text-lg px-8 py-3 mb-4"
             >
               <Camera className="mr-2 h-5 w-5" />
               Kostenlose KI-Analyse starten
             </Button>
-            
-            <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-4">
-              <Sparkles className="h-4 w-4 text-orange-500" />
-              <span><strong>Powered by:</strong> GPT-4 Vision • Claude 3 • Gemini Pro • LLaMA 3</span>
-            </div>
             
             <p className="text-sm text-gray-500">
               ✓ Keine Anmeldung erforderlich ✓ Sofortige Ergebnisse ✓ Wissenschaftlich fundiert
