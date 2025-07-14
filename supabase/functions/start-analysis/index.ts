@@ -39,8 +39,17 @@ serve(async (req) => {
     }
 
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    console.log('Environment check:');
+    console.log('SUPABASE_URL exists:', !!supabaseUrl);
+    console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!supabaseServiceKey);
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing required environment variables');
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Update job status to processing
