@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.start-analysis-test]
 verify_jwt = false
+
+[functions.simple-lawn-analysis]
+verify_jwt = false
