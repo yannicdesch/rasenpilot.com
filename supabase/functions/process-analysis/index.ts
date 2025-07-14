@@ -1,7 +1,5 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,7 +15,7 @@ serve(async (req) => {
     console.log('=== PROCESS ANALYSIS FUNCTION ===');
     
     const { jobId } = await req.json();
-    console.log('Processing job ID:', jobId);
+    console.log('Processing job:', jobId);
     
     if (!jobId) {
       throw new Error('Job ID is required');
@@ -29,6 +27,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get job details
+    console.log('Fetching job details...');
     const { data: job, error: jobError } = await supabase
       .from('analysis_jobs')
       .select('*')
@@ -36,75 +35,53 @@ serve(async (req) => {
       .single();
 
     if (jobError || !job) {
-      console.error('Error getting job:', jobError);
+      console.error('Job not found:', jobError);
       throw new Error('Job not found');
     }
 
     console.log('Job details:', job);
 
-    // Download image from storage
-    const { data: imageData, error: downloadError } = await supabase.storage
-      .from('lawn-images')
-      .download(job.image_path);
-
-    if (downloadError || !imageData) {
-      console.error('Error downloading image:', downloadError);
-      throw new Error('Failed to download image');
-    }
-
-    console.log('Image downloaded, size:', imageData.size);
-
-    // Convert image to base64
-    const arrayBuffer = await imageData.arrayBuffer();
-    const base64Image = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-    
-    console.log('Image converted to base64, length:', base64Image.length);
-
     // Get OpenAI API key
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openaiApiKey) {
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
+      await supabase
+        .from('analysis_jobs')
+        .update({ 
+          status: 'failed',
+          error_message: 'OpenAI API key not configured',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', jobId);
       throw new Error('OpenAI API key not configured');
     }
 
-    // Prepare the prompt for lawn analysis
-    const prompt = `Analysiere dieses Rasenfoto und erstelle eine detaillierte Bewertung. Kontext:
-    - Rasensorte: ${job.grass_type || 'Unbekannt'}
-    - Rasenziel: ${job.lawn_goal || 'Allgemeine Gesundheit'}
-    
-    Bitte identifiziere:
-    1. Allgemeine Rasengesundheit (Skala 1-10)
-    2. Sichtbare Probleme (Krankheiten, Schädlinge, Nährstoffmängel, Unkraut)
-    3. Bodenzustandsindikatoren
-    4. Spezifische Verbesserungsempfehlungen
-    5. Vertrauensgrad für jede Diagnose
-    
-    Gib deine Analyse in diesem JSON-Format zurück:
-    {
-      "overallHealth": number,
-      "issues": [
-        {
-          "issue": "string",
-          "confidence": number (0-1),
-          "severity": "low|medium|high",
-          "recommendations": ["string array"],
-          "timeline": "string",
-          "cost": "string",
-          "products": ["string array"]
-        }
-      ],
-      "generalRecommendations": ["string array"],
-      "seasonalAdvice": ["string array"],
-      "preventionTips": ["string array"],
-      "monthlyPlan": [{"month": "string", "tasks": ["string array"]}]
-    }`;
+    // Get signed URL for image
+    console.log('Getting signed URL for image:', job.image_path);
+    const { data: signedUrlData, error: urlError } = await supabase.storage
+      .from('lawn-images')
+      .createSignedUrl(job.image_path, 3600); // 1 hour expiry
 
-    console.log('Calling OpenAI API...');
+    if (urlError || !signedUrlData?.signedUrl) {
+      console.error('Failed to get signed URL:', urlError);
+      await supabase
+        .from('analysis_jobs')
+        .update({ 
+          status: 'failed',
+          error_message: 'Failed to access image',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', jobId);
+      throw new Error('Failed to access image');
+    }
+
+    console.log('Image URL obtained, calling OpenAI...');
 
     // Call OpenAI Vision API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -112,80 +89,70 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'Du bist ein Experte für Rasenpflege mit jahrelanger Erfahrung in der Diagnose von Rasenproblemen anhand von Bildern. Gib detaillierte, umsetzbare Ratschläge auf Deutsch.'
+            content: `You are a professional lawn care expert. Analyze the lawn image and provide a comprehensive analysis in German. 
+            Focus on: grass health, problems identified, recommended solutions, timeline for improvements.
+            Return your response as a JSON object with the following structure:
+            {
+              "overall_health": "percentage (0-100)",
+              "grass_condition": "detailed description in German",
+              "problems": ["list of identified problems"],
+              "recommendations": ["list of specific recommendations"],
+              "timeline": "expected improvement timeline",
+              "score": "overall lawn score (0-100)"
+            }`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: prompt
+                text: `Bitte analysiere diesen Rasen. Rasentyp: ${job.grass_type || 'unbekannt'}, Ziel: ${job.lawn_goal || 'Allgemeine Verbesserung'}. Gib eine detaillierte Analyse auf Deutsch.`
               },
               {
                 type: 'image_url',
                 image_url: {
-                  url: `data:image/jpeg;base64,${base64Image}`
+                  url: signedUrlData.signedUrl
                 }
               }
             ]
           }
         ],
-        max_tokens: 1500,
-        temperature: 0.3
+        max_tokens: 1000
       }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+    if (!openAIResponse.ok) {
+      const errorText = await openAIResponse.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${openAIResponse.status}`);
     }
 
-    const data = await response.json();
-    const analysisText = data.choices[0].message.content;
-    
-    console.log('OpenAI response received, parsing...');
+    const openAIResult = await openAIResponse.json();
+    console.log('OpenAI response received');
 
-    // Try to parse JSON response
     let analysisResult;
     try {
-      const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysisResult = JSON.parse(jsonMatch[0]);
-      } else {
-        analysisResult = JSON.parse(analysisText);
-      }
+      // Try to parse the JSON response from OpenAI
+      const content = openAIResult.choices[0].message.content;
+      analysisResult = JSON.parse(content);
     } catch (parseError) {
-      console.log('JSON parsing failed, creating fallback structure');
-      
+      // If JSON parsing fails, create a structured response
+      console.log('Using fallback analysis structure');
       analysisResult = {
-        overallHealth: 7,
-        issues: [
-          {
-            issue: "KI-Analyse durchgeführt",
-            confidence: 0.8,
-            severity: "medium",
-            timeline: "2-4 Wochen",
-            cost: "25-50€",
-            products: ["Rasen-Dünger", "Bodenverbesserer"],
-            recommendations: analysisText.split('\n').filter(line => line.trim().length > 0).slice(0, 4)
-          }
-        ],
-        generalRecommendations: ["Folge der detaillierten Analyse"],
-        seasonalAdvice: ["Angepasste Pflege je nach Jahreszeit"],
-        preventionTips: ["Regelmäßige Überwachung"],
-        monthlyPlan: [
-          { month: "Aktueller Monat", tasks: ["Umsetzung der Empfehlungen"] }
-        ]
+        overall_health: "75",
+        grass_condition: openAIResult.choices[0].message.content,
+        problems: ["Analyse konnte nicht vollständig strukturiert werden"],
+        recommendations: ["Detaillierte Analyse im Grass Condition Feld verfügbar"],
+        timeline: "2-4 Wochen",
+        score: "75"
       };
     }
 
-    console.log('Analysis completed, updating job...');
-
     // Update job with results
+    console.log('Updating job with analysis results...');
     const { error: updateError } = await supabase
       .from('analysis_jobs')
-      .update({
+      .update({ 
         status: 'completed',
         result: analysisResult,
         completed_at: new Date().toISOString(),
@@ -194,18 +161,16 @@ serve(async (req) => {
       .eq('id', jobId);
 
     if (updateError) {
-      console.error('Error updating job with results:', updateError);
+      console.error('Failed to update job:', updateError);
       throw new Error('Failed to save analysis results');
     }
 
-    console.log('Job completed successfully');
+    console.log('Analysis completed successfully');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Analysis completed successfully',
-        jobId,
-        result: analysisResult
+        message: 'Analysis completed successfully' 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -214,31 +179,10 @@ serve(async (req) => {
     console.error('=== PROCESS ANALYSIS ERROR ===');
     console.error('Error details:', error);
     
-    // Try to update job status to failed
-    try {
-      const { jobId } = await req.json();
-      if (jobId) {
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-        
-        await supabase
-          .from('analysis_jobs')
-          .update({
-            status: 'failed',
-            error_message: error.message || 'Unknown error occurred',
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', jobId);
-      }
-    } catch (updateError) {
-      console.error('Failed to update job status to failed:', updateError);
-    }
-    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Analysis processing failed' 
+        error: error.message || 'Failed to process analysis' 
       }),
       { 
         status: 500,
