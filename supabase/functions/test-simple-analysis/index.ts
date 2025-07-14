@@ -12,29 +12,20 @@ serve(async (req) => {
   }
 
   const startTime = Date.now();
-  console.log('=== TESTING SIMPLE ANALYSIS ===');
-  console.log('Function started at:', startTime);
-
+  
   try {
-    // Test OpenAI API key
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    console.log('OpenAI API key present:', !!openAIApiKey);
+    console.log('🧪 Testing OpenAI connection...');
     
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'OpenAI API key not configured' 
-        }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ success: false, error: 'OpenAI API key not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Simple test call to OpenAI
-    console.log('Making simple OpenAI test call...');
+    console.log('🔑 OpenAI API key found');
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -46,40 +37,34 @@ serve(async (req) => {
         messages: [
           { role: 'user', content: 'Say "API working" in JSON format: {"status": "API working"}' }
         ],
-        max_tokens: 50,
-        temperature: 0
+        max_tokens: 50
       }),
     });
 
-    console.log('OpenAI response status:', response.status);
+    console.log('📡 OpenAI response status:', response.status);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      
+      console.error('❌ OpenAI API error:', errorText);
       return new Response(
         JSON.stringify({ 
           success: false, 
           error: `OpenAI API error: ${response.status}`,
           details: errorText
         }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const result = await response.json();
-    console.log('OpenAI response:', result);
-    
     const totalTime = Date.now() - startTime;
-    console.log('Total execution time:', totalTime, 'ms');
+    
+    console.log('✅ OpenAI test successful in:', totalTime, 'ms');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'OpenAI API is working',
+        message: 'OpenAI connection working',
         execution_time: totalTime,
         openai_response: result
       }),
@@ -87,7 +72,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Test failed:', error);
+    console.error('💥 Test failed:', error);
     
     return new Response(
       JSON.stringify({ 
@@ -95,10 +80,7 @@ serve(async (req) => {
         error: error.message,
         execution_time: Date.now() - startTime
       }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

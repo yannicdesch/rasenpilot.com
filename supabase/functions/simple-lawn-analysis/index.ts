@@ -12,33 +12,41 @@ serve(async (req) => {
   }
 
   const startTime = Date.now();
+  console.log('🚀 Function started');
   
   try {
-    console.log('=== SIMPLE LAWN ANALYSIS START ===');
-    console.log('Function started at:', startTime);
+    const body = await req.json();
+    console.log('📥 Request body received:', { hasImageBase64: !!body.imageBase64 });
     
-    const { imageBase64, grassType, lawnGoal } = await req.json();
-    console.log('Request parsed successfully');
+    const { imageBase64, grassType, lawnGoal } = body;
     
     if (!imageBase64) {
-      throw new Error('imageBase64 is required');
+      console.log('❌ No image provided');
+      return new Response(
+        JSON.stringify({ success: false, error: 'No image provided' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Ensure proper base64 format
+    // Prepare image for OpenAI
     let imageToUse = imageBase64;
     if (!imageBase64.startsWith('data:')) {
       imageToUse = `data:image/jpeg;base64,${imageBase64}`;
     }
 
-    console.log('Image prepared, length:', imageToUse.length);
+    console.log('📸 Image prepared, size:', imageToUse.length);
 
-    // Get OpenAI API key
+    // Check OpenAI API key
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+      console.log('❌ OpenAI API key missing');
+      return new Response(
+        JSON.stringify({ success: false, error: 'OpenAI API key not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log('Starting OpenAI call...');
+    console.log('🤖 Making OpenAI request...');
     const openaiStart = Date.now();
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -52,55 +60,48 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'Du bist ein Rasenexperte. Analysiere das Bild und gib nur JSON zurück: {"overall_health": "75", "grass_condition": "Beschreibung", "problems": ["Problem"], "recommendations": ["Empfehlung"], "timeline": "2-4 Wochen", "score": "75"}'
+            content: 'Analyze the lawn image and return only this JSON format: {"overall_health": "number 0-100", "grass_condition": "short description", "problems": ["problem1"], "recommendations": ["recommendation1"], "timeline": "2-4 weeks", "score": "number 0-100"}'
           },
           {
             role: 'user',
             content: [
-              {
-                type: 'text',
-                text: `Rasentyp: ${grassType || 'unbekannt'}`
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: imageToUse,
-                  detail: 'low'
-                }
-              }
+              { type: 'text', text: `Grass type: ${grassType || 'unknown'}` },
+              { type: 'image_url', image_url: { url: imageToUse, detail: 'low' } }
             ]
           }
         ],
-        max_tokens: 200,
+        max_tokens: 300,
         temperature: 0
       }),
     });
 
-    console.log('OpenAI call completed in:', Date.now() - openaiStart, 'ms');
-    console.log('Response status:', response.status);
+    console.log('📊 OpenAI response status:', response.status);
+    console.log('⏱️ OpenAI call took:', Date.now() - openaiStart, 'ms');
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.log('❌ OpenAI error:', errorText);
+      return new Response(
+        JSON.stringify({ success: false, error: 'OpenAI API error', details: errorText }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const result = await response.json();
-    console.log('OpenAI response received');
+    console.log('✅ OpenAI response received');
 
+    // Parse the response
     let analysisResult;
     try {
       const content = result.choices[0].message.content.trim();
-      console.log('Raw content:', content);
+      console.log('📝 Raw content:', content);
       
       const cleanedContent = content.replace(/```json\n?|\n?```/g, '').trim();
       analysisResult = JSON.parse(cleanedContent);
-      
-      console.log('Analysis parsed successfully');
+      console.log('✅ Analysis parsed successfully');
       
     } catch (parseError) {
-      console.warn('JSON parsing failed, using fallback');
-      
+      console.log('⚠️ JSON parsing failed, using fallback');
       analysisResult = {
         overall_health: "75",
         grass_condition: "Rasenanalyse durchgeführt",
@@ -111,30 +112,17 @@ serve(async (req) => {
       };
     }
 
-    console.log('Total execution time:', Date.now() - startTime, 'ms');
+    console.log('🎉 Analysis completed in:', Date.now() - startTime, 'ms');
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        analysis: analysisResult 
-      }),
+      JSON.stringify({ success: true, analysis: analysisResult }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('=== EDGE FUNCTION ERROR ===');
-    console.error('Error:', error.message);
-    console.log('Failed after:', Date.now() - startTime, 'ms');
-    
+    console.error('💥 Function error:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message || 'Analysis failed'
-      }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ success: false, error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  }
 });

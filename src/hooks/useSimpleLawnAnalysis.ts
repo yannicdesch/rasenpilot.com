@@ -75,14 +75,41 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
       console.log('Calling analysis with base64 image...');
       const apiStart = Date.now();
       
-      // Call analysis function directly without timeout wrapper
-      const result = await supabase.functions.invoke('simple-lawn-analysis', {
-        body: {
-          imageBase64: base64,
-          grassType: grassType || 'unknown',
-          lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
+      // Call analysis function with timeout and retry logic
+      const callAnalysis = async (attempt = 1): Promise<any> => {
+        try {
+          console.log(`🔄 Attempt ${attempt} - calling analysis function`);
+          const result = await supabase.functions.invoke('simple-lawn-analysis', {
+            body: {
+              imageBase64: base64,
+              grassType: grassType || 'unknown',
+              lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
+            }
+          });
+          
+          if (result.error) {
+            console.error(`❌ Attempt ${attempt} failed:`, result.error);
+            if (attempt < 3) {
+              console.log(`🔄 Retrying in ${attempt * 1000}ms...`);
+              await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+              return callAnalysis(attempt + 1);
+            }
+            throw new Error(`Analysis failed after ${attempt} attempts: ${result.error.message}`);
+          }
+          
+          return result;
+        } catch (error) {
+          console.error(`❌ Attempt ${attempt} error:`, error);
+          if (attempt < 3) {
+            console.log(`🔄 Retrying in ${attempt * 1000}ms...`);
+            await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+            return callAnalysis(attempt + 1);
+          }
+          throw error;
         }
-      });
+      };
+      
+      const result = await callAnalysis();
 
       const { data, error: functionError } = result;
 
