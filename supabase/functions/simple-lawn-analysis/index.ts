@@ -88,14 +88,17 @@ serve(async (req) => {
 
     const response = await Promise.race([apiCall, timeoutPromise]);
 
+    console.log('OpenAI response status:', response.status);
+    
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('OpenAI API error response:', errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const result = await response.json();
-    console.log('OpenAI response received');
+    console.log('OpenAI response received, parsing...');
+    console.log('Response data:', JSON.stringify(result, null, 2));
 
     let analysisResult;
     try {

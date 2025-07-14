@@ -55,8 +55,10 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
       }
 
       console.log('Image uploaded, calling analysis...');
+      console.log('Public URL:', publicUrlData.publicUrl);
 
       // Step 3: Call simple analysis function
+      console.log('Invoking edge function...');
       const { data, error: functionError } = await supabase.functions.invoke('simple-lawn-analysis', {
         body: {
           imageUrl: publicUrlData.publicUrl,
@@ -64,6 +66,8 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
           lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
         }
       });
+
+      console.log('Edge function response:', { data, error: functionError });
 
       if (functionError) {
         throw new Error(`Analysis failed: ${functionError.message}`);
