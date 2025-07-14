@@ -29,16 +29,22 @@ serve(async (req) => {
     }
 
     console.log('Calling OpenAI Vision API...');
+    console.log('Using model: gpt-4o-mini (switching from gpt-4.1 for better reliability)');
 
-    // Call OpenAI Vision API directly
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('OpenAI API call timed out after 30 seconds')), 30000);
+    });
+
+    // Call OpenAI Vision API with timeout
+    const apiCall = fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-4o-mini', // Using more reliable model
         messages: [
           {
             role: 'system',
@@ -79,6 +85,8 @@ serve(async (req) => {
         max_tokens: 1000
       }),
     });
+
+    const response = await Promise.race([apiCall, timeoutPromise]);
 
     if (!response.ok) {
       const errorText = await response.text();
