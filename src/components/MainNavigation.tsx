@@ -38,7 +38,7 @@ const MainNavigation = () => {
                   : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
               }`}
             >
-              <span>Home</span>
+              <span>Startseite</span>
             </Link>
             
             <Link 
@@ -92,7 +92,7 @@ const MainNavigation = () => {
                 }`}
                 onClick={closeMenu}
               >
-                <span>Home</span>
+                <span>Startseite</span>
               </Link>
               
               <Link 
