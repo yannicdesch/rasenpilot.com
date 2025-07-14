@@ -30,19 +30,17 @@ const FooterSection = () => {
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Kostenlose Tools</h3>
             <ul className="space-y-2">
-              <li><Button variant="link" onClick={() => navigate('/onboarding')} className="p-0 h-auto text-gray-600 hover:text-green-600">KI-Rasenanalyse</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/free-plan')} className="p-0 h-auto text-gray-600 hover:text-green-600">Kostenloser Pflegeplan</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/free-chat')} className="p-0 h-auto text-gray-600 hover:text-green-600">KI-Rasenberater Chat</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/lawn-analysis')} className="p-0 h-auto text-gray-600 hover:text-green-600">KI-Rasenanalyse</Button></li>
               <li><Button variant="link" onClick={() => navigate('/blog-overview')} className="p-0 h-auto text-gray-600 hover:text-green-600">Expertentipps Blog</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/highscore')} className="p-0 h-auto text-gray-600 hover:text-green-600">Bestenliste</Button></li>
             </ul>
           </div>
           
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Unternehmen</h3>
             <ul className="space-y-2">
-              <li><Button variant="link" onClick={() => navigate('/features')} className="p-0 h-auto text-gray-600 hover:text-green-600">Alle Funktionen</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/auth')} className="p-0 h-auto text-gray-600 hover:text-green-600">Kostenlos registrieren</Button></li>
-              <li><a href="mailto:support@rasenpilot.de" className="text-gray-600 hover:text-green-600">Support</a></li>
+              <li><Button variant="link" onClick={() => navigate('/ueber-uns')} className="p-0 h-auto text-gray-600 hover:text-green-600">Über uns</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/kontakt')} className="p-0 h-auto text-gray-600 hover:text-green-600">Kontakt</Button></li>
             </ul>
           </div>
           
@@ -50,7 +48,7 @@ const FooterSection = () => {
             <h3 className="font-semibold text-gray-900 mb-4">Rechtliches</h3>
             <ul className="space-y-2">
               <li><Button variant="link" onClick={() => navigate('/datenschutz')} className="p-0 h-auto text-gray-600 hover:text-green-600">Datenschutz</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/nutzungsbedingungen')} className="p-0 h-auto text-gray-600 hover:text-green-600">Nutzungsbedingungen</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/agb')} className="p-0 h-auto text-gray-600 hover:text-green-600">AGB</Button></li>
               <li><Button variant="link" onClick={() => navigate('/impressum')} className="p-0 h-auto text-gray-600 hover:text-green-600">Impressum</Button></li>
             </ul>
           </div>
