@@ -33,15 +33,21 @@ const SimplifiedLanding = () => {
             <div className="flex items-center gap-4">
               <Button 
                 variant="ghost" 
+                onClick={() => navigate('/')}
+              >
+                Startseite
+              </Button>
+              <Button 
+                variant="ghost"
+                onClick={() => navigate('/highscore')}
+              >
+                Bestenliste
+              </Button>
+              <Button 
+                variant="ghost"
                 onClick={() => navigate('/blog-overview')}
               >
                 Ratgeber
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/auth')}
-              >
-                Anmelden
               </Button>
             </div>
           </nav>
@@ -385,7 +391,7 @@ const SimplifiedLanding = () => {
                 <ul className="space-y-2 text-green-200">
                   <li><button onClick={() => navigate('/lawn-analysis')} className="hover:text-white">KI-Analyse</button></li>
                   <li><button onClick={() => navigate('/blog-overview')} className="hover:text-white">Ratgeber</button></li>
-                  <li><button onClick={() => navigate('/auth')} className="hover:text-white">Anmelden</button></li>
+                  <li><button onClick={() => navigate('/')} className="hover:text-white">Startseite</button></li>
                 </ul>
               </div>
               

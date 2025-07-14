@@ -21,6 +21,12 @@ const LawnAnalysis = () => {
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
+              onClick={() => navigate('/')}
+            >
+              Startseite
+            </Button>
+            <Button 
+              variant="ghost" 
               onClick={() => navigate('/highscore')}
             >
               Bestenliste
@@ -30,12 +36,6 @@ const LawnAnalysis = () => {
               onClick={() => navigate('/blog-overview')}
             >
               Ratgeber
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/auth')}
-            >
-              Anmelden
             </Button>
           </div>
         </nav>
