@@ -17,6 +17,8 @@ interface AnalysisResult {
   recommendations: string[];
   timeline: string;
   score: string;
+  detailed_analysis?: string;
+  next_steps?: string[];
 }
 
 export const SimpleLawnAnalyzer: React.FC = () => {
@@ -192,13 +194,24 @@ export const SimpleLawnAnalyzer: React.FC = () => {
               <p className="text-sm bg-muted p-3 rounded-lg">{analysisResult.grass_condition}</p>
             </div>
 
+            {/* Detailed Analysis */}
+            {analysisResult.detailed_analysis && (
+              <div>
+                <h4 className="font-semibold mb-2">Detaillierte Analyse:</h4>
+                <p className="text-sm bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">{analysisResult.detailed_analysis}</p>
+              </div>
+            )}
+
             {/* Problems */}
             {analysisResult.problems.length > 0 && (
               <div>
                 <h4 className="font-semibold mb-2">Identifizierte Probleme:</h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="space-y-2">
                   {analysisResult.problems.map((problem, index) => (
-                    <Badge key={index} variant="destructive">{problem}</Badge>
+                    <div key={index} className="flex items-start gap-2 text-sm bg-red-50 p-2 rounded border-l-4 border-red-500">
+                      <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      <span>{problem}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -208,14 +221,31 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             {analysisResult.recommendations.length > 0 && (
               <div>
                 <h4 className="font-semibold mb-2">Empfehlungen:</h4>
-                <ul className="space-y-1">
+                <div className="space-y-2">
                   {analysisResult.recommendations.map((rec, index) => (
-                    <li key={index} className="text-sm flex items-start gap-2">
+                    <div key={index} className="flex items-start gap-2 text-sm bg-green-50 p-2 rounded border-l-4 border-green-500">
                       <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      {rec}
-                    </li>
+                      <span>{rec}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
+              </div>
+            )}
+
+            {/* Next Steps */}
+            {analysisResult.next_steps && analysisResult.next_steps.length > 0 && (
+              <div>
+                <h4 className="font-semibold mb-2">Nächste Schritte:</h4>
+                <div className="space-y-2">
+                  {analysisResult.next_steps.map((step, index) => (
+                    <div key={index} className="flex items-start gap-2 text-sm bg-yellow-50 p-2 rounded border-l-4 border-yellow-500">
+                      <div className="flex-shrink-0 w-5 h-5 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
+                        {index + 1}
+                      </div>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>

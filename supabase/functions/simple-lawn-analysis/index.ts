@@ -35,18 +35,39 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: 'Analysiere das Rasenbild. Antworte nur mit einem JSON-Objekt: {"overall_health": "Zahl 0-100", "grass_condition": "Beschreibung", "problems": ["Problem1", "Problem2"], "recommendations": ["Empfehlung1", "Empfehlung2"], "timeline": "Zeitangabe", "score": "Zahl 0-100"}'
+            content: `Sie sind ein Experte für Rasenpflege und Gartenlandschaftsbau. Analysieren Sie das bereitgestellte Rasenbild sehr detailliert und professionell. 
+            
+            Bewerten Sie:
+            - Grasqualität und -dichte
+            - Farbe und Vitalität
+            - Erkennbare Probleme (Unkraut, Krankheiten, Schädlinge, braune Stellen)
+            - Bodenbeschaffenheit soweit erkennbar
+            - Mähqualität und -muster
+            - Bewässerungszustand
+            - Jahreszeitliche Faktoren
+            
+            Geben Sie konkrete, umsetzbare Empfehlungen mit Zeitplänen. Antworten Sie nur mit folgendem JSON-Format:
+            {
+              "overall_health": "Zahl 0-100",
+              "grass_condition": "Detaillierte Beschreibung des Rasenzustands",
+              "problems": ["Problem1 mit Details", "Problem2 mit Details"],
+              "recommendations": ["Spezifische Empfehlung 1 mit Zeitplan", "Spezifische Empfehlung 2 mit Zeitplan"],
+              "timeline": "Detaillierter Zeitrahmen für Verbesserungen",
+              "score": "Zahl 0-100",
+              "detailed_analysis": "Umfassende Analyse mit Begründungen",
+              "next_steps": ["Sofortmaßnahmen", "Mittelfristige Maßnahmen", "Langfristige Pflege"]
+            }`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Rasentyp: ${grassType || 'unbekannt'}, Ziel: ${lawnGoal || 'Verbesserung'}`
+                text: `Bitte analysieren Sie diesen Rasen professionell. Rasentyp: ${grassType || 'unbekannt'}, Ziel: ${lawnGoal || 'Verbesserung der Rasenqualität'}`
               },
               {
                 type: 'image_url',
@@ -55,7 +76,7 @@ serve(async (req) => {
             ]
           }
         ],
-        max_tokens: 500
+        max_tokens: 1500
       })
     });
 
