@@ -19,12 +19,20 @@ serve(async (req) => {
     console.log('⏱️ Function started at:', startTime);
     
     const parseStart = Date.now();
-    const { imageUrl, grassType, lawnGoal } = await req.json();
+    const { imageUrl, imageBase64, grassType, lawnGoal } = await req.json();
     console.log('⏱️ Request parsing took:', Date.now() - parseStart, 'ms');
-    console.log('Request received:', { imageUrl: !!imageUrl, grassType, lawnGoal });
+    console.log('Request received:', { 
+      hasImageUrl: !!imageUrl, 
+      hasImageBase64: !!imageBase64, 
+      grassType, 
+      lawnGoal 
+    });
 
-    if (!imageUrl) {
-      throw new Error('Image URL is required');
+    // Use base64 if provided, otherwise fall back to URL
+    const imageToUse = imageBase64 || imageUrl;
+    
+    if (!imageToUse) {
+      throw new Error('Either imageBase64 or imageUrl is required');
     }
 
     // Get OpenAI API key
@@ -86,7 +94,7 @@ serve(async (req) => {
               {
                 type: 'image_url',
                 image_url: {
-                  url: imageUrl
+                  url: imageToUse
                 }
               }
             ]

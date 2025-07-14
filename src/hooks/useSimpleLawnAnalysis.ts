@@ -31,20 +31,21 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
 
     try {
       const startTime = Date.now();
-      console.log('=== SIMPLE ANALYSIS START ===');
+      console.log('=== FAST ANALYSIS START (NO UPLOAD) ===');
       console.log('File:', imageFile.name, imageFile.size, 'bytes');
 
-      // Step 0: Compress image if it's large
+      // Step 1: Compress image if it's large
       let processedFile = imageFile;
-      if (imageFile.size > 1024 * 1024) { // If larger than 1MB
+      if (imageFile.size > 512 * 1024) { // If larger than 512KB
         console.log('⏱️ Starting compression at:', Date.now() - startTime, 'ms');
         const compressionStart = Date.now();
         
         const options = {
-          maxSizeMB: 1, // Max 1MB
-          maxWidthOrHeight: 1920, // Max dimension
+          maxSizeMB: 0.5, // Max 500KB for faster processing
+          maxWidthOrHeight: 1024, // Smaller max dimension
           useWebWorker: true,
-          fileType: 'image/jpeg'
+          fileType: 'image/jpeg',
+          quality: 0.8
         };
         
         try {
@@ -56,54 +57,34 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
         }
       }
 
-      // Step 1: Upload image to storage
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
-      const filePath = `temp/${fileName}`;
+      // Step 2: Convert to base64 (MUCH FASTER than upload)
+      console.log('⏱️ Converting to base64 at:', Date.now() - startTime, 'ms');
+      const base64Start = Date.now();
       
-      console.log('⏱️ Starting upload at:', Date.now() - startTime, 'ms');
-      console.log('Uploading to storage...');
-      const uploadStart = Date.now();
-      
-      const { error: uploadError } = await supabase.storage
-        .from('lawn-images')
-        .upload(filePath, processedFile);
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(processedFile);
+      });
 
-      console.log('⏱️ Upload completed in:', Date.now() - uploadStart, 'ms');
+      console.log('⏱️ Base64 conversion took:', Date.now() - base64Start, 'ms');
 
-      if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
-      }
-
-      // Step 2: Get public URL
-      const urlStart = Date.now();
-      const { data: publicUrlData } = supabase.storage
-        .from('lawn-images')
-        .getPublicUrl(filePath);
-
-      console.log('⏱️ URL generation took:', Date.now() - urlStart, 'ms');
-
-      if (!publicUrlData?.publicUrl) {
-        throw new Error('Failed to get image URL');
-      }
-
-      console.log('Image uploaded, calling analysis...');
-      console.log('Public URL:', publicUrlData.publicUrl);
-
-      // Step 3: Call simple analysis function
+      // Step 3: Call analysis function directly with base64
       console.log('⏱️ Starting API call at:', Date.now() - startTime, 'ms');
-      console.log('Invoking edge function...');
+      console.log('Calling analysis with base64 image...');
       const apiStart = Date.now();
       
       const { data, error: functionError } = await supabase.functions.invoke('simple-lawn-analysis', {
         body: {
-          imageUrl: publicUrlData.publicUrl,
+          imageBase64: base64,
           grassType: grassType || 'unknown',
           lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
         }
       });
 
       console.log('⏱️ API call completed in:', Date.now() - apiStart, 'ms');
-      console.log('⏱️ Total time so far:', Date.now() - startTime, 'ms');
+      console.log('⏱️ Total time:', Date.now() - startTime, 'ms');
       console.log('Edge function response:', { data, error: functionError });
 
       if (functionError) {
@@ -116,9 +97,6 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
 
       console.log('Analysis completed!');
       
-      // Step 4: Clean up temp file (optional)
-      supabase.storage.from('lawn-images').remove([filePath]).catch(console.warn);
-
       return data.analysis;
 
     } catch (err) {
