@@ -70,7 +70,7 @@ export const DatabaseSetup = () => {
         try {
           const { error } = await supabase
             .from(table as any)
-            .select('count(*)')
+            .select('*', { count: 'exact' })
             .limit(1);
             
           tableStatus[table] = !error;

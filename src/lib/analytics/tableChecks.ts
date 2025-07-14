@@ -9,7 +9,7 @@ export const testDirectTableAccess = async (): Promise<boolean> => {
     // Try a simple query to test if we can access the database
     const { data, error } = await supabase
       .from('page_views')
-      .select('count(*)')
+      .select('*', { count: 'exact' })
       .limit(1);
       
     if (error) {

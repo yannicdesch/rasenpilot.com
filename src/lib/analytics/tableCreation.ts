@@ -22,12 +22,12 @@ export const createAnalyticsTables = async (): Promise<boolean> => {
     // Check if tables already exist
     const { error: pageViewsError } = await supabase
       .from('page_views')
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
     
     const { error: eventsError } = await supabase
       .from('events')
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
     
     if (!pageViewsError && !eventsError) {
@@ -61,7 +61,7 @@ export const checkAnalyticsTablesExist = async (): Promise<Record<string, boolea
     try {
       const { error } = await supabase
         .from(table as any)
-        .select('count(*)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .limit(1);
       
       results[table] = !error;

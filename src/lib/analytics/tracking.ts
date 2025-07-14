@@ -102,12 +102,12 @@ export const testAnalyticsConnection = async (): Promise<boolean> => {
     // Test if we can access the analytics tables
     const { error: pageViewsError } = await supabase
       .from('page_views')
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
 
     const { error: eventsError } = await supabase
       .from('events')
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
 
     return !pageViewsError && !eventsError;

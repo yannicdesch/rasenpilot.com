@@ -7,7 +7,7 @@ export const testDatabaseConnection = async (): Promise<boolean> => {
     // Try a simple query to test connection
     const { error } = await supabase
       .from('profiles')
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
     
     return !error;
@@ -22,7 +22,7 @@ export const testTableAccess = async (tableName: string): Promise<boolean> => {
   try {
     const { error } = await supabase
       .from(tableName as any)
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
     
     return !error;
@@ -37,7 +37,7 @@ export const getDatabaseInfo = async () => {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
     
     if (error) {

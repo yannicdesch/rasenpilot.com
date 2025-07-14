@@ -26,7 +26,7 @@ const DatabaseActions = ({
     setTestingConnection(true);
     try {
       // Test basic connection
-      const { error } = await supabase.from('profiles').select('count(*)').limit(1);
+      const { error } = await supabase.from('profiles').select('*', { count: 'exact' }).limit(1);
       
       if (!error) {
         toast.success('Verbindungstest erfolgreich', {

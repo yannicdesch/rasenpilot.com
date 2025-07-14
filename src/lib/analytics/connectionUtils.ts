@@ -7,7 +7,7 @@ export const testDatabaseConnection = async (): Promise<boolean> => {
     // Try a simple query that should always work
     const { error } = await supabase
       .from('profiles')
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
     
     return !error;
@@ -45,7 +45,7 @@ export const runDatabaseDiagnostics = async () => {
       try {
         const { error } = await supabase
           .from(table as any)
-          .select('count(*)', { count: 'exact' })
+          .select('*', { count: 'exact' })
           .limit(1);
         
         diagnostics.tables[table] = !error;
@@ -70,7 +70,7 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
     const { error } = await supabase
       .from(tableName as any)
-      .select('count(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .limit(1);
     
     return !error;

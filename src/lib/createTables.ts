@@ -25,7 +25,7 @@ export const createRequiredTables = async (): Promise<boolean> => {
       try {
         const { error } = await supabase
           .from(table as any)
-          .select('count(*)', { count: 'exact' })
+          .select('*', { count: 'exact' })
           .limit(1);
         
         if (error) {

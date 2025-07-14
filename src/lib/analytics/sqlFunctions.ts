@@ -10,7 +10,7 @@ export const checkAnalyticsTablesExist = async (): Promise<Record<string, boolea
     try {
       const { error } = await supabase
         .from(table as any)
-        .select('count(*)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .limit(1);
       
       results[table] = !error;

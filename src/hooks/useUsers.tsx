@@ -26,7 +26,7 @@ const useUsers = () => {
       // Check if users table exists first
       const { error: checkError } = await supabase
         .from('profiles')
-        .select('count(*)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .limit(1);
 
       if (checkError) {
