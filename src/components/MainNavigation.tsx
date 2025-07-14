@@ -31,6 +31,17 @@ const MainNavigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link 
+              to="/" 
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                isActive('/') 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+              }`}
+            >
+              <span>Home</span>
+            </Link>
+            
+            <Link 
               to="/blog-overview" 
               className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
                 isActive('/blog-overview') 
@@ -72,6 +83,18 @@ const MainNavigation = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-2">
+              <Link 
+                to="/" 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                  isActive('/') 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                }`}
+                onClick={closeMenu}
+              >
+                <span>Home</span>
+              </Link>
+              
               <Link 
                 to="/blog-overview" 
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
