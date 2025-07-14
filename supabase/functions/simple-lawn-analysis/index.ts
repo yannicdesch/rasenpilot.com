@@ -104,14 +104,27 @@ serve(async (req) => {
     try {
       // Try to parse the JSON response from OpenAI
       const content = result.choices[0].message.content;
-      analysisResult = JSON.parse(content);
+      console.log('Raw OpenAI content:', content);
+      
+      // Extract JSON from the content if it's wrapped in markdown or other text
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysisResult = JSON.parse(jsonMatch[0]);
+        console.log('Successfully parsed JSON from OpenAI response');
+      } else {
+        // If no JSON found, try parsing the entire content
+        analysisResult = JSON.parse(content);
+        console.log('Successfully parsed entire content as JSON');
+      }
     } catch (parseError) {
       // If JSON parsing fails, create a structured response
-      console.log('Using fallback analysis structure');
+      console.log('JSON parsing failed, using fallback structure');
+      console.log('Parse error:', parseError.message);
+      const content = result.choices[0].message.content;
       analysisResult = {
         overall_health: "75",
-        grass_condition: result.choices[0].message.content,
-        problems: ["Analyse konnte nicht vollständig strukturiert werden"],
+        grass_condition: content,
+        problems: ["JSON-Parsing fehlgeschlagen - Vollständige Analyse verfügbar"],
         recommendations: ["Detaillierte Analyse im Grass Condition Feld verfügbar"],
         timeline: "2-4 Wochen",
         score: "75"
