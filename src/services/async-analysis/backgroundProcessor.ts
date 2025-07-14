@@ -9,8 +9,8 @@ export const startBackgroundProcessing = async (jobId: string): Promise<void> =>
     const functionPayload = { jobId };
     console.log('Function payload:', JSON.stringify(functionPayload));
     
-    console.log('Invoking start-analysis edge function...');
-    const { data: functionResponse, error: functionError } = await supabase.functions.invoke('start-analysis', {
+    console.log('Invoking start-analysis-test edge function...');
+    const { data: functionResponse, error: functionError } = await supabase.functions.invoke('start-analysis-test', {
       body: functionPayload
     });
     
