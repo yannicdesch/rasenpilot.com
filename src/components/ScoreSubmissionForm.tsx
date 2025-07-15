@@ -55,34 +55,36 @@ const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Get current user or create anonymous user
+      // Get current user or use a generated UUID for anonymous submission
       let { data: { user }, error: userError } = await supabase.auth.getUser();
+      let userId: string;
       
       if (userError || !user) {
-        // Create anonymous user for highscore submission
-        const randomEmail = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}@anonymous.local`;
-        const randomPassword = Math.random().toString(36).substr(2, 15);
+        // Generate a consistent UUID based on email for anonymous users
+        // This way the same email will always get the same user_id
+        const encoder = new TextEncoder();
+        const data = encoder.encode(formData.email);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: randomEmail,
-          password: randomPassword,
-        });
+        // Create a valid UUID from the hash
+        userId = [
+          hashHex.slice(0, 8),
+          hashHex.slice(8, 12),
+          hashHex.slice(12, 16),
+          hashHex.slice(16, 20),
+          hashHex.slice(20, 32)
+        ].join('-');
         
-        if (signUpError || !signUpData.user) {
-          toast({
-            title: "Fehler beim Erstellen des Accounts",
-            description: "Leider konnte kein temporärer Account erstellt werden.",
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        user = signUpData.user;
+        console.log('Generated anonymous user ID for email:', formData.email, 'ID:', userId);
+      } else {
+        userId = user.id;
       }
 
       // Submit to highscore
       await updateUserHighscore(
-        user.id,
+        userId,
         formData.nickname,
         score,
         lawnImageUrl,
