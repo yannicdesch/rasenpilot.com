@@ -54,50 +54,17 @@ const SimplifiedLanding = () => {
         </header>
 
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16 text-center">
+        <section className="container mx-auto px-4 py-8 text-center">
           <div className="max-w-4xl mx-auto">
-            <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <Award className="h-4 w-4 mr-2" />
-              Deutschlands #1 KI-Rasenexperte - Wissenschaftlich validiert
+              Deutschlands #1 KI-Rasenexperte
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-green-800 mb-6 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-bold text-green-800 mb-4 leading-tight">
               Revolutionäre <span className="text-blue-600">KI-Rasenanalyse</span><br />
               mit wissenschaftlicher Präzision
             </h1>
-            
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Unsere fortschrittliche Künstliche Intelligenz analysiert über <strong>200 Rasenparameter</strong> in Sekundenschnelle. 
-              Erhalten Sie eine professionelle Diagnose mit <strong>98,3% Genauigkeit</strong> und einen maßgeschneiderten 
-              Pflegeplan von Deutschlands führenden Rasenexperten.
-            </p>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                  <Zap className="h-6 w-6 text-green-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">60 Sek. Analyse</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                  <Brain className="h-6 w-6 text-blue-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">KI-gestützt</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-2">
-                  <BarChart3 className="h-6 w-6 text-purple-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">98,3% Genauigkeit</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-2">
-                  <Star className="h-6 w-6 text-orange-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Wissenschaftlich</span>
-              </div>
-            </div>
             
             <Button 
               size="lg"
@@ -108,8 +75,40 @@ const SimplifiedLanding = () => {
               Kostenlose KI-Analyse starten
             </Button>
             
-            <p className="text-sm text-gray-500">
-              ✓ Keine Anmeldung erforderlich ✓ Sofortige Ergebnisse ✓ Wissenschaftlich fundiert
+            <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+              KI analysiert über <strong>200 Rasenparameter</strong> in Sekunden. 
+              <strong>98,3% Genauigkeit</strong> - wissenschaftlich validiert.
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-1">
+                  <Zap className="h-5 w-5 text-green-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-700">60 Sek.</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-1">
+                  <Brain className="h-5 w-5 text-blue-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-700">KI-gestützt</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-1">
+                  <BarChart3 className="h-5 w-5 text-purple-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-700">98,3%</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-1">
+                  <Star className="h-5 w-5 text-orange-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-700">Validiert</span>
+              </div>
+            </div>
+            
+            <p className="text-sm text-gray-500 mt-4">
+              ✓ Keine Anmeldung ✓ Sofortige Ergebnisse ✓ Wissenschaftlich fundiert
             </p>
           </div>
         </section>
