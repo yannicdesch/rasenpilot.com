@@ -416,7 +416,7 @@ const SimplifiedLanding = () => {
             
             <div className="border-t border-green-700 pt-8 text-center">
               <p className="text-green-200">
-                © 2024 Rasenpilot. Alle Rechte vorbehalten. | Deutschlands #1 KI-Rasenexperte
+                © 2025 Rasenpilot. Alle Rechte vorbehalten. | Deutschlands #1 KI-Rasenexperte
               </p>
             </div>
           </div>
