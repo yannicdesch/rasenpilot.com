@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import blog1 from '@/assets/blog-1.jpg';
+import blog2 from '@/assets/blog-2.jpg';
+import blog3 from '@/assets/blog-3.jpg';
 
 export type BlogPost = {
   id: number;
@@ -43,6 +46,12 @@ const DEFAULT_SETTINGS: BlogScheduleSettings = {
   lastGenerated: null,
   nextScheduled: null,
   generatedToday: 0
+};
+
+// Helper function to randomly select an image
+const getRandomImage = () => {
+  const images = [blog1, blog2, blog3];
+  return images[Math.floor(Math.random() * images.length)];
 };
 
 export const useAiBlogGenerator = () => {
@@ -163,7 +172,7 @@ export const useAiBlogGenerator = () => {
           .replace(/-+/g, '-'),
         excerpt: content.substring(0, 150) + '...',
         content,
-        image: '/placeholder.svg',
+        image: getRandomImage(),
         category: randomTopic,
         readTime: Math.floor(content.length / 1000) + 2,
         tags: generateRandomTags(randomTopic).join(', '),
@@ -241,7 +250,7 @@ export const useAiBlogGenerator = () => {
             .replace(/-+/g, '-'),
           excerpt: content.substring(0, 150) + '...',
           content,
-          image: '/placeholder.svg',
+          image: getRandomImage(),
           category: randomTopic,
           readTime: Math.floor(content.length / 1000) + 2,
           tags: generateRandomTags(randomTopic).join(', '),
