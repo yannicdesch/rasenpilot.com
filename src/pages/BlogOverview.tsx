@@ -4,9 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, User, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import blog1 from '@/assets/blog-1.jpg';
-import blog2 from '@/assets/blog-2.jpg';
-import blog3 from '@/assets/blog-3.jpg';
 
 interface BlogPost {
   id: number;
@@ -54,7 +51,7 @@ const BlogOverview = () => {
       id: 1,
       title: "Rasen nachsäen: Die ultimative Anleitung für perfekte Ergebnisse",
       excerpt: "Einen perfekten Rasen nachzusäen zu pflegen erfordert Wissen und Konsequenz. Diese professionellen Tipps helfen Ihnen dabei.",
-      image: blog1,
+      image: "",
       author: "Yannic",
       date: "2025-07-15",
       slug: "rasen-nachsaen-ultimate-anleitung",
@@ -64,7 +61,7 @@ const BlogOverview = () => {
       id: 2,
       title: "Profi-Tipps für Rasenkrankheiten erkennen - So machen Sie es richtig",
       excerpt: "Rasenkrankheiten erkennen ist ein wichtiger Bestandteil jedes schönen Gartens. Hier sind die besten Methoden, um optimale...",
-      image: blog2,
+      image: "",
       author: "Lars",
       date: "2025-07-15",
       slug: "rasenkrankheiten-erkennen-profi-tipps",
@@ -74,7 +71,7 @@ const BlogOverview = () => {
       id: 3,
       title: "Profi Rasenpflege: Die ultimative Anleitung für perfekte Ergebnisse",
       excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfahren Sie die wichtigsten...",
-      image: blog3,
+      image: "",
       author: "Lars",
       date: "2025-07-15",
       slug: "profi-rasenpflege-ultimative-anleitung",
@@ -163,13 +160,15 @@ const BlogOverview = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post) => (
               <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
-                  <img 
-                    src={post.image} 
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {post.image && (
+                  <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader>
                   <CardTitle className="text-lg line-clamp-2">
                     {post.title}
