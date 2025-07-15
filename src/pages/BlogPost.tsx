@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Calendar, Share } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
+import { supabase } from '@/lib/supabase';
 import RelatedPosts from '@/components/RelatedPosts';
 import SEO from '@/components/SEO';
 
@@ -32,22 +33,93 @@ const BlogPost = () => {
   const [relatedPosts, setRelatedPosts] = useState<BlogPostData[]>([]);
   
   useEffect(() => {
-    if (!slug) return;
-    
-    const foundPost = blogPosts.find(p => p.slug === slug);
-    
-    if (foundPost) {
-      setPost(foundPost);
+    const fetchPost = async () => {
+      if (!slug) return;
       
-      // Get related posts (same category, excluding current post)
-      const related = blogPosts
-        .filter(p => p.category === foundPost.category && p.id !== foundPost.id)
-        .slice(0, 3);
-      
-      setRelatedPosts(related);
-    } else {
-      navigate('/blog-overview');
-    }
+      try {
+        // First try to fetch from Supabase
+        const { data: supabasePost, error } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('slug', slug)
+          .eq('status', 'published')
+          .single();
+
+        if (supabasePost && !error) {
+          // Convert Supabase format to BlogPostData format
+          const seoData = supabasePost.seo as any;
+          const convertedPost: BlogPostData = {
+            id: supabasePost.id,
+            title: supabasePost.title,
+            slug: supabasePost.slug,
+            image: supabasePost.image,
+            content: supabasePost.content || '',
+            excerpt: supabasePost.excerpt || '',
+            date: supabasePost.date,
+            author: supabasePost.author,
+            category: supabasePost.category,
+            readTime: supabasePost.read_time || 5,
+            keywords: supabasePost.tags ? supabasePost.tags.split(',').map(tag => tag.trim()) : [],
+            metaTitle: seoData?.metaTitle || supabasePost.title,
+            metaDescription: seoData?.metaDescription || supabasePost.excerpt || ''
+          };
+          
+          setPost(convertedPost);
+          
+          // Get related posts from Supabase
+          const { data: relatedData } = await supabase
+            .from('blog_posts')
+            .select('*')
+            .eq('category', supabasePost.category)
+            .neq('id', supabasePost.id)
+            .eq('status', 'published')
+            .limit(3);
+            
+          if (relatedData) {
+            const convertedRelated = relatedData.map(relatedPost => {
+              const relatedSeoData = relatedPost.seo as any;
+              return {
+                id: relatedPost.id,
+                title: relatedPost.title,
+                slug: relatedPost.slug,
+                image: relatedPost.image,
+                content: relatedPost.content || '',
+                excerpt: relatedPost.excerpt || '',
+                date: relatedPost.date,
+                author: relatedPost.author,
+                category: relatedPost.category,
+                readTime: relatedPost.read_time || 5,
+                keywords: relatedPost.tags ? relatedPost.tags.split(',').map(tag => tag.trim()) : [],
+                metaTitle: relatedSeoData?.metaTitle || relatedPost.title,
+                metaDescription: relatedSeoData?.metaDescription || relatedPost.excerpt || ''
+              };
+            });
+            setRelatedPosts(convertedRelated);
+          }
+        } else {
+          // Fallback to static data if not found in Supabase
+          const foundPost = blogPosts.find(p => p.slug === slug);
+          
+          if (foundPost) {
+            setPost(foundPost);
+            
+            // Get related posts (same category, excluding current post)
+            const related = blogPosts
+              .filter(p => p.category === foundPost.category && p.id !== foundPost.id)
+              .slice(0, 3);
+            
+            setRelatedPosts(related);
+          } else {
+            navigate('/blog-overview');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching blog post:', error);
+        navigate('/blog-overview');
+      }
+    };
+
+    fetchPost();
   }, [slug, navigate]);
   
   if (!post) {

@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, User, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import blog1 from '@/assets/blog-1.jpg';
+import blog2 from '@/assets/blog-2.jpg';
+import blog3 from '@/assets/blog-3.jpg';
 
 interface BlogPost {
   id: number;
@@ -49,33 +52,33 @@ const BlogOverview = () => {
   const defaultPosts = [
     {
       id: 1,
-      title: "Wann sollten Sie Ihren Rasen im Frühling düngen?",
-      excerpt: "Erfahren Sie den optimalen Zeitpunkt für die Frühjahrsdüngung, um Ihren Rasen auf die Wachstumssaison vorzubereiten.",
-      image: "/placeholder.svg",
-      author: "Rasenexperte",
-      date: "2024-03-15",
-      slug: "fruehjahr-duengung-timing",
-      read_time: 5
+      title: "Rasen nachsäen: Die ultimative Anleitung für perfekte Ergebnisse",
+      excerpt: "Einen perfekten Rasen nachzusäen zu pflegen erfordert Wissen und Konsequenz. Diese professionellen Tipps helfen Ihnen dabei.",
+      image: blog1,
+      author: "Yannic",
+      date: "2025-07-15",
+      slug: "rasen-nachsaen-ultimate-anleitung",
+      read_time: 6
     },
     {
       id: 2,
-      title: "Häufige Rasenkrankheiten erkennen",
-      excerpt: "Frühe Anzeichen häufiger Rasenkrankheiten erkennen und lernen, wie Sie diese effektiv behandeln können.",
-      image: "/placeholder.svg",
-      author: "Pflanzenpathologie",
-      date: "2024-03-10",
-      slug: "haeufige-rasenkrankheiten",
-      read_time: 7
+      title: "Profi-Tipps für Rasenkrankheiten erkennen - So machen Sie es richtig",
+      excerpt: "Rasenkrankheiten erkennen ist ein wichtiger Bestandteil jedes schönen Gartens. Hier sind die besten Methoden, um optimale...",
+      image: blog2,
+      author: "Lars",
+      date: "2025-07-15",
+      slug: "rasenkrankheiten-erkennen-profi-tipps",
+      read_time: 6
     },
     {
       id: 3,
-      title: "Der komplette Leitfaden zur Nachsaat",
-      excerpt: "Verwandeln Sie dünnen, lückenhaften Rasen in eine dichte, üppige Rasenfläche mit unserem umfassenden Nachsaat-Leitfaden.",
-      image: "/placeholder.svg",
-      author: "Rasen-Spezialist",
-      date: "2024-03-05",
-      slug: "nachsaat-leitfaden",
-      read_time: 10
+      title: "Profi Rasenpflege: Die ultimative Anleitung für perfekte Ergebnisse",
+      excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfahren Sie die wichtigsten...",
+      image: blog3,
+      author: "Lars",
+      date: "2025-07-15",
+      slug: "profi-rasenpflege-ultimative-anleitung",
+      read_time: 6
     }
   ];
 
@@ -196,6 +199,7 @@ const BlogOverview = () => {
                       variant="ghost" 
                       size="sm"
                       className="text-green-600 hover:text-green-700"
+                      onClick={() => navigate(`/blog/${post.slug}`)}
                     >
                       Mehr lesen
                       <ArrowRight className="h-4 w-4 ml-1" />
