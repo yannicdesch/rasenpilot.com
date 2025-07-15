@@ -9,6 +9,7 @@ import LawnAnalysis from "./pages/LawnAnalysis";
 import CarePlan from "./pages/CarePlan";
 import Blog from "./pages/Blog";
 import BlogOverview from "./pages/BlogOverview";
+import BlogPost from "./pages/BlogPost";
 import Highscore from "./pages/Highscore";
 import Impressum from "./pages/Impressum";
 import Datenschutz from "./pages/Datenschutz";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/care-plan" element={<CarePlan />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-overview" element={<BlogOverview />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/highscore" element={<Highscore />} />
             
             {/* Legal Pages */}
