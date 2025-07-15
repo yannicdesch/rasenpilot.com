@@ -28,11 +28,11 @@ const FooterSection = () => {
           </div>
           
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Kostenlose Tools</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">Produkt</h3>
             <ul className="space-y-2">
-              <li><Button variant="link" onClick={() => navigate('/lawn-analysis')} className="p-0 h-auto text-gray-600 hover:text-green-600">KI-Rasenanalyse</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/blog-overview')} className="p-0 h-auto text-gray-600 hover:text-green-600">Expertentipps Blog</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/highscore')} className="p-0 h-auto text-gray-600 hover:text-green-600">Bestenliste</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/lawn-analysis')} className="p-0 h-auto text-gray-600 hover:text-green-600">KI-Analyse</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/blog-overview')} className="p-0 h-auto text-gray-600 hover:text-green-600">Ratgeber</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/')} className="p-0 h-auto text-gray-600 hover:text-green-600">Startseite</Button></li>
             </ul>
           </div>
           
@@ -41,6 +41,7 @@ const FooterSection = () => {
             <ul className="space-y-2">
               <li><Button variant="link" onClick={() => navigate('/ueber-uns')} className="p-0 h-auto text-gray-600 hover:text-green-600">Über uns</Button></li>
               <li><Button variant="link" onClick={() => navigate('/kontakt')} className="p-0 h-auto text-gray-600 hover:text-green-600">Kontakt</Button></li>
+              <li><span className="p-0 h-auto text-gray-600 opacity-50 cursor-not-allowed text-sm">Karriere</span></li>
             </ul>
           </div>
           
