@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import blog1 from '@/assets/blog-1.jpg';
-import blog2 from '@/assets/blog-2.jpg';
-import blog3 from '@/assets/blog-3.jpg';
 
 export type BlogPost = {
   id: number;
@@ -48,10 +45,9 @@ const DEFAULT_SETTINGS: BlogScheduleSettings = {
   generatedToday: 0
 };
 
-// Helper function to randomly select an image
+// Helper function to return empty string since no images are used
 const getRandomImage = () => {
-  const images = [blog1, blog2, blog3];
-  return images[Math.floor(Math.random() * images.length)];
+  return "";
 };
 
 export const useAiBlogGenerator = () => {
