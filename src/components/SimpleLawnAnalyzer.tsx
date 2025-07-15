@@ -139,45 +139,6 @@ export const SimpleLawnAnalyzer: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Multi-LLM Technology Section */}
-      <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200">
-        <CardContent className="p-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-            Revolutionäre Rasenanalyse mit{" "}
-            <span className="text-green-600">Multi-LLM</span>{" "}
-            <span className="text-blue-600">Technologie</span>
-          </h2>
-          <p className="text-gray-600 text-sm md:text-base mb-6 max-w-3xl mx-auto">
-            Unsere fortschrittliche KI-Plattform kombiniert ChatGPT Vision, Claude, 
-            und weitere Large Language Models für präzise Rasendiagnosen in Sekundenschnelle
-          </p>
-          
-          {/* Features Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-              <div className="text-yellow-500 text-2xl mb-2">⚡</div>
-              <span className="text-sm font-medium text-gray-700">Blitzschnell</span>
-            </div>
-            <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-              <div className="text-blue-500 text-2xl mb-2">⭐</div>
-              <span className="text-sm font-medium text-gray-700">Multi-LLM Power</span>
-            </div>
-            <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-              <div className="text-green-500 text-2xl mb-2">✅</div>
-              <span className="text-sm font-medium text-gray-700">Profi-Qualität</span>
-            </div>
-            <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-              <div className="text-purple-500 text-2xl mb-2">📷</div>
-              <span className="text-sm font-medium text-gray-700">Vision AI</span>
-            </div>
-          </div>
-
-          {/* Powered by section */}
-          <div className="text-xs md:text-sm text-gray-500 bg-white/70 rounded-full px-4 py-2 inline-block">
-            ✨ <span className="font-medium">Powered by:</span> GPT-4 Vision • Claude 3 • Gemini Pro • LLaMA 3
-          </div>
-        </CardContent>
-      </Card>
       {/* Optional Settings - Compact on mobile */}
       <Card className="border border-gray-200">
         <CardHeader className="pb-3">
