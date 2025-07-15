@@ -398,18 +398,18 @@ const SimplifiedLanding = () => {
               <div>
                 <h3 className="font-semibold mb-4">Unternehmen</h3>
                 <ul className="space-y-2 text-green-200">
-                  <li><a href="#" className="hover:text-white">Über uns</a></li>
-                  <li><a href="#" className="hover:text-white">Kontakt</a></li>
-                  <li><a href="#" className="hover:text-white">Karriere</a></li>
+                  <li><button onClick={() => navigate('/ueber-uns')} className="hover:text-white transition-colors">Über uns</button></li>
+                  <li><button onClick={() => navigate('/kontakt')} className="hover:text-white transition-colors">Kontakt</button></li>
+                  <li><span className="opacity-50 cursor-not-allowed">Karriere</span></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-4">Legal</h3>
                 <ul className="space-y-2 text-green-200">
-                  <li><a href="#" className="hover:text-white">Datenschutz</a></li>
-                  <li><a href="#" className="hover:text-white">AGB</a></li>
-                  <li><a href="#" className="hover:text-white">Impressum</a></li>
+                  <li><button onClick={() => navigate('/datenschutz')} className="hover:text-white transition-colors">Datenschutz</button></li>
+                  <li><button onClick={() => navigate('/agb')} className="hover:text-white transition-colors">AGB</button></li>
+                  <li><button onClick={() => navigate('/impressum')} className="hover:text-white transition-colors">Impressum</button></li>
                 </ul>
               </div>
             </div>
