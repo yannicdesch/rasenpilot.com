@@ -80,53 +80,80 @@ export const SimpleLawnAnalyzer: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
-      {/* File Upload Section - Moved to top for mobile */}
-      <Card>
-        <CardHeader className="text-center pb-4">
-          <CardTitle className="flex items-center justify-center gap-2 text-lg md:text-xl">
-            <Camera className="h-5 w-5 md:h-6 md:w-6" />
+    <div className="max-w-4xl mx-auto p-3 md:p-6 space-y-4 md:space-y-6">
+      {/* Mobile-Optimized Upload Section - Priority positioning */}
+      <Card className="border-2 border-green-100 bg-gradient-to-br from-green-50 to-emerald-50">
+        <CardHeader className="text-center pb-3 md:pb-4">
+          <CardTitle className="flex items-center justify-center gap-2 text-xl md:text-2xl font-bold text-green-800">
+            <Camera className="h-6 w-6 md:h-7 md:w-7" />
             Einfache Rasenanalyse mit KI
           </CardTitle>
+          <p className="text-green-700 font-medium">Rasenbild hochladen</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Upload Input with better mobile styling */}
           <div className="text-center">
-            <Label htmlFor="image-upload" className="text-base md:text-lg font-medium">Rasenbild hochladen</Label>
-            <div className="mt-4">
+            <div className="relative">
               <Input
                 id="image-upload"
                 type="file"
                 accept="image/*"
                 onChange={handleFileSelect}
-                className="max-w-sm mx-auto"
+                className="w-full max-w-sm mx-auto file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200"
               />
             </div>
-            {previewUrl && (
-              <div className="mt-6 flex justify-center">
-                <img 
-                  src={previewUrl} 
-                  alt="Vorschau" 
-                  className="max-w-full max-h-64 md:max-h-80 rounded-lg border shadow-lg"
-                />
-              </div>
-            )}
+          </div>
+
+          {/* Image Preview */}
+          {previewUrl && (
+            <div className="flex justify-center">
+              <img 
+                src={previewUrl} 
+                alt="Rasen Vorschau" 
+                className="max-w-full max-h-48 md:max-h-64 rounded-lg border-2 border-green-200 shadow-lg"
+              />
+            </div>
+          )}
+
+          {/* Mobile-First Quick Analyze Button */}
+          <div className="block md:hidden">
+            <Button 
+              onClick={handleAnalyze} 
+              disabled={!selectedFile || isLoading}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 text-lg rounded-xl shadow-lg"
+              size="lg"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Analysiere Rasen...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-5 w-5" />
+                  Rasen analysieren
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Optional Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Zusätzliche Einstellungen (optional)</CardTitle>
+      {/* Optional Settings - Compact on mobile */}
+      <Card className="border border-gray-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base md:text-lg text-gray-700">
+            Zusätzliche Einstellungen (optional)
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Form Fields - Stack on mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <CardContent className="space-y-4">
+          {/* Mobile-optimized form fields */}
+          <div className="space-y-4">
             {/* Grass Type */}
             <div>
-              <Label htmlFor="grass-type">Rasentyp (optional)</Label>
+              <Label htmlFor="grass-type" className="text-sm font-medium">Rasentyp (optional)</Label>
               <Select value={grassType} onValueChange={setGrassType}>
-                <SelectTrigger className="mt-1">
+                <SelectTrigger className="mt-1 h-11">
                   <SelectValue placeholder="Rasentyp auswählen" />
                 </SelectTrigger>
                 <SelectContent>
@@ -141,40 +168,43 @@ export const SimpleLawnAnalyzer: React.FC = () => {
 
             {/* Lawn Goal */}
             <div>
-              <Label htmlFor="lawn-goal">Rasenziel (optional)</Label>
+              <Label htmlFor="lawn-goal" className="text-sm font-medium">Rasenziel (optional)</Label>
               <Textarea
                 id="lawn-goal"
                 placeholder="z.B. Dichten Rasen für Kinder zum Spielen, Unkraut entfernen..."
                 value={lawnGoal}
                 onChange={(e) => setLawnGoal(e.target.value)}
-                className="mt-1"
+                className="mt-1 min-h-[80px]"
                 rows={3}
               />
             </div>
           </div>
 
-          {/* Analyze Button - Full width on mobile */}
-          <Button 
-            onClick={handleAnalyze} 
-            disabled={!selectedFile || isLoading}
-            className="w-full text-base md:text-lg py-3 md:py-4"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Analysiere...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-5 w-5" />
-                Rasen analysieren
-              </>
-            )}
-          </Button>
+          {/* Desktop Analyze Button */}
+          <div className="hidden md:block">
+            <Button 
+              onClick={handleAnalyze} 
+              disabled={!selectedFile || isLoading}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg rounded-lg"
+              size="lg"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Analysiere Rasen...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-5 w-5" />
+                  Rasen analysieren
+                </>
+              )}
+            </Button>
+          </div>
 
+          {/* Error Message */}
           {error && (
-            <div className="flex items-start gap-2 text-red-600 bg-red-50 p-3 rounded-lg text-sm md:text-base">
+            <div className="flex items-start gap-2 text-red-600 bg-red-50 p-3 rounded-lg text-sm border border-red-200">
               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
