@@ -21,7 +21,7 @@ const FooterSection = () => {
                 <Star className="w-4 h-4 text-green-600" />
               </div>
               <div>
-                <div className="text-sm font-semibold">50.000+ Nutzer</div>
+                <div className="text-sm font-semibold">KI-Experte</div>
                 <div className="text-xs text-gray-500">98,3% Erfolgsrate</div>
               </div>
             </div>

@@ -109,7 +109,7 @@ const FeaturesSection = () => {
               <Users className="h-8 w-8 text-orange-600 mr-4" />
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Community & Support</h3>
-                <p className="text-orange-700 font-medium">50.000+ aktive Rasen-Enthusiasten</p>
+                <p className="text-orange-700 font-medium">Aktive Rasen-Enthusiasten</p>
               </div>
             </div>
             <CardContent className="p-6">

@@ -13,10 +13,10 @@ const SimplifiedLanding = () => {
     <>
       <Helmet>
         <title>Rasenpilot - KI-Rasenanalyse | Professioneller Pflegeplan in 60 Sekunden</title>
-        <meta name="description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. Laden Sie ein Foto hoch und erhalten Sie sofort eine professionelle Rasendiagnose mit personalisierten Pflegeplänen. Über 50.000 zufriedene Nutzer vertrauen auf unsere präzise Analyse." />
+        <meta name="description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. Laden Sie ein Foto hoch und erhalten Sie sofort eine professionelle Rasendiagnose mit personalisierten Pflegeplänen. Präzise AI-Analyse mit 98,3% Genauigkeit." />
         <meta name="keywords" content="KI Rasenanalyse Deutschland, Rasen Gesundheitscheck, Rasenpflege Plan, Rasen Krankheiten erkennen, Rasen Dünger Empfehlung, Rasenpilot, Rasen AI Analyse, Garten Beratung, Rasen Probleme lösen" />
         <meta property="og:title" content="Rasenpilot - KI-Rasenanalyse | Professioneller Pflegeplan in 60 Sekunden" />
-        <meta property="og:description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. Über 50.000 zufriedene Nutzer." />
+        <meta property="og:description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. 98,3% Genauigkeit." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://rasenpilot.de" />
         <link rel="canonical" href="https://rasenpilot.de" />
@@ -58,7 +58,7 @@ const SimplifiedLanding = () => {
           <div className="max-w-4xl mx-auto">
             <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
               <Award className="h-4 w-4 mr-2" />
-              Deutschlands #1 KI-Rasenexperte - Über 50.000 Analysen
+              Deutschlands #1 KI-Rasenexperte - Wissenschaftlich validiert
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-green-800 mb-6 leading-tight">
@@ -95,7 +95,7 @@ const SimplifiedLanding = () => {
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-2">
                   <Star className="h-6 w-6 text-orange-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">50.000+ Nutzer</span>
+                <span className="text-sm font-medium text-gray-700">Wissenschaftlich</span>
               </div>
             </div>
             
@@ -230,7 +230,7 @@ const SimplifiedLanding = () => {
               Warum <span className="text-blue-600">Rasenpilot</span> wählen?
             </h2>
             <p className="text-center text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-              Über 50.000 Gartenbesitzer vertrauen auf unsere KI-gestützte Rasenanalyse
+              Professionelle KI-Rasenanalyse mit wissenschaftlicher Präzision
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -301,7 +301,7 @@ const SimplifiedLanding = () => {
         <section className="py-16">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-12">
-              Über 50.000 zufriedene Kunden vertrauen auf Rasenpilot
+              Zufriedene Kunden vertrauen auf Rasenpilot
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -366,7 +366,7 @@ const SimplifiedLanding = () => {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <p className="text-green-100 text-sm">
-              ✓ Keine Kreditkarte erforderlich ✓ 98,3% Genauigkeit ✓ Über 50.000 zufriedene Nutzer
+              ✓ Keine Kreditkarte erforderlich ✓ 98,3% Genauigkeit ✓ Wissenschaftlich fundiert
             </p>
           </div>
         </section>

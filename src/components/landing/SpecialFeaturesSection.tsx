@@ -63,8 +63,8 @@ const SpecialFeaturesSection = () => {
           <h3 className="text-3xl font-bold text-center mb-8 text-gray-900">Rasenpilot in Zahlen</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-4xl font-bold text-green-600 mb-2">50.000+</div>
-              <div className="text-gray-700 font-medium">Zufriedene Nutzer</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">200+</div>
+              <div className="text-gray-700 font-medium">Parameter analysiert</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">94,7%</div>

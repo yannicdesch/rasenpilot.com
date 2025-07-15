@@ -26,7 +26,7 @@ const CallToActionSection = () => {
           Bereit für Ihren <span className="text-green-200">Traumrasen?</span>
         </h2>
         <p className="text-xl text-green-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-          Schließen Sie sich über 50.000 zufriedenen Nutzern an und erleben Sie die Zukunft der Rasenpflege. 
+          Erleben Sie die Zukunft der Rasenpflege mit wissenschaftlich fundierter KI-Analyse. 
           Kostenlose Analyse, sofortige Ergebnisse, garantierter Erfolg.
         </p>
         
