@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Leaf, Menu, X, BookOpen, Trophy } from 'lucide-react';
+import { Leaf, Menu, X, BookOpen, Trophy, Settings } from 'lucide-react';
 
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -64,6 +64,18 @@ const MainNavigation = () => {
               <Trophy size={18} />
               <span>Bestenliste</span>
             </Link>
+            
+            <Link 
+              to="/admin-panel" 
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                isActive('/admin-panel') 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+              }`}
+            >
+              <Settings size={18} />
+              <span>Admin</span>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -119,6 +131,19 @@ const MainNavigation = () => {
               >
                 <Trophy size={18} />
                 <span>Bestenliste</span>
+              </Link>
+              
+              <Link 
+                to="/admin-panel" 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                  isActive('/admin-panel') 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                }`}
+                onClick={closeMenu}
+              >
+                <Settings size={18} />
+                <span>Admin</span>
               </Link>
             </div>
           </div>

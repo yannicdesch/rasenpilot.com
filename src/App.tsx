@@ -15,6 +15,7 @@ import Datenschutz from "./pages/Datenschutz";
 import AGB from "./pages/AGB";
 import UeberUns from "./pages/UeberUns";
 import Kontakt from "./pages/Kontakt";
+import AdminPanel from "./pages/AdminPanel";
 
 // Local SEO Pages
 import Munich from "./pages/local/Munich";
@@ -51,6 +52,9 @@ const App = () => (
             <Route path="/local/munich" element={<Munich />} />
             <Route path="/local/berlin" element={<Berlin />} />
             <Route path="/local/hamburg" element={<Hamburg />} />
+            
+            {/* Admin Panel */}
+            <Route path="/admin-panel" element={<AdminPanel />} />
           </Routes>
         </BrowserRouter>
       </LawnProvider>
