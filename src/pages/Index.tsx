@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import MainNavigation from '@/components/MainNavigation';
 import { useLawn } from '@/context/LawnContext';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen } from 'lucide-react';
+import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen, Trophy, Star, Medal, Award } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
 import Logo from '@/components/Logo';
@@ -210,6 +210,110 @@ const Index = () => {
             >
               Kostenlos testen <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+          </div>
+        </div>
+      </section>
+      
+      <section className="py-16 bg-gradient-to-b from-green-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-green-800 mb-4">🏆 Rasen-Bestenliste</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Zeige deinen perfekten Rasen und kämpfe um den Spitzenplatz! Unsere KI bewertet jeden Rasen von 0-100 Punkten.
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+              <h3 className="text-xl font-semibold mb-4 text-center">Top 3 Rasen-Champions</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-10 h-10 bg-yellow-500 rounded-full">
+                      <Trophy className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">RasenProfi_München</p>
+                      <p className="text-sm text-gray-600">München • Zierrasen • 250m²</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-green-600">97</div>
+                    <div className="text-sm text-gray-500">Punkte</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-10 h-10 bg-gray-400 rounded-full">
+                      <Medal className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">GrünDaumen_Berlin</p>
+                      <p className="text-sm text-gray-600">Berlin • Spielrasen • 150m²</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-green-600">94</div>
+                    <div className="text-sm text-gray-500">Punkte</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-10 h-10 bg-orange-500 rounded-full">
+                      <Award className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Rasenliebhaber_HH</p>
+                      <p className="text-sm text-gray-600">Hamburg • Gebrauchsrasen • 300m²</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-green-600">91</div>
+                    <div className="text-sm text-gray-500">Punkte</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                <div className="text-3xl font-bold text-green-600 mb-2">500+</div>
+                <div className="text-gray-600">Rasen bewertet</div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                <div className="text-3xl font-bold text-green-600 mb-2">87</div>
+                <div className="text-gray-600">Durchschnittsscore</div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                <div className="text-3xl font-bold text-green-600 mb-2">24h</div>
+                <div className="text-gray-600">Neue Bewertungen</div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <p className="text-gray-600 mb-6">
+                Möchtest du auch in die Bestenliste? Lade ein Foto deines Rasens hoch und erhalte eine professionelle KI-Bewertung!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={() => navigate('/lawn-analysis')}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  Jetzt Rasen bewerten lassen
+                </Button>
+                <Button 
+                  onClick={() => navigate('/highscore')}
+                  variant="outline"
+                  className="border-green-600 text-green-600 hover:bg-green-50"
+                >
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Zur kompletten Bestenliste
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
