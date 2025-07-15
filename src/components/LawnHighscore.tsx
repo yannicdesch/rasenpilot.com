@@ -24,6 +24,29 @@ const LawnHighscore = () => {
 
   useEffect(() => {
     fetchHighscores();
+    
+    // Set up real-time subscription for new highscores
+    const channel = supabase
+      .channel('highscores-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'lawn_highscores'
+        },
+        (payload) => {
+          console.log('Highscore change detected:', payload);
+          // Refresh the highscores when any change occurs
+          fetchHighscores();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchHighscores = async () => {
