@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export type BlogPost = {
   id: number;
@@ -174,8 +175,8 @@ export const useAiBlogGenerator = () => {
         }
       };
       
-      // Save to localStorage
-      saveBlogPost(newPost);
+      // Save to Supabase
+      await saveBlogPost(newPost);
       
       // Update settings
       const now = new Date();
@@ -253,7 +254,7 @@ export const useAiBlogGenerator = () => {
         };
         
         posts.push(newPost);
-        saveBlogPost(newPost);
+        await saveBlogPost(newPost);
         
         // Add delay between generations to seem more natural
         if (i < postsToGenerate - 1) {
@@ -301,12 +302,36 @@ export const useAiBlogGenerator = () => {
     return titleVariations[index % titleVariations.length];
   };
 
-  const saveBlogPost = (post: BlogPost) => {
+  const saveBlogPost = async (post: BlogPost) => {
     try {
-      const savedPosts = localStorage.getItem('blogPosts');
-      let posts = savedPosts ? JSON.parse(savedPosts) : [];
-      posts.push(post);
-      localStorage.setItem('blogPosts', JSON.stringify(posts));
+      const { error } = await supabase
+        .from('blog_posts')
+        .insert([
+          {
+            title: post.title,
+            slug: post.slug,
+            excerpt: post.excerpt,
+            content: post.content,
+            image: post.image,
+            category: post.category,
+            read_time: post.readTime,
+            tags: post.tags,
+            date: post.date,
+            author: 'AI Blog Generator',
+            status: 'draft',
+            seo: {
+              metaTitle: post.seo.metaTitle,
+              metaDescription: post.seo.metaDescription,
+              keywords: post.seo.keywords
+            }
+          }
+        ]);
+
+      if (error) {
+        console.error('Error saving blog post to Supabase:', error);
+        return false;
+      }
+      
       return true;
     } catch (error) {
       console.error('Error saving blog post:', error);

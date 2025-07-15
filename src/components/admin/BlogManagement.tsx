@@ -6,9 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit2, Trash2, Eye, Save, X } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Edit2, Trash2, Eye, Save, X, Sparkles, List } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import AiBlogGenerator from '@/components/AiBlogGenerator';
 
 interface BlogPost {
   id: number;
@@ -306,75 +308,103 @@ const BlogManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Blog-Verwaltung</h1>
-        <Button
-          onClick={() => setIsCreating(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Neuer Artikel
-        </Button>
-      </div>
+      <h1 className="text-2xl font-bold">Blog-Verwaltung</h1>
+      
+      <Tabs defaultValue="manual" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="manual" className="flex items-center gap-2">
+            <List className="h-4 w-4" />
+            Manuelle Verwaltung
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            AI Blog-Generator
+          </TabsTrigger>
+        </TabsList>
 
-      {isCreating && (
-        <PostEditor
-          post={emptyPost}
-          onSave={handleSave}
-          onCancel={() => setIsCreating(false)}
-        />
-      )}
+        <TabsContent value="manual" className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Blog-Artikel verwalten</h2>
+            <Button
+              onClick={() => setIsCreating(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Neuer Artikel
+            </Button>
+          </div>
 
-      {editingPost && (
-        <PostEditor
-          post={editingPost}
-          onSave={handleSave}
-          onCancel={() => setEditingPost(null)}
-        />
-      )}
+          {isCreating && (
+            <PostEditor
+              post={emptyPost}
+              onSave={handleSave}
+              onCancel={() => setIsCreating(false)}
+            />
+          )}
 
-      <div className="grid gap-4">
-        {posts.map((post) => (
-          <Card key={post.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{post.title}</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">{post.excerpt}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
-                    {post.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-500">
-                  {post.author} • {new Date(post.date).toLocaleDateString('de-DE')} • {post.read_time} Min.
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditingPost(post)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(post.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+          {editingPost && (
+            <PostEditor
+              post={editingPost}
+              onSave={handleSave}
+              onCancel={() => setEditingPost(null)}
+            />
+          )}
+
+          <div className="grid gap-4">
+            {posts.map((post) => (
+              <Card key={post.id}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{post.title}</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">{post.excerpt}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
+                        {post.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-500">
+                      {post.author} • {new Date(post.date).toLocaleDateString('de-DE')} • {post.read_time} Min.
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingPost(post)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(post.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="ai" className="space-y-6">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2">AI Blog-Generator</h2>
+            <p className="text-gray-600">
+              Automatische Erstellung von SEO-optimierten Blog-Artikeln mit KI-Unterstützung
+            </p>
+          </div>
+          
+          <AiBlogGenerator />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
