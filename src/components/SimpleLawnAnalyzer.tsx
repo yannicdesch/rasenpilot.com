@@ -139,6 +139,13 @@ export const SimpleLawnAnalyzer: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Short Multi-LLM Technology Section */}
+      <div className="text-center">
+        <p className="text-sm text-gray-600 bg-blue-50 rounded-full px-4 py-2 inline-block">
+          🚀 Revolutionäre Rasenanalyse mit Multi-LLM Technologie für präzise Diagnosen
+        </p>
+      </div>
+
       {/* Optional Settings - Compact on mobile */}
       <Card className="border border-gray-200">
         <CardHeader className="pb-3">
