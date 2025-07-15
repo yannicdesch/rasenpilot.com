@@ -27,27 +27,18 @@ const LawnHighscore = () => {
   useEffect(() => {
     fetchHighscores();
     
-    // Set up real-time subscription for new highscores
-    const channel = supabase
-      .channel('highscores-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
-          schema: 'public',
-          table: 'lawn_highscores'
-        },
-        (payload) => {
-          console.log('Highscore change detected:', payload);
-          // Refresh the highscores when any change occurs
-          fetchHighscores();
-        }
-      )
-      .subscribe();
-
-    // Cleanup subscription on unmount
+    // Simple auto-refresh when component mounts or becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchHighscores();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Cleanup
     return () => {
-      supabase.removeChannel(channel);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
