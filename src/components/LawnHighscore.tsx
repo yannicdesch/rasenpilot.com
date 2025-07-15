@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Medal, Award, MapPin, Leaf, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Trophy, Medal, Award, MapPin, Leaf, Calendar, RefreshCw } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -21,6 +22,7 @@ interface HighscoreEntry {
 const LawnHighscore = () => {
   const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchHighscores();
@@ -49,7 +51,11 @@ const LawnHighscore = () => {
     };
   }, []);
 
-  const fetchHighscores = async () => {
+  const fetchHighscores = async (showRefreshMessage = false) => {
+    if (showRefreshMessage) {
+      setRefreshing(true);
+    }
+    
     try {
       const { data, error } = await supabase
         .from('lawn_highscores')
@@ -62,13 +68,21 @@ const LawnHighscore = () => {
         toast.error('Fehler beim Laden der Bestenliste');
       } else {
         setHighscores(data || []);
+        if (showRefreshMessage && data && data.length > 0) {
+          toast.success('Bestenliste aktualisiert!');
+        }
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Fehler beim Laden der Bestenliste');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleManualRefresh = () => {
+    fetchHighscores(true);
   };
 
   const getRankIcon = (index: number) => {
@@ -101,13 +115,34 @@ const LawnHighscore = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-green-800 mb-2 flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2 mb-2">
           <Trophy className="h-8 w-8 text-yellow-500" />
-          Rasen-Bestenliste
-        </h1>
-        <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-green-800">
+            Rasen-Bestenliste
+          </h1>
+        </div>
+        <p className="text-gray-600 mb-4">
           Die besten Rasen-Analysen unserer Community
         </p>
+        <Button 
+          onClick={handleManualRefresh}
+          disabled={refreshing}
+          variant="outline"
+          size="sm"
+          className="text-green-700 border-green-300 hover:bg-green-50"
+        >
+          {refreshing ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Wird aktualisiert...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Aktualisieren
+            </>
+          )}
+        </Button>
       </div>
 
       {highscores.length === 0 ? (
