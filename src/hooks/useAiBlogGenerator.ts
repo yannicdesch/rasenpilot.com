@@ -7,7 +7,6 @@ export type BlogPost = {
   slug: string;
   excerpt: string;
   content: string;
-  image: string;
   category: string;
   readTime: number;
   tags: string;
@@ -17,6 +16,12 @@ export type BlogPost = {
     metaDescription: string;
     keywords: string;
   };
+  faq?: Array<{
+    question: string;
+    answer: string;
+  }>;
+  internalLinks?: string[];
+  callToAction?: string;
 };
 
 export type BlogScheduleSettings = {
@@ -35,10 +40,10 @@ const DEFAULT_SETTINGS: BlogScheduleSettings = {
   postsPerInterval: 2, // 2 posts per day
   topics: [
     'Rasenpflege im Frühling', 'Rasenpflege im Sommer', 'Rasenpflege im Herbst', 'Rasenpflege im Winter',
-    'Rasenmähen Tipps', 'Rasen düngen', 'Rasenbewässerung', 'Rasenkrankheiten erkennen',
-    'Unkraut bekämpfen', 'Moos im Rasen', 'Rasen vertikutieren', 'Rasen nachsäen',
-    'Rollrasen verlegen', 'Rasen kalken', 'Rasenpflege für Anfänger', 'Profi Rasenpflege',
-    'Rasen im Schatten', 'Strapazierfähiger Rasen', 'Englischer Rasen', 'Mediterrane Rasenpflege'
+    'Rasenmähen richtig gemacht', 'Optimale Rasendüngung', 'Effektive Rasenbewässerung', 'Rasenkrankheiten erkennen und behandeln',
+    'Unkraut im Rasen bekämpfen', 'Moos im Rasen entfernen', 'Rasen vertikutieren Anleitung', 'Kahle Stellen im Rasen reparieren',
+    'Rollrasen richtig verlegen', 'Rasen kalken wann und wie', 'Rasenpflege für Einsteiger', 'Profi Rasenpflege Geheimnisse',
+    'Rasen im Schatten pflegen', 'Strapazierfähigen Rasen anlegen', 'Englischen Rasen erreichen', 'Mediterrane Rasenpflege'
   ],
   lastGenerated: null,
   nextScheduled: null,
@@ -145,39 +150,31 @@ export const useAiBlogGenerator = () => {
       // Select a random topic
       const randomTopic = settings.topics[Math.floor(Math.random() * settings.topics.length)];
       
-      // In a real implementation, you would call an AI API here
-      // For now, we'll generate placeholder content
-      const title = `${randomTopic}: Die besten Tipps für Ihren Rasen`;
-      const content = await simulateAiGeneration(randomTopic);
+      // Generate keywords based on topic
+      const keywords = generateTopicKeywords(randomTopic);
       
-      // Create the blog post
+      // Call AI blog generation service
+      const aiResult = await callAiBlogService(randomTopic, keywords);
+      
+      // Create the blog post from AI response
       const newPost: BlogPost = {
         id: Date.now(),
-        title,
-        slug: title
-          .toLowerCase()
-          .replace(/[äöüß]/g, match => {
-            if (match === 'ä') return 'ae';
-            if (match === 'ö') return 'oe';
-            if (match === 'ü') return 'ue';
-            if (match === 'ß') return 'ss';
-            return match;
-          })
-          .replace(/[^\w\s]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-'),
-        excerpt: content.substring(0, 150) + '...',
-        content,
-        image: getRandomImage(),
-        category: randomTopic,
-        readTime: Math.floor(content.length / 1000) + 2,
-        tags: generateRandomTags(randomTopic).join(', '),
+        title: aiResult.title,
+        slug: createSlugFromTitle(aiResult.title),
+        excerpt: aiResult.excerpt,
+        content: aiResult.content,
+        category: mapTopicToCategory(randomTopic),
+        readTime: parseInt(aiResult.read_time) || Math.floor(aiResult.content.length / 1000) + 3,
+        tags: aiResult.keywords.join(', '),
         date: new Date().toISOString().split('T')[0],
         seo: {
-          metaTitle: title,
-          metaDescription: content.substring(0, 150) + '...',
-          keywords: randomTopic + ', Rasen, Gartenpflege, ' + generateRandomTags(randomTopic).join(', ')
-        }
+          metaTitle: aiResult.meta_title,
+          metaDescription: aiResult.meta_description,
+          keywords: aiResult.keywords.join(', ')
+        },
+        faq: aiResult.faq || [],
+        internalLinks: aiResult.internal_links || [],
+        callToAction: aiResult.call_to_action || 'Jetzt kostenlose Rasenanalyse starten'
       };
       
       // Save to Supabase
@@ -219,51 +216,49 @@ export const useAiBlogGenerator = () => {
       for (let i = 0; i < postsToGenerate; i++) {
         // Select unique topics for each post
         const availableTopics = settings.topics.filter(topic => 
-          !posts.some(post => post.category === topic)
+          !posts.some(post => post.category === mapTopicToCategory(topic))
         );
         
         if (availableTopics.length === 0) break;
         
         const randomTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
-        const content = await simulateAiGeneration(randomTopic);
+        const keywords = generateTopicKeywords(randomTopic);
         
-        const title = generateVariedTitle(randomTopic, i);
-        
-        const newPost: BlogPost = {
-          id: Date.now() + i,
-          title,
-          slug: title
-            .toLowerCase()
-            .replace(/[äöüß]/g, match => {
-              if (match === 'ä') return 'ae';
-              if (match === 'ö') return 'oe';
-              if (match === 'ü') return 'ue';
-              if (match === 'ß') return 'ss';
-              return match;
-            })
-            .replace(/[^\w\s]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-'),
-          excerpt: content.substring(0, 150) + '...',
-          content,
-          image: getRandomImage(),
-          category: randomTopic,
-          readTime: Math.floor(content.length / 1000) + 2,
-          tags: generateRandomTags(randomTopic).join(', '),
-          date: new Date().toISOString().split('T')[0],
-          seo: {
-            metaTitle: title,
-            metaDescription: content.substring(0, 150) + '...',
-            keywords: randomTopic + ', Rasen, Gartenpflege, ' + generateRandomTags(randomTopic).join(', ')
+        try {
+          // Call AI blog generation service
+          const aiResult = await callAiBlogService(randomTopic, keywords);
+          
+          const newPost: BlogPost = {
+            id: Date.now() + i,
+            title: aiResult.title,
+            slug: createSlugFromTitle(aiResult.title),
+            excerpt: aiResult.excerpt,
+            content: aiResult.content,
+            category: mapTopicToCategory(randomTopic),
+            readTime: parseInt(aiResult.read_time) || Math.floor(aiResult.content.length / 1000) + 3,
+            tags: aiResult.keywords.join(', '),
+            date: new Date().toISOString().split('T')[0],
+            seo: {
+              metaTitle: aiResult.meta_title,
+              metaDescription: aiResult.meta_description,
+              keywords: aiResult.keywords.join(', ')
+            },
+            faq: aiResult.faq || [],
+            internalLinks: aiResult.internal_links || [],
+            callToAction: aiResult.call_to_action || 'Jetzt kostenlose Rasenanalyse starten'
+          };
+          
+          posts.push(newPost);
+          await saveBlogPost(newPost);
+          
+          // Add delay between generations to respect API limits
+          if (i < postsToGenerate - 1) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
           }
-        };
-        
-        posts.push(newPost);
-        await saveBlogPost(newPost);
-        
-        // Add delay between generations to seem more natural
-        if (i < postsToGenerate - 1) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (error) {
+          console.error(`Error generating post ${i + 1}:`, error);
+          // Continue with next post instead of failing completely
+          continue;
         }
       }
       
@@ -292,19 +287,73 @@ export const useAiBlogGenerator = () => {
     }
   };
 
-  const generateVariedTitle = (topic: string, index: number): string => {
-    const titleVariations = [
-      `${topic}: Die ultimative Anleitung für perfekte Ergebnisse`,
-      `Profi-Tipps für ${topic} - So machen Sie es richtig`,
-      `${topic} leicht gemacht: Schritt-für-Schritt Guide`,
-      `Die häufigsten Fehler bei ${topic} und wie Sie sie vermeiden`,
-      `${topic}: Alles was Sie wissen müssen`,
-      `Experten-Geheimnisse für erfolgreiche ${topic}`,
-      `${topic} im Detail: Von Grundlagen bis Profi-Tricks`,
-      `Die besten Methoden für ${topic} in Deutschland`
-    ];
+  // Helper functions for AI blog generation
+  const callAiBlogService = async (topic: string, keywords: string[]) => {
+    const response = await supabase.functions.invoke('generate-blog-post', {
+      body: { topic, keywords }
+    });
     
-    return titleVariations[index % titleVariations.length];
+    if (response.error) {
+      throw new Error(`AI service error: ${response.error.message}`);
+    }
+    
+    if (!response.data?.success) {
+      throw new Error(`Failed to generate blog content: ${response.data?.error || 'Unknown error'}`);
+    }
+    
+    return response.data.blogPost;
+  };
+
+  const generateTopicKeywords = (topic: string): string[] => {
+    const baseKeywords = ['Rasen', 'Rasenpflege', 'Garten', 'Gartenarbeit'];
+    const topicSpecific: { [key: string]: string[] } = {
+      'Rasenpflege im Frühling': ['Frühjahr', 'Rasendünger', 'Vertikutieren', 'Nachsaat'],
+      'Rasenpflege im Sommer': ['Bewässerung', 'Sommerhitze', 'Trockenheit', 'Rasenmähen'],
+      'Rasenpflege im Herbst': ['Herbstdüngung', 'Laub entfernen', 'Wintervorbereitung'],
+      'Rasenpflege im Winter': ['Winterruhe', 'Frost', 'Winterschutz', 'Rasenpause'],
+      'Rasenmähen richtig gemacht': ['Mähroboter', 'Schnitthöhe', 'Mährhythmus', 'Rasenmäher'],
+      'Optimale Rasendüngung': ['NPK-Dünger', 'Organischer Dünger', 'Langzeitdünger'],
+      'Effektive Rasenbewässerung': ['Sprinkleranlage', 'Bewässerungssystem', 'Wasserbedarf'],
+      'Rasenkrankheiten erkennen und behandeln': ['Pilzkrankheiten', 'Schneeschimmel', 'Rostpilz'],
+      'Unkraut im Rasen bekämpfen': ['Löwenzahn', 'Klee', 'Moos', 'Unkrautvernichter'],
+      'Moos im Rasen entfernen': ['Moosbekämpfung', 'Eisensulfat', 'pH-Wert', 'Bodenverdichtung']
+    };
+    
+    const specific = topicSpecific[topic] || ['Gartentipps', 'Pflegeanleitungen'];
+    return [...baseKeywords, ...specific];
+  };
+
+  const createSlugFromTitle = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/[äöüß]/g, match => {
+        if (match === 'ä') return 'ae';
+        if (match === 'ö') return 'oe';
+        if (match === 'ü') return 'ue';
+        if (match === 'ß') return 'ss';
+        return match;
+      })
+      .replace(/[^\w\s]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
+
+  const mapTopicToCategory = (topic: string): string => {
+    const categoryMap: { [key: string]: string } = {
+      'Rasenpflege im Frühling': 'seasonal',
+      'Rasenpflege im Sommer': 'seasonal', 
+      'Rasenpflege im Herbst': 'seasonal',
+      'Rasenpflege im Winter': 'seasonal',
+      'Rasenmähen richtig gemacht': 'mowing',
+      'Optimale Rasendüngung': 'fertilizing',
+      'Effektive Rasenbewässerung': 'watering',
+      'Rasenkrankheiten erkennen und behandeln': 'problems',
+      'Unkraut im Rasen bekämpfen': 'problems',
+      'Moos im Rasen entfernen': 'problems'
+    };
+    
+    return categoryMap[topic] || 'general';
   };
 
   const saveBlogPost = async (post: BlogPost) => {
@@ -317,13 +366,12 @@ export const useAiBlogGenerator = () => {
             slug: post.slug,
             excerpt: post.excerpt,
             content: post.content,
-            image: post.image,
             category: post.category,
             read_time: post.readTime,
             tags: post.tags,
             date: post.date,
-            author: 'AI Blog Generator',
-            status: 'draft',
+            author: 'Rasenpilot KI',
+            status: 'published', // Auto-publish AI generated posts
             seo: {
               metaTitle: post.seo.metaTitle,
               metaDescription: post.seo.metaDescription,
@@ -344,48 +392,6 @@ export const useAiBlogGenerator = () => {
     }
   };
   
-  const simulateAiGeneration = async (topic: string): Promise<string> => {
-    // This would be replaced with an actual API call in production
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const templates = [
-          `Ein gesunder ${topic} ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfahren Sie die wichtigsten Tipps zur richtigen Pflege. \n\nZunächst ist es wichtig, den Boden richtig vorzubereiten. Ein guter, nährstoffreicher Boden ist die Basis für jeden erfolgreichen Rasen. Regelmäßiges Düngen, etwa alle 6-8 Wochen während der Wachstumsphase, versorgt Ihren Rasen mit allen notwendigen Nährstoffen.\n\nDas Mähen ist ein weiterer wichtiger Aspekt. Mähen Sie nicht zu kurz - die ideale Höhe liegt zwischen 3-5 cm. Zu kurz gemähter Rasen trocknet schneller aus und bietet Unkraut mehr Chancen, sich zu etablieren.\n\nDie Bewässerung sollte gründlich, aber nicht zu häufig erfolgen. Besser einmal pro Woche gründlich wässern als täglich ein bisschen. So entwickeln die Wurzeln eine größere Tiefe und der Rasen wird insgesamt widerstandsfähiger gegen Trockenheit.\n\nProbleme wie Moos oder Unkraut können durch regelmäßige Pflege vorgebeugt werden. Ein gesunder, dichter Rasen lässt kaum Platz für unerwünschte Pflanzen.\n\nMit diesen Tipps wird Ihr ${topic} bald der Neid der Nachbarschaft sein!`,
-          
-          `${topic} ist ein wichtiger Bestandteil jedes schönen Gartens. Hier sind die besten Methoden, um optimale Ergebnisse zu erzielen.\n\nDie richtige Bodenvorbereitung ist entscheidend. Entfernen Sie Steine und Wurzeln, und sorgen Sie für eine gute Drainage. Der pH-Wert sollte zwischen 5,5 und 7,0 liegen - ein leicht saurer bis neutraler Boden ist ideal für die meisten Rasensorten.\n\nDie Wahl der richtigen Rasensaat hängt von verschiedenen Faktoren ab: Wie stark wird der Rasen genutzt? Wie viel Sonnenlicht erhält er? Gibt es schattige Bereiche? Für stark beanspruchte Flächen empfehlen sich robuste Rasenmischungen mit hohem Anteil an Deutschem Weidelgras.\n\nNach der Aussaat ist die konsequente Pflege wichtig. In den ersten Wochen sollte der Boden stets feucht, aber nicht durchnässt sein. Der erste Schnitt erfolgt, wenn der Rasen eine Höhe von etwa 8-10 cm erreicht hat.\n\nRegelmäßiges Vertikutieren (1-2 Mal im Jahr) entfernt Rasenfilz und sorgt für bessere Luft- und Wasserzirkulation im Boden. Kombiniert mit einer Düngung im Frühjahr, Sommer und Herbst bleibt Ihr ${topic} das ganze Jahr über gesund und grün.`,
-          
-          `Einen perfekten ${topic} zu pflegen erfordert Wissen und Konsequenz. Diese professionellen Tipps helfen Ihnen dabei.\n\nDie Bodenqualität ist der Schlüssel zum Erfolg. Ein lockerer, nährstoffreicher Boden mit guter Durchlässigkeit bildet die Grundlage für jeden gesunden Rasen. Bei schweren Böden kann die Einarbeitung von Sand die Drainage verbessern.\n\nBei der Düngung gilt: Lieber weniger, dafür regelmäßiger. Organische Dünger setzen Nährstoffe langsamer frei und schonen die Umwelt. Im Frühjahr ist ein stickstoffbetonter Dünger ideal, im Herbst sollte der Kaliumanteil höher sein, um die Winterhärte zu fördern.\n\nDie richtige Schnitthöhe variiert je nach Jahreszeit. Im Sommer sollte der Rasen etwas länger bleiben (4-5 cm), um Austrocknung zu vermeiden. Im Frühjahr und Herbst kann kürzer gemäht werden (3-4 cm).\n\nProbleme wie Moos oder Klee zeigen oft Mängel an: Moos deutet auf Verdichtung, Nässe oder Nährstoffmangel hin, während Klee auf einen Stickstoffmangel hinweist.\n\nMit einem konsequenten Pflegeplan, der auf die Bedürfnisse Ihres spezifischen ${topic}s abgestimmt ist, werden Sie schnell Verbesserungen sehen.`
-        ];
-        
-        const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-        resolve(randomTemplate);
-      }, 1000);
-    });
-  };
-  
-  const generateRandomTags = (topic: string): string[] => {
-    const allTags = [
-      'Rasenpflege', 'Rasen mähen', 'Rasen düngen', 'Rasenbewässerung', 
-      'Rasenprobleme', 'Unkraut bekämpfen', 'Rasen im Sommer', 'Rasen im Winter',
-      'Gartengestaltung', 'Rollrasen', 'Rasensaat', 'Schattenrasen'
-    ];
-    
-    // Always include the main topic as a tag
-    const tags = [topic];
-    
-    // Add 2-4 random tags
-    const numberOfTags = Math.floor(Math.random() * 3) + 2;
-    const filteredTags = allTags.filter(tag => tag !== topic);
-    
-    for (let i = 0; i < numberOfTags; i++) {
-      if (filteredTags.length === 0) break;
-      
-      const randomIndex = Math.floor(Math.random() * filteredTags.length);
-      tags.push(filteredTags[randomIndex]);
-      filteredTags.splice(randomIndex, 1);
-    }
-    
-    return tags;
-  };
   
   return {
     settings,

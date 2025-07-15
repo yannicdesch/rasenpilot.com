@@ -60,10 +60,10 @@ const AiBlogGenerator = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Brain className="h-6 w-6 text-green-600" />
-          KI-Blogbeitrag Generator - Täglich 2 Posts
+          SEO-optimierter KI Blog Generator
         </CardTitle>
         <CardDescription>
-          Automatisch täglich 2 SEO-optimierte Blogbeiträge generieren für bessere Google-Auffindbarkeit
+          Generiert automatisch SEO-optimierte Blogbeiträge mit H1-H3 Struktur, Meta-Tags, FAQ-Bereich und internen Links für maximale Google-Sichtbarkeit
         </CardDescription>
       </CardHeader>
       
@@ -72,10 +72,10 @@ const AiBlogGenerator = () => {
           <div className="space-y-0.5">
             <h3 className="text-base font-medium flex items-center gap-2">
               <Settings className="h-4 w-4" />
-              Automatische Generierung
+              SEO-optimierte Blog-Engine
             </h3>
             <p className="text-sm text-muted-foreground">
-              Täglich {settings.postsPerInterval} neue SEO-optimierte Blogbeiträge erstellen
+              Täglich {settings.postsPerInterval} vollständige Blogbeiträge mit H1-H3 Struktur, Meta-Tags, FAQ-Bereich und Call-to-Actions
             </p>
           </div>
           <Switch
@@ -98,7 +98,7 @@ const AiBlogGenerator = () => {
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
-            Empfohlen: 2 Posts täglich für optimale SEO-Performance
+            Empfohlen: 2 Posts täglich für optimale SEO-Performance mit vollständiger Content-Struktur
           </p>
         </div>
         
@@ -133,10 +133,10 @@ const AiBlogGenerator = () => {
         </div>
         
         <div className="space-y-3">
-          <h3 className="text-base font-medium">SEO-optimierte Themen</h3>
+          <h3 className="text-base font-medium">Content-Themen für SEO-optimierte Beiträge</h3>
           <div className="flex space-x-2">
             <Input
-              placeholder="Neues SEO-Thema hinzufügen"
+              placeholder="Neues Rasenpflege-Thema für SEO-Content hinzufügen"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addTopic(topic)}
@@ -166,15 +166,17 @@ const AiBlogGenerator = () => {
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            {settings.topics.length} Themen verfügbar - Jeder Post verwendet ein einzigartiges Thema
+            {settings.topics.length} Themen verfügbar - Jeder Post erhält individuelle SEO-Struktur mit Meta-Tags, FAQ und internen Links
           </p>
         </div>
       </CardContent>
       
       <CardFooter className="flex justify-between">
-        <div className="text-sm text-muted-foreground">
-          <p>🎯 SEO-optimierte Inhalte für bessere Google-Rankings</p>
-          <p>📈 Täglich frischer Content für mehr Traffic</p>
+        <div className="text-sm text-muted-foreground space-y-1">
+          <p>🎯 SEO-optimierte H1-H3 Struktur für Google-Rankings</p>
+          <p>🔍 Meta-Titel, Meta-Beschreibung und Keyword-Integration</p>
+          <p>❓ FAQ-Bereich mit Schema.org Markup für Featured Snippets</p>
+          <p>🔗 Interne Verlinkungen und Call-to-Actions</p>
         </div>
         <Button
           onClick={handleGeneratePosts}
