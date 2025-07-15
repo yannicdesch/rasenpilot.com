@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ArrowRight, Sparkles, Zap, Shield, Star, Clock } from 'lucide-react';
+import { CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const HeroSection = () => {
@@ -16,12 +15,8 @@ const HeroSection = () => {
             Revolutionäre <span className="text-blue-600">KI-Rasenanalyse</span><br/>
             mit wissenschaftlicher Präzision
           </h1>
-          <p className="text-lg md:text-xl text-gray-700 max-w-2xl">
-            KI analysiert über <strong>200 Rasenparameter</strong> in Sekunden. 
-            Erhalten Sie eine professionelle Diagnose mit <strong>98,3% Genauigkeit</strong>.
-          </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <Button 
               onClick={() => navigate('/onboarding')} 
               size="lg"
@@ -42,6 +37,11 @@ const HeroSection = () => {
               <span className="sm:hidden">Anmelden</span>
             </Button>
           </div>
+          
+          <p className="text-lg md:text-xl text-gray-700 max-w-2xl">
+            KI analysiert über <strong>200 Rasenparameter</strong> in Sekunden. 
+            Erhalten Sie eine professionelle Diagnose mit <strong>98,3% Genauigkeit</strong>.
+          </p>
           
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-600 pt-2">
             <div className="flex items-center">
