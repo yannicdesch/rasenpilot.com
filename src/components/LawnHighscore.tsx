@@ -192,16 +192,6 @@ const LawnHighscore = () => {
                       </div>
                     </div>
                   </div>
-
-                  {entry.lawn_image_url && (
-                    <div className="ml-4">
-                      <img 
-                        src={entry.lawn_image_url} 
-                        alt={`Rasen von ${entry.user_name}`}
-                        className="w-16 h-16 rounded-lg object-cover border-2 border-green-200"
-                      />
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
