@@ -15,8 +15,7 @@ export const useHighscore = () => {
   ) => {
     try {
       console.log('Updating highscore for user:', userName, 'with score:', lawnScore);
-      
-      const { error } = await supabase.rpc('update_user_highscore', {
+      console.log('Full parameters:', {
         p_user_id: userId,
         p_user_name: userName,
         p_lawn_score: lawnScore,
@@ -26,6 +25,19 @@ export const useHighscore = () => {
         p_lawn_size: lawnSize,
         p_email: email
       });
+      
+      const { data, error } = await supabase.rpc('update_user_highscore', {
+        p_user_id: userId,
+        p_user_name: userName,
+        p_lawn_score: lawnScore,
+        p_lawn_image_url: lawnImageUrl,
+        p_location: location,
+        p_grass_type: grassType,
+        p_lawn_size: lawnSize,
+        p_email: email
+      });
+
+      console.log('Database response:', { data, error });
 
       if (error) {
         console.error('Error updating highscore:', error);

@@ -60,27 +60,15 @@ const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({
       let userId: string;
       
       if (userError || !user) {
-        // Generate a consistent UUID based on email for anonymous users
-        // This way the same email will always get the same user_id
-        const encoder = new TextEncoder();
-        const data = encoder.encode(formData.email);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        
-        // Create a valid UUID from the hash
-        userId = [
-          hashHex.slice(0, 8),
-          hashHex.slice(8, 12),
-          hashHex.slice(12, 16),
-          hashHex.slice(16, 20),
-          hashHex.slice(20, 32)
-        ].join('-');
-        
-        console.log('Generated anonymous user ID for email:', formData.email, 'ID:', userId);
+        // Generate a simple random UUID for anonymous users
+        // Using crypto.randomUUID() which generates a proper UUID
+        userId = crypto.randomUUID();
+        console.log('Generated anonymous user ID:', userId);
       } else {
         userId = user.id;
       }
+      
+      console.log('Submitting highscore with userId:', userId, 'userName:', formData.nickname, 'score:', score);
 
       // Submit to highscore
       await updateUserHighscore(
