@@ -10,7 +10,8 @@ export const useHighscore = () => {
     lawnImageUrl?: string | null,
     location?: string | null,
     grassType?: string | null,
-    lawnSize?: string | null
+    lawnSize?: string | null,
+    email?: string | null
   ) => {
     try {
       console.log('Updating highscore for user:', userName, 'with score:', lawnScore);
@@ -22,7 +23,8 @@ export const useHighscore = () => {
         p_lawn_image_url: lawnImageUrl,
         p_location: location,
         p_grass_type: grassType,
-        p_lawn_size: lawnSize
+        p_lawn_size: lawnSize,
+        p_email: email
       });
 
       if (error) {
