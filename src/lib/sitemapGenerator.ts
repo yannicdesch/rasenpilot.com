@@ -141,6 +141,40 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       lastmod: today,
       changefreq: 'yearly',
       priority: 0.3
+    },
+    
+    // Local SEO Pages (High Priority)
+    {
+      loc: '/local/munich',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.8,
+      images: [{
+        loc: 'https://rasenpilot.de/og-image.jpg',
+        caption: 'Rasenpflege München - KI-Rasenanalyse'
+      }]
+    },
+    
+    {
+      loc: '/local/berlin',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.8,
+      images: [{
+        loc: 'https://rasenpilot.de/og-image.jpg',
+        caption: 'Rasenpflege Berlin - KI-Rasenanalyse'
+      }]
+    },
+    
+    {
+      loc: '/local/hamburg',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.8,
+      images: [{
+        loc: 'https://rasenpilot.de/og-image.jpg',
+        caption: 'Rasenpflege Hamburg - KI-Rasenanalyse'
+      }]
     }
   ];
 

@@ -5,9 +5,43 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Camera, Sparkles, Users, ArrowRight, Leaf, Brain, Shield, Award, CheckCircle, Star, Zap, BarChart3 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import FAQ from '@/components/FAQ';
+import LazyImage from '@/components/LazyImage';
 
 const SimplifiedLanding = () => {
   const navigate = useNavigate();
+
+  // Service Schema structured data
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "KI-Rasenanalyse",
+    "provider": {
+      "@type": "Organization",
+      "name": "Rasenpilot",
+      "url": "https://rasenpilot.de",
+      "logo": "https://rasenpilot.de/logo.png"
+    },
+    "description": "Professionelle KI-gestützte Rasenanalyse mit wissenschaftlich fundierter Bewertung. Kostenlose Analyse mit 98,3% Genauigkeit.",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Deutschland"
+    },
+    "serviceType": "Rasenanalyse",
+    "category": "Gartenpflege",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock",
+      "url": "https://rasenpilot.de/lawn-analysis"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "1247"
+    }
+  };
 
   return (
     <>
@@ -19,7 +53,13 @@ const SimplifiedLanding = () => {
         <meta property="og:description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. 98,3% Genauigkeit." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://rasenpilot.de" />
+        <meta property="og:image" content="https://rasenpilot.de/og-image.jpg" />
         <link rel="canonical" href="https://rasenpilot.de" />
+        
+        {/* Service Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify(serviceSchema)}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
@@ -367,6 +407,13 @@ const SimplifiedLanding = () => {
             <p className="text-green-100 text-sm">
               ✓ Keine Kreditkarte erforderlich ✓ 98,3% Genauigkeit ✓ Wissenschaftlich fundiert
             </p>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <FAQ />
           </div>
         </section>
 

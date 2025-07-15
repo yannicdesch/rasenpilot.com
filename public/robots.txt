@@ -50,6 +50,12 @@ Allow: /rasenpflege-sommer
 Allow: /rasenpflege-herbst
 Allow: /rasenpflege-winter
 
+# Allow local SEO pages
+Allow: /local/
+Allow: /local/munich
+Allow: /local/berlin
+Allow: /local/hamburg
+
 # Legal pages
 Allow: /datenschutz
 Allow: /nutzungsbedingungen

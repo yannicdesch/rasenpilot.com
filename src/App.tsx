@@ -16,6 +16,11 @@ import AGB from "./pages/AGB";
 import UeberUns from "./pages/UeberUns";
 import Kontakt from "./pages/Kontakt";
 
+// Local SEO Pages
+import Munich from "./pages/local/Munich";
+import Berlin from "./pages/local/Berlin";
+import Hamburg from "./pages/local/Hamburg";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -41,6 +46,11 @@ const App = () => (
             {/* Company Pages */}
             <Route path="/ueber-uns" element={<UeberUns />} />
             <Route path="/kontakt" element={<Kontakt />} />
+            
+            {/* Local SEO Pages */}
+            <Route path="/local/munich" element={<Munich />} />
+            <Route path="/local/berlin" element={<Berlin />} />
+            <Route path="/local/hamburg" element={<Hamburg />} />
           </Routes>
         </BrowserRouter>
       </LawnProvider>
