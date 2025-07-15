@@ -282,6 +282,9 @@ export const SimpleLawnAnalyzer: React.FC = () => {
           <CardContent>
             <ScoreSubmissionForm 
               score={parseInt(analysisResult.score)} 
+              lawnImageUrl={previewUrl}
+              grassType={grassType}
+              lawnSize={lawnGoal}
               onSubmitSuccess={() => {
                 toast({
                   title: "Score eingereicht!",

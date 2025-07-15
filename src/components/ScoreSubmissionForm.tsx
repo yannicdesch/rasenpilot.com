@@ -5,13 +5,24 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Trophy, Mail, User, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useHighscore } from '@/hooks/useHighscore';
+import { supabase } from '@/lib/supabase';
 
 interface ScoreSubmissionFormProps {
   score: number;
+  lawnImageUrl?: string | null;
+  grassType?: string | null;
+  lawnSize?: string | null;
   onSubmitSuccess: () => void;
 }
 
-const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({ score, onSubmitSuccess }) => {
+const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({ 
+  score, 
+  lawnImageUrl, 
+  grassType, 
+  lawnSize, 
+  onSubmitSuccess 
+}) => {
   const [formData, setFormData] = useState({
     nickname: '',
     email: '',
@@ -19,6 +30,7 @@ const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({ score, onSubm
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { updateUserHighscore } = useHighscore();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,13 +55,52 @@ const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({ score, onSubm
     setIsSubmitting(true);
 
     try {
-      // Here we would normally submit to the database
-      // For now, we'll simulate the submission
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Get current user or create anonymous user
+      let { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        // Create anonymous user for highscore submission
+        const randomEmail = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}@anonymous.local`;
+        const randomPassword = Math.random().toString(36).substr(2, 15);
+        
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: randomEmail,
+          password: randomPassword,
+        });
+        
+        if (signUpError || !signUpData.user) {
+          toast({
+            title: "Fehler beim Erstellen des Accounts",
+            description: "Leider konnte kein temporärer Account erstellt werden.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        user = signUpData.user;
+      }
+
+      // Submit to highscore
+      await updateUserHighscore(
+        user.id,
+        formData.nickname,
+        score,
+        lawnImageUrl,
+        `PLZ ${formData.zipcode}`, // location field
+        grassType,
+        lawnSize
+      );
+      
+      toast({
+        title: "Erfolg!",
+        description: `Ihr Score von ${score}/100 wurde zur Bestenliste hinzugefügt! 🏆`,
+        variant: "default"
+      });
       
       onSubmitSuccess();
       setFormData({ nickname: '', email: '', zipcode: '' });
     } catch (error) {
+      console.error('Error submitting score:', error);
       toast({
         title: "Fehler beim Einreichen",
         description: "Leider konnte Ihr Score nicht eingereicht werden. Versuchen Sie es später erneut.",
