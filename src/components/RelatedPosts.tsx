@@ -23,12 +23,6 @@ const RelatedPosts: React.FC<RelatedPostsProps> = ({ posts }) => {
           className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => handlePostClick(post.slug)}
         >
-          <img 
-            src={post.image} 
-            alt={post.title} 
-            className="w-full h-40 object-cover"
-          />
-          
           <div className="p-4">
             <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">{post.title}</h3>
             

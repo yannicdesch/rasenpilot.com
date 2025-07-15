@@ -187,11 +187,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       lastmod,
       changefreq: 'monthly',
       priority: 0.85,
-      images: post.image ? [{
-        loc: `https://rasenpilot.de${post.image}`,
-        caption: post.title,
-        title: post.title
-      }] : undefined
+      images: undefined
     };
   });
 

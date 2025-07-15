@@ -16,17 +16,10 @@ type ContentCardProps = {
 const ContentCard = ({ id, title, excerpt, image, category, readTime, tags }: ContentCardProps) => {
   return (
     <Card className="lawn-card overflow-hidden flex flex-col h-full border-none">
-      <div className="relative h-48 w-full overflow-hidden">
-        <img 
-          src={image} 
-          alt={title} 
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-        />
-        <span className="absolute top-3 right-3 bg-lawn-green text-white text-xs font-medium px-2.5 py-1 rounded">
+      <CardHeader className="pb-2 relative">
+        <span className="absolute top-2 right-2 bg-lawn-green text-white text-xs font-medium px-2.5 py-1 rounded">
           {category}
         </span>
-      </div>
-      <CardHeader className="pb-2">
         <CardTitle className="text-lg font-bold line-clamp-2">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">

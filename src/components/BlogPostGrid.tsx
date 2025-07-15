@@ -43,12 +43,6 @@ const BlogPostGrid: React.FC<BlogPostGridProps> = ({ searchTerm, categoryFilter 
               className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => handlePostClick(post.slug)}
             >
-              <img 
-                src={post.image} 
-                alt={post.title} 
-                className="w-full h-48 object-cover"
-              />
-              
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">

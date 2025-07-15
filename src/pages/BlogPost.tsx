@@ -14,7 +14,6 @@ interface BlogPostData {
   id: number;
   title: string;
   slug: string;
-  image: string;
   content: string;
   excerpt: string;
   date: string;
@@ -52,7 +51,6 @@ const BlogPost = () => {
             id: supabasePost.id,
             title: supabasePost.title,
             slug: supabasePost.slug,
-            image: supabasePost.image,
             content: supabasePost.content || '',
             excerpt: supabasePost.excerpt || '',
             date: supabasePost.date,
@@ -82,7 +80,6 @@ const BlogPost = () => {
                 id: relatedPost.id,
                 title: relatedPost.title,
                 slug: relatedPost.slug,
-                image: relatedPost.image,
                 content: relatedPost.content || '',
                 excerpt: relatedPost.excerpt || '',
                 date: relatedPost.date,
@@ -172,7 +169,6 @@ const BlogPost = () => {
         description={post.metaDescription || post.excerpt}
         canonical={`/blog/${post.slug}`}
         keywords={post.keywords.join(',')}
-        ogImage={post.image}
         type="article"
         author={post.author}
         datePublished={new Date(post.date).toISOString()}
@@ -182,7 +178,6 @@ const BlogPost = () => {
           data: {
             headline: post.title,
             description: post.excerpt,
-            image: post.image,
             author: {
               "@type": "Person",
               name: post.author
@@ -220,12 +215,6 @@ const BlogPost = () => {
         </Button>
         
         <article className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-          <img 
-            src={post.image} 
-            alt={post.title} 
-            className="w-full h-72 object-cover"
-          />
-          
           <div className="p-6 md:p-8">
             <div className="flex flex-wrap gap-3 mb-4">
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">

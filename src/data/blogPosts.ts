@@ -3,7 +3,6 @@ export interface BlogPost {
   id: number;
   title: string;
   slug: string;
-  image: string;
   content: string;
   excerpt: string;
   date: string;
@@ -20,7 +19,6 @@ export const blogPosts: BlogPost[] = [
     id: 1,
     title: "Der perfekte Mährhythmus für Ihren Rasen: So oft sollten Sie mähen",
     slug: "perfekter-maehrhythmus-rasen",
-    image: "/placeholder.svg",
     content: `Ein gesunder und schöner Rasen beginnt mit dem richtigen Mährhythmus. Die Häufigkeit des Mähens hat einen entscheidenden Einfluss auf die Dichte, Farbe und allgemeine Gesundheit Ihres Rasens.
 
 Als Faustregel gilt: Mähen Sie regelmäßig, aber schneiden Sie nie mehr als ein Drittel der Halmlänge ab. Dies ist wichtig, um die Gräser nicht zu stressen und ihnen ausreichend Blattmasse für die Photosynthese zu lassen.
@@ -45,7 +43,6 @@ Durch die Einhaltung eines optimalen Mährhythmus schaffen Sie die Grundlage fü
     id: 2,
     title: "Rasen düngen im Frühjahr: Der optimale Zeitpunkt und die richtige Technik",
     slug: "rasen-duengen-fruehling-zeitpunkt-technik",
-    image: "/placeholder.svg",
     content: `Das Frühjahr ist eine entscheidende Zeit für die Rasendüngung, da hier die Grundlage für ein gesundes Wachstum im gesamten Jahr gelegt wird. Aber wann genau sollten Sie zum Dünger greifen?
 
 Der ideale Zeitpunkt für die erste Düngung im Frühjahr liegt, wenn der Boden eine Temperatur von mindestens 8-10°C erreicht hat und die Gräser aktives Wachstum zeigen. In den meisten Regionen Deutschlands ist dies etwa Mitte März bis Anfang April der Fall.
@@ -72,7 +69,6 @@ Mit der richtigen Frühjahrsdüngung legen Sie den Grundstein für einen dichten
     id: 3,
     title: "Richtig bewässern bei Hitze: So überlebt Ihr Rasen den Hochsommer",
     slug: "rasenbewaesserung-hochsommer-hitze",
-    image: "/placeholder.svg",
     content: `Die Hochsommermonate stellen eine besondere Herausforderung für jeden Rasen dar. Mit den richtigen Bewässerungstechniken können Sie jedoch sicherstellen, dass Ihr Grün auch bei anhaltender Hitze gesund bleibt.
 
 Das wichtigste Prinzip lautet: Lieber selten, aber dafür gründlich bewässern. Eine tiefe Bewässerung fördert tiefes Wurzelwachstum und macht den Rasen widerstandsfähiger gegen Trockenheit. Ziel sollte sein, den Boden bis in eine Tiefe von 10-15 cm zu befeuchten.
@@ -101,7 +97,6 @@ Mit diesen Bewässerungsstrategien überstehen Sie und Ihr Rasen auch den heiße
     id: 4,
     title: "Moos im Rasen bekämpfen: Natürliche und effektive Methoden",
     slug: "moos-im-rasen-bekaempfen-natuerliche-methoden",
-    image: "/placeholder.svg",
     content: `Moos im Rasen ist ein häufiges Problem, das auf ungünstige Wachstumsbedingungen für Gräser hinweist. Statt nur die Symptome zu behandeln, sollten Sie die Ursachen angehen, um langfristig einen moosfreien Rasen zu erhalten.
 
 Die Hauptursachen für Moosbildung sind:
@@ -144,7 +139,6 @@ Denken Sie daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimal
     id: 5,
     title: "Herbstrasen-Pflege: Das müssen Sie vor dem Winter tun",
     slug: "herbstrasen-pflege-winter-vorbereitung",
-    image: "/placeholder.svg",
     content: `Der Herbst ist eine entscheidende Jahreszeit für die Rasenpflege, da hier die Weichen für einen gesunden Start im kommenden Frühjahr gestellt werden. Mit den richtigen Pflegemaßnahmen im Herbst bereiten Sie Ihren Rasen optimal auf die Wintermonate vor.
 
 Das Herbstprogramm für Ihren Rasen sollte folgende Schritte umfassen:
@@ -179,7 +173,6 @@ Bei Befolgung dieses Herbstprogramms wird Ihr Rasen gestärkt in die kalte Jahre
     id: 6,
     title: "Rasen vertikutieren: Der komplette Leitfaden für Hobbygärtner",
     slug: "rasen-vertikutieren-leitfaden-hobbygaertner",
-    image: "/placeholder.svg",
     content: `Das Vertikutieren ist eine der wichtigsten Pflegemaßnahmen für einen gesunden, dichten Rasen. Es befreit die Grasnarbe von Moos, abgestorbenen Pflanzenteilen und Filz, wodurch Luft, Wasser und Nährstoffe wieder besser zu den Graswurzeln gelangen können.
 
 Wann sollte vertikutiert werden?
@@ -224,7 +217,6 @@ Mit regelmäßigem Vertikutieren schaffen Sie die Grundlage für einen dichten, 
     id: 7,
     title: "Die besten Rasendünger im Test: Organisch vs. Mineralisch",
     slug: "beste-rasenduenger-test-organisch-mineralisch",
-    image: "/placeholder.svg",
     content: `Die Wahl des richtigen Rasendüngers kann entscheidend für die Gesundheit und das Erscheinungsbild Ihres Grüns sein. In unserem umfassenden Test vergleichen wir organische und mineralische Dünger hinsichtlich ihrer Wirksamkeit, Umweltverträglichkeit und Anwendungsfreundlichkeit.
 
 Mineralische Rasendünger:
@@ -284,7 +276,6 @@ Die beste Düngerstrategie für die meisten Hobbygärtner: Starten Sie im Frühj
     id: 8,
     title: "Automatische Bewässerungssysteme für den Rasen: Eine Kaufberatung",
     slug: "automatische-bewaesserungssysteme-rasen-kaufberatung",
-    image: "/placeholder.svg",
     content: `Ein automatisches Bewässerungssystem kann die Rasenpflege erheblich erleichtern und gleichzeitig für optimale Bewässerungsergebnisse sorgen. Doch welches System ist das richtige für Ihren Garten? Unsere Kaufberatung hilft bei der Entscheidung.
 
 Grundlegende Systemtypen:
@@ -342,7 +333,6 @@ Experten-Tipp: Investieren Sie in ein System mit Wassersparfunktionen wie Regens
     id: 9,
     title: "Rasenprobleme diagnostizieren: Häufige Krankheiten und ihre Behandlung",
     slug: "rasenprobleme-diagnostizieren-krankheiten-behandlung",
-    image: "/placeholder.svg",
     content: `Ein gesunder Rasen kann verschiedenen Krankheiten und Schädlingen zum Opfer fallen. Die richtige Diagnose ist der erste Schritt zur erfolgreichen Behandlung. Hier erfahren Sie, wie Sie häufige Rasenprobleme erkennen und bekämpfen können.
 
 Schneeschimmel (Microdochium nivale):
@@ -410,7 +400,7 @@ Bei allen Pflanzenschutzmaßnahmen gilt: Immer das mildeste wirksame Mittel wäh
     id: 10,
     title: "Rasenrenovierung im Frühjahr: So wird Ihr Rasen wieder schön",
     slug: "rasenrenovierung-fruehling-anleitung",
-    image: "/placeholder.svg",
+    
     content: `Nach einem langen Winter präsentiert sich mancher Rasen in keinem guten Zustand. Kahle Stellen, Moosbildung oder Verdichtungen sind typische Probleme. Mit einer gründlichen Frühjahrsrenovierung können Sie Ihrem Rasen jedoch neues Leben einhauchen.
 
 Der ideale Zeitpunkt für eine Rasenrenovierung ist das Frühjahr ab Mitte März bis Mai, wenn der Boden sich auf mindestens 8-10°C erwärmt hat und die Gräser in die aktive Wachstumsphase starten.
