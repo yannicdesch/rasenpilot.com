@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSimpleLawnAnalysis } from '@/hooks/useSimpleLawnAnalysis';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +32,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
 
   const { analyze, isLoading, error } = useSimpleLawnAnalysis();
   const { toast } = useToast();
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -71,6 +72,17 @@ export const SimpleLawnAnalyzer: React.FC = () => {
       });
     }
   };
+
+  // Auto-scroll to results when analysis is complete
+  useEffect(() => {
+    if (analysisResult && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  }, [analysisResult]);
 
   const getScoreColor = (score: string) => {
     const numScore = parseInt(score);
@@ -276,7 +288,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
 
       {/* Results */}
       {analysisResult && (
-        <Card>
+        <Card ref={resultsRef}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-500" />
