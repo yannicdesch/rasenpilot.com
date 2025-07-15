@@ -3,13 +3,14 @@ import React from 'react';
 import SecureAdminAuth from '@/components/admin/SecureAdminAuth';
 import MainNavigation from '@/components/MainNavigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Users, Settings, FileText, Globe, Database } from 'lucide-react';
+import { BarChart3, Users, Settings, FileText, Globe, Database, BookOpen } from 'lucide-react';
 import SiteAnalytics from '@/components/admin/SiteAnalytics';
 import UserManagement from '@/components/admin/UserManagement';
 import SiteSettings from '@/components/admin/SiteSettings';
 import ContentManagement from '@/components/admin/ContentManagement';
 
 import { DatabaseSetup } from '@/components/admin/DatabaseSetup';
+import BlogManagement from '@/components/admin/BlogManagement';
 
 const AdminPanel = () => {
   return (
@@ -29,7 +30,7 @@ const AdminPanel = () => {
             </div>
 
             <Tabs defaultValue="analytics" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="analytics" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="hidden sm:inline">Statistiken</span>
@@ -41,6 +42,10 @@ const AdminPanel = () => {
                 <TabsTrigger value="content" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   <span className="hidden sm:inline">Inhalte</span>
+                </TabsTrigger>
+                <TabsTrigger value="blog" className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  <span className="hidden sm:inline">Blog</span>
                 </TabsTrigger>
                 <TabsTrigger value="database" className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
@@ -64,6 +69,9 @@ const AdminPanel = () => {
                 <ContentManagement />
               </TabsContent>
 
+              <TabsContent value="blog">
+                <BlogManagement />
+              </TabsContent>
 
               <TabsContent value="database">
                 <DatabaseSetup />
