@@ -43,49 +43,7 @@ const LawnAnalysis = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-16">
-            <div className="mb-6">
-              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border border-green-200">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Professionelle KI-Rasenanalyse
-              </span>
-            </div>
-            <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-              Revolutionäre Rasenanalyse mit
-              <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"> Multi-LLM Technologie</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Unsere fortschrittliche KI-Plattform kombiniert ChatGPT Vision, Claude, und weitere Large Language Models für präzise Rasendiagnosen in Sekundenschnelle
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
-              <div className="flex items-center justify-center gap-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                <Zap className="h-6 w-6 text-yellow-500" />
-                <span className="text-sm font-semibold text-gray-800">Blitzschnell</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                <Star className="h-6 w-6 text-blue-500" />
-                <span className="text-sm font-semibold text-gray-800">Multi-LLM Power</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                <CheckCircle className="h-6 w-6 text-green-500" />
-                <span className="text-sm font-semibold text-gray-800">Profi-Qualität</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                <Camera className="h-6 w-6 text-purple-500" />
-                <span className="text-sm font-semibold text-gray-800">Vision AI</span>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 max-w-2xl mx-auto border border-green-100">
-              <p className="text-sm text-gray-700 font-medium">
-                <span className="text-green-600">✨ Powered by:</span> GPT-4 Vision • Claude 3 • Gemini Pro • LLaMA 3
-              </p>
-            </div>
-          </div>
-
-          {/* Simple Analyzer */}
+          {/* Simple Analyzer - Start directly with upload */}
           <div className="mb-8">
             <SimpleLawnAnalyzer />
           </div>
