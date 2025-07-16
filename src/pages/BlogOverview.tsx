@@ -9,7 +9,6 @@ interface BlogPost {
   id: number;
   title: string;
   excerpt: string;
-  image: string;
   author: string;
   date: string;
   slug: string;
@@ -51,7 +50,6 @@ const BlogOverview = () => {
       id: 1,
       title: "Rasen nachsäen: Die ultimative Anleitung für perfekte Ergebnisse",
       excerpt: "Einen perfekten Rasen nachzusäen zu pflegen erfordert Wissen und Konsequenz. Diese professionellen Tipps helfen Ihnen dabei.",
-      image: "",
       author: "Yannic",
       date: "2025-07-15",
       slug: "rasen-nachsaen-ultimate-anleitung",
@@ -61,7 +59,6 @@ const BlogOverview = () => {
       id: 2,
       title: "Profi-Tipps für Rasenkrankheiten erkennen - So machen Sie es richtig",
       excerpt: "Rasenkrankheiten erkennen ist ein wichtiger Bestandteil jedes schönen Gartens. Hier sind die besten Methoden, um optimale...",
-      image: "",
       author: "Lars",
       date: "2025-07-15",
       slug: "rasenkrankheiten-erkennen-profi-tipps",
@@ -71,7 +68,6 @@ const BlogOverview = () => {
       id: 3,
       title: "Profi Rasenpflege: Die ultimative Anleitung für perfekte Ergebnisse",
       excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfahren Sie die wichtigsten...",
-      image: "",
       author: "Lars",
       date: "2025-07-15",
       slug: "profi-rasenpflege-ultimative-anleitung",
@@ -83,28 +79,30 @@ const BlogOverview = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="container mx-auto px-4 py-6">
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Leaf className="h-8 w-8 text-green-600" />
-              <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
-            </div>
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Startseite
-            </Button>
-          </nav>
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-4">
+            <nav className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Leaf className="h-8 w-8 text-primary" />
+                <span className="text-2xl font-bold text-foreground">Rasenpilot</span>
+              </div>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Startseite
+              </Button>
+            </nav>
+          </div>
         </header>
         
         <div className="container mx-auto px-4 py-8 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Blog-Artikel werden geladen...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Blog-Artikel werden geladen...</p>
           </div>
         </div>
       </div>
@@ -112,74 +110,62 @@ const BlogOverview = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Leaf className="h-8 w-8 text-green-600" />
-            <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/highscore')}
-            >
-              Bestenliste
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/lawn-analysis')}
-            >
-              Rasenanalyse
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Startseite
-            </Button>
-          </div>
-        </nav>
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-4">
+          <nav className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Leaf className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-foreground">Rasenpilot</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/highscore')}
+              >
+                Bestenliste
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/lawn-analysis')}
+              >
+                Rasenanalyse
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Startseite
+              </Button>
+            </div>
+          </nav>
+        </div>
       </header>
       
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-green-800 mb-4">
+          <div className="text-center mb-16">
+            <h1 className="text-5xl font-bold text-foreground mb-6">
               Rasenpflege Ratgeber
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Expertentipps und Anleitungen für einen gesünderen, grüneren Rasen
             </p>
           </div>
 
-          {/* Blog Posts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
-              <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                {post.image && (
-                  <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
-                    <img 
-                      src={post.image} 
-                      alt={post.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <CardHeader>
-                  <CardTitle className="text-lg line-clamp-2">
-                    {post.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {post.excerpt}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+          {/* Blog Posts List */}
+          <div className="space-y-8">
+            {posts.map((post, index) => (
+              <article 
+                key={post.id} 
+                className="group border-b border-border pb-8 last:border-b-0 cursor-pointer hover:bg-muted/50 -mx-6 px-6 py-6 rounded-lg transition-all duration-200"
+                onClick={() => navigate(`/blog/${post.slug}`)}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
                       <span>{post.author}</span>
@@ -188,41 +174,51 @@ const BlogOverview = () => {
                       <Calendar className="h-4 w-4" />
                       <span>{new Date(post.date).toLocaleDateString('de-DE')}</span>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <span>{post.read_time} Min. Lesezeit</span>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">
-                      {post.read_time} Min. Lesezeit
-                    </span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-green-600 hover:text-green-700"
-                      onClick={() => navigate(`/blog/${post.slug}`)}
-                    >
-                      Mehr lesen
-                      <ArrowRight className="h-4 w-4 ml-1" />
-                    </Button>
+                  <div className="text-3xl font-bold text-muted-foreground/30">
+                    {String(index + 1).padStart(2, '0')}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                
+                <h2 className="text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors line-clamp-2">
+                  {post.title}
+                </h2>
+                
+                <p className="text-muted-foreground mb-4 line-clamp-3 text-lg leading-relaxed">
+                  {post.excerpt}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-primary hover:text-primary/80 p-0 h-auto font-medium"
+                  >
+                    Artikel lesen
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </div>
+              </article>
             ))}
           </div>
 
           {/* CTA Section */}
-          <div className="mt-16 text-center bg-green-50 p-8 rounded-lg">
-            <h2 className="text-2xl font-bold text-green-800 mb-4">
+          <div className="mt-20 text-center bg-card border rounded-2xl p-12">
+            <h2 className="text-3xl font-bold text-foreground mb-6">
               Bereit, Ihren Rasen zu verbessern?
             </h2>
-            <p className="text-gray-600 mb-6">
-              Starten Sie noch heute mit einer kostenlosen KI-Analyse Ihres Rasens
+            <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
+              Starten Sie noch heute mit einer kostenlosen KI-Analyse Ihres Rasens und erhalten Sie personalisierte Empfehlungen
             </p>
             <Button 
               onClick={() => navigate('/lawn-analysis')}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 h-auto"
             >
               Rasen analysieren lassen
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <ArrowRight className="h-5 w-5 ml-3" />
             </Button>
           </div>
         </div>
