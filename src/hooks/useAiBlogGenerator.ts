@@ -55,6 +55,23 @@ const getRandomImage = () => {
   return "";
 };
 
+// Helper function to generate varied dates and times
+const generateRandomDate = () => {
+  const now = new Date();
+  // Generate dates within the last 30 days
+  const daysBack = Math.floor(Math.random() * 30);
+  const randomDate = new Date(now);
+  randomDate.setDate(now.getDate() - daysBack);
+  
+  // Generate random time between 7:00 and 18:00
+  const randomHour = Math.floor(Math.random() * 11) + 7; // 7-17 hours
+  const randomMinute = Math.floor(Math.random() * 60);
+  
+  randomDate.setHours(randomHour, randomMinute, 0, 0);
+  
+  return randomDate.toISOString();
+};
+
 export const useAiBlogGenerator = () => {
   const [settings, setSettings] = useState<BlogScheduleSettings>(DEFAULT_SETTINGS);
   
@@ -166,7 +183,7 @@ export const useAiBlogGenerator = () => {
         category: mapTopicToCategory(randomTopic),
         readTime: parseInt(aiResult.read_time) || Math.floor(aiResult.content.length / 1000) + 3,
         tags: aiResult.keywords.join(', '),
-        date: new Date().toISOString().split('T')[0],
+        date: generateRandomDate().split('T')[0],
         seo: {
           metaTitle: aiResult.meta_title,
           metaDescription: aiResult.meta_description,
@@ -237,7 +254,7 @@ export const useAiBlogGenerator = () => {
             category: mapTopicToCategory(randomTopic),
             readTime: parseInt(aiResult.read_time) || Math.floor(aiResult.content.length / 1000) + 3,
             tags: aiResult.keywords.join(', '),
-            date: new Date().toISOString().split('T')[0],
+            date: generateRandomDate().split('T')[0],
             seo: {
               metaTitle: aiResult.meta_title,
               metaDescription: aiResult.meta_description,
@@ -370,7 +387,7 @@ export const useAiBlogGenerator = () => {
             read_time: post.readTime,
             tags: post.tags,
             date: post.date,
-            author: 'Rasenpilot KI',
+            author: 'Lars',
             status: 'published', // Auto-publish AI generated posts
             seo: {
               metaTitle: post.seo.metaTitle,
