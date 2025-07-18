@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import MainNavigation from '@/components/MainNavigation';
 import SEO from '@/components/SEO';
 
@@ -122,11 +123,11 @@ const TermsOfUse = () => {
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
           <div className="mt-2 flex justify-center gap-4">
-            <a href="/impressum" className="text-gray-600 hover:text-green-600">Impressum</a>
+            <Link to="/impressum" className="text-gray-600 hover:text-green-600">Impressum</Link>
             <span className="text-gray-400">|</span>
-            <a href="/datenschutz" className="text-gray-600 hover:text-green-600">Datenschutz</a>
+            <Link to="/datenschutz" className="text-gray-600 hover:text-green-600">Datenschutz</Link>
             <span className="text-gray-400">|</span>
-            <a href="/nutzungsbedingungen" className="text-gray-600 hover:text-green-600">Nutzungsbedingungen</a>
+            <Link to="/nutzungsbedingungen" className="text-gray-600 hover:text-green-600">Nutzungsbedingungen</Link>
           </div>
         </div>
       </footer>

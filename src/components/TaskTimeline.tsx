@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Clock, RefreshCcw } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,7 @@ type LawnTask = {
 
 const TaskTimeline = () => {
   const { profile } = useLawn();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<LawnTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -235,7 +237,7 @@ const TaskTimeline = () => {
                   <Button 
                     variant="ghost" 
                     className="w-full text-sm text-green-600 hover:text-green-700 hover:bg-green-50"
-                    onClick={() => window.location.href = '/care-plan'}
+                    onClick={() => navigate('/care-plan')}
                   >
                     {upcomingTasks.length - 3} weitere Aufgaben anzeigen...
                   </Button>

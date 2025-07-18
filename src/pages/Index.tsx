@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import MainNavigation from '@/components/MainNavigation';
 import { useLawn } from '@/context/LawnContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen, Trophy, Star, Medal, Award } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
@@ -329,11 +329,11 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
           <div className="mt-2 flex justify-center gap-4">
-            <a href="/blog-overview" className="text-gray-600 hover:text-green-600">Blog</a>
+            <Link to="/blog-overview" className="text-gray-600 hover:text-green-600">Blog</Link>
             <span className="text-gray-400">|</span>
-            <a href="/free-plan" className="text-gray-600 hover:text-green-600">Kostenloser Plan</a>
+            <Link to="/free-plan" className="text-gray-600 hover:text-green-600">Kostenloser Plan</Link>
             <span className="text-gray-400">|</span>
-            <a href="/free-chat" className="text-gray-600 hover:text-green-600">KI-Chat</a>
+            <Link to="/free-chat" className="text-gray-600 hover:text-green-600">KI-Chat</Link>
           </div>
         </div>
       </footer>

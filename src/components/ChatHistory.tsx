@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, MessageSquare, Trash2 } from 'lucide-react';
@@ -8,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Simplified component that doesn't depend on missing database tables
 const ChatHistory = () => {
+  const navigate = useNavigate();
   return (
     <div className="space-y-6">
       <h3 className="text-xl font-semibold">Meine Chat-Geschichte</h3>
@@ -19,8 +21,8 @@ const ChatHistory = () => {
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             Diese Funktion ist derzeit nicht verfügbar, da die entsprechenden Datenbanktabellen noch nicht eingerichtet sind.
           </p>
-          <Button onClick={() => window.location.href = '/chat'}>
-            Chat-Assistent öffnen
+          <Button onClick={() => navigate('/chat')}>
+            Zum KI-Chat
           </Button>
         </CardContent>
       </Card>
