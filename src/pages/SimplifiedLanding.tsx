@@ -39,7 +39,11 @@ const SimplifiedLanding = () => {
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.8",
-      "reviewCount": "1247"
+      "reviewCount": "1247",
+      "itemReviewed": {
+        "@type": "Service",
+        "name": "KI-Rasenanalyse"
+      }
     }
   };
 
