@@ -11,6 +11,7 @@ import { Loader2, Upload, Camera, CheckCircle, AlertCircle, Trophy, Download, Le
 import { useToast } from '@/hooks/use-toast';
 import ScoreSubmissionForm from '@/components/ScoreSubmissionForm';
 import CarePlanDownload from '@/components/CarePlanDownload';
+import { supabase } from '@/lib/supabase';
 
 interface AnalysisResult {
   overall_health: string;
@@ -29,6 +30,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
   const [lawnGoal, setLawnGoal] = useState<string>('');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('');
 
   const { analyze, isLoading, error } = useSimpleLawnAnalysis();
   const { toast } = useToast();
@@ -57,6 +59,32 @@ export const SimpleLawnAnalyzer: React.FC = () => {
     }
 
     try {
+      // First upload the image to Supabase storage to get a permanent URL
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('lawn-images')
+        .upload(fileName, selectedFile);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast({
+          title: "Upload fehlgeschlagen",
+          description: "Das Bild konnte nicht hochgeladen werden",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Get the public URL for the uploaded image
+      const { data: { publicUrl } } = supabase.storage
+        .from('lawn-images')
+        .getPublicUrl(fileName);
+      
+      setUploadedImageUrl(publicUrl);
+      console.log('Image uploaded successfully:', publicUrl);
+
       const result = await analyze(selectedFile, grassType, lawnGoal);
       setAnalysisResult(result);
       
@@ -386,7 +414,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
           <CardContent>
             <ScoreSubmissionForm 
               score={parseInt(analysisResult.score)} 
-              lawnImageUrl={previewUrl}
+              lawnImageUrl={uploadedImageUrl || previewUrl}
               grassType={grassType}
               lawnSize={lawnGoal}
               onSubmitSuccess={() => {

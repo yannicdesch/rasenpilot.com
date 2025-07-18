@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Trophy, Medal, Award, MapPin, Leaf, Calendar, RefreshCw, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -255,6 +255,14 @@ const LawnHighscore = () => {
       {/* Image Zoom Modal */}
       <Dialog open={!!selectedImage} onOpenChange={closeImageModal}>
         <DialogContent className="max-w-4xl w-full h-full max-h-[90vh] p-2">
+          <DialogHeader className="sr-only">
+            <DialogTitle>
+              Rasenbild von {selectedEntry?.user_name}
+            </DialogTitle>
+            <DialogDescription>
+              Detailansicht des Rasenbildes mit Analysedaten
+            </DialogDescription>
+          </DialogHeader>
           {selectedImage && selectedEntry && (
             <div className="flex flex-col h-full">
               {/* Header with entry details */}
