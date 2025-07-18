@@ -88,6 +88,9 @@ export const SimpleLawnAnalyzer: React.FC = () => {
       const result = await analyze(selectedFile, grassType, lawnGoal);
       setAnalysisResult(result);
       
+      console.log('Analysis result:', result);
+      console.log('Uploaded image URL for highscore:', publicUrl);
+      
       toast({
         title: "Analyse abgeschlossen!",
         description: "Ihre Rasenanalyse wurde erfolgreich durchgeführt.",
@@ -418,6 +421,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
               grassType={grassType}
               lawnSize={lawnGoal}
               onSubmitSuccess={() => {
+                console.log('Score submitted successfully!');
                 toast({
                   title: "Score eingereicht!",
                   description: "Ihr Score wurde erfolgreich zur Bestenliste hinzugefügt.",

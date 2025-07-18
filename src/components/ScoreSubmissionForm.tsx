@@ -69,6 +69,7 @@ const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({
       }
       
       console.log('Submitting highscore with userId:', userId, 'userName:', formData.nickname, 'score:', score);
+      console.log('Lawn image URL being submitted:', lawnImageUrl);
 
       // Submit to highscore
       await updateUserHighscore(
