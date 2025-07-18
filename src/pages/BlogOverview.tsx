@@ -31,8 +31,7 @@ const BlogOverview = () => {
         .from('blog_posts')
         .select('*')
         .eq('status', 'published')
-        .order('date', { ascending: false })
-        .limit(6);
+        .order('date', { ascending: false });
 
       if (error) {
         console.error('Error fetching blog posts:', error);
@@ -115,8 +114,23 @@ const BlogOverview = () => {
       <SEO 
         title="Rasenpflege Ratgeber - Expertentipps & Anleitungen | Rasenpilot Blog"
         description="Entdecken Sie umfassende Ratgeber zur Rasenpflege. Von der Rasensaat bis zur Krankheitsbekämpfung - Expertentipps für den perfekten Rasen das ganze Jahr über."
-        canonical="/blog-overview"
+        canonical="https://rasenpilot.de/blog-overview"
         keywords="Rasenpflege Ratgeber, Rasen Tipps, Rasenpflege Anleitung, Rasen düngen, Rasen mähen, Rasenkrankheiten, Gartenpflege Blog"
+        structuredData={{
+          type: "WebSite",
+          data: {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": "Rasenpilot Blog",
+            "description": "Expertentipps und Anleitungen für eine perfekte Rasenpflege",
+            "url": "https://rasenpilot.de/blog-overview",
+            "publisher": {
+              "@type": "Organization",
+              "name": "Rasenpilot",
+              "url": "https://rasenpilot.de"
+            }
+          }
+        }}
       />
       {/* Header */}
       <header className="border-b bg-card">
