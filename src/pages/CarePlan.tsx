@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, CheckCircle, Info, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import SEO from '@/components/SEO';
 
 const CarePlan = () => {
   const navigate = useNavigate();
@@ -125,10 +126,19 @@ const CarePlan = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Ihr Pflegeplan wird geladen...</p>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <SEO 
+          title="Personalisierter Rasenpflegeplan - Schritt-für-Schritt Anleitung | Rasenpilot"
+          description="Ihr individueller, KI-generierter Rasenpflegeplan mit detaillierten Schritt-für-Schritt Anleitungen. Zeitplan, Düngeempfehlungen und saisonale Pflegetipps."
+          canonical="/care-plan"
+          keywords="Rasenpflegeplan, Rasen Pflegeplan, individueller Rasenpflegeplan, Rasen Zeitplan, Düngeplan Rasen"
+          noindex={false}
+        />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Ihr Pflegeplan wird geladen...</p>
+          </div>
         </div>
       </div>
     );
@@ -136,6 +146,13 @@ const CarePlan = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <SEO 
+        title="Personalisierter Rasenpflegeplan - Schritt-für-Schritt Anleitung | Rasenpilot"
+        description="Ihr individueller, KI-generierter Rasenpflegeplan mit detaillierten Schritt-für-Schritt Anleitungen. Zeitplan, Düngeempfehlungen und saisonale Pflegetipps."
+        canonical="/care-plan"
+        keywords="Rasenpflegeplan, Rasen Pflegeplan, individueller Rasenpflegeplan, Rasen Zeitplan, Düngeplan Rasen"
+        noindex={false}
+      />
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">

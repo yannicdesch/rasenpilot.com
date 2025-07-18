@@ -41,8 +41,13 @@ const SimplifiedLanding = () => {
       "ratingValue": "4.8",
       "reviewCount": "1247",
       "itemReviewed": {
-        "@type": "Service",
-        "name": "KI-Rasenanalyse"
+        "@type": "Product",
+        "name": "KI-Rasenanalyse",
+        "description": "Professionelle KI-gestützte Rasenanalyse mit wissenschaftlich fundierter Bewertung",
+        "brand": {
+          "@type": "Brand",
+          "name": "Rasenpilot"
+        }
       }
     }
   };
@@ -59,6 +64,7 @@ const SimplifiedLanding = () => {
         <meta property="og:url" content="https://rasenpilot.de" />
         <meta property="og:image" content="https://rasenpilot.de/og-image.jpg" />
         <link rel="canonical" href="https://rasenpilot.de" />
+        
         
         {/* Service Schema */}
         <script type="application/ld+json">

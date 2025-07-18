@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, User, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import SEO from '@/components/SEO';
 
 interface BlogPost {
   id: number;
@@ -111,6 +112,12 @@ const BlogOverview = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Rasenpflege Ratgeber - Expertentipps & Anleitungen | Rasenpilot Blog"
+        description="Entdecken Sie umfassende Ratgeber zur Rasenpflege. Von der Rasensaat bis zur Krankheitsbekämpfung - Expertentipps für den perfekten Rasen das ganze Jahr über."
+        canonical="/blog-overview"
+        keywords="Rasenpflege Ratgeber, Rasen Tipps, Rasenpflege Anleitung, Rasen düngen, Rasen mähen, Rasenkrankheiten, Gartenpflege Blog"
+      />
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4">
