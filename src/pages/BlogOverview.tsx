@@ -114,7 +114,7 @@ const BlogOverview = () => {
       <SEO 
         title="Rasenpflege Ratgeber - Expertentipps & Anleitungen | Rasenpilot Blog"
         description="Entdecken Sie umfassende Ratgeber zur Rasenpflege. Von der Rasensaat bis zur Krankheitsbekämpfung - Expertentipps für den perfekten Rasen das ganze Jahr über."
-        canonical="https://rasenpilot.de/blog-overview"
+        canonical="/blog-overview"
         keywords="Rasenpflege Ratgeber, Rasen Tipps, Rasenpflege Anleitung, Rasen düngen, Rasen mähen, Rasenkrankheiten, Gartenpflege Blog"
         structuredData={{
           type: "WebSite",

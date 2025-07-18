@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
+import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
 import SimplifiedLanding from "./pages/SimplifiedLanding";
 import LawnAnalysis from "./pages/LawnAnalysis";
 
@@ -25,7 +27,13 @@ import Hamburg from "./pages/local/Hamburg";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  // Initialize HTTPS enforcement on app startup
+  useEffect(() => {
+    initHttpsEnforcement();
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <LawnProvider>
@@ -62,6 +70,7 @@ const App = () => (
       </LawnProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
