@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Trophy, Medal, Award, MapPin, Leaf, Calendar, RefreshCw } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Trophy, Medal, Award, MapPin, Leaf, Calendar, RefreshCw, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import LazyImage from '@/components/LazyImage';
 
 interface HighscoreEntry {
   id: string;
@@ -23,6 +25,8 @@ const LawnHighscore = () => {
   const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<HighscoreEntry | null>(null);
 
   useEffect(() => {
     fetchHighscores();
@@ -95,6 +99,18 @@ const LawnHighscore = () => {
     return new Date(dateString).toLocaleDateString('de-DE');
   };
 
+  const handleImageClick = (entry: HighscoreEntry) => {
+    if (entry.lawn_image_url) {
+      setSelectedImage(entry.lawn_image_url);
+      setSelectedEntry(entry);
+    }
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    setSelectedEntry(null);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -151,7 +167,7 @@ const LawnHighscore = () => {
             <Card key={entry.id} className={`${index < 3 ? 'border-2 border-yellow-200 bg-yellow-50' : ''}`}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-1">
                     <div className="flex items-center justify-center w-12 h-12">
                       {getRankIcon(index)}
                     </div>
@@ -192,6 +208,29 @@ const LawnHighscore = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Image Thumbnail */}
+                  <div className="ml-4">
+                    {entry.lawn_image_url ? (
+                      <div 
+                        className="relative group cursor-pointer"
+                        onClick={() => handleImageClick(entry)}
+                      >
+                        <LazyImage
+                          src={entry.lawn_image_url}
+                          alt={`Rasen von ${entry.user_name}`}
+                          className="w-20 h-20 rounded-lg object-cover border-2 border-green-200 group-hover:border-green-400 transition-colors"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity rounded-lg flex items-center justify-center">
+                          <ImageIcon className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 rounded-lg border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+                        <ImageIcon className="h-6 w-6 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -209,8 +248,73 @@ const LawnHighscore = () => {
           <li>• Nur dein bester Score wird in der Bestenliste angezeigt</li>
           <li>• Verbessere deinen Rasen und steige in der Rangliste auf!</li>
           <li>• Die Top 3 erhalten besondere Auszeichnungen</li>
+          <li>• Klicke auf ein Rasenbild, um es in voller Größe zu betrachten</li>
         </ul>
       </div>
+
+      {/* Image Zoom Modal */}
+      <Dialog open={!!selectedImage} onOpenChange={closeImageModal}>
+        <DialogContent className="max-w-4xl w-full h-full max-h-[90vh] p-2">
+          {selectedImage && selectedEntry && (
+            <div className="flex flex-col h-full">
+              {/* Header with entry details */}
+              <div className="flex items-center justify-between p-4 border-b bg-green-50 rounded-t-lg">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-yellow-500" />
+                    <h3 className="font-semibold text-lg text-green-800">
+                      {selectedEntry.user_name}
+                    </h3>
+                  </div>
+                  <Badge className={`${getScoreColor(selectedEntry.lawn_score)} text-white`}>
+                    {selectedEntry.lawn_score}/100
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  {selectedEntry.location && (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      <span>{selectedEntry.location}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(selectedEntry.analysis_date)}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Image container */}
+              <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
+                <img
+                  src={selectedImage}
+                  alt={`Rasen von ${selectedEntry.user_name}`}
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                  style={{ maxHeight: 'calc(90vh - 120px)' }}
+                />
+              </div>
+              
+              {/* Additional info */}
+              <div className="p-4 border-t bg-green-50 rounded-b-lg">
+                <div className="flex justify-center gap-6 text-sm text-gray-600">
+                  {selectedEntry.grass_type && (
+                    <div className="flex items-center gap-1">
+                      <Leaf className="h-4 w-4" />
+                      <span>{selectedEntry.grass_type}</span>
+                    </div>
+                  )}
+                  {selectedEntry.lawn_size && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs">📏</span>
+                      <span>{selectedEntry.lawn_size}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
