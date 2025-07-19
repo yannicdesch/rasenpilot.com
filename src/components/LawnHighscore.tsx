@@ -120,15 +120,15 @@ const LawnHighscore = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 sm:px-0">
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Trophy className="h-8 w-8 text-yellow-500" />
-          <h1 className="text-3xl font-bold text-green-800">
+          <Trophy className="h-6 sm:h-8 w-6 sm:w-8 text-yellow-500" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-green-800">
             Rasen-Bestenliste
           </h1>
         </div>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 mb-4 text-sm sm:text-base px-4">
           Die besten Rasen-Analysen unserer Community
         </p>
         <Button 
@@ -141,7 +141,8 @@ const LawnHighscore = () => {
           {refreshing ? (
             <>
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              Wird aktualisiert...
+              <span className="hidden sm:inline">Wird aktualisiert...</span>
+              <span className="sm:hidden">Update...</span>
             </>
           ) : (
             <>
@@ -165,52 +166,52 @@ const LawnHighscore = () => {
         <div className="space-y-4">
           {highscores.map((entry, index) => (
             <Card key={entry.id} className={`${index < 3 ? 'border-2 border-yellow-200 bg-yellow-50' : ''}`}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="flex items-center justify-center w-12 h-12">
+              <CardContent className="p-3 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="flex items-center justify-center w-10 sm:w-12 h-10 sm:h-12 flex-shrink-0">
                       {getRankIcon(index)}
                     </div>
                     
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg text-green-800">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                        <h3 className="font-semibold text-base sm:text-lg text-green-800 truncate">
                           {entry.user_name}
                         </h3>
-                        <Badge className={`${getScoreColor(entry.lawn_score)} text-white`}>
+                        <Badge className={`${getScoreColor(entry.lawn_score)} text-white w-fit`}>
                           {entry.lawn_score}/100
                         </Badge>
                       </div>
                       
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                         {entry.location && (
                           <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            <span>{entry.location}</span>
+                            <MapPin className="h-3 sm:h-4 w-3 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">{entry.location}</span>
                           </div>
                         )}
                         {entry.grass_type && (
                           <div className="flex items-center gap-1">
-                            <Leaf className="h-4 w-4" />
-                            <span>{entry.grass_type}</span>
+                            <Leaf className="h-3 sm:h-4 w-3 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">{entry.grass_type}</span>
                           </div>
                         )}
                         {entry.lawn_size && (
                           <div className="flex items-center gap-1">
                             <span className="text-xs">📏</span>
-                            <span>{entry.lawn_size}</span>
+                            <span className="truncate">{entry.lawn_size}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>{formatDate(entry.analysis_date)}</span>
+                          <Calendar className="h-3 sm:h-4 w-3 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{formatDate(entry.analysis_date)}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Image Thumbnail */}
-                  <div className="ml-4">
+                  <div className="flex justify-center sm:justify-end">
                     {entry.lawn_image_url ? (
                       <div 
                         className="relative group cursor-pointer"
@@ -219,15 +220,15 @@ const LawnHighscore = () => {
                         <LazyImage
                           src={entry.lawn_image_url}
                           alt={`Rasen von ${entry.user_name}`}
-                          className="w-20 h-20 rounded-lg object-cover border-2 border-green-200 group-hover:border-green-400 transition-colors"
+                          className="w-16 sm:w-20 h-16 sm:h-20 rounded-lg object-cover border-2 border-green-200 group-hover:border-green-400 transition-colors"
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity rounded-lg flex items-center justify-center">
-                          <ImageIcon className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ImageIcon className="h-4 sm:h-6 w-4 sm:w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     ) : (
-                      <div className="w-20 h-20 rounded-lg border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
-                        <ImageIcon className="h-6 w-6 text-gray-400" />
+                      <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-lg border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+                        <ImageIcon className="h-4 sm:h-6 w-4 sm:w-6 text-gray-400" />
                       </div>
                     )}
                   </div>
@@ -254,7 +255,7 @@ const LawnHighscore = () => {
 
       {/* Image Zoom Modal */}
       <Dialog open={!!selectedImage} onOpenChange={closeImageModal}>
-        <DialogContent className="max-w-4xl w-full h-full max-h-[90vh] p-2">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl w-full h-full max-h-[95vh] sm:max-h-[90vh] p-1 sm:p-2">
           <DialogHeader className="sr-only">
             <DialogTitle>
               Rasenbild von {selectedEntry?.user_name}
@@ -266,55 +267,55 @@ const LawnHighscore = () => {
           {selectedImage && selectedEntry && (
             <div className="flex flex-col h-full">
               {/* Header with entry details */}
-              <div className="flex items-center justify-between p-4 border-b bg-green-50 rounded-t-lg">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-yellow-500" />
-                    <h3 className="font-semibold text-lg text-green-800">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b bg-green-50 rounded-t-lg">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Trophy className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-500" />
+                    <h3 className="font-semibold text-base sm:text-lg text-green-800 truncate">
                       {selectedEntry.user_name}
                     </h3>
                   </div>
-                  <Badge className={`${getScoreColor(selectedEntry.lawn_score)} text-white`}>
+                  <Badge className={`${getScoreColor(selectedEntry.lawn_score)} text-white text-xs sm:text-sm`}>
                     {selectedEntry.lawn_score}/100
                   </Badge>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                   {selectedEntry.location && (
                     <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{selectedEntry.location}</span>
+                      <MapPin className="h-3 sm:h-4 w-3 sm:w-4" />
+                      <span className="truncate">{selectedEntry.location}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>{formatDate(selectedEntry.analysis_date)}</span>
+                    <Calendar className="h-3 sm:h-4 w-3 sm:w-4" />
+                    <span className="truncate">{formatDate(selectedEntry.analysis_date)}</span>
                   </div>
                 </div>
               </div>
               
               {/* Image container */}
-              <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
+              <div className="flex-1 flex items-center justify-center p-2 sm:p-4 bg-gray-50">
                 <img
                   src={selectedImage}
                   alt={`Rasen von ${selectedEntry.user_name}`}
                   className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                  style={{ maxHeight: 'calc(90vh - 120px)' }}
+                  style={{ maxHeight: 'calc(95vh - 140px)' }}
                 />
               </div>
               
               {/* Additional info */}
-              <div className="p-4 border-t bg-green-50 rounded-b-lg">
-                <div className="flex justify-center gap-6 text-sm text-gray-600">
+              <div className="p-3 sm:p-4 border-t bg-green-50 rounded-b-lg">
+                <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-6 text-xs sm:text-sm text-gray-600">
                   {selectedEntry.grass_type && (
                     <div className="flex items-center gap-1">
-                      <Leaf className="h-4 w-4" />
-                      <span>{selectedEntry.grass_type}</span>
+                      <Leaf className="h-3 sm:h-4 w-3 sm:w-4" />
+                      <span className="truncate">{selectedEntry.grass_type}</span>
                     </div>
                   )}
                   {selectedEntry.lawn_size && (
                     <div className="flex items-center gap-1">
                       <span className="text-xs">📏</span>
-                      <span>{selectedEntry.lawn_size}</span>
+                      <span className="truncate">{selectedEntry.lawn_size}</span>
                     </div>
                   )}
                 </div>
