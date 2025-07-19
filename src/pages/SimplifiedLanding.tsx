@@ -11,44 +11,37 @@ import LazyImage from '@/components/LazyImage';
 const SimplifiedLanding = () => {
   const navigate = useNavigate();
 
-  // Service Schema structured data
-  const serviceSchema = {
+  // Product Schema structured data for Google rich results
+  const productSchema = {
     "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "KI-Rasenanalyse",
-    "provider": {
-      "@type": "Organization",
-      "name": "Rasenpilot",
-      "url": "https://rasenpilot.de",
-      "logo": "https://rasenpilot.de/logo.png"
-    },
+    "@type": "Product",
+    "name": "KI-Rasenpflegeplan von Rasenpilot",
     "description": "Professionelle KI-gestützte Rasenanalyse mit wissenschaftlich fundierter Bewertung. Kostenlose Analyse mit 98,3% Genauigkeit.",
-    "areaServed": {
-      "@type": "Country",
-      "name": "Deutschland"
+    "brand": {
+      "@type": "Brand",
+      "name": "Rasenpilot"
     },
-    "serviceType": "Rasenanalyse",
     "category": "Gartenpflege",
+    "image": "https://rasenpilot.de/og-image.jpg",
+    "url": "https://rasenpilot.de",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "EUR",
       "availability": "https://schema.org/InStock",
-      "url": "https://rasenpilot.de/lawn-analysis"
+      "url": "https://rasenpilot.de/lawn-analysis",
+      "validFrom": new Date().toISOString(),
+      "seller": {
+        "@type": "Organization",
+        "name": "Rasenpilot"
+      }
     },
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.8",
       "reviewCount": "1247",
-      "itemReviewed": {
-        "@type": "Product",
-        "name": "KI-Rasenanalyse",
-        "description": "Professionelle KI-gestützte Rasenanalyse mit wissenschaftlich fundierter Bewertung",
-        "brand": {
-          "@type": "Brand",
-          "name": "Rasenpilot"
-        }
-      }
+      "bestRating": "5",
+      "worstRating": "1"
     }
   };
 
@@ -66,9 +59,9 @@ const SimplifiedLanding = () => {
         <link rel="canonical" href="https://rasenpilot.de" />
         
         
-        {/* Service Schema */}
+        {/* Product Schema */}
         <script type="application/ld+json">
-          {JSON.stringify(serviceSchema)}
+          {JSON.stringify(productSchema)}
         </script>
       </Helmet>
 
