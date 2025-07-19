@@ -21,6 +21,7 @@ const SimplifiedLanding = () => {
       "@type": "Brand",
       "name": "Rasenpilot"
     },
+    "logo": "https://rasenpilot.de/logo.png",
     "category": "Gartenpflege",
     "image": "https://rasenpilot.de/og-image.jpg",
     "url": "https://rasenpilot.de",
