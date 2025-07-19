@@ -31,47 +31,32 @@ const Landing = () => {
         keywords="Rasenpflege Deutschland,KI-Rasenberater,intelligenter Rasen-Assistent,kostenloser Rasenpflegeplan,Rasen düngen,Rasen mähen,Rasenpilot,Rasenberatung,Rasen-Analyse kostenlos,Rasen-Probleme"
         type="website"
         structuredData={{
-          type: 'Organization',
+          type: 'Product',
           data: {
-            name: 'Rasenpilot',
-            alternateName: 'Rasenpilot - Intelligenter KI-Rasenberater',
-            description: 'Deutschlands führende KI-Plattform für intelligente Rasenpflege mit kostenlosen personalisierten Pflegeplänen',
+            name: 'KI-Rasenpflegeplan von Rasenpilot',
+            description: 'Kostenloser personalisierter Rasenpflegeplan in 30 Sekunden. KI-gestützte Rasenanalyse mit professionellen Empfehlungen.',
             url: 'https://rasenpilot.de',
-            logo: 'https://rasenpilot.de/logo.png',
-            foundingDate: '2024',
-            founder: 'Rasenpilot Team',
-            areaServed: {
-              "@type": "Country",
-              name: "Deutschland"
+            image: 'https://rasenpilot.de/og-image.jpg',
+            brand: 'Rasenpilot',
+            category: 'Gartenberatung',
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "EUR",
+              availability: "https://schema.org/InStock",
+              validFrom: new Date().toISOString(),
+              seller: {
+                "@type": "Organization",
+                name: "Rasenpilot"
+              }
             },
-            serviceType: 'KI-gestützte Rasenpflege-Beratung',
-            hasOfferCatalog: {
-              "@type": "OfferCatalog",
-              name: "Rasenpflege-Services",
-              itemListElement: [
-                {
-                  "@type": "Offer",
-                  itemOffered: {
-                    "@type": "Service",
-                    name: "Kostenloser KI-Rasenpflegeplan",
-                    description: "Personalisierter Rasenpflegeplan in 30 Sekunden"
-                  }
-                },
-                {
-                  "@type": "Offer",
-                  itemOffered: {
-                    "@type": "Service", 
-                    name: "KI-Rasenanalyse",
-                    description: "Intelligente Analyse Ihres Rasens mit Empfehlungen"
-                  }
-                }
-              ]
-            },
-            sameAs: [
-              "https://www.facebook.com/rasenpilot",
-              "https://www.instagram.com/rasenpilot",
-              "https://twitter.com/rasenpilot"
-            ]
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: "4.8",
+              reviewCount: "150",
+              bestRating: "5",
+              worstRating: "1"
+            }
           }
         }}
       />

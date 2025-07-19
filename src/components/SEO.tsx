@@ -16,7 +16,7 @@ interface SEOProps {
   datePublished?: string;
   dateModified?: string;
   structuredData?: {
-    type: 'WebSite' | 'WebPage' | 'Article' | 'Organization' | 'Service';
+    type: 'WebSite' | 'WebPage' | 'Article' | 'Organization' | 'Service' | 'Product';
     data: any;
   };
 }
