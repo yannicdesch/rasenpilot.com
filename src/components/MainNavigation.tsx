@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Leaf, Menu, X, BookOpen, Trophy, Settings } from 'lucide-react';
 
 const MainNavigation = () => {
@@ -78,76 +79,85 @@ const MainNavigation = () => {
             </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu */}
           <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleMenu}
-              className="text-gray-700"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </Button>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-700 p-2"
+                >
+                  <Menu size={24} />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] bg-white">
+                <div className="flex flex-col h-full">
+                  {/* Logo in mobile menu */}
+                  <div className="flex items-center space-x-2 mb-8 pt-4">
+                    <Leaf className="h-8 w-8 text-green-600" />
+                    <span className="text-xl font-bold text-green-800">Rasenpilot</span>
+                  </div>
+                  
+                  {/* Navigation Links */}
+                  <div className="flex flex-col space-y-1">
+                    <Link 
+                      to="/" 
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                        isActive('/') 
+                          ? 'bg-green-100 text-green-700 font-medium' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <Leaf size={20} />
+                      <span>Startseite</span>
+                    </Link>
+                    
+                    <Link 
+                      to="/blog-overview" 
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                        isActive('/blog-overview') 
+                          ? 'bg-green-100 text-green-700 font-medium' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <BookOpen size={20} />
+                      <span>Ratgeber</span>
+                    </Link>
+                    
+                    <Link 
+                      to="/highscore" 
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                        isActive('/highscore') 
+                          ? 'bg-green-100 text-green-700 font-medium' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <Trophy size={20} />
+                      <span>Bestenliste</span>
+                    </Link>
+                    
+                    <Link 
+                      to="/admin-panel" 
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                        isActive('/admin-panel') 
+                          ? 'bg-green-100 text-green-700 font-medium' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <Settings size={20} />
+                      <span>Admin</span>
+                    </Link>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-            <div className="flex flex-col space-y-2">
-              <Link 
-                to="/" 
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                  isActive('/') 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                }`}
-                onClick={closeMenu}
-              >
-                <span>Startseite</span>
-              </Link>
-              
-              <Link 
-                to="/blog-overview" 
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                  isActive('/blog-overview') 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                }`}
-                onClick={closeMenu}
-              >
-                <BookOpen size={18} />
-                <span>Ratgeber</span>
-              </Link>
-              
-              <Link 
-                to="/highscore" 
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                  isActive('/highscore') 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                }`}
-                onClick={closeMenu}
-              >
-                <Trophy size={18} />
-                <span>Bestenliste</span>
-              </Link>
-              
-              <Link 
-                to="/admin-panel" 
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                  isActive('/admin-panel') 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                }`}
-                onClick={closeMenu}
-              >
-                <Settings size={18} />
-                <span>Admin</span>
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
