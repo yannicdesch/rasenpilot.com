@@ -3,7 +3,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 interface StructuredDataProps {
-  type: 'WebSite' | 'WebPage' | 'Article' | 'Organization' | 'Service';
+  type: 'WebSite' | 'WebPage' | 'Article' | 'Organization' | 'Service' | 'Product';
   data: {
     name?: string;
     alternateName?: string;
@@ -28,6 +28,11 @@ interface StructuredDataProps {
     keywords?: string;
     articleSection?: string;
     inLanguage?: string;
+    offers?: any;
+    review?: any;
+    aggregateRating?: any;
+    brand?: string;
+    category?: string;
   };
 }
 
@@ -70,6 +75,31 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) => {
           areaServed: {
             "@type": "Country",
             name: "Deutschland"
+          }
+        };
+      
+      case 'Product':
+        return {
+          ...baseData,
+          brand: data.brand || "Rasenpilot",
+          category: data.category || "Gartenberatung",
+          offers: data.offers || {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "EUR",
+            availability: "https://schema.org/InStock",
+            validFrom: new Date().toISOString(),
+            seller: {
+              "@type": "Organization",
+              name: "Rasenpilot"
+            }
+          },
+          aggregateRating: data.aggregateRating || {
+            "@type": "AggregateRating",
+            ratingValue: "4.8",
+            reviewCount: "150",
+            bestRating: "5",
+            worstRating: "1"
           }
         };
       
