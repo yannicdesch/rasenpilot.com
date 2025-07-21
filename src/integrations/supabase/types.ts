@@ -59,6 +59,33 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_generation_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          id: number
+          posts_generated: number | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: number
+          posts_generated?: number | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: number
+          posts_generated?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author: string
