@@ -14,7 +14,7 @@ interface SitemapUrl {
 }
 
 export const generateSitemap = (urls: SitemapUrl[]): string => {
-  const siteUrl = 'https://rasenpilot.de';
+  const siteUrl = 'https://rasenpilot.com';
   
   const urlsXml = urls.map(url => {
     const images = url.images?.map(img => `
@@ -52,7 +52,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'daily',
       priority: 1.0,
       images: [{
-        loc: 'https://rasenpilot.de/logo.png',
+        loc: 'https://rasenpilot.com/logo.png',
         caption: 'Rasenpilot - Intelligenter KI-Rasenberater'
       }]
     },
@@ -64,7 +64,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'weekly',
       priority: 0.9,
       images: [{
-        loc: 'https://rasenpilot.de/free-analysis-preview.jpg',
+        loc: 'https://rasenpilot.com/free-analysis-preview.jpg',
         caption: 'Kostenlose KI-Rasenanalyse'
       }]
     },
@@ -75,7 +75,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'weekly',
       priority: 0.9,
       images: [{
-        loc: 'https://rasenpilot.de/free-plan-preview.jpg',
+        loc: 'https://rasenpilot.com/free-plan-preview.jpg',
         caption: 'Kostenloser Rasenpflegeplan erstellen'
       }]
     },
@@ -86,7 +86,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'daily',
       priority: 0.8,
       images: [{
-        loc: 'https://rasenpilot.de/free-care-plan-preview.jpg',
+        loc: 'https://rasenpilot.com/free-care-plan-preview.jpg',
         caption: '14-Tage Rasenpflegeplan'
       }]
     },
@@ -150,7 +150,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'monthly',
       priority: 0.8,
       images: [{
-        loc: 'https://rasenpilot.de/og-image.jpg',
+        loc: 'https://rasenpilot.com/og-image.jpg',
         caption: 'Rasenpflege München - KI-Rasenanalyse'
       }]
     },
@@ -161,7 +161,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'monthly',
       priority: 0.8,
       images: [{
-        loc: 'https://rasenpilot.de/og-image.jpg',
+        loc: 'https://rasenpilot.com/og-image.jpg',
         caption: 'Rasenpflege Berlin - KI-Rasenanalyse'
       }]
     },
@@ -172,7 +172,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'monthly',
       priority: 0.8,
       images: [{
-        loc: 'https://rasenpilot.de/og-image.jpg',
+        loc: 'https://rasenpilot.com/og-image.jpg',
         caption: 'Rasenpflege Hamburg - KI-Rasenanalyse'
       }]
     }
