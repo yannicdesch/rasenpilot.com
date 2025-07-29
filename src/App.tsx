@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
-import SimplifiedLanding from "./pages/SimplifiedLanding";
+import Index from "./pages/Index";
 import LawnAnalysis from "./pages/LawnAnalysis";
 
 import CarePlan from "./pages/CarePlan";
@@ -40,7 +40,7 @@ const App = () => {
         <Toaster />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<SimplifiedLanding />} />
+            <Route path="/" element={<Index />} />
             <Route path="/lawn-analysis" element={<LawnAnalysis />} />
             
             <Route path="/care-plan" element={<CarePlan />} />
