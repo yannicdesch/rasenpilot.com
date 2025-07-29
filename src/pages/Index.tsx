@@ -35,7 +35,7 @@ const Index = () => {
         <title>{seoContent?.title || "Rasenpilot - Ihr intelligenter Rasenberater"}</title>
         <meta name="description" content={seoContent?.description || "Erstellen Sie kostenlos Ihren 14-Tage-Rasenpflegeplan mit dem KI-gestützten Rasenberater."} />
         <meta name="keywords" content={seoContent?.keywords || "Rasenpflege, Rasenberatung, KI-Rasenberater, Rasenpflegeplan"} />
-        <link rel="canonical" href="https://rasenpilot.com/" />
+        <link rel="canonical" href="https://rasenpilot.de/" />
         <meta property="og:title" content={seoContent?.title || "Rasenpilot - Ihr intelligenter Rasenberater"} />
         <meta property="og:description" content={seoContent?.description || "Erstellen Sie kostenlos Ihren 14-Tage-Rasenpflegeplan mit dem KI-gestützten Rasenberater."} />
         <meta property="og:type" content="website" />
