@@ -64,6 +64,11 @@ Allow: /impressum
 # Sitemap location
 Sitemap: https://rasenpilot.com/sitemap.xml
 
+# Domain consolidation
+User-agent: *
+Disallow: 
+Host: rasenpilot.com
+
 # Block aggressive crawlers
 User-agent: SemrushBot
 Disallow: /
