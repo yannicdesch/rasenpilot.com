@@ -30,7 +30,7 @@ const Imprint = () => {
             <h2 className="text-xl font-semibold text-green-700 mt-6 mb-3">Kontakt</h2>
             <p>
               Telefon: +49 123 456789<br />
-              E-Mail: info@rasenpilot.de
+              E-Mail: info@rasenpilot.com
             </p>
             
             <h2 className="text-xl font-semibold text-green-700 mt-6 mb-3">Vertretungsberechtigte Person</h2>

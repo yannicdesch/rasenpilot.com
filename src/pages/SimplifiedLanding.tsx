@@ -22,16 +22,16 @@ const SimplifiedLanding = () => {
       "@type": "Brand",
       "name": "Rasenpilot"
     },
-    "logo": "https://rasenpilot.de/logo.png",
+    "logo": "https://rasenpilot.com/logo.png",
     "category": "Gartenpflege",
-    "image": "https://rasenpilot.de/og-image.jpg",
-    "url": "https://rasenpilot.de",
+    "image": "https://rasenpilot.com/og-image.jpg",
+    "url": "https://rasenpilot.com",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "EUR",
       "availability": "https://schema.org/InStock",
-      "url": "https://rasenpilot.de/lawn-analysis",
+      "url": "https://rasenpilot.com/lawn-analysis",
       "validFrom": new Date().toISOString(),
       "seller": {
         "@type": "Organization",
@@ -56,9 +56,9 @@ const SimplifiedLanding = () => {
         <meta property="og:title" content="Rasenpilot - KI-Rasenanalyse | Professioneller Pflegeplan in 60 Sekunden" />
         <meta property="og:description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. 98,3% Genauigkeit." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://rasenpilot.de" />
-        <meta property="og:image" content="https://rasenpilot.de/og-image.jpg" />
-        <link rel="canonical" href="https://rasenpilot.de" />
+        <meta property="og:url" content="https://rasenpilot.com" />
+        <meta property="og:image" content="https://rasenpilot.com/og-image.jpg" />
+        <link rel="canonical" href="https://rasenpilot.com" />
         
         
         {/* Product Schema */}

@@ -35,8 +35,8 @@ const Landing = () => {
           data: {
             name: 'KI-Rasenpflegeplan von Rasenpilot',
             description: 'Kostenloser personalisierter Rasenpflegeplan in 30 Sekunden. KI-gestützte Rasenanalyse mit professionellen Empfehlungen.',
-            url: 'https://rasenpilot.de',
-            image: 'https://rasenpilot.de/og-image.jpg',
+            url: 'https://rasenpilot.com',
+            image: 'https://rasenpilot.com/og-image.jpg',
             brand: 'Rasenpilot',
             category: 'Gartenberatung',
             offers: {

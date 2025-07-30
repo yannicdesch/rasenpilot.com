@@ -29,7 +29,7 @@ const PrivacyPolicy = () => {
               Deutschland
             </p>
             <p>
-              E-Mail: info@rasenpilot.de<br />
+              E-Mail: info@rasenpilot.com<br />
               Telefon: +49 123 456789
             </p>
             

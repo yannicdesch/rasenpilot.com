@@ -31,7 +31,7 @@ export interface SiteSettings {
 const defaultSettings: SiteSettings = {
   siteName: 'Rasenpilot',
   siteTagline: 'Ihr KI-Experte für Rasenpflege',
-  siteEmail: 'info@rasenpilot.de',
+  siteEmail: 'info@rasenpilot.com',
   sitePhone: '+49 123 456789',
   siteAddress: 'Musterstraße 1, 12345 Musterstadt',
   googleAnalyticsId: 'G-7F24N28JNH',

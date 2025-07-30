@@ -124,11 +124,11 @@ const BlogOverview = () => {
             "@type": "Blog",
             "name": "Rasenpilot Blog",
             "description": "Expertentipps und Anleitungen für eine perfekte Rasenpflege",
-            "url": "https://rasenpilot.de/blog-overview",
+            "url": "https://rasenpilot.com/blog-overview",
             "publisher": {
               "@type": "Organization",
               "name": "Rasenpilot",
-              "url": "https://rasenpilot.de"
+              "url": "https://rasenpilot.com"
             }
           }
         }}

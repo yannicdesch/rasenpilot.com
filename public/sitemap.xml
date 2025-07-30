@@ -4,179 +4,317 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">
   <url>
-    <loc>https://rasenpilot.de/</loc>
+    <loc>https://rasenpilot.com/</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://rasenpilot.de/logo.png</image:loc>
+      <image:loc>https://rasenpilot.com/logo.png</image:loc>
       <image:caption><![CDATA[Rasenpilot - Intelligenter KI-Rasenberater]]></image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://rasenpilot.de/lawn-analysis</loc>
+    <loc>https://rasenpilot.com/lawn-analysis</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://rasenpilot.de/free-analysis-preview.jpg</image:loc>
+      <image:loc>https://rasenpilot.com/free-analysis-preview.jpg</image:loc>
       <image:caption><![CDATA[Kostenlose KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://rasenpilot.de/care-plan</loc>
+    <loc>https://rasenpilot.com/care-plan</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://rasenpilot.de/free-care-plan-preview.jpg</image:loc>
+      <image:loc>https://rasenpilot.com/free-care-plan-preview.jpg</image:loc>
       <image:caption><![CDATA[Kostenloser 14-Tage Rasenpflegeplan]]></image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://rasenpilot.de/highscore</loc>
+    <loc>https://rasenpilot.com/highscore</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://rasenpilot.de/og-image.jpg</image:loc>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
       <image:caption><![CDATA[Rasen Highscore - Die besten Rasenflächen]]></image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog-overview</loc>
+    <loc>https://rasenpilot.com/blog-overview</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/weather-advice</loc>
+    <loc>https://rasenpilot.com/weather-advice</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/season-guide</loc>
+    <loc>https://rasenpilot.com/season-guide</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/chat-assistant</loc>
+    <loc>https://rasenpilot.com/chat-assistant</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/subscription</loc>
+    <loc>https://rasenpilot.com/subscription</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/datenschutz</loc>
+    <loc>https://rasenpilot.com/ueber-uns</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/kontakt</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/datenschutz</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/terms-of-use</loc>
+    <loc>https://rasenpilot.com/terms-of-use</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/impressum</loc>
+    <loc>https://rasenpilot.com/agb</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/local/munich</loc>
+    <loc>https://rasenpilot.com/impressum</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/munich</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://rasenpilot.de/og-image.jpg</image:loc>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
       <image:caption><![CDATA[Rasenpflege München - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://rasenpilot.de/local/berlin</loc>
+    <loc>https://rasenpilot.com/local/berlin</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://rasenpilot.de/og-image.jpg</image:loc>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
       <image:caption><![CDATA[Rasenpflege Berlin - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://rasenpilot.de/local/hamburg</loc>
+    <loc>https://rasenpilot.com/local/hamburg</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://rasenpilot.de/og-image.jpg</image:loc>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
       <image:caption><![CDATA[Rasenpflege Hamburg - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/perfekter-maehrhythmus-rasen</loc>
+    <loc>https://rasenpilot.com/local/cologne</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Köln - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/frankfurt</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Frankfurt - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/stuttgart</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Stuttgart - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/dusseldorf</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Düsseldorf - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/essen</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Essen - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/dresden</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Dresden - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/hannover</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Hannover - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/bremen</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Bremen - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/nuremberg</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Nürnberg - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/leipzig</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Leipzig - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/dortmund</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Dortmund - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/local/bonn</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://rasenpilot.com/og-image.jpg</image:loc>
+      <image:caption><![CDATA[Rasenpflege Bonn - KI-Rasenanalyse]]></image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rasenpilot.com/blog/perfekter-maehrhythmus-rasen</loc>
     <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/rasen-duengen-fruehling-zeitpunkt-technik</loc>
+    <loc>https://rasenpilot.com/blog/rasen-duengen-fruehling-zeitpunkt-technik</loc>
     <lastmod>2025-05-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/rasenbewaesserung-hochsommer-hitze</loc>
+    <loc>https://rasenpilot.com/blog/rasenbewaesserung-hochsommer-hitze</loc>
     <lastmod>2025-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/moos-im-rasen-bekaempfen-natuerliche-methoden</loc>
+    <loc>https://rasenpilot.com/blog/moos-im-rasen-bekaempfen-natuerliche-methoden</loc>
     <lastmod>2025-05-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/herbstrasen-pflege-winter-vorbereitung</loc>
+    <loc>https://rasenpilot.com/blog/herbstrasen-pflege-winter-vorbereitung</loc>
     <lastmod>2025-04-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/rasen-vertikutieren-leitfaden-hobbygaertner</loc>
+    <loc>https://rasenpilot.com/blog/rasen-vertikutieren-leitfaden-hobbygaertner</loc>
     <lastmod>2025-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/beste-rasenduenger-test-organisch-mineralisch</loc>
+    <loc>https://rasenpilot.com/blog/beste-rasenduenger-test-organisch-mineralisch</loc>
     <lastmod>2025-04-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/rasen-saeen-herbst-oder-fruehling</loc>
+    <loc>https://rasenpilot.com/blog/rasen-saeen-herbst-oder-fruehling</loc>
     <lastmod>2025-04-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/richtige-schnitthöhe-rasen-gras-typ</loc>
+    <loc>https://rasenpilot.com/blog/richtige-schnitthöhe-rasen-gras-typ</loc>
     <lastmod>2025-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://rasenpilot.de/blog/rasenkalkung-ph-wert-boden-gesund</loc>
+    <loc>https://rasenpilot.com/blog/rasenkalkung-ph-wert-boden-gesund</loc>
     <lastmod>2025-03-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>

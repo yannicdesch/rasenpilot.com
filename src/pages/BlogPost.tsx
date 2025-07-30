@@ -187,14 +187,14 @@ const BlogPost = () => {
               name: "Rasenpilot",
               logo: {
                 "@type": "ImageObject",
-                url: "https://rasenpilot.de/logo.png"
+                url: "https://rasenpilot.com/logo.png"
               }
             },
             datePublished: new Date(post.date).toISOString(),
             dateModified: new Date(post.date).toISOString(),
             mainEntityOfPage: {
               "@type": "WebPage",
-              "@id": `https://rasenpilot.de/blog/${post.slug}`
+              "@id": `https://rasenpilot.com/blog/${post.slug}`
             },
             keywords: post.keywords.join(', '),
             articleSection: getCategoryName(post.category),
