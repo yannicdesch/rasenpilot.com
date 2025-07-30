@@ -127,6 +127,21 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       priority: 0.6
     },
     
+    // Company pages
+    {
+      loc: '/ueber-uns',
+      lastmod: today,
+      changefreq: 'yearly',
+      priority: 0.5
+    },
+    
+    {
+      loc: '/kontakt',
+      lastmod: today,
+      changefreq: 'yearly',
+      priority: 0.5
+    },
+    
     // Legal pages
     {
       loc: '/datenschutz',
@@ -137,6 +152,13 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
     
     {
       loc: '/terms-of-use',
+      lastmod: today,
+      changefreq: 'yearly',
+      priority: 0.3
+    },
+    
+    {
+      loc: '/agb',
       lastmod: today,
       changefreq: 'yearly',
       priority: 0.3
