@@ -80,11 +80,6 @@ const Index = () => {
         }}
       />
       
-      {/* Logo with tagline */}
-      <div className="container mx-auto px-4 py-4">
-        <Logo showTagline={true} />
-      </div>
-      
       <MainNavigation />
       
       <section className="bg-gradient-to-b from-green-50 to-white py-16 md:py-24 flex-grow">
