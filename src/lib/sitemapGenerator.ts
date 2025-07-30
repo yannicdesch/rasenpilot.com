@@ -14,7 +14,7 @@ interface SitemapUrl {
 }
 
 export const generateSitemap = (urls: SitemapUrl[]): string => {
-  const siteUrl = 'https://rasenpilot.com';
+  const siteUrl = 'https://rasenpilot.de';
   
   const urlsXml = urls.map(url => {
     const images = url.images?.map(img => `
@@ -52,42 +52,42 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       changefreq: 'daily',
       priority: 1.0,
       images: [{
-        loc: 'https://rasenpilot.com/logo.png',
+        loc: 'https://rasenpilot.de/logo.png',
         caption: 'Rasenpilot - Intelligenter KI-Rasenberater'
       }]
     },
     
     // Free tools (high SEO value)
     {
-      loc: '/onboarding',
+      loc: '/lawn-analysis',
       lastmod: today,
       changefreq: 'weekly',
       priority: 0.9,
       images: [{
-        loc: 'https://rasenpilot.com/free-analysis-preview.jpg',
+        loc: 'https://rasenpilot.de/free-analysis-preview.jpg',
         caption: 'Kostenlose KI-Rasenanalyse'
       }]
     },
     
     {
-      loc: '/free-plan',
+      loc: '/care-plan',
       lastmod: today,
       changefreq: 'weekly',
       priority: 0.9,
       images: [{
-        loc: 'https://rasenpilot.com/free-plan-preview.jpg',
-        caption: 'Kostenloser Rasenpflegeplan erstellen'
+        loc: 'https://rasenpilot.de/free-care-plan-preview.jpg',
+        caption: 'Kostenloser 14-Tage Rasenpflegeplan'
       }]
     },
     
     {
-      loc: '/free-care-plan',
+      loc: '/highscore',
       lastmod: today,
       changefreq: 'daily',
       priority: 0.8,
       images: [{
-        loc: 'https://rasenpilot.com/free-care-plan-preview.jpg',
-        caption: '14-Tage Rasenpflegeplan'
+        loc: 'https://rasenpilot.de/og-image.jpg',
+        caption: 'Rasen Highscore - Die besten Rasenflächen'
       }]
     },
     
@@ -100,25 +100,31 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
     },
     
     {
-      loc: '/features',
+      loc: '/weather-advice',
+      lastmod: today,
+      changefreq: 'weekly',
+      priority: 0.7
+    },
+    
+    {
+      loc: '/season-guide',
       lastmod: today,
       changefreq: 'monthly',
       priority: 0.7
     },
     
-    // Free tools
     {
-      loc: '/free-chat',
+      loc: '/chat-assistant',
       lastmod: today,
-      changefreq: 'monthly',
-      priority: 0.7
+      changefreq: 'weekly',
+      priority: 0.6
     },
     
     {
-      loc: '/free-weather',
+      loc: '/subscription',
       lastmod: today,
-      changefreq: 'daily',
-      priority: 0.7
+      changefreq: 'monthly',
+      priority: 0.6
     },
     
     // Legal pages
@@ -130,7 +136,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
     },
     
     {
-      loc: '/nutzungsbedingungen',
+      loc: '/terms-of-use',
       lastmod: today,
       changefreq: 'yearly',
       priority: 0.3
@@ -148,9 +154,9 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       loc: '/local/munich',
       lastmod: today,
       changefreq: 'monthly',
-      priority: 0.8,
+      priority: 0.7,
       images: [{
-        loc: 'https://rasenpilot.com/og-image.jpg',
+        loc: 'https://rasenpilot.de/og-image.jpg',
         caption: 'Rasenpflege München - KI-Rasenanalyse'
       }]
     },
@@ -159,9 +165,9 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       loc: '/local/berlin',
       lastmod: today,
       changefreq: 'monthly',
-      priority: 0.8,
+      priority: 0.7,
       images: [{
-        loc: 'https://rasenpilot.com/og-image.jpg',
+        loc: 'https://rasenpilot.de/og-image.jpg',
         caption: 'Rasenpflege Berlin - KI-Rasenanalyse'
       }]
     },
@@ -170,9 +176,9 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
       loc: '/local/hamburg',
       lastmod: today,
       changefreq: 'monthly',
-      priority: 0.8,
+      priority: 0.7,
       images: [{
-        loc: 'https://rasenpilot.com/og-image.jpg',
+        loc: 'https://rasenpilot.de/og-image.jpg',
         caption: 'Rasenpflege Hamburg - KI-Rasenanalyse'
       }]
     }
