@@ -6,6 +6,7 @@ import { Calendar, CheckCircle, Info, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import SEO from '@/components/SEO';
+import MainNavigation from '@/components/MainNavigation';
 
 const CarePlan = () => {
   const navigate = useNavigate();
@@ -153,36 +154,7 @@ const CarePlan = () => {
         keywords="Rasenpflegeplan, Rasen Pflegeplan, individueller Rasenpflegeplan, Rasen Zeitplan, Düngeplan Rasen"
         noindex={false}
       />
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Leaf className="h-8 w-8 text-green-600" />
-            <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/highscore')}
-            >
-              Bestenliste
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/blog-overview')}
-            >
-              Ratgeber
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Startseite
-            </Button>
-          </div>
-        </nav>
-      </header>
+      <MainNavigation />
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">

@@ -7,6 +7,7 @@ import { Camera, Sparkles, Users, ArrowRight, Leaf, Brain, Shield, Award, CheckC
 import { Helmet } from 'react-helmet-async';
 import FAQ from '@/components/FAQ';
 import LazyImage from '@/components/LazyImage';
+import MainNavigation from '@/components/MainNavigation';
 
 const SimplifiedLanding = () => {
   const navigate = useNavigate();
@@ -67,35 +68,7 @@ const SimplifiedLanding = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-        {/* Header */}
-        <header className="container mx-auto px-4 py-6">
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Leaf className="h-8 w-8 text-green-600" />
-              <span className="text-2xl font-bold text-green-800">Rasenpilot</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/')}
-              >
-                Startseite
-              </Button>
-              <Button 
-                variant="ghost"
-                onClick={() => navigate('/highscore')}
-              >
-                Bestenliste
-              </Button>
-              <Button 
-                variant="ghost"
-                onClick={() => navigate('/blog-overview')}
-              >
-                Ratgeber
-              </Button>
-            </div>
-          </nav>
-        </header>
+        <MainNavigation />
 
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-8 text-center">

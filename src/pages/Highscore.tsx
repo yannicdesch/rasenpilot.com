@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Leaf, ArrowLeft, Camera } from 'lucide-react';
 import LawnHighscore from '@/components/LawnHighscore';
 import SEO from '@/components/SEO';
+import MainNavigation from '@/components/MainNavigation';
 
 const Highscore = () => {
   const navigate = useNavigate();
@@ -17,43 +18,7 @@ const Highscore = () => {
         canonical="/highscore"
         keywords="Rasen Bestenliste, schönste Rasenflächen Deutschland, Rasen Highscore, perfekter Rasen, Traumrasen"
       />
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Leaf className="h-8 w-8 text-green-600" />
-            <span className="text-xl sm:text-2xl font-bold text-green-800">Rasenpilot</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/lawn-analysis')}
-              className="hidden sm:flex"
-            >
-              <Camera className="mr-2 h-4 w-4" />
-              Rasen analysieren
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/lawn-analysis')}
-              className="sm:hidden"
-            >
-              <Camera className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Startseite</span>
-              <span className="sm:hidden">Home</span>
-            </Button>
-          </div>
-        </nav>
-      </header>
+      <MainNavigation />
       
       <div className="container mx-auto px-4 py-8">
         <LawnHighscore />

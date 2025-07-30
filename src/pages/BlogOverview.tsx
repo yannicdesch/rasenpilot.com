@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, User, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
+import MainNavigation from '@/components/MainNavigation';
 
 interface BlogPost {
   id: number;
@@ -132,38 +133,7 @@ const BlogOverview = () => {
           }
         }}
       />
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Leaf className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground">Rasenpilot</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/highscore')}
-              >
-                Bestenliste
-              </Button>
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/lawn-analysis')}
-              >
-                Rasenanalyse
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Startseite
-              </Button>
-            </div>
-          </nav>
-        </div>
-      </header>
+      <MainNavigation />
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
