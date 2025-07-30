@@ -37,6 +37,9 @@ import Dresden from "./pages/local/Dresden";
 import Hannover from "./pages/local/Hannover";
 import Bremen from "./pages/local/Bremen";
 import Nuremberg from "./pages/local/Nuremberg";
+import Leipzig from "./pages/local/Leipzig";
+import Dortmund from "./pages/local/Dortmund";
+import Bonn from "./pages/local/Bonn";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +89,9 @@ const App = () => {
             <Route path="/local/hannover" element={<Hannover />} />
             <Route path="/local/bremen" element={<Bremen />} />
             <Route path="/local/nuremberg" element={<Nuremberg />} />
+            <Route path="/local/leipzig" element={<Leipzig />} />
+            <Route path="/local/dortmund" element={<Dortmund />} />
+            <Route path="/local/bonn" element={<Bonn />} />
             
             {/* Additional Features */}
             <Route path="/chat-assistant" element={<ChatAssistant />} />

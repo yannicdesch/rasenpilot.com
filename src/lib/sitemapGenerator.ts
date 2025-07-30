@@ -302,6 +302,39 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
         loc: 'https://rasenpilot.com/og-image.jpg',
         caption: 'Rasenpflege Nürnberg - KI-Rasenanalyse'
       }]
+    },
+    
+    {
+      loc: '/local/leipzig',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.7,
+      images: [{
+        loc: 'https://rasenpilot.com/og-image.jpg',
+        caption: 'Rasenpflege Leipzig - KI-Rasenanalyse'
+      }]
+    },
+    
+    {
+      loc: '/local/dortmund',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.7,
+      images: [{
+        loc: 'https://rasenpilot.com/og-image.jpg',
+        caption: 'Rasenpflege Dortmund - KI-Rasenanalyse'
+      }]
+    },
+    
+    {
+      loc: '/local/bonn',
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.7,
+      images: [{
+        loc: 'https://rasenpilot.com/og-image.jpg',
+        caption: 'Rasenpflege Bonn - KI-Rasenanalyse'
+      }]
     }
   ];
 
