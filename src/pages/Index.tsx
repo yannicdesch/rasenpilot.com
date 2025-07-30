@@ -373,15 +373,162 @@ const Index = () => {
         </div>
       )}
       
-      <footer className="bg-white py-6 border-t border-gray-200">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
-          <div className="mt-2 flex justify-center gap-4">
-            <Link to="/blog-overview" className="text-gray-600 hover:text-green-600">Blog</Link>
-            <span className="text-gray-400">|</span>
-            <Link to="/care-plan" className="text-gray-600 hover:text-green-600">Kostenloser Plan</Link>
-            <span className="text-gray-400">|</span>
-            <Link to="/chat-assistant" className="text-gray-600 hover:text-green-600">KI-Chat</Link>
+      {/* Comprehensive Footer */}
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Company Info */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="bg-green-100 p-1 rounded-full">
+                  <div className="h-5 w-5 bg-green-600 rounded-full"></div>
+                </div>
+                <span className="text-lg font-bold">Rasenpilot</span>
+              </div>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                Deutschlands intelligentester KI-Rasenberater. Kostenlose Pflegepläne für jeden Rasentyp mit professionellen Empfehlungen.
+              </p>
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <span>⭐ 4.9/5 Sterne</span>
+                <span>•</span>
+                <span>1.000+ Nutzer</span>
+              </div>
+            </div>
+
+            {/* Services */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Services</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link to="/lawn-analysis" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Kostenlose Rasenanalyse
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/care-plan" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Personalisierter Pflegeplan
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/chat-assistant" className="text-gray-300 hover:text-green-400 transition-colors">
+                    KI-Chat Assistent
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/weather-advice" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Wetter-Ratgeber
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/season-guide" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Saisonaler Leitfaden
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/highscore" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Rasen-Bestenliste
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Content & Support */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Wissen & Support</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link to="/blog-overview" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Rasenpflege Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/content-library" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Ratgeber & Tipps
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/kontakt" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Kontakt & Support
+                  </Link>
+                </li>
+                <li>
+                  <a href="#faq" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Häufige Fragen (FAQ)
+                  </a>
+                </li>
+                <li>
+                  <Link to="/ueber-uns" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Über uns
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal & Local */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Rechtliches</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link to="/impressum" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Impressum
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/datenschutz" className="text-gray-300 hover:text-green-400 transition-colors">
+                    Datenschutz
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/agb" className="text-gray-300 hover:text-green-400 transition-colors">
+                    AGB
+                  </Link>
+                </li>
+              </ul>
+              
+              <div className="pt-4">
+                <h4 className="text-sm font-semibold mb-2">Lokale Rasenpflege</h4>
+                <ul className="space-y-1 text-xs">
+                  <li>
+                    <Link to="/local/berlin" className="text-gray-400 hover:text-green-400 transition-colors">
+                      Rasenpflege Berlin
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/local/munich" className="text-gray-400 hover:text-green-400 transition-colors">
+                      Rasenpflege München
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/local/hamburg" className="text-gray-400 hover:text-green-400 transition-colors">
+                      Rasenpflege Hamburg
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Footer */}
+          <div className="border-t border-gray-700 mt-8 pt-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-400">
+                &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
+              </div>
+              
+              <div className="flex items-center gap-6 text-sm">
+                <span className="text-gray-400">Made with 💚 für deutsche Rasenliebhaber</span>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <Button 
+                  onClick={() => navigate('/lawn-analysis')}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Kostenlos starten
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
