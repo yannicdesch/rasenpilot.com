@@ -7,6 +7,8 @@ import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen, Trophy, S
 import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
 import Logo from '@/components/Logo';
+import SEO from '@/components/SEO';
+import StructuredData from '@/components/StructuredData';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -31,16 +33,50 @@ const Index = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Helmet>
-        <title>{seoContent?.title || "Rasenpilot - Ihr intelligenter Rasenberater"}</title>
-        <meta name="description" content={seoContent?.description || "Erstellen Sie kostenlos Ihren 14-Tage-Rasenpflegeplan mit dem KI-gestützten Rasenberater."} />
-        <meta name="keywords" content={seoContent?.keywords || "Rasenpflege, Rasenberatung, KI-Rasenberater, Rasenpflegeplan"} />
-        <link rel="canonical" href="https://rasenpilot.de/" />
-        <meta property="og:title" content={seoContent?.title || "Rasenpilot - Ihr intelligenter Rasenberater"} />
-        <meta property="og:description" content={seoContent?.description || "Erstellen Sie kostenlos Ihren 14-Tage-Rasenpflegeplan mit dem KI-gestützten Rasenberater."} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://rasenpilot.de/" />
-      </Helmet>
+      <SEO 
+        title={seoContent?.title || "Rasenpilot - KI-Rasenberater | Kostenloser Pflegeplan in 30 Sekunden"}
+        description={seoContent?.description || "Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden. KI-gestützte Rasenanalyse basierend auf Standort, Rasentyp & Zielen. Sofort starten - ohne Anmeldung."}
+        canonical="/"
+        keywords={seoContent?.keywords || "Rasenpflege Deutschland,KI-Rasenberater,kostenloser Rasenpflegeplan,Rasen düngen,Rasen mähen,Rasenpilot,Rasenberatung,Rasen-Analyse kostenlos,Rasen-Probleme,intelligenter Rasen-Assistent"}
+        type="website"
+        structuredData={{
+          type: 'WebSite',
+          data: {
+            name: 'Rasenpilot',
+            description: 'Intelligenter KI-Rasenberater für personalisierten Rasenpflegeplan',
+            url: 'https://rasenpilot.de',
+            potentialAction: {
+              "@type": "SearchAction",
+              target: "https://rasenpilot.de/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            },
+            sameAs: [
+              "https://rasenpilot.de/blog-overview",
+              "https://rasenpilot.de/lawn-analysis"
+            ]
+          }
+        }}
+      />
+      
+      <StructuredData 
+        type="Service"
+        data={{
+          name: "KI-Rasenpflegeplan von Rasenpilot",
+          description: "Kostenloser personalisierter Rasenpflegeplan in 30 Sekunden. KI-gestützte Rasenanalyse mit professionellen Empfehlungen.",
+          provider: "Rasenpilot",
+          serviceType: "Rasenberatung"
+        }}
+      />
+      
+      <StructuredData 
+        type="Organization"
+        data={{
+          name: "Rasenpilot",
+          url: "https://rasenpilot.de",
+          logo: "https://rasenpilot.de/logo.png",
+          description: "Intelligenter KI-Rasenberater für Deutschland"
+        }}
+      />
       
       {/* Logo with tagline */}
       <div className="container mx-auto px-4 py-4">
