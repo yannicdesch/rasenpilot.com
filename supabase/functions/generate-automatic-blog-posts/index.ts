@@ -127,7 +127,7 @@ serve(async (req) => {
               read_time: parseInt(blogPost.read_time) || Math.floor(blogPost.content.length / 1000) + 3,
               tags: blogPost.keywords.join(', '),
               date: new Date().toISOString().split('T')[0],
-              author: 'Rasenpilot AI',
+              author: 'Lars',
               status: 'published',
               seo: {
                 metaTitle: blogPost.meta_title,
