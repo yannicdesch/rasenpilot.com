@@ -9,6 +9,8 @@ import type { SEOContentType } from '@/components/SEOContentEditor';
 import Logo from '@/components/Logo';
 import SEO from '@/components/SEO';
 import StructuredData from '@/components/StructuredData';
+import FAQ from '@/components/FAQ';
+import Testimonials from '@/components/Testimonials';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -351,6 +353,16 @@ const Index = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+      
+      {/* Testimonials Section */}
+      <Testimonials />
+      
+      {/* FAQ Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <FAQ />
         </div>
       </section>
       
