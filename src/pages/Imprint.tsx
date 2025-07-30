@@ -10,6 +10,7 @@ const Imprint = () => {
       <Helmet>
         <title>Impressum | Rasenpilot</title>
         <meta name="description" content="Impressum der Rasenpilot GmbH - Kontaktinformationen und rechtliche Angaben." />
+        <link rel="canonical" href="https://www.rasenpilot.com/impressum" />
       </Helmet>
       
       <MainNavigation />

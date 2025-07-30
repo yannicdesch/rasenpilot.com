@@ -12,6 +12,7 @@ const NewBlogPost = () => {
         <title>Neuen Blogbeitrag erstellen - Rasenpilot Admin</title>
         <meta name="description" content="Erstellen Sie SEO-optimierte Inhalte für Ihre Rasenpilot Website" />
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://www.rasenpilot.com/new-blog-post" />
       </Helmet>
       
       <MainNavigation />

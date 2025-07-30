@@ -50,7 +50,7 @@ const SEO: React.FC<SEOProps> = ({
     : description || 'Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden. KI-gestützte Rasenanalyse basierend auf Standort, Rasentyp & Zielen. Sofort starten - ohne Anmeldung.';
 
   // Build canonical URL
-  const siteUrl = 'https://rasenpilot.com';
+  const siteUrl = 'https://www.rasenpilot.com';
   const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   // High-quality logo and images for better search results

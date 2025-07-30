@@ -58,7 +58,7 @@ const SimplifiedLanding = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://rasenpilot.com" />
         <meta property="og:image" content="https://rasenpilot.com/og-image.jpg" />
-        <link rel="canonical" href="https://rasenpilot.com" />
+        <link rel="canonical" href="https://www.rasenpilot.com" />
         
         
         {/* Product Schema */}
