@@ -46,15 +46,15 @@ const Index = () => {
           data: {
             name: 'Rasenpilot',
             description: 'Intelligenter KI-Rasenberater für personalisierten Rasenpflegeplan',
-            url: 'https://rasenpilot.de',
+            url: 'https://rasenpilot.com',
             potentialAction: {
               "@type": "SearchAction",
-              target: "https://rasenpilot.de/search?q={search_term_string}",
+              target: "https://rasenpilot.com/search?q={search_term_string}",
               "query-input": "required name=search_term_string"
             },
             sameAs: [
-              "https://rasenpilot.de/blog-overview",
-              "https://rasenpilot.de/lawn-analysis"
+              "https://rasenpilot.com/blog-overview",
+              "https://rasenpilot.com/lawn-analysis"
             ]
           }
         }}
@@ -74,8 +74,8 @@ const Index = () => {
         type="Organization"
         data={{
           name: "Rasenpilot",
-          url: "https://rasenpilot.de",
-          logo: "https://rasenpilot.de/logo.png",
+          url: "https://rasenpilot.com",
+          logo: "https://rasenpilot.com/logo.png",
           description: "Intelligenter KI-Rasenberater für Deutschland"
         }}
       />

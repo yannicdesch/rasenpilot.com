@@ -50,7 +50,7 @@ const SEO: React.FC<SEOProps> = ({
     : description || 'Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden. KI-gestützte Rasenanalyse basierend auf Standort, Rasentyp & Zielen. Sofort starten - ohne Anmeldung.';
 
   // Build canonical URL
-  const siteUrl = 'https://rasenpilot.de';
+  const siteUrl = 'https://rasenpilot.com';
   const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   // High-quality logo and images for better search results
@@ -121,7 +121,7 @@ const SEO: React.FC<SEOProps> = ({
         <meta name="twitter:image:alt" content="Rasenpilot - Intelligenter KI-Rasenberater" />
         
         {/* Additional Twitter tags */}
-        <meta name="twitter:domain" content="rasenpilot.de" />
+        <meta name="twitter:domain" content="rasenpilot.com" />
         <meta name="twitter:url" content={canonicalUrl} />
         
         {/* Canonical link - Always include */}
