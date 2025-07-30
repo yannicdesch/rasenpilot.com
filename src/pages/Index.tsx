@@ -87,7 +87,7 @@ const Index = () => {
           {/* Trust Badge */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center bg-green-100 px-4 py-2 rounded-full text-green-800 text-sm font-medium">
-              🏆 Deutschlands #1 KI-Rasenexperte
+              🏆 Deutschlands #1 KI-Rasenexperte • 50.000+ zufriedene Nutzer
             </div>
           </div>
           

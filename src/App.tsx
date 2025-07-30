@@ -28,6 +28,10 @@ import Subscription from "./pages/Subscription";
 import Munich from "./pages/local/Munich";
 import Berlin from "./pages/local/Berlin";
 import Hamburg from "./pages/local/Hamburg";
+import Cologne from "./pages/local/Cologne";
+import Frankfurt from "./pages/local/Frankfurt";
+import Stuttgart from "./pages/local/Stuttgart";
+import Dusseldorf from "./pages/local/Dusseldorf";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +72,10 @@ const App = () => {
             <Route path="/local/munich" element={<Munich />} />
             <Route path="/local/berlin" element={<Berlin />} />
             <Route path="/local/hamburg" element={<Hamburg />} />
+            <Route path="/local/cologne" element={<Cologne />} />
+            <Route path="/local/frankfurt" element={<Frankfurt />} />
+            <Route path="/local/stuttgart" element={<Stuttgart />} />
+            <Route path="/local/dusseldorf" element={<Dusseldorf />} />
             
             {/* Additional Features */}
             <Route path="/chat-assistant" element={<ChatAssistant />} />
