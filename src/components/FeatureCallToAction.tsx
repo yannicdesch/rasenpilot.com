@@ -17,7 +17,7 @@ const FeatureCallToAction = ({
 
   const handleNavigateToAuth = () => {
     // Use navigate with replace:true and specify 'register' tab
-    navigate('/auth?tab=register', { replace: true });
+    navigate('/lawn-analysis', { replace: true });
   };
 
   if (variant === 'minimal') {

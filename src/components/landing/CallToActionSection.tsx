@@ -11,12 +11,12 @@ const CallToActionSection = () => {
   
   const handleFreeAnalysisClick = () => {
     trackButtonClick('free_analysis_cta', { section: 'main_cta', priority: 'primary' });
-    navigate('/onboarding');
+    navigate('/lawn-analysis');
   };
   
   const handleFullVersionClick = () => {
     trackButtonClick('full_version_cta', { section: 'main_cta', priority: 'secondary' });
-    navigate('/auth');
+    navigate('/lawn-analysis');
   };
   
   return (

@@ -23,7 +23,7 @@ const CarePlan = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        navigate('/auth');
+        navigate('/lawn-analysis');
         return;
       }
 

@@ -280,7 +280,7 @@ const BlogPost = () => {
             der perfekt auf Ihren Rasen abgestimmt ist.
           </p>
           <Button 
-            onClick={() => navigate('/onboarding')} 
+            onClick={() => navigate('/lawn-analysis')} 
             className="bg-green-600 hover:bg-green-700"
           >
             Kostenlos starten <ArrowRight className="ml-2 h-4 w-4" />

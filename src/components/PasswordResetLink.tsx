@@ -32,7 +32,7 @@ const PasswordResetLink: React.FC = () => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: window.location.origin + '/auth',
+        redirectTo: window.location.origin + '/lawn-analysis',
       });
 
       if (error) {

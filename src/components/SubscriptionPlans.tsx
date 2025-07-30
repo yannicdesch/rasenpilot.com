@@ -17,7 +17,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({ onSelectPlan, var
     if (onSelectPlan) {
       onSelectPlan();
     } else {
-      navigate('/auth');
+      navigate('/lawn-analysis');
     }
   };
 

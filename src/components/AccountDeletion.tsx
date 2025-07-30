@@ -44,7 +44,7 @@ const AccountDeletion: React.FC = () => {
       
       await supabase.auth.signOut();
       toast.success('Ihr Account wurde erfolgreich gelöscht');
-      navigate('/auth');
+      navigate('/lawn-analysis');
     } catch (error: any) {
       toast.error(`Fehler beim Löschen des Accounts: ${error.message}`);
     } finally {

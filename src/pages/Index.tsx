@@ -367,9 +367,9 @@ const Index = () => {
           <div className="mt-2 flex justify-center gap-4">
             <Link to="/blog-overview" className="text-gray-600 hover:text-green-600">Blog</Link>
             <span className="text-gray-400">|</span>
-            <Link to="/free-plan" className="text-gray-600 hover:text-green-600">Kostenloser Plan</Link>
+            <Link to="/care-plan" className="text-gray-600 hover:text-green-600">Kostenloser Plan</Link>
             <span className="text-gray-400">|</span>
-            <Link to="/free-chat" className="text-gray-600 hover:text-green-600">KI-Chat</Link>
+            <Link to="/chat-assistant" className="text-gray-600 hover:text-green-600">KI-Chat</Link>
           </div>
         </div>
       </footer>

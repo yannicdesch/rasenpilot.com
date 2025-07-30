@@ -85,14 +85,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
   // Check authentication
   if (isAuthenticated === false) {
-    console.log('ProtectedRoute: Not authenticated, redirecting to /auth');
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    console.log('ProtectedRoute: Not authenticated, redirecting to /lawn-analysis');
+    return <Navigate to="/lawn-analysis" state={{ from: location }} replace />;
   }
 
   // Check admin privileges if required
   if (requireAdmin && !isAdmin) {
-    console.log('ProtectedRoute: Admin required but user is not admin, redirecting to /auth');
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    console.log('ProtectedRoute: Admin required but user is not admin, redirecting to /lawn-analysis');
+    return <Navigate to="/lawn-analysis" state={{ from: location }} replace />;
   }
 
   // User is authenticated and has required permissions

@@ -74,7 +74,7 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
         // If confirmation is required
         trackRegistrationStep('email_confirmation_sent');
         toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
-        navigate('/auth?tab=login');
+        navigate('/lawn-analysis');
       }
     } catch (error: any) {
       toast.error('Fehler bei der Registrierung: ' + (error.message || 'Unbekannter Fehler'));

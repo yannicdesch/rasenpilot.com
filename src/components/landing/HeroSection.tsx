@@ -18,7 +18,7 @@ const HeroSection = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <Button 
-              onClick={() => navigate('/onboarding')} 
+              onClick={() => navigate('/lawn-analysis')} 
               size="lg"
               className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6 px-8 shadow-lg"
             >
@@ -28,7 +28,7 @@ const HeroSection = () => {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 
-              onClick={() => navigate('/auth')} 
+              onClick={() => navigate('/lawn-analysis')} 
               variant="outline" 
               size="lg"
               className="border-2 border-green-200 text-green-700 hover:bg-green-50 text-lg py-6 px-8"

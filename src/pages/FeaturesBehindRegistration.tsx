@@ -77,14 +77,14 @@ const FeaturesBehindRegistration = () => {
             <div className="flex flex-wrap gap-4 justify-center">
               <Button
                 className="bg-green-600 hover:bg-green-700 px-6 py-2"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/lawn-analysis')}
               >
                 Kostenlos registrieren <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
                 className="border-green-600 text-green-700"
-                onClick={() => navigate('/free-plan')}
+                onClick={() => navigate('/care-plan')}
               >
                 Erst Plan erstellen
               </Button>
@@ -114,7 +114,7 @@ const FeaturesBehindRegistration = () => {
                   <Button 
                     variant="ghost" 
                     className="w-full text-green-700 hover:bg-green-50 hover:text-green-800"
-                    onClick={() => navigate('/auth')}
+                    onClick={() => navigate('/lawn-analysis')}
                   >
                     Zugriff freischalten
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -133,7 +133,7 @@ const FeaturesBehindRegistration = () => {
             <Button 
               size="lg"
               className="bg-white text-green-700 hover:bg-green-50 px-8"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/lawn-analysis')}
             >
               Kostenlos registrieren
               <ArrowRight className="ml-2 h-4 w-4" />
