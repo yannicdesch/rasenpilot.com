@@ -34,6 +34,12 @@
     </image:image>
   </url>
   <url>
+    <loc>https://www.rasenpilot.com/blog</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.rasenpilot.com/highscore</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>daily</changefreq>
@@ -93,6 +99,12 @@
   </url>
   <url>
     <loc>https://www.rasenpilot.com/terms-of-use</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.rasenpilot.com/nutzungsbedingungen</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
@@ -260,62 +272,92 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/perfekter-maehrhythmus-rasen</loc>
-    <lastmod>2025-05-15</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasen-duengen-guide</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/rasen-duengen-fruehling-zeitpunkt-technik</loc>
-    <lastmod>2025-05-10</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasen-maehen-tipps</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/rasenbewaesserung-hochsommer-hitze</loc>
-    <lastmod>2025-05-05</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasen-vertikutieren-anleitung</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/moos-im-rasen-bekaempfen-natuerliche-methoden</loc>
-    <lastmod>2025-05-01</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasenpflege-fruehling</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/herbstrasen-pflege-winter-vorbereitung</loc>
-    <lastmod>2025-04-25</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasenpflege-sommer</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/rasen-vertikutieren-leitfaden-hobbygaertner</loc>
-    <lastmod>2025-04-20</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasenpflege-herbst</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/beste-rasenduenger-test-organisch-mineralisch</loc>
-    <lastmod>2025-04-15</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasenpflege-winter</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/rasen-saeen-herbst-oder-fruehling</loc>
-    <lastmod>2025-04-10</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasen-nachsaeen-guide</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/richtige-schnitthöhe-rasen-gras-typ</loc>
-    <lastmod>2025-04-05</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasenkrankheiten-erkennen</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.rasenpilot.com/blog/rasenkalkung-ph-wert-boden-gesund</loc>
-    <lastmod>2025-03-30</lastmod>
+    <loc>https://www.rasenpilot.com/blog/rasen-bewaessern-tipps</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.rasenpilot.com/blog/unkraut-im-rasen-bekaempfen</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.rasenpilot.com/blog/rasen-kalken-wann-noetig</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.rasenpilot.com/blog/rasensorten-vergleich</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.rasenpilot.com/blog/rasen-neuanlage-schritt-fuer-schritt</loc>
+    <lastmod>2025-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.rasenpilot.com/blog/moos-im-rasen-entfernen</loc>
+    <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
