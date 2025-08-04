@@ -49,9 +49,9 @@ const Berlin = () => {
         title="Rasenpflege Berlin - KI-Rasenanalyse für Berlin | Rasenpilot"
         description="Professionelle Rasenpflege in Berlin mit KI-Analyse. Angepasst an sandige Böden und Stadtklima. Kostenlose Analyse mit lokalem Expertenwissen für Berlin."
         keywords="Rasenpflege Berlin, Rasen Berlin, Gartenpflege Berlin, KI Rasenanalyse Berlin, Rasen düngen Berlin, Rasenpilot Berlin"
-        canonical="/local/berlin"
+        canonical="https://www.rasenpilot.com/local/berlin"
         structuredData={structuredData}
-        ogImage="/og-image.jpg"
+        ogImage="https://www.rasenpilot.com/og-image.jpg"
       />
       
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
