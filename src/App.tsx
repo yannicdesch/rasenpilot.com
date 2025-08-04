@@ -40,6 +40,7 @@ import Nuremberg from "./pages/local/Nuremberg";
 import Leipzig from "./pages/local/Leipzig";
 import Dortmund from "./pages/local/Dortmund";
 import Bonn from "./pages/local/Bonn";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,9 @@ const App = () => {
             
             {/* Admin Panel */}
             <Route path="/admin-panel" element={<AdminPanel />} />
+            
+            {/* Catch-all route for 404 errors */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </LawnProvider>

@@ -110,8 +110,6 @@ export const initHttpsEnforcement = () => {
   // Validate current security
   validateSecureResources();
   
-  // Force HTTPS redirect in client-side if needed (fallback)
-  if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
-    window.location.replace(window.location.href.replace('http:', 'https:'));
-  }
+  // Note: HTTPS redirect is handled by server-side .htaccess
+  // Removed client-side redirect to prevent redirect loops
 };
