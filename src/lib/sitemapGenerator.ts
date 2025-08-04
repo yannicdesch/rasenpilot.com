@@ -81,6 +81,13 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
     },
     
     {
+      loc: '/blog',
+      lastmod: today,
+      changefreq: 'daily',
+      priority: 0.8
+    },
+    
+    {
       loc: '/highscore',
       lastmod: today,
       changefreq: 'daily',
@@ -152,6 +159,13 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
     
     {
       loc: '/terms-of-use',
+      lastmod: today,
+      changefreq: 'yearly',
+      priority: 0.3
+    },
+    
+    {
+      loc: '/nutzungsbedingungen',
       lastmod: today,
       changefreq: 'yearly',
       priority: 0.3
