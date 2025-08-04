@@ -13,7 +13,7 @@ const Stuttgart = () => {
       <SEO 
         title="Rasenpflege Stuttgart | KI-Rasenberatung für das Stuttgarter Kessel | Rasenpilot"
         description="Professionelle Rasenpflege in Stuttgart: KI-gestützte Rasenanalyse für Hanglage und Kessellage. Kostenloser Pflegeplan für Stuttgarter Gärten."
-        canonical="/local/stuttgart"
+        canonical="https://www.rasenpilot.com/local/stuttgart"
         keywords="Rasenpflege Stuttgart, Rasenberatung Stuttgart, Rasen düngen Stuttgart, KI Rasenanalyse Stuttgart, Gartenpflege Stuttgart Kessel, Rasenpilot Stuttgart"
         structuredData={{
           type: 'Service',

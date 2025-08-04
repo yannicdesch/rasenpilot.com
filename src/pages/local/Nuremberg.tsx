@@ -13,7 +13,7 @@ const Nuremberg = () => {
       <SEO 
         title="Rasenpflege Nürnberg | KI-Rasenberatung für Franken | Rasenpilot"
         description="Professionelle Rasenpflege in Nürnberg: KI-gestützte Rasenanalyse für fränkisches Klima. Kostenloser Pflegeplan für Nürnberger Gärten."
-        canonical="/local/nuremberg"
+        canonical="https://www.rasenpilot.com/local/nuremberg"
         keywords="Rasenpflege Nürnberg, Rasenberatung Nürnberg, Rasen düngen Nürnberg, KI Rasenanalyse Nürnberg, Gartenpflege Franken, Rasenpilot Nürnberg"
         structuredData={{
           type: 'Service',

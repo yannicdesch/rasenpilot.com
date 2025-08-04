@@ -13,7 +13,7 @@ const Dortmund = () => {
       <SEO 
         title="Rasenpflege Dortmund | KI-Rasenberatung für das Ruhrgebiet | Rasenpilot"
         description="Professionelle Rasenpflege in Dortmund: KI-gestützte Rasenanalyse für Industrieklima. Kostenloser Pflegeplan für Dortmunder Gärten."
-        canonical="/local/dortmund"
+        canonical="https://www.rasenpilot.com/local/dortmund"
         keywords="Rasenpflege Dortmund, Rasenberatung Dortmund, Rasen düngen Dortmund, KI Rasenanalyse Dortmund, Gartenpflege Ruhrgebiet, Rasenpilot Dortmund"
         structuredData={{
           type: 'Service',

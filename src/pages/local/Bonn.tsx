@@ -13,7 +13,7 @@ const Bonn = () => {
       <SEO 
         title="Rasenpflege Bonn | KI-Rasenberatung für die ehemalige Hauptstadt | Rasenpilot"
         description="Professionelle Rasenpflege in Bonn: KI-gestützte Rasenanalyse für rheinisches Klima. Kostenloser Pflegeplan für Bonner Gärten."
-        canonical="/local/bonn"
+        canonical="https://www.rasenpilot.com/local/bonn"
         keywords="Rasenpflege Bonn, Rasenberatung Bonn, Rasen düngen Bonn, KI Rasenanalyse Bonn, Gartenpflege Rheinland, Rasenpilot Bonn"
         structuredData={{
           type: 'Service',

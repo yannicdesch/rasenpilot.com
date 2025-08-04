@@ -13,7 +13,7 @@ const Bremen = () => {
       <SEO 
         title="Rasenpflege Bremen | KI-Rasenberatung für Norddeutschland | Rasenpilot"
         description="Professionelle Rasenpflege in Bremen: KI-gestützte Rasenanalyse für Meeresklima. Kostenloser Pflegeplan für Bremer Gärten."
-        canonical="/local/bremen"
+        canonical="https://www.rasenpilot.com/local/bremen"
         keywords="Rasenpflege Bremen, Rasenberatung Bremen, Rasen düngen Bremen, KI Rasenanalyse Bremen, Gartenpflege Bremen, Rasenpilot Bremen"
         structuredData={{
           type: 'Service',

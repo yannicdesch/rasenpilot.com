@@ -49,7 +49,7 @@ const Munich = () => {
         title="Rasenpflege München - KI-Rasenanalyse für München | Rasenpilot"
         description="Professionelle Rasenpflege in München mit KI-Analyse. Klimaangepasste Pflegetipps für Münchener Böden und Wetter. Kostenlose Analyse mit lokalem Expertenwissen."
         keywords="Rasenpflege München, Rasen München, Gartenpflege München, KI Rasenanalyse München, Rasen düngen München, Rasenpilot München"
-        canonical="/local/munich"
+        canonical="https://www.rasenpilot.com/local/munich"
         structuredData={structuredData}
         ogImage="/og-image.jpg"
       />

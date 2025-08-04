@@ -131,7 +131,7 @@ const CarePlan = () => {
         <SEO 
           title="Personalisierter Rasenpflegeplan - Schritt-für-Schritt Anleitung | Rasenpilot"
           description="Ihr individueller, KI-generierter Rasenpflegeplan mit detaillierten Schritt-für-Schritt Anleitungen. Zeitplan, Düngeempfehlungen und saisonale Pflegetipps."
-          canonical="/care-plan"
+          canonical="https://www.rasenpilot.com/care-plan"
           keywords="Rasenpflegeplan, Rasen Pflegeplan, individueller Rasenpflegeplan, Rasen Zeitplan, Düngeplan Rasen"
           noindex={false}
         />
@@ -150,7 +150,7 @@ const CarePlan = () => {
       <SEO 
         title="Personalisierter Rasenpflegeplan - Schritt-für-Schritt Anleitung | Rasenpilot"
         description="Ihr individueller, KI-generierter Rasenpflegeplan mit detaillierten Schritt-für-Schritt Anleitungen. Zeitplan, Düngeempfehlungen und saisonale Pflegetipps."
-        canonical="/care-plan"
+        canonical="https://www.rasenpilot.com/care-plan"
         keywords="Rasenpflegeplan, Rasen Pflegeplan, individueller Rasenpflegeplan, Rasen Zeitplan, Düngeplan Rasen"
         noindex={false}
       />

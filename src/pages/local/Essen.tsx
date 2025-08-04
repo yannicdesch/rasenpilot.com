@@ -13,7 +13,7 @@ const Essen = () => {
       <SEO 
         title="Rasenpflege Essen | KI-Rasenberatung für das Ruhrgebiet | Rasenpilot"
         description="Professionelle Rasenpflege in Essen: KI-gestützte Rasenanalyse für Industrieregion und Bergbaugebiet. Kostenloser Pflegeplan für Essener Gärten."
-        canonical="/local/essen"
+        canonical="https://www.rasenpilot.com/local/essen"
         keywords="Rasenpflege Essen, Rasenberatung Essen, Rasen düngen Essen, KI Rasenanalyse Essen, Gartenpflege Ruhrgebiet, Rasenpilot Essen"
         structuredData={{
           type: 'Service',

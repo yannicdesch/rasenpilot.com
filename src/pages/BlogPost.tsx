@@ -167,7 +167,7 @@ const BlogPost = () => {
       <SEO 
         title={post.metaTitle || post.title}
         description={post.metaDescription || post.excerpt}
-        canonical={`/blog/${post.slug}`}
+        canonical={`https://www.rasenpilot.com/blog/${post.slug}`}
         keywords={post.keywords.join(',')}
         type="article"
         author={post.author}

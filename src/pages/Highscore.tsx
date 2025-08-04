@@ -15,7 +15,7 @@ const Highscore = () => {
       <SEO 
         title="Rasen Bestenliste - Die schönsten Rasenflächen Deutschlands | Rasenpilot"
         description="Entdecken Sie die Bestenliste der schönsten Rasenflächen Deutschlands. Lassen Sie sich von perfekt gepflegten Rasenflächen inspirieren und teilen Sie Ihren eigenen Traumrasen."
-        canonical="/highscore"
+        canonical="https://www.rasenpilot.com/highscore"
         keywords="Rasen Bestenliste, schönste Rasenflächen Deutschland, Rasen Highscore, perfekter Rasen, Traumrasen"
       />
       <MainNavigation />

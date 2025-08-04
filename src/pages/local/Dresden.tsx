@@ -13,7 +13,7 @@ const Dresden = () => {
       <SEO 
         title="Rasenpflege Dresden | KI-Rasenberatung für Sachsen | Rasenpilot"
         description="Professionelle Rasenpflege in Dresden: KI-gestützte Rasenanalyse für kontinentales Klima. Kostenloser Pflegeplan für Dresdner Gärten."
-        canonical="/local/dresden"
+        canonical="https://www.rasenpilot.com/local/dresden"
         keywords="Rasenpflege Dresden, Rasenberatung Dresden, Rasen düngen Dresden, KI Rasenanalyse Dresden, Gartenpflege Sachsen, Rasenpilot Dresden"
         structuredData={{
           type: 'Service',

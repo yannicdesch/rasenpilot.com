@@ -32,7 +32,7 @@ const Blog = () => {
       <SEO 
         title={seoContent?.title || "Blog-Verwaltung - Rasenpilot Admin"}
         description={seoContent?.description || "Verwalten Sie Ihre Blog-Inhalte und erstellen Sie neue Beiträge"}
-        canonical="/blog"
+        canonical="https://www.rasenpilot.com/blog"
         noindex={true}
       />
       

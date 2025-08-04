@@ -10,7 +10,7 @@ const TermsOfUse = () => {
       <SEO 
         title="Nutzungsbedingungen | Rasenpilot"
         description="Nutzungsbedingungen für die Verwendung des Rasenpilot-Services - Informieren Sie sich über die rechtlichen Rahmenbedingungen."
-        canonical="/nutzungsbedingungen"
+        canonical="https://www.rasenpilot.com/nutzungsbedingungen"
       />
       
       <MainNavigation />

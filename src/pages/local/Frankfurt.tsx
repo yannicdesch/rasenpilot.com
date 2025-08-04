@@ -13,7 +13,7 @@ const Frankfurt = () => {
       <SEO 
         title="Rasenpflege Frankfurt | KI-Rasenberatung für Frankfurt am Main | Rasenpilot"
         description="Professionelle Rasenpflege in Frankfurt: KI-gestützte Rasenanalyse für das Frankfurter Klima. Kostenloser Pflegeplan für Frankfurter Gärten."
-        canonical="/local/frankfurt"
+        canonical="https://www.rasenpilot.com/local/frankfurt"
         keywords="Rasenpflege Frankfurt, Rasenberatung Frankfurt, Rasen düngen Frankfurt, KI Rasenanalyse Frankfurt, Gartenpflege Frankfurt am Main, Rasenpilot Frankfurt"
         structuredData={{
           type: 'Service',

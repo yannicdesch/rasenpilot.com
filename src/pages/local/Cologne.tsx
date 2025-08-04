@@ -13,7 +13,7 @@ const Cologne = () => {
       <SEO 
         title="Rasenpflege Köln | KI-Rasenberatung für Kölner Gärten | Rasenpilot"
         description="Professionelle Rasenpflege in Köln: KI-gestützte Rasenanalyse für das rheinische Klima. Kostenloser Pflegeplan speziell für Kölner Rasenflächen."
-        canonical="/local/cologne"
+        canonical="https://www.rasenpilot.com/local/cologne"
         keywords="Rasenpflege Köln, Rasenberatung Köln, Rasen düngen Köln, KI Rasenanalyse Köln, Gartenpflege Köln, Rasenpilot Köln"
         structuredData={{
           type: 'Service',

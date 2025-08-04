@@ -13,7 +13,7 @@ const Hannover = () => {
       <SEO 
         title="Rasenpflege Hannover | KI-Rasenberatung für Niedersachsen | Rasenpilot"
         description="Professionelle Rasenpflege in Hannover: KI-gestützte Rasenanalyse für gemäßigtes Klima. Kostenloser Pflegeplan für Hannoveraner Gärten."
-        canonical="/local/hannover"
+        canonical="https://www.rasenpilot.com/local/hannover"
         keywords="Rasenpflege Hannover, Rasenberatung Hannover, Rasen düngen Hannover, KI Rasenanalyse Hannover, Gartenpflege Niedersachsen, Rasenpilot Hannover"
         structuredData={{
           type: 'Service',

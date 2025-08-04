@@ -38,7 +38,7 @@ const Index = () => {
       <SEO 
         title={seoContent?.title || "Rasenpilot - KI-Rasenberater | Kostenloser Pflegeplan in 30 Sekunden"}
         description={seoContent?.description || "Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden. KI-gestützte Rasenanalyse basierend auf Standort, Rasentyp & Zielen. Sofort starten - ohne Anmeldung."}
-        canonical="/"
+        canonical="https://www.rasenpilot.com/"
         keywords={seoContent?.keywords || "Rasenpflege Deutschland,KI-Rasenberater,kostenloser Rasenpflegeplan,Rasen düngen,Rasen mähen,Rasenpilot,Rasenberatung,Rasen-Analyse kostenlos,Rasen-Probleme,intelligenter Rasen-Assistent"}
         type="website"
         structuredData={{

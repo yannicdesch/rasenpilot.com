@@ -49,7 +49,7 @@ const Hamburg = () => {
         title="Rasenpflege Hamburg - KI-Rasenanalyse für Hamburg | Rasenpilot"
         description="Professionelle Rasenpflege in Hamburg mit KI-Analyse. Optimiert für feuchtes Nordseeklima und hohe Luftfeuchtigkeit. Kostenlose Analyse mit lokalem Expertenwissen."
         keywords="Rasenpflege Hamburg, Rasen Hamburg, Gartenpflege Hamburg, KI Rasenanalyse Hamburg, Rasen düngen Hamburg, Rasenpilot Hamburg"
-        canonical="/local/hamburg"
+        canonical="https://www.rasenpilot.com/local/hamburg"
         structuredData={structuredData}
         ogImage="/og-image.jpg"
       />

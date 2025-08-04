@@ -13,7 +13,7 @@ const Leipzig = () => {
       <SEO 
         title="Rasenpflege Leipzig | KI-Rasenberatung für Sachsen | Rasenpilot"
         description="Professionelle Rasenpflege in Leipzig: KI-gestützte Rasenanalyse für ostdeutsches Klima. Kostenloser Pflegeplan für Leipziger Gärten."
-        canonical="/local/leipzig"
+        canonical="https://www.rasenpilot.com/local/leipzig"
         keywords="Rasenpflege Leipzig, Rasenberatung Leipzig, Rasen düngen Leipzig, KI Rasenanalyse Leipzig, Gartenpflege Sachsen, Rasenpilot Leipzig"
         structuredData={{
           type: 'Service',

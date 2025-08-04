@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
       <SEO 
         title="Datenschutz | Rasenpilot"
         description="Datenschutzerklärung von Rasenpilot - Erfahren Sie, wie wir Ihre Daten schützen und verwenden."
-        canonical="/datenschutz"
+        canonical="https://www.rasenpilot.com/datenschutz"
       />
       
       <MainNavigation />

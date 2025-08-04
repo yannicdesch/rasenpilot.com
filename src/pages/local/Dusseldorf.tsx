@@ -13,7 +13,7 @@ const Dusseldorf = () => {
       <SEO 
         title="Rasenpflege Düsseldorf | KI-Rasenberatung für die Rheinmetropole | Rasenpilot"
         description="Professionelle Rasenpflege in Düsseldorf: KI-gestützte Rasenanalyse für das rheinische Klima. Kostenloser Pflegeplan für Düsseldorfer Gärten."
-        canonical="/local/dusseldorf"
+        canonical="https://www.rasenpilot.com/local/dusseldorf"
         keywords="Rasenpflege Düsseldorf, Rasenberatung Düsseldorf, Rasen düngen Düsseldorf, KI Rasenanalyse Düsseldorf, Gartenpflege Düsseldorf, Rasenpilot Düsseldorf"
         structuredData={{
           type: 'Service',
