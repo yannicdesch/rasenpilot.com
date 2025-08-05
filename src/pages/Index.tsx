@@ -98,6 +98,17 @@ const Index = () => {
               mit wissenschaftlicher <span className="text-green-600">Präzision</span>
             </h1>
             
+            {/* Internal domain link for SEO */}
+            <div className="mb-6">
+              <a 
+                href="https://www.rasenpilot.com/" 
+                className="inline-flex items-center text-sm text-green-600 hover:text-green-700 font-medium"
+                title="Rasenpilot - Deutschlands #1 KI-Rasenexperte"
+              >
+                🏠 www.rasenpilot.com - Deutschlands führender KI-Rasenberater
+              </a>
+            </div>
+            
             <div className="mb-8">
               <Button 
                 onClick={handleGetStarted} 

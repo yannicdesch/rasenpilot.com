@@ -12,10 +12,27 @@ const FooterSection = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-green-600 mb-4">Rasenpilot</h2>
+            <h2 className="text-2xl font-bold text-green-600 mb-4">
+              <a 
+                href="https://www.rasenpilot.com/" 
+                className="hover:text-green-700 transition-colors"
+                title="Zur Rasenpilot Startseite"
+              >
+                Rasenpilot
+              </a>
+            </h2>
             <p className="text-gray-600 mb-4">
               Deutschlands intelligentester KI-Rasenberater für perfekte Rasenpflege.
             </p>
+            <div className="mb-3">
+              <a 
+                href="https://www.rasenpilot.com/" 
+                className="text-sm text-green-600 hover:text-green-700 font-medium"
+                title="Rasenpilot Hauptseite besuchen"
+              >
+                🌐 www.rasenpilot.com
+              </a>
+            </div>
             <div className="flex space-x-4">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                 <Star className="w-4 h-4 text-green-600" />
