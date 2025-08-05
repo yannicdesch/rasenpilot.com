@@ -36,7 +36,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
   const { toast } = useToast();
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -45,6 +45,52 @@ export const SimpleLawnAnalyzer: React.FC = () => {
       // Create preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
+
+      // Start analysis automatically
+      try {
+        // First upload the image to Supabase storage to get a permanent URL
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('lawn-images')
+          .upload(fileName, file);
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          toast({
+            title: "Upload fehlgeschlagen",
+            description: "Das Bild konnte nicht hochgeladen werden",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Get the public URL for the uploaded image
+        const { data: { publicUrl } } = supabase.storage
+          .from('lawn-images')
+          .getPublicUrl(fileName);
+        
+        setUploadedImageUrl(publicUrl);
+        console.log('Image uploaded successfully:', publicUrl);
+
+        const result = await analyze(file, grassType, lawnGoal);
+        setAnalysisResult(result);
+        
+        console.log('Analysis result:', result);
+        console.log('Uploaded image URL for highscore:', publicUrl);
+        
+        toast({
+          title: "Analyse abgeschlossen!",
+          description: "Ihre Rasenanalyse wurde erfolgreich durchgeführt.",
+        });
+      } catch (err) {
+        toast({
+          title: "Analyse fehlgeschlagen",
+          description: error || "Ein unbekannter Fehler ist aufgetreten",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -164,8 +210,8 @@ export const SimpleLawnAnalyzer: React.FC = () => {
                       <CheckCircle className="h-5 w-5" />
                     </div>
                   </div>
-                  <p className="text-green-700 font-medium">
-                    ✅ Bild erfolgreich hochgeladen
+                   <p className="text-green-700 font-medium">
+                    {isLoading ? "🔄 Analysiere..." : "✅ Analyse abgeschlossen"}
                   </p>
                   <Button 
                     variant="outline" 
@@ -196,26 +242,14 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile Quick Analyze */}
-          <div className="mt-6 md:hidden">
-            <Button 
-              onClick={handleAnalyze} 
-              disabled={!selectedFile || isLoading}
-              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-4 text-lg rounded-xl shadow-lg transform transition-all duration-200 hover:scale-[1.02] disabled:hover:scale-100"
-              size="lg"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                  Analysiere Rasen...
-                </>
-              ) : (
-                <>
-                  <Upload className="mr-3 h-6 w-6" />
-                  KI-Analyse starten
-                </>
-              )}
-            </Button>
+          {/* Status Display */}
+          <div className="mt-6">
+            {isLoading && (
+              <div className="w-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 font-bold py-4 text-lg rounded-xl border border-green-300 flex items-center justify-center">
+                <Loader2 className="mr-3 h-6 w-6 animate-spin text-green-600" />
+                Analysiere Rasen...
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -278,28 +312,14 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             </div>
           </div>
 
-          {/* Desktop Modern Analyze Button */}
-          <div className="hidden md:block pt-4 border-t border-gray-100">
-            <Button 
-              onClick={handleAnalyze} 
-              disabled={!selectedFile || isLoading}
-              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-4 text-lg rounded-xl shadow-lg transform transition-all duration-200 hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50"
-              size="lg"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                  <span>Analysiere Rasen...</span>
-                </>
-              ) : (
-                <>
-                  <div className="mr-3 p-1 bg-white/20 rounded-full">
-                    <Upload className="h-5 w-5" />
-                  </div>
-                  <span>KI-Analyse starten</span>
-                </>
-              )}
-            </Button>
+          {/* Status Display */}
+          <div className="pt-4 border-t border-gray-100">
+            {isLoading && (
+              <div className="w-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 font-bold py-4 text-lg rounded-xl border border-green-300 flex items-center justify-center">
+                <Loader2 className="mr-3 h-6 w-6 animate-spin text-green-600" />
+                <span>Analysiere Rasen...</span>
+              </div>
+            )}
           </div>
 
           {/* Modern Error Display */}
