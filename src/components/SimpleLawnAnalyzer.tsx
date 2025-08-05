@@ -425,6 +425,25 @@ export const SimpleLawnAnalyzer: React.FC = () => {
         </Card>
       )}
 
+      {/* Care Plan Download */}
+      {analysisResult && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5 text-blue-500" />
+              14-Tage Pflegeplan
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CarePlanDownload 
+              analysisResult={analysisResult}
+              grassType={grassType}
+              lawnGoal={lawnGoal}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Score Submission Form */}
       {analysisResult && (
         <Card>
@@ -447,25 +466,6 @@ export const SimpleLawnAnalyzer: React.FC = () => {
                   description: "Ihr Score wurde erfolgreich zur Bestenliste hinzugefügt.",
                 });
               }} 
-            />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Care Plan Download */}
-      {analysisResult && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Download className="h-5 w-5 text-blue-500" />
-              14-Tage Pflegeplan
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CarePlanDownload 
-              analysisResult={analysisResult}
-              grassType={grassType}
-              lawnGoal={lawnGoal}
             />
           </CardContent>
         </Card>
