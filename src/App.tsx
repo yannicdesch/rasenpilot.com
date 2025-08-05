@@ -7,7 +7,6 @@ import { LawnProvider } from "@/context/LawnContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
 import Index from "./pages/Index";
 import LawnAnalysis from "./pages/LawnAnalysis";
-import CarePlan from "./pages/CarePlan";
 import Blog from "./pages/Blog";
 import BlogOverview from "./pages/BlogOverview";
 import BlogPost from "./pages/BlogPost";
@@ -19,7 +18,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import UeberUns from "./pages/UeberUns";
 import Kontakt from "./pages/Kontakt";
 import AdminPanel from "./pages/AdminPanel";
-import ChatAssistant from "./pages/ChatAssistant";
+
 import WeatherAdvice from "./pages/WeatherAdvice";
 import SeasonGuide from "./pages/SeasonGuide";
 import Subscription from "./pages/Subscription";
@@ -59,8 +58,6 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/lawn-analysis" element={<LawnAnalysis />} />
-            
-            <Route path="/care-plan" element={<CarePlan />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-overview" element={<BlogOverview />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
@@ -94,8 +91,6 @@ const App = () => {
             <Route path="/local/dortmund" element={<Dortmund />} />
             <Route path="/local/bonn" element={<Bonn />} />
             
-            {/* Additional Features */}
-            <Route path="/chat-assistant" element={<ChatAssistant />} />
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />
