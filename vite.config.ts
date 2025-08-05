@@ -19,4 +19,16 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Ensure static files are served properly
+  publicDir: 'public',
+  // Configure build to copy static files
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
+    },
+    // Copy static files to dist folder
+    copyPublicDir: true,
+  },
 }));

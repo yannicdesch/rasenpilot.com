@@ -62,7 +62,7 @@ Allow: /nutzungsbedingungen
 Allow: /impressum
 
 # Sitemap location
-Sitemap: https://www.rasenpilot.com/sitemap.xml
+Sitemap: /sitemap.xml
 
 # Block aggressive crawlers
 User-agent: SemrushBot
