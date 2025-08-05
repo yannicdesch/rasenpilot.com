@@ -94,8 +94,8 @@ const Index = () => {
           {/* Main Hero Content */}
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Kostenloser <span className="text-blue-600">KI-Rasenpflegeplan</span> in 30 Sekunden<br />
-              <span className="text-green-600">Deutschlands #1 Rasenberater</span> mit 98,3% Genauigkeit
+              <span className="text-blue-600">KI-Rasenpflegeplan</span> in 30 Sekunden<br />
+              <span className="text-green-600">Kostenlos & präzise</span>
             </h1>
             
             {/* Internal domain link for SEO */}
