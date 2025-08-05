@@ -199,7 +199,8 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Wissenschaftlich validiert</h3>
               <p className="text-gray-600 text-center leading-relaxed">
-                Entwickelt in Zusammenarbeit mit Agrarwissenschaftlern und Rasenexperten <strong>98,3% Diagnosesicherheit</strong> in unabhängigen Tests bestätigt.
+                Entwickelt in Zusammenarbeit mit Agrarwissenschaftlern und Rasenexperten <strong>98,3% Diagnosesicherheit</strong> in unabhängigen Tests bestätigt. 
+                Basierend auf <a href="https://www.dlg.org/" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-700 underline font-medium">DLG-Standards</a> für Rasenpflege.
               </p>
             </div>
             
