@@ -39,7 +39,16 @@ const Datenschutz = () => {
               <div>
                 <h2 className="text-xl font-semibold mb-3">Cookies</h2>
                 <p>
-                  Unsere Website verwendet Cookies, um die Benutzererfahrung zu verbessern. Sie können die Speicherung von Cookies in Ihrem Browser deaktivieren.
+                  Unsere Website verwendet verschiedene Arten von Cookies:
+                </p>
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li><strong>Notwendige Cookies:</strong> Erforderlich für grundlegende Funktionen der Website</li>
+                  <li><strong>Analyse-Cookies:</strong> Helfen uns zu verstehen, wie Sie unsere Website nutzen</li>
+                  <li><strong>Marketing-Cookies:</strong> Werden für personalisierte Werbung verwendet</li>
+                  <li><strong>Präferenz-Cookies:</strong> Speichern Ihre Einstellungen und Präferenzen</li>
+                </ul>
+                <p className="mt-2">
+                  Sie können Ihre Cookie-Einstellungen jederzeit in unserem Cookie-Banner anpassen oder die Speicherung von Cookies in Ihrem Browser deaktivieren.
                 </p>
               </div>
 

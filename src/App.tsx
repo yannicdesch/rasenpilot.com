@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
+import CookieConsent from "@/components/CookieConsent";
+import JourneyTracker from "@/components/JourneyTracker";
 import Index from "./pages/Index";
 import LawnAnalysis from "./pages/LawnAnalysis";
 import Blog from "./pages/Blog";
@@ -13,6 +15,7 @@ import BlogPost from "./pages/BlogPost";
 import Highscore from "./pages/Highscore";
 import Impressum from "./pages/Impressum";
 import Datenschutz from "./pages/Datenschutz";
+import CookiePolicy from "./pages/CookiePolicy";
 import AGB from "./pages/AGB";
 import TermsOfUse from "./pages/TermsOfUse";
 import UeberUns from "./pages/UeberUns";
@@ -55,6 +58,8 @@ const App = () => {
       <LawnProvider>
         <Toaster />
         <BrowserRouter>
+          <JourneyTracker />
+          <CookieConsent />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/lawn-analysis" element={<LawnAnalysis />} />
@@ -66,6 +71,7 @@ const App = () => {
             {/* Legal Pages */}
             <Route path="/impressum" element={<Impressum />} />
             <Route path="/datenschutz" element={<Datenschutz />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/agb" element={<AGB />} />
             <Route path="/terms-of-use" element={<TermsOfUse />} />
             <Route path="/nutzungsbedingungen" element={<TermsOfUse />} />

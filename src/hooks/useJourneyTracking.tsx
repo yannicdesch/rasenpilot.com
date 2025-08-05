@@ -10,12 +10,18 @@ import {
   setupDropOffDetection,
   getSessionId
 } from '@/lib/analytics/userJourneyTracking';
+import { hasConsentFor } from '@/utils/cookieUtils';
 
 // Hook for automatic page tracking
 export const useJourneyTracking = () => {
   const location = useLocation();
   
   useEffect(() => {
+    // Only track if analytics consent is given
+    if (!hasConsentFor('analytics')) {
+      return;
+    }
+    
     const pageName = location.pathname;
     
     // Track page entry
@@ -47,19 +53,27 @@ export const useJourneyTracking = () => {
 // Hook for tracking specific interactions
 export const useInteractionTracking = (pageName: string) => {
   const trackClick = (elementName: string, additionalData?: Record<string, any>) => {
-    trackUserInteraction('click', elementName, pageName, additionalData);
+    if (hasConsentFor('analytics')) {
+      trackUserInteraction('click', elementName, pageName, additionalData);
+    }
   };
   
   const trackFormSubmit = (formName: string, additionalData?: Record<string, any>) => {
-    trackUserInteraction('form_submit', formName, pageName, additionalData);
+    if (hasConsentFor('analytics')) {
+      trackUserInteraction('form_submit', formName, pageName, additionalData);
+    }
   };
   
   const trackButtonClick = (buttonName: string, additionalData?: Record<string, any>) => {
-    trackUserInteraction('button_click', buttonName, pageName, additionalData);
+    if (hasConsentFor('analytics')) {
+      trackUserInteraction('button_click', buttonName, pageName, additionalData);
+    }
   };
   
   const trackLinkClick = (linkName: string, destination: string) => {
-    trackUserInteraction('link_click', linkName, pageName, { destination });
+    if (hasConsentFor('analytics')) {
+      trackUserInteraction('link_click', linkName, pageName, { destination });
+    }
   };
   
   return {
