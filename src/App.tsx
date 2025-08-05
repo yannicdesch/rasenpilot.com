@@ -42,7 +42,7 @@ import Leipzig from "./pages/local/Leipzig";
 import Dortmund from "./pages/local/Dortmund";
 import Bonn from "./pages/local/Bonn";
 import NotFound from "./pages/NotFound";
-import AccountSettings from "./pages/AccountSettings";
+import AccountSettings from "@/pages/AccountSettings";
 import CookieConsent from '@/components/CookieConsent';
 
 const queryClient = new QueryClient();
