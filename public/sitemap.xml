@@ -3,6 +3,8 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">
+  
+  <!-- Hauptseiten -->
   <url>
     <loc>https://www.rasenpilot.com/</loc>
     <lastmod>2025-01-30</lastmod>
@@ -13,6 +15,7 @@
       <image:caption><![CDATA[Rasenpilot - Intelligenter KI-Rasenberater]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/lawn-analysis</loc>
     <lastmod>2025-01-30</lastmod>
@@ -23,6 +26,7 @@
       <image:caption><![CDATA[Kostenlose KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/care-plan</loc>
     <lastmod>2025-01-30</lastmod>
@@ -33,12 +37,22 @@
       <image:caption><![CDATA[Kostenloser 14-Tage Rasenpflegeplan]]></image:caption>
     </image:image>
   </url>
+  
+  <!-- Blog und Content -->
   <url>
     <loc>https://www.rasenpilot.com/blog</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+  
+  <url>
+    <loc>https://www.rasenpilot.com/blog-overview</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/highscore</loc>
     <lastmod>2025-01-30</lastmod>
@@ -49,78 +63,88 @@
       <image:caption><![CDATA[Rasen Highscore - Die besten Rasenflächen]]></image:caption>
     </image:image>
   </url>
-  <url>
-    <loc>https://www.rasenpilot.com/blog-overview</loc>
-    <lastmod>2025-01-30</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
+  
+  <!-- Feature-Seiten -->
   <url>
     <loc>https://www.rasenpilot.com/weather-advice</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/season-guide</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/chat-assistant</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/subscription</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  
+  <!-- Unternehmensseiten -->
   <url>
     <loc>https://www.rasenpilot.com/ueber-uns</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/kontakt</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
+  
+  <!-- Rechtliche Seiten -->
   <url>
     <loc>https://www.rasenpilot.com/datenschutz</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/terms-of-use</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/nutzungsbedingungen</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/agb</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/impressum</loc>
     <lastmod>2025-01-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  
+  <!-- Lokale SEO-Seiten -->
   <url>
     <loc>https://www.rasenpilot.com/local/munich</loc>
     <lastmod>2025-01-30</lastmod>
@@ -131,6 +155,7 @@
       <image:caption><![CDATA[Rasenpflege München - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/berlin</loc>
     <lastmod>2025-01-30</lastmod>
@@ -141,6 +166,7 @@
       <image:caption><![CDATA[Rasenpflege Berlin - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/hamburg</loc>
     <lastmod>2025-01-30</lastmod>
@@ -151,6 +177,7 @@
       <image:caption><![CDATA[Rasenpflege Hamburg - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/cologne</loc>
     <lastmod>2025-01-30</lastmod>
@@ -161,6 +188,7 @@
       <image:caption><![CDATA[Rasenpflege Köln - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/frankfurt</loc>
     <lastmod>2025-01-30</lastmod>
@@ -171,6 +199,7 @@
       <image:caption><![CDATA[Rasenpflege Frankfurt - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/stuttgart</loc>
     <lastmod>2025-01-30</lastmod>
@@ -181,6 +210,7 @@
       <image:caption><![CDATA[Rasenpflege Stuttgart - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/dusseldorf</loc>
     <lastmod>2025-01-30</lastmod>
@@ -191,6 +221,7 @@
       <image:caption><![CDATA[Rasenpflege Düsseldorf - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/essen</loc>
     <lastmod>2025-01-30</lastmod>
@@ -201,6 +232,7 @@
       <image:caption><![CDATA[Rasenpflege Essen - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/dresden</loc>
     <lastmod>2025-01-30</lastmod>
@@ -211,6 +243,7 @@
       <image:caption><![CDATA[Rasenpflege Dresden - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/hannover</loc>
     <lastmod>2025-01-30</lastmod>
@@ -221,6 +254,7 @@
       <image:caption><![CDATA[Rasenpflege Hannover - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/bremen</loc>
     <lastmod>2025-01-30</lastmod>
@@ -231,6 +265,7 @@
       <image:caption><![CDATA[Rasenpflege Bremen - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/nuremberg</loc>
     <lastmod>2025-01-30</lastmod>
@@ -241,6 +276,7 @@
       <image:caption><![CDATA[Rasenpflege Nürnberg - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/leipzig</loc>
     <lastmod>2025-01-30</lastmod>
@@ -251,6 +287,7 @@
       <image:caption><![CDATA[Rasenpflege Leipzig - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/dortmund</loc>
     <lastmod>2025-01-30</lastmod>
@@ -261,6 +298,7 @@
       <image:caption><![CDATA[Rasenpflege Dortmund - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/local/bonn</loc>
     <lastmod>2025-01-30</lastmod>
@@ -271,94 +309,111 @@
       <image:caption><![CDATA[Rasenpflege Bonn - KI-Rasenanalyse]]></image:caption>
     </image:image>
   </url>
+  
+  <!-- Blog-Posts -->
   <url>
     <loc>https://www.rasenpilot.com/blog/rasen-duengen-guide</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasen-maehen-tipps</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasen-vertikutieren-anleitung</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasenpflege-fruehling</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasenpflege-sommer</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasenpflege-herbst</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasenpflege-winter</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasen-nachsaeen-guide</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasenkrankheiten-erkennen</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasen-bewaessern-tipps</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/unkraut-im-rasen-bekaempfen</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasen-kalken-wann-noetig</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasensorten-vergleich</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/rasen-neuanlage-schritt-fuer-schritt</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
   <url>
     <loc>https://www.rasenpilot.com/blog/moos-im-rasen-entfernen</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  
 </urlset>
