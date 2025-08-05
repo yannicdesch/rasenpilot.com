@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
-import CookieConsent from "@/components/CookieConsent";
 import JourneyTracker from "@/components/JourneyTracker";
 import Index from "./pages/Index";
 import LawnAnalysis from "./pages/LawnAnalysis";
@@ -43,6 +42,8 @@ import Leipzig from "./pages/local/Leipzig";
 import Dortmund from "./pages/local/Dortmund";
 import Bonn from "./pages/local/Bonn";
 import NotFound from "./pages/NotFound";
+import AccountSettings from "./pages/AccountSettings";
+import CookieConsent from '@/components/CookieConsent';
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,7 @@ const App = () => {
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />
+            <Route path="/account-settings" element={<AccountSettings />} />
             
             {/* Admin Panel */}
             <Route path="/admin-panel" element={<AdminPanel />} />
