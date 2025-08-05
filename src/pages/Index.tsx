@@ -115,7 +115,7 @@ const Index = () => {
                 size="lg" 
                 className="bg-green-600 hover:bg-green-700 py-6 px-8 text-lg font-semibold"
               >
-                📸 Kostenlose KI-Analyse starten
+                Jetzt kostenlose Rasenanalyse starten!
               </Button>
             </div>
             
@@ -323,7 +323,7 @@ const Index = () => {
               onClick={handleGetStarted} 
               className="bg-green-600 hover:bg-green-700"
             >
-              Kostenlos testen <ArrowRight className="ml-2 h-4 w-4" />
+              Jetzt kostenlose Rasenanalyse starten!
             </Button>
           </div>
         </div>
