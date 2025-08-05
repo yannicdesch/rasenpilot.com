@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Leaf, Menu, X, BookOpen, Trophy, Settings } from 'lucide-react';
+import { Leaf, Menu, X, BookOpen, Trophy, Settings, Camera, Calendar, MessageSquare } from 'lucide-react';
 
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,6 +42,31 @@ const MainNavigation = () => {
               <span>Startseite</span>
             </Link>
             
+            
+            <Link 
+              to="/lawn-analysis" 
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                isActive('/lawn-analysis') 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+              }`}
+            >
+              <Camera size={18} />
+              <span>KI-Analyse</span>
+            </Link>
+            
+            <Link 
+              to="/care-plan" 
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                isActive('/care-plan') 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+              }`}
+            >
+              <Calendar size={18} />
+              <span>Pflegeplan</span>
+            </Link>
+            
             <Link 
               to="/blog-overview" 
               className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
@@ -52,6 +77,18 @@ const MainNavigation = () => {
             >
               <BookOpen size={18} />
               <span>Ratgeber</span>
+            </Link>
+            
+            <Link 
+              to="/chat-assistant" 
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                isActive('/chat-assistant') 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+              }`}
+            >
+              <MessageSquare size={18} />
+              <span>Chat</span>
             </Link>
             
             <Link 
@@ -114,6 +151,33 @@ const MainNavigation = () => {
                       <span>Startseite</span>
                     </Link>
                     
+                    
+                    <Link 
+                      to="/lawn-analysis" 
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                        isActive('/lawn-analysis') 
+                          ? 'bg-green-100 text-green-700 font-medium' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <Camera size={20} />
+                      <span>KI-Analyse</span>
+                    </Link>
+                    
+                    <Link 
+                      to="/care-plan" 
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                        isActive('/care-plan') 
+                          ? 'bg-green-100 text-green-700 font-medium' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <Calendar size={20} />
+                      <span>Pflegeplan</span>
+                    </Link>
+                    
                     <Link 
                       to="/blog-overview" 
                       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
@@ -125,6 +189,19 @@ const MainNavigation = () => {
                     >
                       <BookOpen size={20} />
                       <span>Ratgeber</span>
+                    </Link>
+                    
+                    <Link 
+                      to="/chat-assistant" 
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                        isActive('/chat-assistant') 
+                          ? 'bg-green-100 text-green-700 font-medium' 
+                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      <MessageSquare size={20} />
+                      <span>Chat</span>
                     </Link>
                     
                     <Link 

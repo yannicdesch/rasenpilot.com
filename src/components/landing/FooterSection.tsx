@@ -48,7 +48,10 @@ const FooterSection = () => {
             <h3 className="font-semibold text-gray-900 mb-4">Produkt</h3>
             <ul className="space-y-2">
               <li><Button variant="link" onClick={() => navigate('/lawn-analysis')} className="p-0 h-auto text-gray-600 hover:text-green-600">KI-Analyse</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/care-plan')} className="p-0 h-auto text-gray-600 hover:text-green-600">Pflegeplan</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/chat-assistant')} className="p-0 h-auto text-gray-600 hover:text-green-600">Chat-Assistent</Button></li>
               <li><Button variant="link" onClick={() => navigate('/blog-overview')} className="p-0 h-auto text-gray-600 hover:text-green-600">Ratgeber</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/weather-advice')} className="p-0 h-auto text-gray-600 hover:text-green-600">Wetter-Tipps</Button></li>
               <li><Button variant="link" onClick={() => navigate('/')} className="p-0 h-auto text-gray-600 hover:text-green-600">Startseite</Button></li>
             </ul>
           </div>
