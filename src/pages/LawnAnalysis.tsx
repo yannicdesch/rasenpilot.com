@@ -120,13 +120,17 @@ const LawnAnalysis = () => {
       console.log('Created analysis job:', jobId);
 
       // Start the actual AI analysis
-      const { error: analysisError } = await supabase.functions.invoke('start-analysis', {
+      console.log('🚀 Starting AI analysis with job ID:', jobId);
+      const { data: analysisResponse, error: analysisError } = await supabase.functions.invoke('start-analysis', {
         body: { jobId }
       });
 
+      console.log('Analysis response:', analysisResponse);
+      console.log('Analysis error:', analysisError);
+
       if (analysisError) {
         console.error('Failed to start analysis:', analysisError);
-        throw new Error('Analyse konnte nicht gestartet werden');
+        throw new Error(`Analyse konnte nicht gestartet werden: ${analysisError.message}`);
       }
 
       clearInterval(tipInterval);
@@ -137,8 +141,10 @@ const LawnAnalysis = () => {
         description: "Ihr Foto wird jetzt von der KI analysiert...",
       });
 
+      console.log('✅ Analysis started successfully, navigating to results...');
       // Navigate to results after brief success message
       setTimeout(() => {
+        console.log('🔗 Navigating to:', `/analysis-result/${jobId}`);
         navigate(`/analysis-result/${jobId}`);
       }, 2000);
 
