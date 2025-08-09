@@ -59,6 +59,20 @@ export type EnhancedBlogSettings = {
     enableFAQGeneration: boolean;
     enableLocalSEO: boolean;
     targetKeywordDensity: number;
+    enableContentFreshness: boolean;
+    enableEATOptimization: boolean;
+    enableFeaturedSnippets: boolean;
+    enableContentClusters: boolean;
+    enableUserIntentMatching: boolean;
+    enableTechnicalSEO: boolean;
+  };
+  advancedSEO: {
+    contentFreshnessStrategy: string;
+    eatAuthority: number;
+    snippetTargeting: boolean;
+    clusterStrategy: string;
+    intentOptimization: boolean;
+    coreWebVitalsOptimization: boolean;
   };
 };
 
@@ -86,7 +100,21 @@ const DEFAULT_ENHANCED_SETTINGS: EnhancedBlogSettings = {
     enableInternalLinking: true,
     enableFAQGeneration: true,
     enableLocalSEO: true,
-    targetKeywordDensity: 1.5
+    targetKeywordDensity: 1.8,
+    enableContentFreshness: true,
+    enableEATOptimization: true,
+    enableFeaturedSnippets: true,
+    enableContentClusters: true,
+    enableUserIntentMatching: true,
+    enableTechnicalSEO: true
+  },
+  advancedSEO: {
+    contentFreshnessStrategy: 'aggressive',
+    eatAuthority: 90,
+    snippetTargeting: true,
+    clusterStrategy: 'topical_authority',
+    intentOptimization: true,
+    coreWebVitalsOptimization: true
   }
 };
 
