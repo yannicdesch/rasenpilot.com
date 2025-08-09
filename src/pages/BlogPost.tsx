@@ -178,13 +178,65 @@ const BlogPost = () => {
     });
   };
 
-  // Helper function to parse inline markdown (bold, italic, links)
+  // Enhanced link parser for internal links
   const parseInlineMarkdown = (text: string) => {
     const parts = [];
     let remaining = text;
     let key = 0;
 
     while (remaining.length > 0) {
+      // Find internal links [text](url) or [text](#)
+      const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if (linkMatch) {
+        const beforeLink = remaining.substring(0, linkMatch.index);
+        if (beforeLink) {
+          parts.push(<span key={key++}>{beforeLink}</span>);
+        }
+        
+        const linkText = linkMatch[1];
+        let linkUrl = linkMatch[2];
+        
+        // Fix broken # links by generating proper URLs
+        if (linkUrl === '#' || linkUrl === '') {
+          linkUrl = generateLinkFromText(linkText);
+        }
+        
+        // Check if it's an internal link
+        if (linkUrl.startsWith('/') || linkUrl.startsWith('#')) {
+          parts.push(
+            <a 
+              key={key++} 
+              href={linkUrl}
+              onClick={(e) => {
+                if (linkUrl.startsWith('/blog/')) {
+                  e.preventDefault();
+                  navigate(linkUrl);
+                }
+              }}
+              className="text-green-600 hover:text-green-800 underline font-medium transition-colors"
+            >
+              {linkText}
+            </a>
+          );
+        } else {
+          // External link
+          parts.push(
+            <a 
+              key={key++} 
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              {linkText}
+            </a>
+          );
+        }
+        
+        remaining = remaining.substring(linkMatch.index! + linkMatch[0].length);
+        continue;
+      }
+      
       // Find bold text (**text**)
       const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
       if (boldMatch) {
@@ -204,7 +256,7 @@ const BlogPost = () => {
         if (beforeItalic) {
           parts.push(<span key={key++}>{beforeItalic}</span>);
         }
-        parts.push(<em key={key++} className="italic">{italicMatch[1]}</em>);
+        parts.push(<em key={key++} className="italic text-gray-700">{italicMatch[1]}</em>);
         remaining = remaining.substring(italicMatch.index! + italicMatch[0].length);
         continue;
       }
@@ -216,9 +268,35 @@ const BlogPost = () => {
 
     return parts.length === 1 ? parts[0] : <>{parts}</>;
   };
+
+  // Generate proper URLs from link text
+  const generateLinkFromText = (text: string): string => {
+    const linkMap: { [key: string]: string } = {
+      'rasen richtig kalken': '/blog/rasen-kalken-wann-und-wie-anleitung-tipps-fuer-die-perfekte-rasenpflege',
+      'bodenverdichtung lösen': '/blog/bodenverdichtung-loesen-rasen-belueften',
+      'rasen düngen': '/blog/rasen-duengen-wann-wie-oft',
+      'moos im rasen entfernen': '/blog/moos-im-rasen-entfernen-praktische-tipps-fuer-eine-gesunde-rasenflaeche',
+      'rasenpflege frühjahr': '/blog/rasenpflege-im-fruehjahr-der-komplette-guide',
+      'vertikutieren anleitung': '/blog/rasen-vertikutieren-schritt-fuer-schritt',
+      'rasenmähen tipps': '/blog/rasen-maehen-tipps-profis',
+      'unkraut bekämpfen': '/blog/unkraut-im-rasen-bekaempfen-ohne-chemie',
+      'kostenlose rasenanalyse': '/lawn-analysis'
+    };
+
+    // Find matching link by text similarity
+    const lowerText = text.toLowerCase();
+    for (const [key, url] of Object.entries(linkMap)) {
+      if (lowerText.includes(key) || key.includes(lowerText)) {
+        return url;
+      }
+    }
+    
+    // Default fallback
+    return '/blog-overview';
+  };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50">
       <SEO 
         title={post.metaTitle || post.title}
         description={post.metaDescription || post.excerpt}
@@ -260,87 +338,155 @@ const BlogPost = () => {
       
       <MainNavigation />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         <Button 
           variant="outline" 
           onClick={() => navigate('/blog-overview')}
-          className="mb-6 flex items-center gap-2"
+          className="mb-8 flex items-center gap-2 hover:bg-green-50 border-green-200"
         >
           <ArrowLeft className="h-4 w-4" /> Zurück zur Übersicht
         </Button>
         
-        <article className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="p-6 md:p-8">
-            <div className="flex flex-wrap gap-3 mb-4">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                {getCategoryName(post.category)}
-              </Badge>
-              
-              <div className="text-sm text-gray-500 flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                <time dateTime={new Date(post.date).toISOString()}>{post.date}</time>
-              </div>
-              
-              <div className="text-sm text-gray-500">
-                {post.readTime} Min. Lesezeit
-              </div>
-            </div>
-            
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{post.title}</h1>
-            
-            <p className="text-gray-600 text-lg italic mb-6">
-              {post.excerpt}
-            </p>
-            
-            <div className="prose max-w-none">
-              {renderContent()}
-            </div>
-            
-            <div className="border-t border-gray-200 mt-8 pt-6">
-              <h2 className="text-lg font-medium text-green-800 mb-2">Themen in diesem Artikel</h2>
-              <div className="flex flex-wrap gap-2">
-                {post.keywords.map((keyword, index) => (
-                  <Badge key={index} variant="secondary" className="bg-gray-100">
-                    {keyword}
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Main Article */}
+          <article className="lg:col-span-3">
+            <div className="bg-white rounded-xl shadow-sm border border-green-100 overflow-hidden">
+              {/* Article Header */}
+              <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
+                <div className="flex flex-wrap gap-3 mb-4">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 hover:bg-white/30">
+                    {getCategoryName(post.category)}
                   </Badge>
-                ))}
-              </div>
-            </div>
-            
-            <div className="border-t border-gray-200 mt-6 pt-6">
-              <div className="flex justify-between items-center">
-                <p className="text-gray-700 font-medium">Autor: {post.author}</p>
+                  
+                  <div className="text-green-100 flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <time dateTime={new Date(post.date).toISOString()}>
+                      {new Date(post.date).toLocaleDateString('de-DE')}
+                    </time>
+                  </div>
+                  
+                  <div className="text-green-100 flex items-center gap-1">
+                    📖 {post.readTime} Min. Lesezeit
+                  </div>
+                </div>
                 
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline">
-                    <Share className="h-4 w-4 mr-1" /> Teilen
-                  </Button>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                  {post.title}
+                </h1>
+                
+                <p className="text-green-100 text-lg mt-4 leading-relaxed">
+                  {post.excerpt}
+                </p>
+              </div>
+              
+              {/* Article Content */}
+              <div className="p-6 md:p-8 lg:p-10">
+                <div className="prose prose-lg max-w-none prose-green 
+                  prose-headings:text-green-800 
+                  prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4
+                  prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3
+                  prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
+                  prose-li:text-gray-700 prose-li:mb-1
+                  prose-strong:text-green-800 prose-strong:font-semibold
+                  prose-a:text-green-600 prose-a:no-underline hover:prose-a:text-green-800
+                  prose-ul:space-y-2 prose-ol:space-y-2">
+                  {renderContent()}
+                </div>
+                
+                {/* Keywords Section */}
+                <div className="border-t border-green-100 mt-10 pt-8">
+                  <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center gap-2">
+                    🏷️ Themen in diesem Artikel
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {post.keywords.map((keyword, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="outline" 
+                        className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                      >
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Author & Share Section */}
+                <div className="border-t border-green-100 mt-8 pt-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        {post.author.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">{post.author}</p>
+                        <p className="text-sm text-gray-500">Rasenpflege-Experte</p>
+                      </div>
+                    </div>
+                    
+                    <Button size="sm" variant="outline" className="border-green-200 hover:bg-green-50">
+                      <Share className="h-4 w-4 mr-2" /> Artikel teilen
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </article>
+          </article>
+          
+          {/* Sidebar */}
+          <aside className="lg:col-span-1 space-y-6">
+            {/* CTA Card */}
+            <div className="bg-gradient-to-br from-green-600 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold mb-3">🎯 Kostenlose Rasenanalyse</h3>
+              <p className="text-green-100 mb-4 text-sm">
+                Lassen Sie Ihren Rasen von unserer KI analysieren und erhalten Sie einen personalisierten Pflegeplan.
+              </p>
+              <Button 
+                onClick={() => navigate('/lawn-analysis')} 
+                className="w-full bg-white text-green-600 hover:bg-green-50 font-semibold"
+              >
+                Jetzt kostenlos starten
+              </Button>
+            </div>
+            
+            {/* Related Articles Preview */}
+            {relatedPosts.length > 0 && (
+              <div className="bg-white rounded-xl border border-green-100 p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-green-800 mb-4">📚 Verwandte Artikel</h3>
+                <div className="space-y-3">
+                  {relatedPosts.slice(0, 3).map((relatedPost) => (
+                    <a 
+                      key={relatedPost.id}
+                      href={`/blog/${relatedPost.slug}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/blog/${relatedPost.slug}`);
+                      }}
+                      className="block p-3 rounded-lg hover:bg-green-50 transition-colors border border-green-100"
+                    >
+                      <h4 className="font-medium text-gray-800 text-sm mb-1 line-clamp-2">
+                        {relatedPost.title}
+                      </h4>
+                      <p className="text-xs text-gray-500">
+                        {relatedPost.readTime} Min. • {getCategoryName(relatedPost.category)}
+                      </p>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </aside>
+        </div>
         
+        {/* Full Related Posts Section */}
         {relatedPosts.length > 0 && (
-          <section aria-labelledby="related-posts-heading" className="mt-12">
-            <h2 id="related-posts-heading" className="text-2xl font-bold text-green-800 mb-6">Das könnte Sie auch interessieren</h2>
+          <section className="mt-16">
+            <h2 className="text-3xl font-bold text-green-800 mb-8 text-center">
+              Das könnte Sie auch interessieren
+            </h2>
             <RelatedPosts posts={relatedPosts} />
           </section>
         )}
-        
-        <section aria-labelledby="cta-heading" className="mt-16 bg-green-50 rounded-lg p-6 border border-green-100">
-          <h2 id="cta-heading" className="text-2xl font-bold text-green-800 mb-4">Erhalten Sie personalisierte Rasenberatung</h2>
-          <p className="text-gray-700 mb-4">
-            Unsere Rasenpflege-Tools helfen Ihnen, einen maßgeschneiderten Pflegeplan zu erstellen, 
-            der perfekt auf Ihren Rasen abgestimmt ist.
-          </p>
-          <Button 
-            onClick={() => navigate('/lawn-analysis')} 
-            className="bg-green-600 hover:bg-green-700"
-          >
-            Kostenlos starten <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </section>
       </div>
     </div>
   );
