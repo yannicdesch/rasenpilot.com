@@ -11,6 +11,7 @@ import LawnAnalysis from "./pages/LawnAnalysis";
 import Blog from "./pages/Blog";
 import BlogOverview from "./pages/BlogOverview";
 import BlogPost from "./pages/BlogPost";
+import AnalysisResult from "./pages/AnalysisResult";
 import Highscore from "./pages/Highscore";
 import Impressum from "./pages/Impressum";
 import Datenschutz from "./pages/Datenschutz";
@@ -64,6 +65,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/lawn-analysis" element={<LawnAnalysis />} />
+            <Route path="/analysis-result/:jobId" element={<AnalysisResult />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-overview" element={<BlogOverview />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
