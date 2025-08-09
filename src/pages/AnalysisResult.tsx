@@ -18,6 +18,7 @@ interface AnalysisJobResult {
   result: any;
   created_at: string;
   image_path: string;
+  metadata?: string;
 }
 
 const AnalysisResult = () => {
@@ -493,10 +494,17 @@ Website: www.rasenpilot.com
         </Card>
 
         {/* Weather Enhanced Results */}
-        <WeatherEnhancedResults 
-          zipCode={profile?.zipCode} 
-          recommendations={getRecommendations().weather}
-        />
+        {(getRecommendations().weather && getRecommendations().weather.length > 0) || 
+         (analysisData?.metadata && JSON.parse(analysisData.metadata)?.zipCode) || 
+         profile?.zipCode ? (
+          <WeatherEnhancedResults 
+            zipCode={
+              (analysisData?.metadata && JSON.parse(analysisData.metadata)?.zipCode) || 
+              profile?.zipCode
+            } 
+            recommendations={getRecommendations().weather}
+          />
+        ) : null}
 
         {/* Detailed Timeline Card */}
         <Card className="mb-6">
