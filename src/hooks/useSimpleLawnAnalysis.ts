@@ -12,7 +12,7 @@ interface AnalysisResult {
 }
 
 interface UseSimpleLawnAnalysisReturn {
-  analyze: (imageFile: File, grassType?: string, lawnGoal?: string) => Promise<AnalysisResult>;
+  analyze: (imageFile: File, grassType?: string, lawnGoal?: string, zipCode?: string) => Promise<AnalysisResult>;
   isLoading: boolean;
   error: string | null;
 }
@@ -22,9 +22,10 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const analyze = async (
-    imageFile: File, 
-    grassType?: string, 
-    lawnGoal?: string
+    imageFile: File,
+    grassType?: string,
+    lawnGoal?: string,
+    zipCode?: string
   ): Promise<AnalysisResult> => {
     setIsLoading(true);
     setError(null);
@@ -80,7 +81,8 @@ export const useSimpleLawnAnalysis = (): UseSimpleLawnAnalysisReturn => {
         body: {
           imageBase64: base64,
           grassType: grassType || 'unknown',
-          lawnGoal: lawnGoal || 'Umfassende Rasenanalyse'
+          lawnGoal: lawnGoal || 'Umfassende Rasenanalyse',
+          zipCode
         }
       });
 

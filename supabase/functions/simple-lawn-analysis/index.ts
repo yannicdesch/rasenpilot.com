@@ -14,8 +14,9 @@ serve(async (req) => {
   try {
     console.log('=== SIMPLE LAWN ANALYSIS START ===');
     
-    const { imageBase64, grassType, lawnGoal } = await req.json();
+    const { imageBase64, grassType, lawnGoal, zipCode } = await req.json();
     console.log('Request received with image base64 length:', imageBase64?.length);
+    console.log('Zip code for weather context:', zipCode);
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
@@ -27,6 +28,40 @@ serve(async (req) => {
       imageToUse = `data:image/jpeg;base64,${imageBase64}`;
     }
 
+    // Fetch weather data if zip code is provided
+    let weatherContext = '';
+    if (zipCode) {
+      try {
+        console.log('Fetching weather data for enhanced analysis...');
+        const weatherResponse = await fetch('https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/get-weather-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ zipCode, countryCode: 'DE' })
+        });
+        
+        if (weatherResponse.ok) {
+          const weatherResult = await weatherResponse.json();
+          if (weatherResult.success) {
+            const weather = weatherResult.data;
+            weatherContext = `
+            
+AKTUELLE WETTERBEDINGUNGEN (für präzise Empfehlungen):
+- Temperatur: ${weather.current.temp}°C
+- Bedingungen: ${weather.current.condition}
+- Luftfeuchtigkeit: ${weather.current.humidity}%
+- Windgeschwindigkeit: ${weather.current.windSpeed} km/h
+- 5-Tage Prognose: ${weather.forecast.map(f => `${f.day}: ${f.high}°C/${f.low}°C, ${f.condition} (${f.chanceOfRain}% Regen)`).join(', ')}
+
+Berücksichtigen Sie diese Wetterdaten für zeitspezifische Empfehlungen (Bewässerung, Düngung, Mähen).`;
+          }
+        }
+      } catch (weatherError) {
+        console.log('Weather data not available, continuing without weather context');
+      }
+    }
+    
     console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -39,7 +74,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Sie sind ein Experte für Rasenpflege und Gartenlandschaftsbau. Analysieren Sie das bereitgestellte Rasenbild sehr detailliert und professionell. 
+            content: `Sie sind ein Experte für Rasenpflege und Gartenlandschaftsbau. Analysieren Sie das bereitgestellte Rasenbild sehr detailliert und professionell.${weatherContext}
             
             Bewerten Sie:
             - Grasqualität und -dichte
@@ -49,8 +84,9 @@ serve(async (req) => {
             - Mähqualität und -muster
             - Bewässerungszustand
             - Jahreszeitliche Faktoren
+            - Wetterbasierte Empfehlungen (falls Wetterdaten verfügbar)
             
-            Geben Sie konkrete, umsetzbare Empfehlungen mit Zeitplänen. Antworten Sie nur mit folgendem JSON-Format:
+            Geben Sie konkrete, umsetzbare Empfehlungen mit Zeitplänen. Berücksichtigen Sie die aktuellen Wetterbedingungen für präzise Timing-Empfehlungen. Antworten Sie nur mit folgendem JSON-Format:
             {
               "overall_health": "Zahl 0-100",
               "grass_condition": "Detaillierte Beschreibung des Rasenzustands",
@@ -59,7 +95,8 @@ serve(async (req) => {
               "timeline": "Detaillierter Zeitrahmen für Verbesserungen",
               "score": "Zahl 0-100",
               "detailed_analysis": "Umfassende Analyse mit Begründungen",
-              "next_steps": ["Sofortmaßnahmen", "Mittelfristige Maßnahmen", "Langfristige Pflege"]
+              "next_steps": ["Sofortmaßnahmen", "Mittelfristige Maßnahmen", "Langfristige Pflege"],
+              "weather_recommendations": ["Wetterbasierte Empfehlungen mit Timing", "Bewässerungsempfehlungen basierend auf Prognose"]
             }`
           },
           {

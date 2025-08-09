@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
+import WeatherEnhancedResults from '@/components/WeatherEnhancedResults';
 import MainNavigation from '@/components/MainNavigation';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
+import { useLawn } from '@/context/LawnContext';
 
 interface AnalysisJobResult {
   id: string;
@@ -21,6 +23,7 @@ interface AnalysisJobResult {
 const AnalysisResult = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
+  const { profile } = useLawn();
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +80,28 @@ const AnalysisResult = () => {
 
   const getRecommendations = () => {
     const result = getAnalysisResult();
-    if (!result) return {};
+    if (!result) return { immediate: [], seasonal: [], weather: [] };
+    
+    const weatherRecs = result.weather_recommendations || [];
+    
+    if (result.recommendations && Array.isArray(result.recommendations)) {
+      return {
+        immediate: result.recommendations.slice(0, 3).map((rec, index) => ({
+          action: rec,
+          priority: index < 2 ? 'hoch' : 'mittel',
+          details: 'Detaillierte Anweisungen folgen in Ihrem persönlichen Pflegeplan.',
+          cost: '€€',
+          timing: 'Nächste 2 Wochen'
+        })),
+        seasonal: result.recommendations.slice(3).map(rec => ({
+          month: 'Aktuelle Saison',
+          tasks: rec,
+          details: 'Langfristige Rasenpflege'
+        })),
+        weather: weatherRecs
+      };
+    }
+
     return result.recommendations || {
       immediate: [
         { action: 'Düngen', priority: 'hoch', details: 'NPK-Rasendünger 20-5-8 anwenden', timing: 'Sofort', cost: '25-35€' },
@@ -467,6 +491,12 @@ Website: www.rasenpilot.com
             </div>
           </CardContent>
         </Card>
+
+        {/* Weather Enhanced Results */}
+        <WeatherEnhancedResults 
+          zipCode={profile?.zipCode} 
+          recommendations={getRecommendations().weather}
+        />
 
         {/* Detailed Timeline Card */}
         <Card className="mb-6">
