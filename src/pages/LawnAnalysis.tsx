@@ -110,17 +110,30 @@ const LawnAnalysis = () => {
 
       if (jobError) throw jobError;
 
+      const jobId = jobData;
+      console.log('Created analysis job:', jobId);
+
+      // Start the actual AI analysis
+      const { error: analysisError } = await supabase.functions.invoke('start-analysis', {
+        body: { jobId }
+      });
+
+      if (analysisError) {
+        console.error('Failed to start analysis:', analysisError);
+        throw new Error('Analyse konnte nicht gestartet werden');
+      }
+
       clearInterval(tipInterval);
       
       // Success feedback
       toast({
-        title: "🎉 Analyse abgeschlossen!",
-        description: "Ihr personalisierter Pflegeplan wird geladen...",
+        title: "🎉 Analyse gestartet!",
+        description: "Ihr Foto wird jetzt von der KI analysiert...",
       });
 
       // Navigate to results after brief success message
       setTimeout(() => {
-        navigate(`/analysis-result/${jobData}`);
+        navigate(`/analysis-result/${jobId}`);
       }, 2000);
 
     } catch (error) {
