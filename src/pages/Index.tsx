@@ -11,6 +11,8 @@ import SEO from '@/components/SEO';
 import StructuredData from '@/components/StructuredData';
 import FAQ from '@/components/FAQ';
 import Testimonials from '@/components/Testimonials';
+import lawnBefore from '@/assets/lawn-before.jpg';
+import lawnAfter from '@/assets/lawn-after.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -169,35 +171,33 @@ const Index = () => {
                 <div className="flex h-64 sm:h-80 lg:h-96">
                   
                   {/* Vorher (Before) */}
-                  <div className="flex-1 relative bg-gradient-to-br from-yellow-200 to-yellow-300 flex items-center justify-center">
-                    <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <div className="flex-1 relative">
+                    <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
                       Vorher
                     </div>
-                    <div className="text-center">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-yellow-400/60 rounded-full mb-3 mx-auto flex items-center justify-center">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-600/40 rounded-lg"></div>
-                      </div>
-                      <p className="text-yellow-800 font-medium text-sm">Trockener,<br/>lückenhafter Rasen</p>
-                    </div>
+                    <img 
+                      src={lawnBefore} 
+                      alt="Rasen vorher - schlecht gepflegt mit Unkraut und kahlen Stellen" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   
                   {/* Nachher (After) */}
-                  <div className="flex-1 relative bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                    <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <div className="flex-1 relative">
+                    <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
                       Nachher
                     </div>
-                    <div className="text-center">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-green-200/60 rounded-full mb-3 mx-auto flex items-center justify-center">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-700 rounded-lg"></div>
-                      </div>
-                      <p className="text-white font-medium text-sm">Saftiger,<br/>perfekter Rasen</p>
-                    </div>
+                    <img 
+                      src={lawnAfter} 
+                      alt="Rasen nachher - perfekt gepflegt, grün und gesund" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
                 
                 {/* Yellow Floating Badge */}
                 <div 
-                  className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 flex flex-col items-center justify-center shadow-lg text-black font-bold"
+                  className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 flex flex-col items-center justify-center shadow-lg text-black font-bold z-10"
                   style={{ backgroundColor: '#FFD700' }}
                 >
                   <span className="text-lg sm:text-xl font-bold">30</span>
