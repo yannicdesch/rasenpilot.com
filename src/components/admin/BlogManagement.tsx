@@ -11,6 +11,7 @@ import { Plus, Edit2, Trash2, Eye, Save, X, Sparkles, List } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AiBlogGenerator from '@/components/AiBlogGenerator';
+import WeatherUpdateBlogCreator from '@/components/WeatherUpdateBlogCreator';
 
 interface BlogPost {
   id: number;
@@ -400,6 +401,11 @@ const BlogManagement = () => {
             <p className="text-gray-600">
               Automatische Erstellung von SEO-optimierten Blog-Artikeln mit KI-Unterstützung
             </p>
+          </div>
+          
+          {/* Weather Update Blog Creator */}
+          <div className="mb-6">
+            <WeatherUpdateBlogCreator />
           </div>
           
           <AiBlogGenerator />
