@@ -90,7 +90,7 @@ const Index = () => {
           background: 'linear-gradient(to bottom, #E6F5E6 0%, #ffffff 100%)'
         }}
       >
-        <div className="container mx-auto px-12 sm:px-16 md:px-4">
+        <div className="container mx-auto px-16 sm:px-20 md:px-4">
           <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
             
             {/* Left Column */}
