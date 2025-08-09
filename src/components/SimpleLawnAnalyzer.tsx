@@ -11,6 +11,7 @@ import { Loader2, Upload, Camera, CheckCircle, AlertCircle, Trophy, Download, Le
 import { useToast } from '@/hooks/use-toast';
 import ScoreSubmissionForm from '@/components/ScoreSubmissionForm';
 import CarePlanDownload from '@/components/CarePlanDownload';
+import WeatherEnhancedResults from '@/components/WeatherEnhancedResults';
 import { supabase } from '@/lib/supabase';
 
 interface AnalysisResult {
@@ -28,6 +29,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [grassType, setGrassType] = useState<string>('');
   const [lawnGoal, setLawnGoal] = useState<string>('');
+  const [zipCode, setZipCode] = useState<string>('');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('');
@@ -74,7 +76,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
         setUploadedImageUrl(publicUrl);
         console.log('Image uploaded successfully:', publicUrl);
 
-        const result = await analyze(file, grassType, lawnGoal);
+        const result = await analyze(file, grassType, lawnGoal, zipCode);
         setAnalysisResult(result);
         
         console.log('Analysis result:', result);
@@ -131,7 +133,7 @@ export const SimpleLawnAnalyzer: React.FC = () => {
       setUploadedImageUrl(publicUrl);
       console.log('Image uploaded successfully:', publicUrl);
 
-      const result = await analyze(selectedFile, grassType, lawnGoal);
+      const result = await analyze(selectedFile, grassType, lawnGoal, zipCode);
       setAnalysisResult(result);
       
       console.log('Analysis result:', result);
@@ -310,6 +312,27 @@ export const SimpleLawnAnalyzer: React.FC = () => {
                 rows={4}
               />
             </div>
+
+            {/* Zip Code for Weather Integration */}
+            <div className="space-y-2">
+              <Label htmlFor="zip-code" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.4 4.4 0 003 15z" />
+                </svg>
+                Postleitzahl für Wetteranalyse (optional)
+              </Label>
+              <Input
+                id="zip-code"
+                placeholder="z.B. 10115 für Berlin"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                className="h-12 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 transition-colors rounded-xl bg-gray-50 hover:bg-white"
+                maxLength={5}
+              />
+              <p className="text-xs text-gray-500">
+                Wetterbasierte Empfehlungen für Ihren Standort
+              </p>
+            </div>
           </div>
 
           {/* Status Display */}
@@ -423,6 +446,14 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* Weather Enhanced Results */}
+      {analysisResult && zipCode && (
+        <WeatherEnhancedResults 
+          zipCode={zipCode}
+          recommendations={analysisResult.recommendations}
+        />
       )}
 
       {/* Care Plan Download */}
