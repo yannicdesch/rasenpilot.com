@@ -7,11 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit2, Trash2, Eye, Save, X, Sparkles, List } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, Save, X, Sparkles, List, Instagram } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AiBlogGenerator from '@/components/AiBlogGenerator';
 import WeatherUpdateBlogCreator from '@/components/WeatherUpdateBlogCreator';
+import InstagramPostGenerator from '@/components/InstagramPostGenerator';
 
 interface BlogPost {
   id: number;
@@ -312,7 +313,7 @@ const BlogManagement = () => {
       <h1 className="text-2xl font-bold">Blog-Verwaltung</h1>
       
       <Tabs defaultValue="manual" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="manual" className="flex items-center gap-2">
             <List className="h-4 w-4" />
             Manuelle Verwaltung
@@ -320,6 +321,10 @@ const BlogManagement = () => {
           <TabsTrigger value="ai" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
             AI Blog-Generator
+          </TabsTrigger>
+          <TabsTrigger value="instagram" className="flex items-center gap-2">
+            <Instagram className="h-4 w-4" />
+            Instagram Posts
           </TabsTrigger>
         </TabsList>
 
@@ -409,6 +414,17 @@ const BlogManagement = () => {
           </div>
           
           <AiBlogGenerator />
+        </TabsContent>
+
+        <TabsContent value="instagram" className="space-y-6">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2">Instagram Posts Generator</h2>
+            <p className="text-gray-600">
+              Erstelle professionelle Instagram-Posts über das Wetter-Integration Update
+            </p>
+          </div>
+          
+          <InstagramPostGenerator />
         </TabsContent>
       </Tabs>
     </div>
