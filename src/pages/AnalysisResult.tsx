@@ -494,13 +494,12 @@ Website: www.rasenpilot.com
         </Card>
 
         {/* Weather Enhanced Results */}
-        {(getRecommendations().weather && getRecommendations().weather.length > 0) || 
-         (analysisData?.metadata && JSON.parse(analysisData.metadata)?.zipCode) || 
-         profile?.zipCode ? (
+        {(getRecommendations().weather && getRecommendations().weather.length > 0) ? (
           <WeatherEnhancedResults 
             zipCode={
               (analysisData?.metadata && JSON.parse(analysisData.metadata)?.zipCode) || 
-              profile?.zipCode
+              profile?.zipCode || 
+              "10115" // Default zipcode for demo
             } 
             recommendations={getRecommendations().weather}
           />
