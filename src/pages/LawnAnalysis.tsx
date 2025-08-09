@@ -10,9 +10,11 @@ import { supabase } from '@/lib/supabase';
 import lawnBefore from '@/assets/lawn-before.jpg';
 import lawnAfter from '@/assets/lawn-after.jpg';
 import SEO from '@/components/SEO';
+import { useLawn } from '@/context/LawnContext';
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
+  const { profile } = useLawn();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -99,12 +101,13 @@ const LawnAnalysis = () => {
         .rpc('create_analysis_job', {
           p_user_id: null,
           p_image_path: uploadData.path,
-          p_grass_type: 'unbekannt',
-          p_lawn_goal: 'gesunder-rasen',
+          p_grass_type: profile?.grassType || 'unbekannt',
+          p_lawn_goal: profile?.lawnGoal || 'gesunder-rasen',
           p_metadata: JSON.stringify({ 
             auto_analysis: true, 
             conversion_optimized: true,
-            upload_timestamp: new Date().toISOString()
+            upload_timestamp: new Date().toISOString(),
+            zipCode: profile?.zipCode
           })
         });
 

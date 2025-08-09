@@ -77,6 +77,44 @@ serve(async (req) => {
 
     console.log('Image URL obtained, calling OpenAI...');
 
+    // Extract zipCode from job metadata
+    let zipCode = null;
+    let weatherContext = '';
+    try {
+      const metadata = typeof job.metadata === 'string' ? JSON.parse(job.metadata) : job.metadata;
+      zipCode = metadata?.zipCode;
+      console.log('Extracted zipCode from metadata:', zipCode);
+      
+      // Fetch weather data if zipCode is available
+      if (zipCode) {
+        console.log('Fetching weather data for enhanced analysis...');
+        const weatherResponse = await fetch('https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/get-weather-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ zipCode, countryCode: 'DE' })
+        });
+        
+        if (weatherResponse.ok) {
+          const weatherResult = await weatherResponse.json();
+          if (weatherResult.success) {
+            const weather = weatherResult.data;
+            weatherContext = `
+
+AKTUELLE WETTERBEDINGUNGEN (für präzise Empfehlungen):
+- Temperatur: ${weather.current.temp}°C
+- Bedingungen: ${weather.current.condition}
+- Luftfeuchtigkeit: ${weather.current.humidity}%
+- Windgeschwindigkeit: ${weather.current.windSpeed} km/h
+- 5-Tage Prognose: ${weather.forecast.map(f => `${f.day}: ${f.high}°C/${f.low}°C, ${f.condition} (${f.chanceOfRain}% Regen)`).join(', ')}
+
+Berücksichtigen Sie diese Wetterdaten für zeitspezifische Empfehlungen (Bewässerung, Düngung, Mähen).`;
+          }
+        }
+      }
+    } catch (e) {
+      console.log('Could not fetch weather data:', e);
+    }
+
     // Call OpenAI Vision API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -89,8 +127,9 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional lawn care expert. Analyze the lawn image and provide a comprehensive analysis in German. 
+            content: `You are a professional lawn care expert. Analyze the lawn image and provide a comprehensive analysis in German.${weatherContext}
             Focus on: grass health, problems identified, recommended solutions, timeline for improvements.
+            If weather data is provided, give specific timing recommendations based on current conditions and forecast.
             Return your response as a JSON object with the following structure:
             {
               "overall_health": "percentage (0-100)",
@@ -98,7 +137,8 @@ serve(async (req) => {
               "problems": ["list of identified problems"],
               "recommendations": ["list of specific recommendations"],
               "timeline": "expected improvement timeline",
-              "score": "overall lawn score (0-100)"
+              "score": "overall lawn score (0-100)",
+              "weather_recommendations": ["weather-based timing and care recommendations if weather data available"]
             }`
           },
           {
@@ -106,7 +146,7 @@ serve(async (req) => {
             content: [
               {
                 type: 'text',
-                text: `Bitte analysiere diesen Rasen. Rasentyp: ${job.grass_type || 'unbekannt'}, Ziel: ${job.lawn_goal || 'Allgemeine Verbesserung'}. Gib eine detaillierte Analyse auf Deutsch.`
+                text: `Bitte analysiere diesen Rasen professionell. Rasentyp: ${job.grass_type || 'unbekannt'}, Ziel: ${job.lawn_goal || 'Allgemeine Verbesserung'}. ${zipCode ? `Standort: PLZ ${zipCode}.` : ''} Gib eine detaillierte Analyse auf Deutsch und berücksichtige bei verfügbaren Wetterdaten die optimalen Zeitpunkte für Pflegemaßnahmen.`
               },
               {
                 type: 'image_url',
