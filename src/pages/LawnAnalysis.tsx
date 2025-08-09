@@ -1,8 +1,10 @@
 
 import React, { useCallback, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, FlaskConical } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, FlaskConical, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/components/ui/use-toast';
 import MainNavigation from '@/components/MainNavigation';
@@ -18,6 +20,7 @@ const LawnAnalysis = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [zipCode, setZipCode] = useState<string>(profile?.zipCode || '');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisStep, setAnalysisStep] = useState(0);
@@ -107,7 +110,7 @@ const LawnAnalysis = () => {
             auto_analysis: true, 
             conversion_optimized: true,
             upload_timestamp: new Date().toISOString(),
-            zipCode: profile?.zipCode
+            zipCode: zipCode || profile?.zipCode
           })
         });
 
@@ -325,6 +328,28 @@ const LawnAnalysis = () => {
                 </h3>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Zipcode Input for Weather Enhancement */}
+        <div className="mb-6">
+          <div className="bg-white rounded-xl p-4 shadow-md border border-blue-100">
+            <Label htmlFor="zipcode" className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+              <MapPin className="h-4 w-4 text-blue-600" />
+              Postleitzahl für wetterbasierte Empfehlungen (optional)
+            </Label>
+            <Input
+              id="zipcode"
+              type="text"
+              placeholder="z.B. 10115 für Berlin"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              className="border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 transition-colors"
+              maxLength={5}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Optimale Pflegezeiten basierend auf lokalen Wetterbedingungen
+            </p>
           </div>
         </div>
 
