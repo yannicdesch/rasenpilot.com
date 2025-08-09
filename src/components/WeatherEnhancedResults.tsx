@@ -12,6 +12,16 @@ interface WeatherData {
     humidity: number;
     windSpeed: number;
     icon: string;
+    uvIndex?: number;
+    soilTemp?: number;
+    dewPoint?: number;
+    evapotranspiration?: number;
+    lawnCareConditions?: {
+      mowing?: boolean;
+      fertilizing?: boolean;
+      watering?: boolean;
+      seeding?: boolean;
+    };
   };
   forecast: Array<{
     day: string;
@@ -19,6 +29,8 @@ interface WeatherData {
     low: number;
     condition: string;
     chanceOfRain: number;
+    soilTemp?: number;
+    evapotranspiration?: number;
   }>;
 }
 
@@ -84,8 +96,10 @@ const WeatherEnhancedResults: React.FC<WeatherEnhancedResultsProps> = ({
       advice.push('💧 Niedrige Luftfeuchtigkeit: Häufiger, aber kürzer bewässern');
     }
 
-    return advice;
+  return advice;
   };
+
+  const combinedRecs = Array.from(new Set([...(getTimingRecommendation() as string[]), ...recommendations]));
 
   if (loading) {
     return (
@@ -114,15 +128,15 @@ const WeatherEnhancedResults: React.FC<WeatherEnhancedResultsProps> = ({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="flex items-center gap-2">
-              <Thermometer className="h-4 w-4 text-orange-500" />
+              <Thermometer className="h-4 w-4 text-primary" />
               <span>{weatherData.current.temp}°C</span>
             </div>
             <div className="flex items-center gap-2">
-              <Droplets className="h-4 w-4 text-blue-500" />
+              <Droplets className="h-4 w-4 text-primary" />
               <span>{weatherData.current.humidity}%</span>
             </div>
             <div className="flex items-center gap-2">
-              <Wind className="h-4 w-4 text-gray-500" />
+              <Wind className="h-4 w-4 text-muted-foreground" />
               <span>{weatherData.current.windSpeed} km/h</span>
             </div>
             <div>
@@ -137,7 +151,7 @@ const WeatherEnhancedResults: React.FC<WeatherEnhancedResultsProps> = ({
                 <div key={index} className="text-center p-2 bg-muted rounded">
                   <div className="text-sm font-medium">{day.day}</div>
                   <div className="text-xs">{day.high}°/{day.low}°</div>
-                  <div className="text-xs text-blue-600">{day.chanceOfRain}%</div>
+                  <div className="text-xs text-primary">{day.chanceOfRain}%</div>
                 </div>
               ))}
             </div>
@@ -145,35 +159,21 @@ const WeatherEnhancedResults: React.FC<WeatherEnhancedResultsProps> = ({
         </CardContent>
       </Card>
 
-      {getTimingRecommendation().length > 0 && (
+      {combinedRecs.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>🎯 Wetterbasierte Empfehlungen</CardTitle>
+            <CardTitle>🎯 RasenPilot empfiehlt</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {getTimingRecommendation().map((tip, index) => (
-                <li key={index} className="text-sm bg-blue-50 p-2 rounded">{tip}</li>
+              {combinedRecs.map((tip, index) => (
+                <li key={index} className="text-sm bg-muted p-2 rounded">{tip}</li>
               ))}
             </ul>
           </CardContent>
         </Card>
       )}
 
-      {recommendations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>☀️ KI-Wetteranalyse</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {recommendations.map((rec, index) => (
-                <li key={index} className="text-sm bg-green-50 p-2 rounded">{rec}</li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
