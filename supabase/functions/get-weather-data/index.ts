@@ -63,6 +63,15 @@ serve(async (req) => {
       }
     }
 
+    // Calculate additional lawn care parameters
+    const soilTemp = Math.round(currentData.main.temp - 2); // Approximate soil temperature
+    const dewPoint = Math.round(currentData.main.temp - ((100 - currentData.main.humidity) / 5));
+    const isGoodMowingCondition = currentData.main.humidity < 70 && currentData.wind.speed < 4;
+    const isGoodFertilizingCondition = currentData.main.humidity > 50 && currentData.main.humidity < 85;
+    
+    // Calculate watering needs based on weather
+    const evapotranspiration = Math.max(0, (currentData.main.temp - 5) * 0.5 + (currentData.wind.speed * 0.3) - (currentData.main.humidity * 0.02));
+    
     const weatherData = {
       location: currentData.name + ', ' + currentData.sys.country,
       current: {
@@ -72,9 +81,22 @@ serve(async (req) => {
         windSpeed: Math.round(currentData.wind.speed * 3.6), // Convert m/s to km/h
         icon: currentData.weather[0].icon,
         pressure: currentData.main.pressure,
-        uvIndex: 5 // OpenWeatherMap doesn't provide UV in free tier
+        uvIndex: Math.min(11, Math.max(0, Math.round((currentData.main.temp - 10) / 5))), // Estimate UV index
+        soilTemp: soilTemp,
+        dewPoint: dewPoint,
+        evapotranspiration: Math.round(evapotranspiration * 10) / 10,
+        lawnCareConditions: {
+          mowing: isGoodMowingCondition,
+          fertilizing: isGoodFertilizingCondition,
+          watering: evapotranspiration > 2,
+          seeding: currentData.main.temp >= 8 && currentData.main.temp <= 25
+        }
       },
-      forecast: dailyForecast
+      forecast: dailyForecast.map(day => ({
+        ...day,
+        soilTemp: Math.round(day.high - 3),
+        evapotranspiration: Math.max(0, Math.round(((day.high - 5) * 0.4 + (day.windSpeed * 0.2) - (day.humidity * 0.015)) * 10) / 10)
+      }))
     };
 
     console.log('Weather data processed successfully');

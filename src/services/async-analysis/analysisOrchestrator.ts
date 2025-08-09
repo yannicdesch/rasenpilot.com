@@ -9,7 +9,8 @@ import { AnalysisStartResult } from './types';
 export const startImageAnalysis = async (
   imageFile: File,
   grassType?: string,
-  lawnGoal?: string
+  lawnGoal?: string,
+  zipCode?: string
 ): Promise<AnalysisStartResult> => {
   try {
     console.log('=== STARTING ASYNC IMAGE ANALYSIS ===');
@@ -69,7 +70,8 @@ export const startImageAnalysis = async (
       {
         original_size: imageFile.size,
         compressed_size: compressedFile.size,
-        file_name: compressedFile.name
+        file_name: compressedFile.name,
+        zipCode: zipCode
       }
     );
     console.log('Analysis job created with ID:', jobId);

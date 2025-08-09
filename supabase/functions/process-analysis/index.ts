@@ -88,27 +88,39 @@ serve(async (req) => {
       // Fetch weather data if zipCode is available
       if (zipCode) {
         console.log('Fetching weather data for enhanced analysis...');
-        const weatherResponse = await fetch('https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/get-weather-data', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ zipCode, countryCode: 'DE' })
+        const { data: weatherResult, error: weatherError } = await supabase.functions.invoke('get-weather-data', {
+          body: { zipCode, countryCode: 'DE' }
         });
         
-        if (weatherResponse.ok) {
-          const weatherResult = await weatherResponse.json();
-          if (weatherResult.success) {
-            const weather = weatherResult.data;
-            weatherContext = `
+        if (!weatherError && weatherResult?.success) {
+          const weather = weatherResult.data;
+          weatherContext = `
 
-AKTUELLE WETTERBEDINGUNGEN (für präzise Empfehlungen):
-- Temperatur: ${weather.current.temp}°C
-- Bedingungen: ${weather.current.condition}
-- Luftfeuchtigkeit: ${weather.current.humidity}%
-- Windgeschwindigkeit: ${weather.current.windSpeed} km/h
-- 5-Tage Prognose: ${weather.forecast.map(f => `${f.day}: ${f.high}°C/${f.low}°C, ${f.condition} (${f.chanceOfRain}% Regen)`).join(', ')}
+=== UMFASSENDE WETTER- & BODENANALYSE FÜR RASENPFLEGE ===
 
-Berücksichtigen Sie diese Wetterdaten für zeitspezifische Empfehlungen (Bewässerung, Düngung, Mähen).`;
-          }
+AKTUELLE BEDINGUNGEN:
+• Lufttemperatur: ${weather.current.temp}°C
+• Geschätzte Bodentemperatur: ${weather.current.soilTemp}°C  
+• Wetter: ${weather.current.condition}
+• Luftfeuchtigkeit: ${weather.current.humidity}%
+• Taupunkt: ${weather.current.dewPoint}°C
+• Windgeschwindigkeit: ${weather.current.windSpeed} km/h
+• Luftdruck: ${weather.current.pressure} hPa
+• UV-Index: ${weather.current.uvIndex}/11
+• Verdunstungsrate: ${weather.current.evapotranspiration} mm/Tag
+
+OPTIMALE PFLEGEZEITPUNKTE:
+• Mähen: ${weather.current.lawnCareConditions.mowing ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (Luftfeuchtigkeit < 70%, wenig Wind)
+• Düngen: ${weather.current.lawnCareConditions.fertilizing ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (50-85% Luftfeuchtigkeit ideal)  
+• Bewässerung: ${weather.current.lawnCareConditions.watering ? '🚨 NOTWENDIG' : '✅ AUSREICHEND'} (Verdunstungsrate: ${weather.current.evapotranspiration} mm/Tag)
+• Nachsaat: ${weather.current.lawnCareConditions.seeding ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (8-25°C ideal für Keimung)
+
+5-TAGE DETAILPROGNOSE:
+${weather.forecast.map(f => `• ${f.day}: ${f.high}°C/${f.low}°C (Boden: ~${f.soilTemp}°C), ${f.condition}, ${f.chanceOfRain}% Regen, Verdunstung: ${f.evapotranspiration}mm`).join('\n')}
+
+WICHTIGER HINWEIS: Berücksichtigen Sie diese präzisen Wetterdaten für alle Pflegeempfehlungen. Geben Sie spezifische Zeitpunkte und Bedingungen für Bewässerung, Düngung und Rasenpflege basierend auf den aktuellen und prognostizierten Werten an.`;
+        } else {
+          console.log('Could not fetch weather data:', weatherError);
         }
       }
     } catch (e) {
@@ -127,19 +139,30 @@ Berücksichtigen Sie diese Wetterdaten für zeitspezifische Empfehlungen (Bewäs
         messages: [
           {
             role: 'system',
-            content: `You are a professional lawn care expert. Analyze the lawn image and provide a comprehensive analysis in German.${weatherContext}
-            Focus on: grass health, problems identified, recommended solutions, timeline for improvements.
-            If weather data is provided, give specific timing recommendations based on current conditions and forecast.
-            Return your response as a JSON object with the following structure:
-            {
-              "overall_health": "percentage (0-100)",
-              "grass_condition": "detailed description in German",
-              "problems": ["list of identified problems"],
-              "recommendations": ["list of specific recommendations"],
-              "timeline": "expected improvement timeline",
-              "score": "overall lawn score (0-100)",
-              "weather_recommendations": ["weather-based timing and care recommendations if weather data available"]
-            }`
+            content: `Sie sind ein professioneller Rasen- und Gartenexperte mit tiefgreifender Kenntnis über Bodenbiologie, Pflanzenkrankheiten und klimatische Bedingungen. Analysieren Sie das Rasenbild umfassend und liefern Sie eine detaillierte, wissenschaftlich fundierte Analyse in deutscher Sprache.${weatherContext}
+
+ANALYSEFOKUS:
+1. RASENGESUNDHEIT: Bewerten Sie Grasdichte, Farbe, Wurzelentwicklung, Krankheitssymptome
+2. PROBLEMIDENTIFIKATION: Erkennen Sie Schädlinge, Krankheiten, Nährstoffmangel, Bodenverdichtung
+3. BODENQUALITÄT: Schätzen Sie pH-Wert, Nährstoffgehalt, Drainage basierend auf visuellen Hinweisen
+4. WETTERBASIERTE EMPFEHLUNGEN: Nutzen Sie die detaillierten Wetterdaten für präzise Timing-Empfehlungen
+
+Wenn Wetterdaten verfügbar sind, geben Sie KONKRETE Zeitpunkte und Bedingungen an:
+- Wann genau bewässern (Tageszeit, Häufigkeit, Menge)
+- Optimale Mähzeiten basierend auf Luftfeuchtigkeit und Wind
+- Düngezeitpunkte abhängig von Bodentemperatur und Niederschlag
+- Nachsaat-Empfehlungen basierend auf Keimbedingungen
+
+Antworten Sie als JSON-Objekt:
+{
+  "overall_health": "Prozentuale Gesundheit (0-100)",
+  "grass_condition": "Detaillierte Beschreibung des Rasenzustands auf Deutsch",
+  "problems": ["Liste identifizierter Probleme mit Fachbegriffen"],
+  "recommendations": ["Konkrete, umsetzbare Empfehlungen mit Mengenangaben und Produktnamen"],
+  "timeline": "Realistischer Zeitrahmen für sichtbare Verbesserungen",
+  "score": "Gesamtbewertung (0-100)",
+  "weather_recommendations": ["Wetterbasierte Timing-Empfehlungen mit konkreten Uhrzeiten und Bedingungen"]
+}`
           },
           {
             role: 'user',
