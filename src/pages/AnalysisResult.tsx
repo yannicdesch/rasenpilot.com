@@ -109,9 +109,59 @@ const AnalysisResult = () => {
   };
 
   const handleDownloadPlan = () => {
+    if (!analysisData?.result) return;
+    
+    const result = analysisData.result;
+    const score = getHealthScore();
+    
+    // Generate PDF content as plain text/HTML for now
+    const pdfContent = `
+RASENANALYSE-BERICHT
+====================
+
+BEWERTUNG: ${score}/100 - ${getScoreLabel(score)}
+Datum: ${new Date(analysisData.created_at).toLocaleDateString('de-DE')}
+
+RASEN-ZUSTAND:
+${result.grass_condition || 'Keine detaillierte Beschreibung verfügbar'}
+
+IDENTIFIZIERTE PROBLEME:
+${getProblems().map((p, i) => `${i + 1}. ${p.type}: ${p.description}`).join('\n')}
+
+SOFORT-MASSNAHMEN:
+${getRecommendations().immediate?.map((r, i) => 
+  `${i + 1}. ${r.action} (Priorität: ${r.priority})
+     Details: ${r.details}
+     Kosten: ${r.cost}
+     Timing: ${r.timing}`
+).join('\n\n') || 'Keine spezifischen Sofortmaßnahmen verfügbar'}
+
+TIMELINE:
+${result.timeline || 'Keine Timeline verfügbar'}
+
+PFLEGEPLAN:
+- Woche 1-2: Sofortmaßnahmen durchführen
+- Woche 3-6: Etablierungsphase mit regelmäßiger Pflege  
+- Woche 7-12: Perfektionierung und Optimierung
+
+Erstellt von: Rasenpilot KI-Analyse
+Website: www.rasenpilot.com
+    `.trim();
+
+    // Create and download as text file for now
+    const blob = new Blob([pdfContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rasenanalyse-${score}-punkte-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Download wird vorbereitet",
-      description: "Ihr personalisierter Pflegeplan wird als PDF erstellt...",
+      title: "Pflegeplan heruntergeladen",
+      description: "Ihr personalisierter Rasenplan wurde als Textdatei gespeichert.",
     });
   };
 
