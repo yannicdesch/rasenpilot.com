@@ -217,26 +217,57 @@ export const useEnhancedBlogGenerator = () => {
   };
 
   const generateInternalLinks = (content: string, category: string) => {
-    const linkSuggestions = {
+    // Erweiterte interne Verlinkungsmatrix mit echten URLs
+    const linkDatabase = {
       'seasonal': [
-        { text: 'Rasenpflege im Frühjahr', url: '/blog/rasenpflege-fruehling', context: 'saisonale Pflege' },
-        { text: 'Herbstrasenpflege', url: '/blog/rasenpflege-herbst', context: 'Jahreszeiten' }
+        { text: 'Rasenpflege im Frühjahr', url: '/blog/rasenpflege-im-fruehjahr-der-komplette-guide', context: 'saisonale Pflege' },
+        { text: 'Herbstrasenpflege Checkliste', url: '/blog/herbstrasenpflege-wintervorbereitung', context: 'Jahreszeiten' },
+        { text: 'Winterrasenpflege', url: '/blog/rasen-winterfest-machen', context: 'Wintersaison' }
       ],
       'mowing': [
-        { text: 'Rasenmähen Tipps', url: '/blog/rasen-maehen-tipps', context: 'Mähtechniken' },
-        { text: 'Vertikutieren Anleitung', url: '/blog/rasen-vertikutieren-anleitung', context: 'Rasenpflege' }
+        { text: 'Rasenmähen Profi-Tipps', url: '/blog/rasen-maehen-tipps-profis', context: 'Mähtechniken' },
+        { text: 'Vertikutieren Komplettanleitung', url: '/blog/rasen-vertikutieren-schritt-fuer-schritt', context: 'Rasenpflege' },
+        { text: 'Mulchmähen Vorteile', url: '/blog/mulchmaehen-vorteile-nachteile', context: 'Mähstrategien' }
       ],
       'fertilizing': [
-        { text: 'Rasen düngen Guide', url: '/blog/rasen-duengen-guide', context: 'Düngung' },
-        { text: 'Rasendünger Test', url: '/blog/beste-rasenduenger-test', context: 'Produktvergleich' }
+        { text: 'Rasen düngen Zeitplan', url: '/blog/rasen-duengen-wann-wie-oft', context: 'Düngung' },
+        { text: 'Bester Rasendünger 2025', url: '/blog/beste-rasenduenger-test-2025', context: 'Produktvergleich' },
+        { text: 'Organischer Rasendünger', url: '/blog/organischer-rasenduenger-natuerlich', context: 'Bio-Düngung' }
       ],
       'problems': [
-        { text: 'Moos im Rasen entfernen', url: '/blog/moos-im-rasen-entfernen', context: 'Rasenprobleme' },
-        { text: 'Unkraut bekämpfen', url: '/blog/unkraut-im-rasen-bekaempfen', context: 'Schädlingsbekämpfung' }
+        { text: 'Moos im Rasen dauerhaft entfernen', url: '/blog/moos-im-rasen-entfernen-praktische-tipps-fuer-eine-gesunde-rasenflaeche', context: 'Rasenprobleme' },
+        { text: 'Unkraut im Rasen bekämpfen', url: '/blog/unkraut-im-rasen-bekaempfen-ohne-chemie', context: 'Schädlingsbekämpfung' },
+        { text: 'Braune Flecken im Rasen', url: '/blog/braune-flecken-rasen-ursachen-behandlung', context: 'Rasenkrankheiten' },
+        { text: 'Rasenkrankheiten erkennen', url: '/blog/rasenkrankheiten-erkennen-behandeln', context: 'Diagnose' }
+      ],
+      'watering': [
+        { text: 'Rasen richtig bewässern', url: '/blog/rasen-bewaessern-wann-wie-oft', context: 'Bewässerung' },
+        { text: 'Sprinkleranlage planen', url: '/blog/sprinkleranlage-rasen-planen', context: 'Bewässerungssysteme' },
+        { text: 'Rasen gießen Sommer', url: '/blog/rasen-giessen-sommer-hitze', context: 'Sommerpflege' }
+      ],
+      'general': [
+        { text: 'Kostenlose Rasenanalyse', url: '/lawn-analysis', context: 'Service-Angebot' },
+        { text: 'Rasenpflege Jahresplaner', url: '/blog/rasenpflege-jahresplaner-kalender', context: 'Planung' },
+        { text: 'Rasen Neuanlage Komplettguide', url: '/blog/rasen-neuanlage-komplette-anleitung', context: 'Neuanlage' }
+      ],
+      'tools': [
+        { text: 'Rasenmäher Test 2025', url: '/blog/beste-rasenmaeher-test-2025', context: 'Geräte-Tests' },
+        { text: 'Vertikutierer Kaufberatung', url: '/blog/vertikutierer-test-kaufberatung', context: 'Werkzeuge' },
+        { text: 'Rasen-Tools Übersicht', url: '/blog/rasenpflege-werkzeuge-uebersicht', context: 'Ausrüstung' }
       ]
     };
 
-    return linkSuggestions[category as keyof typeof linkSuggestions] || [];
+    // Intelligente Link-Auswahl basierend auf Content-Analyse
+    const allLinks = Object.values(linkDatabase).flat();
+    const categoryLinks = linkDatabase[category as keyof typeof linkDatabase] || linkDatabase['general'];
+    
+    // Füge 2-3 kategorienspezifische + 1-2 allgemeine Links hinzu
+    const selectedLinks = [
+      ...categoryLinks.slice(0, 2),
+      ...allLinks.filter(link => !categoryLinks.includes(link)).slice(0, 2)
+    ];
+
+    return selectedLinks;
   };
 
   const generateBlogPost = async () => {

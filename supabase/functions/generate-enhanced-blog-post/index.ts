@@ -99,9 +99,11 @@ Antworten Sie AUSSCHLIESSLICH mit folgendem erweiterten JSON-Format:
     "trending": ["2025-trend-keyword", "aktueller-begriff"]
   },
   "internal_links": [
-    {"text": "Strategic Anchor Text", "url": "/blog/cluster-artikel-1", "context": "Content Cluster Context", "intent": "commercial"},
-    {"text": "Authority Link Text", "url": "/blog/expert-artikel", "context": "E-A-T Boosting Context", "intent": "informational"},
-    {"text": "Conversion Link", "url": "/features", "context": "Product Integration", "intent": "transactional"}
+    {"text": "Kostenlose KI-Rasenanalyse", "url": "/lawn-analysis", "context": "Service-Integration", "intent": "transactional"},
+    {"text": "Rasenpflege im Frühjahr", "url": "/blog/rasenpflege-im-fruehjahr-der-komplette-guide", "context": "Saisonale Pflege", "intent": "informational"},
+    {"text": "Rasen düngen Zeitplan", "url": "/blog/rasen-duengen-wann-wie-oft", "context": "Pflege-Grundlagen", "intent": "informational"},
+    {"text": "Vertikutieren Anleitung", "url": "/blog/rasen-vertikutieren-schritt-fuer-schritt", "context": "Rasenpflege-Techniken", "intent": "how-to"},
+    {"text": "Moos im Rasen entfernen", "url": "/blog/moos-im-rasen-entfernen-praktische-tipps-fuer-eine-gesunde-rasenflaeche", "context": "Problemlösung", "intent": "solution"}
   ],
   "faq": [
     {"question": "Direkte Keyword-Frage für Featured Snippet?", "answer": "Präzise 40-60 Wort Antwort mit Keyword-Optimierung", "snippet_optimized": true},
