@@ -105,9 +105,9 @@ const AnalysisResult = () => {
 
     return result.recommendations || {
       immediate: [
-        { action: 'Düngen', priority: 'hoch', details: 'NPK-Rasendünger 20-5-8 anwenden', timing: 'Sofort', cost: '25-35€' },
-        { action: 'Vertikutieren', priority: 'hoch', details: 'Moos und Rasenfilz entfernen', timing: 'Nächste 2 Wochen', cost: '15-25€' },
-        { action: 'Nachsäen', priority: 'mittel', details: 'Kahle Stellen mit Rasensamen füllen', timing: 'Nach Vertikutieren', cost: '20-30€' }
+        { action: 'Düngen', priority: 'hoch', details: 'Rasen gleichmäßig düngen; Dosierung nach Herstellerhinweis', timing: 'Sofort' },
+        { action: 'Vertikutieren', priority: 'hoch', details: 'Moos und Rasenfilz flach entfernen', timing: 'Nächste 2 Wochen' },
+        { action: 'Nachsäen', priority: 'mittel', details: 'Kahle Stellen mit passender Saatmischung schließen', timing: 'Nach Vertikutieren' }
       ],
       seasonal: [
         { month: 'März-April', tasks: 'Frühjahrsputz, erste Düngung', details: 'Rasen von Laub befreien, Startdüngung' },
@@ -153,23 +153,22 @@ ${result.grass_condition || 'Keine detaillierte Beschreibung verfügbar'}
 IDENTIFIZIERTE PROBLEME:
 ${getProblems().map((p, i) => `${i + 1}. ${p.type}: ${p.description}`).join('\n')}
 
-SOFORT-MASSNAHMEN:
+RASENPILOT EMPFIEHLT (0–4 WOCHEN):
 ${getRecommendations().immediate?.map((r, i) => 
   `${i + 1}. ${r.action} (Priorität: ${r.priority})
      Details: ${r.details}
-     Kosten: ${r.cost}
      Timing: ${r.timing}`
 ).join('\n\n') || 'Keine spezifischen Sofortmaßnahmen verfügbar'}
-
+ 
 TIMELINE:
 ${result.timeline || 'Keine Timeline verfügbar'}
-
+ 
 PFLEGEPLAN:
 - Woche 1-2: Sofortmaßnahmen durchführen
 - Woche 3-6: Etablierungsphase mit regelmäßiger Pflege  
 - Woche 7-12: Perfektionierung und Optimierung
-
-Erstellt von: Rasenpilot KI-Analyse
+ 
+Erstellt von: RasenPilot Analyse
 Website: www.rasenpilot.com
     `.trim();
 
@@ -251,7 +250,7 @@ Website: www.rasenpilot.com
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO 
-        title={`Ihre Rasenanalyse - Score: ${healthScore}/100 | Rasenpilot`}
+        title={`Ihre Rasenanalyse - Score: ${healthScore}/100 | RasenPilot`}
         description={`Ihr Rasen hat einen Gesundheits-Score von ${healthScore}/100 erreicht. Entdecken Sie personalisierte Pflegetipps für einen perfekten Rasen.`}
         keywords="Rasenanalyse Ergebnis, Rasen Score, Rasenpflege, Pflegeplan"
         canonical={`https://www.rasenpilot.com/analysis-result/${jobId}`}
@@ -356,7 +355,7 @@ Website: www.rasenpilot.com
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Target className="h-5 w-5 text-green-600" />
-              Sofort-Maßnahmen (0-4 Wochen)
+              RasenPilot empfiehlt: Sofort-Maßnahmen (0–4 Wochen)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -377,7 +376,6 @@ Website: www.rasenpilot.com
                     </div>
                     <div className="text-right text-sm">
                       <div className="text-gray-600">{action.timing}</div>
-                      <div className="text-green-600 font-medium">{action.cost}</div>
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 ml-11">{action.details}</p>
@@ -389,10 +387,9 @@ Website: www.rasenpilot.com
                       <div className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-800">Düngen</h4>
-                        <p className="text-sm text-gray-600">NPK-Rasendünger 20-5-8 anwenden, 30g/m²</p>
+                        <p className="text-sm text-gray-600">Rasen gleichmäßig düngen; Dosierung nach Herstellerhinweis</p>
                         <div className="flex justify-between mt-1">
                           <span className="text-xs text-gray-500">Priorität: hoch</span>
-                          <span className="text-sm text-green-600 font-medium">25-35€</span>
                         </div>
                       </div>
                     </div>
@@ -402,10 +399,9 @@ Website: www.rasenpilot.com
                       <div className="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-800">Vertikutieren</h4>
-                        <p className="text-sm text-gray-600">Moos und Rasenfilz entfernen, 2-3mm tief</p>
+                        <p className="text-sm text-gray-600">Moos und Rasenfilz flach entfernen</p>
                         <div className="flex justify-between mt-1">
                           <span className="text-xs text-gray-500">Priorität: mittel</span>
-                          <span className="text-sm text-green-600 font-medium">15-25€</span>
                         </div>
                       </div>
                     </div>
@@ -421,7 +417,7 @@ Website: www.rasenpilot.com
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5 text-blue-600" />
-              Saisonaler Pflegeplan
+              RasenPilot empfiehlt: Saisonaler Pflegeplan
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -570,38 +566,6 @@ Website: www.rasenpilot.com
           </CardContent>
         </Card>
 
-        {/* Cost Breakdown */}
-        <Card className="mb-6 bg-gray-50 border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Zap className="h-5 w-5 text-purple-600" />
-              Kostenübersicht
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Rasendünger (NPK 20-5-8)</span>
-                <span className="font-medium">25-35€</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Vertikutierer-Miete</span>
-                <span className="font-medium">15-25€</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Rasensamen (2kg)</span>
-                <span className="font-medium">20-30€</span>
-              </div>
-              <div className="border-t pt-2 mt-3">
-                <div className="flex justify-between items-center font-semibold">
-                  <span>Gesamtkosten</span>
-                  <span className="text-green-600">60-90€</span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Einmalige Investition für jahrelang schönen Rasen</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* CTA Buttons */}
         <div className="space-y-3">
