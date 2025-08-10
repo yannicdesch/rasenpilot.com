@@ -304,24 +304,36 @@ Website: www.rasenpilot.com
           </Card>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <Button 
-            onClick={handleDownloadPlan}
-            variant="outline" 
-            className="h-12 border-green-200 hover:bg-green-50"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            PDF-Plan
-          </Button>
-          
+        {/* Pflegeplan Download - Prominent */}
+        <Card className="mb-6 bg-gradient-to-r from-green-600 to-green-700 border-none">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Ihr persönlicher Pflegeplan
+              </h3>
+              <p className="text-green-100 text-sm mb-4">
+                Detaillierte Anweisungen für die nächsten Wochen
+              </p>
+              <Button 
+                onClick={handleDownloadPlan}
+                className="w-full bg-white text-green-700 hover:bg-green-50 font-semibold h-12"
+              >
+                <Download className="h-5 w-5 mr-2" />
+                Pflegeplan herunterladen
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Share Action */}
+        <div className="mb-6">
           <Button 
             onClick={handleShare}
             variant="outline" 
-            className="h-12 border-green-200 hover:bg-green-50"
+            className="w-full h-10 border-green-200 hover:bg-green-50"
           >
             <Share className="h-4 w-4 mr-2" />
-            Teilen
+            Ergebnis teilen
           </Button>
         </div>
 
