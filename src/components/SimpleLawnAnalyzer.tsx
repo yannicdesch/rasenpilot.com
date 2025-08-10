@@ -401,12 +401,19 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             {/* Problems */}
             {analysisResult.problems.length > 0 && (
               <div>
-                <h4 className="font-semibold mb-2">Identifizierte Probleme:</h4>
-                <div className="space-y-2">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  Identifizierte Probleme
+                </h4>
+                <div className="space-y-3">
                   {analysisResult.problems.map((problem, index) => (
-                    <div key={index} className="flex items-start gap-2 text-sm bg-red-50 p-2 rounded border-l-4 border-red-500">
-                      <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                      <span>{problem}</span>
+                    <div key={index} className="bg-red-50 border border-red-100 rounded-lg p-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          {index + 1}
+                        </div>
+                        <span className="text-sm text-red-800">{problem}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -416,12 +423,19 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             {/* Recommendations */}
             {analysisResult.recommendations.length > 0 && (
               <div>
-                <h4 className="font-semibold mb-2">Empfehlungen:</h4>
-                <div className="space-y-2">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  RasenPilot empfiehlt: Sofort-Maßnahmen
+                </h4>
+                <div className="space-y-3">
                   {analysisResult.recommendations.map((rec, index) => (
-                    <div key={index} className="flex items-start gap-2 text-sm bg-green-50 p-2 rounded border-l-4 border-green-500">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>{rec}</span>
+                    <div key={index} className="bg-green-50 border border-green-100 rounded-lg p-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          {index + 1}
+                        </div>
+                        <span className="text-sm text-green-800">{rec}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -431,14 +445,19 @@ export const SimpleLawnAnalyzer: React.FC = () => {
             {/* Next Steps */}
             {analysisResult.next_steps && analysisResult.next_steps.length > 0 && (
               <div>
-                <h4 className="font-semibold mb-2">Nächste Schritte:</h4>
-                <div className="space-y-2">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                  RasenPilot empfiehlt: Langfristige Pflege
+                </h4>
+                <div className="space-y-3">
                   {analysisResult.next_steps.map((step, index) => (
-                    <div key={index} className="flex items-start gap-2 text-sm bg-yellow-50 p-2 rounded border-l-4 border-yellow-500">
-                      <div className="flex-shrink-0 w-5 h-5 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
-                        {index + 1}
+                    <div key={index} className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          {index + 1}
+                        </div>
+                        <span className="text-sm text-blue-800">{step}</span>
                       </div>
-                      <span>{step}</span>
                     </div>
                   ))}
                 </div>

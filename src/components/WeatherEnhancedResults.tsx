@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Cloud, CloudRain, Sun, Wind, Droplets, Thermometer } from 'lucide-react';
+import { Cloud, CloudRain, Sun, Wind, Droplets, Thermometer, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface WeatherData {
@@ -162,14 +162,24 @@ const WeatherEnhancedResults: React.FC<WeatherEnhancedResultsProps> = ({
       {combinedRecs.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>🎯 RasenPilot empfiehlt</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              RasenPilot empfiehlt: Wetterbasierte Pflege
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
+            <div className="space-y-3">
               {combinedRecs.map((tip, index) => (
-                <li key={index} className="text-sm bg-muted p-2 rounded">{tip}</li>
+                <div key={index} className="bg-green-50 border border-green-100 rounded-lg p-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <span className="text-sm text-green-800">{tip}</span>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </CardContent>
         </Card>
       )}
