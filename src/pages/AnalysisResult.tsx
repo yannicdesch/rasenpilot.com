@@ -301,6 +301,33 @@ Website: www.rasenpilot.com
                 {getScoreLabel(healthScore)}
               </Badge>
             </CardHeader>
+            {/* Detailed Scoring Breakdown */}
+            {getAnalysisResult()?.detailed_scoring && (
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-1 gap-2 text-sm">
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span>Grasdichte:</span>
+                    <span className="font-medium">{getAnalysisResult()?.detailed_scoring?.grass_density}/20</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span>Farbqualität:</span>
+                    <span className="font-medium">{getAnalysisResult()?.detailed_scoring?.color_quality}/20</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span>Gesundheit:</span>
+                    <span className="font-medium">{getAnalysisResult()?.detailed_scoring?.health_status}/20</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span>Unkrautfreiheit:</span>
+                    <span className="font-medium">{getAnalysisResult()?.detailed_scoring?.weed_freedom}/20</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span>Bodenzustand:</span>
+                    <span className="font-medium">{getAnalysisResult()?.detailed_scoring?.soil_condition}/20</span>
+                  </div>
+                </div>
+              </CardContent>
+            )}
           </Card>
         </div>
 
