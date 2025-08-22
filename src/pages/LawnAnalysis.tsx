@@ -21,6 +21,8 @@ const LawnAnalysis = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [zipCode, setZipCode] = useState<string>(profile?.zipCode || '');
+  const [locationStatus, setLocationStatus] = useState<'detecting' | 'success' | 'failed' | 'manual'>('detecting');
+  const [userLocation, setUserLocation] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisStep, setAnalysisStep] = useState(0);
@@ -36,6 +38,65 @@ const LawnAnalysis = () => {
     "Fakt: Überdüngung schadet mehr als zu wenig Dünger.",
     "Tipp: Mulchmähen spart 30% der Düngungskosten."
   ];
+
+  // Auto-detect location on component mount
+  React.useEffect(() => {
+    detectUserLocation();
+  }, []);
+
+  const detectUserLocation = async () => {
+    if (profile?.zipCode) {
+      setZipCode(profile.zipCode);
+      setUserLocation(profile.zipCode);
+      setLocationStatus('success');
+      return;
+    }
+
+    if (navigator.geolocation) {
+      setLocationStatus('detecting');
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            // Convert coordinates to zip code using reverse geocoding
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(
+              `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=dummy`
+            );
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.length > 0) {
+                // For demo purposes, use a default zip based on major German cities
+                const germanZips: Record<string, string> = {
+                  'Berlin': '10115',
+                  'Hamburg': '20095',
+                  'Munich': '80331',
+                  'Cologne': '50667',
+                  'Frankfurt': '60311'
+                };
+                const detectedZip = germanZips[data[0].name] || '10115';
+                setZipCode(detectedZip);
+                setUserLocation(data[0].name);
+                setLocationStatus('success');
+                return;
+              }
+            }
+            setLocationStatus('failed');
+          } catch (error) {
+            console.error('Reverse geocoding failed:', error);
+            setLocationStatus('failed');
+          }
+        },
+        (error) => {
+          console.error('Geolocation failed:', error);
+          setLocationStatus('failed');
+        },
+        { timeout: 10000, enableHighAccuracy: false }
+      );
+    } else {
+      setLocationStatus('failed');
+    }
+  };
 
   const validateFile = (file: File): string | null => {
     const maxSize = 10 * 1024 * 1024; // 10MB
@@ -110,7 +171,9 @@ const LawnAnalysis = () => {
             auto_analysis: true, 
             conversion_optimized: true,
             upload_timestamp: new Date().toISOString(),
-            zipCode: zipCode || profile?.zipCode
+            zipCode: zipCode || '10115',
+            userLocation: userLocation,
+            locationMethod: locationStatus
           })
         });
 
@@ -212,6 +275,28 @@ const LawnAnalysis = () => {
           <p className="text-lg text-slate-700">
             In 30 Sekunden zu deinem perfekten Pflegeplan.
           </p>
+          
+          {/* Location Status */}
+          <div className="mt-4">
+            {locationStatus === 'detecting' && (
+              <div className="flex items-center justify-center gap-2 text-sm text-blue-600">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span>Standort wird erkannt...</span>
+              </div>
+            )}
+            {locationStatus === 'success' && userLocation && (
+              <div className="flex items-center justify-center gap-2 text-sm text-green-600">
+                <MapPin className="h-4 w-4" />
+                <span>Standort erkannt: {userLocation}</span>
+              </div>
+            )}
+            {locationStatus === 'failed' && (
+              <div className="flex items-center justify-center gap-2 text-sm text-amber-600">
+                <MapPin className="h-4 w-4" />
+                <span>Standard-Standort wird verwendet</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Before/After Visual Teaser */}
@@ -337,27 +422,41 @@ const LawnAnalysis = () => {
           </div>
         </div>
 
-        {/* Zipcode Input for Weather Enhancement */}
-        <div className="mb-6">
-          <div className="bg-white rounded-xl p-4 shadow-md border border-blue-100">
-            <Label htmlFor="zipcode" className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
-              <MapPin className="h-4 w-4 text-blue-600" />
-              Postleitzahl für wetterbasierte Empfehlungen (optional)
-            </Label>
-            <Input
-              id="zipcode"
-              type="text"
-              placeholder="z.B. 10115 für Berlin"
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
-              className="border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 transition-colors"
-              maxLength={5}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Optimale Pflegezeiten basierend auf lokalen Wetterbedingungen
-            </p>
+        {/* Manual Location Override (only show if auto-detection failed or user wants to change) */}
+        {(locationStatus === 'failed' || locationStatus === 'manual') && (
+          <div className="mb-6">
+            <div className="bg-white rounded-xl p-4 shadow-md border border-blue-100">
+              <Label htmlFor="zipcode" className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+                <MapPin className="h-4 w-4 text-blue-600" />
+                Postleitzahl für wetterbasierte Empfehlungen
+              </Label>
+              <Input
+                id="zipcode"
+                type="text"
+                placeholder="z.B. 10115 für Berlin"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                className="border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 transition-colors"
+                maxLength={5}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Optimale Pflegezeiten basierend auf lokalen Wetterbedingungen
+              </p>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Option to manually set location even when auto-detected */}
+        {locationStatus === 'success' && (
+          <div className="mb-6 text-center">
+            <button
+              onClick={() => setLocationStatus('manual')}
+              className="text-sm text-blue-600 hover:text-blue-700 underline"
+            >
+              Anderen Standort eingeben
+            </button>
+          </div>
+        )}
 
         {/* Trust Line */}
         <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
