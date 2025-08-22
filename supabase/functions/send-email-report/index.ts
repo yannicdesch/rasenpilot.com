@@ -426,7 +426,7 @@ async function sendEmail({ to, subject, html }) {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        from: 'noreply@rasenpilot.de',
+        from: 'noreply@rasenpilot.com',
         to: [to],
         subject: subject,
         html: html

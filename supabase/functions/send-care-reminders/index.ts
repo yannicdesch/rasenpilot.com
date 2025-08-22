@@ -317,7 +317,7 @@ async function sendReminderEmail(user: UserProfile, lawnProfile: LawnProfile, ta
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        from: 'Rasenpilot <noreply@rasenpilot.de>',
+        from: 'Rasenpilot <noreply@rasenpilot.com>',
         to: [user.email],
         subject: `🌱 Rasenpflege für heute - ${tasks.length} Aufgabe${tasks.length > 1 ? 'n' : ''}`,
         html: emailHtml
