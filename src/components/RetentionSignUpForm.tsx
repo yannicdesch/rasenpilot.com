@@ -56,21 +56,19 @@ const RetentionSignUpForm: React.FC<RetentionSignUpFormProps> = ({
 
         if (error) throw error;
 
-        // CRITICAL: Link this analysis to the user if it was anonymous
+        // CRITICAL: Claim this analysis for the user (connects anonymous analysis to user account)
         if (analysisId) {
-          await supabase
-            .from('analysis_jobs')
-            .update({ user_id: user.id })
-            .eq('id', analysisId)
-            .is('user_id', null);
-
-          // Also update any analyses table entries
-          await supabase
-            .from('analyses')
-            .update({ user_id: user.id })
-            .is('user_id', null)
-            .order('created_at', { ascending: false })
-            .limit(1);
+          const { error: claimError } = await supabase.rpc('claim_orphaned_analysis', {
+            p_user_id: user.id,
+            p_email: email,
+            p_analysis_id: analysisId
+          });
+          
+          if (claimError) {
+            console.error('Error claiming analysis:', claimError);
+          } else {
+            console.log('✅ Analysis successfully claimed for user');
+          }
         }
       } else {
         // Anonymous user - create a subscriber record AND a temporary profile link

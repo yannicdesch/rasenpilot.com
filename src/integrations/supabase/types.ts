@@ -625,6 +625,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_orphaned_analysis: {
+        Args: { p_analysis_id?: string; p_email: string; p_user_id: string }
+        Returns: Json
+      }
       cleanup_old_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
