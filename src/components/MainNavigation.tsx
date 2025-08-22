@@ -97,9 +97,9 @@ const MainNavigation = () => {
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="text-gray-700 p-2"
+                  className="border-2 border-green-600 text-green-600 hover:bg-green-50 p-3 shadow-sm"
                 >
                   <Menu size={24} />
                 </Button>
