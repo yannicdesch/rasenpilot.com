@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Download, Share, Star, Leaf, Target, Calendar, AlertTriangle, Droplets, Zap, Sun, Thermometer, Bug, MapPin, TrendingUp } from 'lucide-react';
+import { CheckCircle, ArrowRight, Download, Share, Star, Leaf, Target, Calendar, AlertTriangle, Droplets, Zap, Sun, Thermometer, Bug, MapPin, TrendingUp, BookOpen, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 import WeatherEnhancedResults from '@/components/WeatherEnhancedResults';
 import MainNavigation from '@/components/MainNavigation';
 import RetentionSignUpForm from '@/components/RetentionSignUpForm';
+import LawnJourneyTracker from '@/components/LawnJourneyTracker';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
@@ -30,6 +31,7 @@ const AnalysisResult = () => {
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'journey' | 'details'>('overview');
   
   // Get health score early for retention tracking
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
@@ -356,210 +358,337 @@ Website: www.rasenpilot.com
           </Card>
         </div>
 
-        {/* 2. Teil-Scores */}
-        <div className="mb-8">
-          <Card className="bg-white shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-lg">Teil-Scores</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span>🌱</span>
-                  <span className="font-medium">Dichte:</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold">{Math.round(subScores.density)}/100</span>
-                  <p className="text-xs text-gray-600">
-                    {subScores.density < 60 ? "Der Rasen ist etwas lückig. Eine Nachsaat schließt die Lücken." :
-                     subScores.density < 80 ? "Gute Dichte, kann aber noch verdichtet werden." :
-                     "Ausgezeichnete Rasendichte!"}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span>🌞</span>
-                  <span className="font-medium">Sonneneinstrahlung:</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold">{Math.round(subScores.sunlight)}/100</span>
-                  <p className="text-xs text-gray-600">
-                    {subScores.sunlight < 60 ? "Zu wenig Licht für optimales Wachstum." :
-                     "Dein Rasen bekommt ausreichend Licht, hier gibt es keine Probleme."}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span>💧</span>
-                  <span className="font-medium">Feuchtigkeit:</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold">{Math.round(subScores.moisture)}/100</span>
-                  <p className="text-xs text-gray-600">
-                    {subScores.moisture < 50 ? "Der Boden wirkt trocken. Am besten morgens oder abends gießen." :
-                     subScores.moisture < 80 ? "Feuchtigkeitsgehalt ist okay, kann aber optimiert werden." :
-                     "Perfekte Feuchtigkeit!"}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span>🪱</span>
-                  <span className="font-medium">Bodenqualität:</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold">{Math.round(subScores.soil)}/100</span>
-                  <p className="text-xs text-gray-600">
-                    {subScores.soil < 60 ? "Die Nährstoffversorgung ist mittelmäßig. Mit einer Düngung steigt die Vitalität." :
-                     subScores.soil < 80 ? "Gute Bodenqualität, kleine Verbesserungen möglich." :
-                     "Ausgezeichnete Bodenqualität!"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Tab Navigation */}
+        <div className="mb-6">
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'overview' 
+                  ? 'bg-white text-green-700 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Star className="h-4 w-4 mx-auto mb-1" />
+              Übersicht
+            </button>
+            <button
+              onClick={() => setActiveTab('journey')}
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'journey' 
+                  ? 'bg-white text-green-700 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Target className="h-4 w-4 mx-auto mb-1" />
+              Aktionsplan
+            </button>
+            <button
+              onClick={() => setActiveTab('details')}
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'details' 
+                  ? 'bg-white text-green-700 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <BookOpen className="h-4 w-4 mx-auto mb-1" />
+              Details
+            </button>
+          </div>
         </div>
 
-        {/* 3. Dein 3-Schritte-Plan */}
-        <div className="mb-8">
-          <Card className="bg-green-50 border-green-200">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Target className="h-5 w-5 text-green-600" />
-                Dein 3-Schritte-Plan
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
-                  <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">1</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Jetzt bewässern</h4>
-                    <p className="text-sm text-gray-600">besonders morgens oder abends.</p>
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <div>
+            {/* 2. Teil-Scores */}
+            <div className="mb-8">
+              <Card className="bg-white shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-lg">Teil-Scores</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span>🌱</span>
+                      <span className="font-medium">Dichte:</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold">{Math.round(subScores.density)}/100</span>
+                      <p className="text-xs text-gray-600">
+                        {subScores.density < 60 ? "Der Rasen ist etwas lückig. Eine Nachsaat schließt die Lücken." :
+                         subScores.density < 80 ? "Gute Dichte, kann aber noch verdichtet werden." :
+                         "Ausgezeichnete Rasendichte!"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
-                  <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">2</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-800">In 2–3 Wochen nachsäen</h4>
-                    <p className="text-sm text-gray-600">um die Grasnarbe zu verdichten.</p>
+                  
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span>🌞</span>
+                      <span className="font-medium">Sonneneinstrahlung:</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold">{Math.round(subScores.sunlight)}/100</span>
+                      <p className="text-xs text-gray-600">
+                        {subScores.sunlight < 60 ? "Zu wenig Licht für optimales Wachstum." :
+                         "Dein Rasen bekommt ausreichend Licht, hier gibt es keine Probleme."}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
-                  <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">3</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Regelmäßig lüften</h4>
-                    <p className="text-sm text-gray-600">für bessere Sauerstoffversorgung des Bodens.</p>
+                  
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span>💧</span>
+                      <span className="font-medium">Feuchtigkeit:</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold">{Math.round(subScores.moisture)}/100</span>
+                      <p className="text-xs text-gray-600">
+                        {subScores.moisture < 50 ? "Der Boden wirkt trocken. Am besten morgens oder abends gießen." :
+                         subScores.moisture < 80 ? "Feuchtigkeitsgehalt ist okay, kann aber optimiert werden." :
+                         "Perfekte Feuchtigkeit!"}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span>🪱</span>
+                      <span className="font-medium">Bodenqualität:</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold">{Math.round(subScores.soil)}/100</span>
+                      <p className="text-xs text-gray-600">
+                        {subScores.soil < 60 ? "Die Nährstoffversorgung ist mittelmäßig. Mit einer Düngung steigt die Vitalität." :
+                         subScores.soil < 80 ? "Gute Bodenqualität, kleine Verbesserungen möglich." :
+                         "Ausgezeichnete Bodenqualität!"}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 3. Dein 3-Schritte-Plan */}
+            <div className="mb-8">
+              <Card className="bg-green-50 border-green-200">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Target className="h-5 w-5 text-green-600" />
+                    Dein 3-Schritte-Plan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
+                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">1</div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Jetzt bewässern</h4>
+                        <p className="text-sm text-gray-600">besonders morgens oder abends.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
+                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">2</div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">In 2–3 Wochen nachsäen</h4>
+                        <p className="text-sm text-gray-600">um die Grasnarbe zu verdichten.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
+                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">3</div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Regelmäßig lüften</h4>
+                        <p className="text-sm text-gray-600">für bessere Sauerstoffversorgung des Bodens.</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 4. Highscore / Gamification */}
+            <div className="mb-8">
+              <Card className="bg-yellow-50 border-yellow-200">
+                <CardContent className="p-4 text-center">
+                  <h3 className="font-semibold text-gray-800 mb-2">Bester Wert bisher: {retentionData.userHighscore}/100</h3>
+                  {retentionData.isNewHighscore && (
+                    <p className="text-yellow-700 font-medium">🎉 Glückwunsch – das ist dein bisher bester Score!</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 6. Saison-Hinweis */}
+            <div className="mb-8">
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-gray-800 mb-1">Saison-Tipp</h3>
+                      <p className="text-sm text-gray-700">{getSeasonalHint()}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 7. Retention-Sign-Up */}
+            {!retentionData.isSignedUp && (
+              <div className="mb-8">
+                <Card className="bg-gradient-to-br from-green-600 to-green-700 border-none text-white">
+                  <CardContent className="p-6">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-bold mb-2">
+                        👉 Hol dir deine persönlichen Rasen-Tipps per Mail
+                      </h3>
+                      <p className="text-green-100 text-sm">
+                        Trag deine E-Mail ein und wir erinnern dich automatisch in 14 Tagen an den nächsten Fortschritts-Check 📸. Zusätzlich bekommst du Tipps, die genau zu deinem Rasen passen.
+                      </p>
+                    </div>
+                    <RetentionSignUpForm 
+                      analysisScore={healthScore}
+                      analysisId={jobId}
+                      onSignUpComplete={handleSignUpComplete}
+                    />
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            )}
 
-        {/* 4. Highscore / Gamification */}
-        <div className="mb-8">
-          <Card className="bg-yellow-50 border-yellow-200">
-            <CardContent className="p-4 text-center">
-              <h3 className="font-semibold text-gray-800 mb-2">Bester Wert bisher: {retentionData.userHighscore}/100</h3>
-              {retentionData.isNewHighscore && (
-                <p className="text-yellow-700 font-medium">🎉 Glückwunsch – das ist dein bisher bester Score!</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+            {/* 8. Reminder-Hinweis (auch ohne Anmeldung) */}
+            {retentionData.isSignedUp && (
+              <div className="mb-8">
+                <Card className="bg-green-50 border-green-200">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-sm text-gray-700">
+                      Wir erinnern dich in 14 Tagen an den nächsten Fortschritts-Check.
+                      <br />
+                      👉 Falls du Erinnerungen per E-Mail möchtest, trag dich bitte ein.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-        {/* 6. Saison-Hinweis */}
-        <div className="mb-8">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
+            {/* Download & Share Actions */}
+            <div className="mb-8 space-y-4">
+              <Button 
+                onClick={handleDownloadPlan}
+                className="w-full bg-green-600 hover:bg-green-700 h-12"
+              >
+                <Download className="h-5 w-5 mr-2" />
+                Pflegeplan herunterladen
+              </Button>
+              
+              <Button 
+                onClick={handleShare}
+                variant="outline" 
+                className="w-full h-10 border-green-200 hover:bg-green-50"
+              >
+                <Share className="h-4 w-4 mr-2" />
+                Ergebnis teilen
+              </Button>
+            </div>
+
+            {/* CTA for new analysis */}
+            <div className="text-center mt-8">
+              <Button 
+                onClick={handleStartAgain}
+                variant="outline" 
+                className="w-full h-12 border-green-200 hover:bg-green-50"
+              >
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Weitere Analyse starten
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Journey Tab */}
+        {activeTab === 'journey' && (
+          <div>
+            <LawnJourneyTracker 
+              analysisScore={healthScore}
+              analysisId={jobId || ''}
+              recommendations={getRecommendations()}
+            />
+          </div>
+        )}
+
+        {/* Details Tab */}
+        {activeTab === 'details' && (
+          <div className="space-y-6">
+            {/* Detailed Analysis Report */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-blue-600" />
+                  Detaillierte Analyse
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-1">Saison-Tipp</h3>
-                  <p className="text-sm text-gray-700">{getSeasonalHint()}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 7. Retention-Sign-Up */}
-        {!retentionData.isSignedUp && (
-          <div className="mb-8">
-            <Card className="bg-gradient-to-br from-green-600 to-green-700 border-none text-white">
-              <CardContent className="p-6">
-                <div className="text-center mb-4">
-                  <h3 className="text-lg font-bold mb-2">
-                    👉 Hol dir deine persönlichen Rasen-Tipps per Mail
-                  </h3>
-                  <p className="text-green-100 text-sm">
-                    Trag deine E-Mail ein und wir erinnern dich automatisch in 14 Tagen an den nächsten Fortschritts-Check 📸. Zusätzlich bekommst du Tipps, die genau zu deinem Rasen passen.
+                  <h4 className="font-semibold text-gray-800 mb-2">Rasen-Zustand</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {getAnalysisResult()?.grass_condition || 
+                     "Basierend auf der Bildanalyse zeigt Ihr Rasen verschiedene Bereiche mit unterschiedlicher Vitalität. Die Gesamtbewertung berücksichtigt Faktoren wie Dichte, Farbe, Unkrautbefall und Bodenqualität."}
                   </p>
                 </div>
-                <RetentionSignUpForm 
-                  analysisScore={healthScore}
-                  analysisId={jobId}
-                  onSignUpComplete={handleSignUpComplete}
-                />
+
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2">Identifizierte Probleme</h4>
+                  <div className="space-y-2">
+                    {(getAnalysisResult()?.problems || getProblems()).map((problem, index) => (
+                      <div key={index} className="flex items-start gap-2 p-2 bg-red-50 border border-red-100 rounded">
+                        <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm">
+                          <span className="font-medium text-red-800">
+                            {typeof problem === 'string' ? problem : problem.type || problem}
+                          </span>
+                          {typeof problem === 'object' && problem.description && (
+                            <p className="text-red-700 mt-1">{problem.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2">Timeline für Verbesserungen</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {getAnalysisResult()?.timeline || 
+                     "Mit der konsequenten Umsetzung der empfohlenen Maßnahmen können Sie erste sichtbare Verbesserungen bereits nach 2-3 Wochen erwarten. Die vollständige Regeneration dauert je nach Ausgangszustand 6-12 Wochen."}
+                  </p>
+                </div>
+
+                {getAnalysisResult()?.weather_recommendations && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">Wetter-basierte Empfehlungen</h4>
+                    <div className="space-y-2">
+                      {getAnalysisResult().weather_recommendations.map((rec, index) => (
+                        <div key={index} className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-100 rounded">
+                          <Sun className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-blue-800">{rec}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
+
+            {/* Weather Information */}
+            <WeatherEnhancedResults 
+              zipCode={analysisData?.metadata ? JSON.parse(analysisData.metadata)?.zipCode : undefined}
+              recommendations={getAnalysisResult()?.weather_recommendations || []}
+            />
           </div>
         )}
 
-        {/* 8. Reminder-Hinweis (auch ohne Anmeldung) */}
-        {retentionData.isSignedUp && (
-          <div className="mb-8">
-            <Card className="bg-green-50 border-green-200">
-              <CardContent className="p-4 text-center">
-                <p className="text-sm text-gray-700">
-                  Wir erinnern dich in 14 Tagen an den nächsten Fortschritts-Check.
-                  <br />
-                  👉 Falls du Erinnerungen per E-Mail möchtest, trag dich bitte ein.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Download & Share Actions */}
-        <div className="mb-8 space-y-4">
-          <Button 
-            onClick={handleDownloadPlan}
-            className="w-full bg-green-600 hover:bg-green-700 h-12"
-          >
-            <Download className="h-5 w-5 mr-2" />
-            Pflegeplan herunterladen
-          </Button>
-          
-          <Button 
-            onClick={handleShare}
-            variant="outline" 
-            className="w-full h-10 border-green-200 hover:bg-green-50"
-          >
-            <Share className="h-4 w-4 mr-2" />
-            Ergebnis teilen
-          </Button>
-        </div>
-
-        {/* CTA for new analysis */}
-        <div className="text-center mt-8">
-          <Button 
-            onClick={handleStartAgain}
-            variant="outline" 
-            className="w-full h-12 border-green-200 hover:bg-green-50"
-          >
-            <ArrowRight className="h-4 w-4 mr-2" />
-            Weitere Analyse starten
-          </Button>
-        </div>
       </div>
     </div>
   );
