@@ -20,8 +20,8 @@ const LawnAnalysis = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [zipCode, setZipCode] = useState<string>(profile?.zipCode || '');
-  const [locationStatus, setLocationStatus] = useState<'detecting' | 'success' | 'failed' | 'manual'>('detecting');
+  const [zipCode, setZipCode] = useState<string>(profile?.zipCode || '10115'); // Default fallback
+  const [locationStatus, setLocationStatus] = useState<'detecting' | 'success' | 'failed'>('detecting');
   const [userLocation, setUserLocation] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -81,7 +81,10 @@ const LawnAnalysis = () => {
                 return;
               }
             }
-            setLocationStatus('failed');
+            // If API fails, use default fallback
+            setZipCode('10115');
+            setUserLocation('Deutschland');
+            setLocationStatus('success');
           } catch (error) {
             console.error('Reverse geocoding failed:', error);
             setLocationStatus('failed');
@@ -89,12 +92,18 @@ const LawnAnalysis = () => {
         },
         (error) => {
           console.error('Geolocation failed:', error);
-          setLocationStatus('failed');
+          // Use default fallback
+          setZipCode('10115');
+          setUserLocation('Deutschland');
+          setLocationStatus('success');
         },
         { timeout: 10000, enableHighAccuracy: false }
       );
     } else {
-      setLocationStatus('failed');
+      // Use default fallback
+      setZipCode('10115');
+      setUserLocation('Deutschland');
+      setLocationStatus('success');
     }
   };
 
@@ -287,13 +296,7 @@ const LawnAnalysis = () => {
             {locationStatus === 'success' && userLocation && (
               <div className="flex items-center justify-center gap-2 text-sm text-green-600">
                 <MapPin className="h-4 w-4" />
-                <span>Standort erkannt: {userLocation}</span>
-              </div>
-            )}
-            {locationStatus === 'failed' && (
-              <div className="flex items-center justify-center gap-2 text-sm text-amber-600">
-                <MapPin className="h-4 w-4" />
-                <span>Standard-Standort wird verwendet</span>
+                <span>Standort: {userLocation}</span>
               </div>
             )}
           </div>
@@ -421,42 +424,6 @@ const LawnAnalysis = () => {
             )}
           </div>
         </div>
-
-        {/* Manual Location Override (only show if auto-detection failed or user wants to change) */}
-        {(locationStatus === 'failed' || locationStatus === 'manual') && (
-          <div className="mb-6">
-            <div className="bg-white rounded-xl p-4 shadow-md border border-blue-100">
-              <Label htmlFor="zipcode" className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
-                <MapPin className="h-4 w-4 text-blue-600" />
-                Postleitzahl für wetterbasierte Empfehlungen
-              </Label>
-              <Input
-                id="zipcode"
-                type="text"
-                placeholder="z.B. 10115 für Berlin"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                className="border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 transition-colors"
-                maxLength={5}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Optimale Pflegezeiten basierend auf lokalen Wetterbedingungen
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Option to manually set location even when auto-detected */}
-        {locationStatus === 'success' && (
-          <div className="mb-6 text-center">
-            <button
-              onClick={() => setLocationStatus('manual')}
-              className="text-sm text-blue-600 hover:text-blue-700 underline"
-            >
-              Anderen Standort eingeben
-            </button>
-          </div>
-        )}
 
         {/* Trust Line */}
         <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
