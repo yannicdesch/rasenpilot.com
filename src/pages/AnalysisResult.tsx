@@ -8,9 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import WeatherEnhancedResults from '@/components/WeatherEnhancedResults';
 import MainNavigation from '@/components/MainNavigation';
+import RetentionSignUpForm from '@/components/RetentionSignUpForm';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
+import { useRetentionTracking } from '@/hooks/useRetentionTracking';
 
 interface AnalysisJobResult {
   id: string;
@@ -28,8 +30,10 @@ const AnalysisResult = () => {
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userHighscore, setUserHighscore] = useState<number>(0);
-  const [isNewHighscore, setIsNewHighscore] = useState(false);
+  
+  // Get health score early for retention tracking
+  const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
+  const { retentionData, isLoading: retentionLoading, handleSignUpComplete, trackAnalysisFromReminder } = useRetentionTracking(healthScore, jobId);
 
   useEffect(() => {
     const fetchAnalysisResult = async () => {
@@ -48,22 +52,8 @@ const AnalysisResult = () => {
         if (data && typeof data === 'object' && !Array.isArray(data)) {
           setAnalysisData(data as unknown as AnalysisJobResult);
           
-          // Check user's highscore
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user && data.result) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('highscore')
-              .eq('id', user.id)
-              .single();
-            
-            if (profile) {
-              setUserHighscore(profile.highscore || 0);
-              const resultData = data.result as any;
-              const currentScore = parseInt(String(resultData?.score || resultData?.overall_health || '0')) || 0;
-              setIsNewHighscore(currentScore > (profile.highscore || 0));
-            }
-          }
+          // Track if user came from reminder
+          await trackAnalysisFromReminder();
         } else {
           setError('Analyse-Ergebnis nicht gefunden');
         }
@@ -264,8 +254,6 @@ Website: www.rasenpilot.com
     );
   }
 
-  const healthScore = getHealthScore();
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO 
@@ -316,13 +304,13 @@ Website: www.rasenpilot.com
                 </div>
               </div>
               <CardTitle className="text-xl">Rasen-Gesundheits-Score</CardTitle>
-              {isNewHighscore && (
+              {retentionData.isNewHighscore && (
                 <div className="bg-yellow-500 text-white px-4 py-2 rounded-full font-bold mb-2 inline-block">
                   🎉 Neuer Bestwert!
                 </div>
               )}
               <div className="text-sm text-gray-500 mb-2">
-                Bester Wert bisher: {userHighscore}/100
+                Bester Wert bisher: {retentionData.userHighscore}/100
               </div>
               <Badge variant="outline" className={getScoreColor(healthScore)}>
                 {getScoreLabel(healthScore)}
@@ -633,15 +621,28 @@ Website: www.rasenpilot.com
         </Card>
 
 
-        {/* Reminder Notice */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-center">
-          <p className="text-blue-700 font-medium">
-            📅 Wir erinnern dich in 3 Tagen an den Fortschritts-Check!
-          </p>
-          <p className="text-blue-600 text-sm mt-1">
-            So siehst du, wie sich dein Rasen entwickelt hat.
-          </p>
-        </div>
+        {/* Retention Sign-Up Form (for anonymous users or users without consent) */}
+        {(!retentionData.isSignedUp || !retentionData.hasConsent) && (
+          <div className="mb-6">
+            <RetentionSignUpForm 
+              analysisScore={healthScore}
+              analysisId={jobId}
+              onSignUpComplete={handleSignUpComplete}
+            />
+          </div>
+        )}
+
+        {/* Reminder Notice (for signed up users with consent) */}
+        {retentionData.isSignedUp && retentionData.hasConsent && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-center">
+            <p className="text-blue-700 font-medium">
+              📅 Wir erinnern Sie in 3 Tagen an den Fortschritts-Check!
+            </p>
+            <p className="text-blue-600 text-sm mt-1">
+              So sehen Sie, wie sich Ihr Rasen entwickelt hat.
+            </p>
+          </div>
+        )}
 
         {/* CTA Buttons */}
         <div className="space-y-3">
