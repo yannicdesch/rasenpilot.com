@@ -55,9 +55,26 @@ const RetentionSignUpForm: React.FC<RetentionSignUpFormProps> = ({
           .eq('id', user.id);
 
         if (error) throw error;
+
+        // CRITICAL: Link this analysis to the user if it was anonymous
+        if (analysisId) {
+          await supabase
+            .from('analysis_jobs')
+            .update({ user_id: user.id })
+            .eq('id', analysisId)
+            .is('user_id', null);
+
+          // Also update any analyses table entries
+          await supabase
+            .from('analyses')
+            .update({ user_id: user.id })
+            .is('user_id', null)
+            .order('created_at', { ascending: false })
+            .limit(1);
+        }
       } else {
-        // Anonymous user - create a subscriber record for now
-        const { error } = await supabase
+        // Anonymous user - create a subscriber record AND a temporary profile link
+        const { error: subscriberError } = await supabase
           .from('subscribers')
           .insert({
             email: email,
@@ -67,37 +84,44 @@ const RetentionSignUpForm: React.FC<RetentionSignUpFormProps> = ({
             interests: ['lawn_care']
           });
 
-        if (error && !error.message.includes('duplicate')) {
-          throw error;
+        if (subscriberError && !subscriberError.message.includes('duplicate')) {
+          throw subscriberError;
+        }
+
+        // Store connection data for when they eventually create an account
+        if (analysisId) {
+          localStorage.setItem('pending_analysis_claim', JSON.stringify({
+            analysisId: analysisId,
+            email: email,
+            firstName: firstName,
+            timestamp: new Date().toISOString()
+          }));
         }
       }
 
-      // If user consented and we have an analysis, create reminders
+      // Schedule reminders with proper user_id handling
       if (consentMarketing && analysisId) {
-        const baseUrl = 'https://www.rasenpilot.com/lawn-analysis?ref=reminder';
-        const reminders = [
-          { days: 3, kind: 'D3', message_key: 'motivation_3d' },
-          { days: 7, kind: 'D7', message_key: 'tip_7d' },
-          { days: 14, kind: 'D14', message_key: 'progress_14d' },
-          { days: 30, kind: 'D30', message_key: 'season_30d' },
-          { days: 60, kind: 'D60', message_key: 'compare_region_60d' }
-        ];
-
-        for (const reminder of reminders) {
-          const sendAt = new Date();
-          sendAt.setDate(sendAt.getDate() + reminder.days);
-
-          await supabase
-            .from('reminders')
-            .insert({
-              user_id: user?.id || null,
-              send_at: sendAt.toISOString(),
-              kind: reminder.kind,
-              message_key: reminder.message_key,
-              payload_url: `${baseUrl}&kind=${reminder.kind}&aid=${analysisId}`,
-              last_score: analysisScore,
-              status: 'pending'
-            });
+        const userId = user?.id || null;
+        
+        if (userId) {
+          // User is logged in - create proper reminders
+          const { error: reminderError } = await supabase.rpc('create_analysis_reminders', {
+            p_user_id: userId,
+            p_score: analysisScore,
+            p_analysis_id: analysisId
+          });
+          
+          if (reminderError) {
+            console.error('Error scheduling reminders:', reminderError);
+          }
+        } else {
+          // Anonymous user - store reminder data for later
+          localStorage.setItem('pending_reminders', JSON.stringify({
+            email: email,
+            analysisScore: analysisScore,
+            analysisId: analysisId,
+            timestamp: new Date().toISOString()
+          }));
         }
       }
 
