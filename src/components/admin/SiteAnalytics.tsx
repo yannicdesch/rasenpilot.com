@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import useAnalytics from '@/hooks/useAnalytics';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp, Users, Eye, Clock } from 'lucide-react';
+import ConversionDashboard from './analytics/ConversionDashboard';
 
 const SiteAnalytics = () => {
   const { data: analyticsData, isLoading, error, refetch } = useAnalytics();
@@ -132,6 +133,12 @@ const SiteAnalytics = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Conversion Analytics */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4">Conversion Analytics</h3>
+        <ConversionDashboard />
+      </div>
     </div>
   );
 };

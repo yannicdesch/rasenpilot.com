@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { trackRegistrationStep, trackRegistrationComplete } from '@/lib/analytics';
+import { trackRegistrationStep, trackRegistrationComplete, trackEvent } from '@/lib/analytics';
 
 // Import our new component modules
 import BenefitsList from './conversion/BenefitsList';
@@ -49,6 +49,7 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
     }
 
     setIsSubmitting(true);
+    trackRegistrationStep('quick_register_started');
     
     try {
       const { data: authData, error } = await supabase.auth.signUp({
@@ -57,27 +58,45 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
         options: {
           data: {
             name: data.name || "",
+            full_name: data.name || "",
           },
         },
       });
 
       if (error) {
+        trackRegistrationStep('quick_register_error');
+        console.error('Registration error:', error);
         throw error;
       }
+
+      console.log('Registration successful:', authData);
 
       // Check if we have a session - user is authenticated
       if (authData.session) {
         trackRegistrationComplete('quick_register');
-        toast.success('Registrierung erfolgreich!');
+        toast.success('Registrierung erfolgreich! Willkommen bei Rasenpilot!');
+        
+        // Track successful conversion
+        trackEvent('conversion', 'registration_complete', 'quick_register');
+        
         navigate('/free-care-plan');
       } else {
         // If confirmation is required
         trackRegistrationStep('email_confirmation_sent');
         toast.success('Registrierung erfolgreich! Bitte überprüfe deine E-Mails für den Bestätigungslink.');
+        
+        // Still count as conversion (pending confirmation)
+        trackEvent('conversion', 'registration_pending', 'email_confirmation');
+        
         navigate('/lawn-analysis');
       }
     } catch (error: any) {
-      toast.error('Fehler bei der Registrierung: ' + (error.message || 'Unbekannter Fehler'));
+      console.error('Full registration error:', error);
+      const errorMessage = error.message || 'Unbekannter Fehler';
+      toast.error('Fehler bei der Registrierung: ' + errorMessage);
+      
+      // Track failed registration
+      trackEvent('conversion', 'registration_failed', errorMessage);
     } finally {
       setIsSubmitting(false);
     }
