@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
     const resultUrl = `https://www.rasenpilot.com/analysis-result/${analysisId}`;
     
     const emailResponse = await resend.emails.send({
-      from: "RasenPilot <noreply@rasenpilot.com>",
+      from: "RasenPilot <onboarding@resend.dev>",
       to: [email],
       subject: `🌱 Willkommen bei RasenPilot! Dein Rasen-Score: ${analysisScore}/100`,
       html: `
