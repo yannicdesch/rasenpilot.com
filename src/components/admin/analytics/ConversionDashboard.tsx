@@ -156,26 +156,26 @@ const ConversionDashboard = () => {
             )}
 
             {metrics.analysisJobsWithoutSignup > 10 && (
-              <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+              <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+                <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-orange-900">Hohe anonyme Nutzung</h4>
-                  <p className="text-sm text-orange-700">
-                    {metrics.analysisJobsWithoutSignup} Analysen wurden ohne Registrierung durchgeführt. 
-                    Das zeigt Interesse, aber verpasste Konversionen.
+                  <h4 className="font-medium text-blue-900">Gute Engagement-Rate</h4>
+                  <p className="text-sm text-blue-700">
+                    {metrics.analysisJobsWithoutSignup} kostenlose Analysen wurden durchgeführt. 
+                    Das zeigt starkes Interesse - jetzt diese Nutzer zur Registrierung konvertieren.
                   </p>
                 </div>
               </div>
             )}
 
             <div className="space-y-2">
-              <h4 className="font-medium">Optimierungsempfehlungen:</h4>
+              <h4 className="font-medium">Optimierungsempfehlungen für "Free Trial → Signup":</h4>
               <ul className="text-sm space-y-1 ml-4">
-                <li>• Registrierung vor Analyse erforderlich machen</li>
-                <li>• Klarere Value Proposition für die Registrierung</li>
-                <li>• E-Mail Capture bei anonymen Analysen</li>
-                <li>• Exit-Intent Popups für abspringende Nutzer</li>
-                <li>• A/B Test verschiedener CTA-Texte</li>
+                <li>• **Bessere Value Proposition nach der Analyse**</li>
+                <li>• **Personalisierte Pflegepläne nur für registrierte Nutzer**</li>
+                <li>• **E-Mail-Erinnerungen für Folgeanalysen anbieten**</li>
+                <li>• **Zeige Verbesserung/Fortschritt nur nach Registrierung**</li>
+                <li>• **Limited-Time Bonus für sofortige Registrierung**</li>
               </ul>
             </div>
           </div>

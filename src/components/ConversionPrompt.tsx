@@ -123,9 +123,9 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
         <div className="mb-6">
           <TaskPreview />
           
-          <div className="text-center px-4 py-6 border border-gray-200 rounded-lg bg-gray-50 mb-6">
+          <div className="text-center px-4 py-6 border border-green-200 rounded-lg bg-gradient-to-br from-green-50 to-blue-50 mb-6">
             <h3 className="text-xl font-semibold mb-4 text-green-800">
-              👉 Jetzt kostenlos registrieren, um:
+              🎉 **Kostenlose Analyse abgeschlossen!** Jetzt Vorteile freischalten:
             </h3>
             
             <BenefitsList />

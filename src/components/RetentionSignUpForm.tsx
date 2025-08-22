@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Mail, Star, Calendar, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { trackEvent } from '@/lib/analytics';
 
 interface RetentionSignUpFormProps {
   analysisScore: number;
