@@ -8,7 +8,7 @@ import { initializeGA, trackPageView, testSupabaseConnection } from './lib/analy
 import { toast } from 'sonner'
 
 // Initialize Google Analytics
-initializeGA('G-7F24N28JNH');
+initializeGA();
 
 // Create a client
 const queryClient = new QueryClient()

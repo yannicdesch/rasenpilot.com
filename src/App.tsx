@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
 import JourneyTracker from "@/components/JourneyTracker";
+import ConversionTracker from "@/components/ConversionTracker";
 import Index from "./pages/Index";
 import LawnAnalysis from "./pages/LawnAnalysis";
 import AnalysisHistory from "./pages/AnalysisHistory";
@@ -62,6 +63,7 @@ const App = () => {
         <Toaster />
         <BrowserRouter>
           <JourneyTracker />
+          <ConversionTracker />
           <CookieConsent />
           <Routes>
             <Route path="/" element={<Index />} />
