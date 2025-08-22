@@ -7,13 +7,69 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
+      analyses: {
+        Row: {
+          created_at: string
+          density_note: string | null
+          id: string
+          image_url: string | null
+          moisture_note: string | null
+          score: number
+          soil_note: string | null
+          step_1: string | null
+          step_2: string | null
+          step_3: string | null
+          summary_short: string | null
+          sunlight_note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          density_note?: string | null
+          id?: string
+          image_url?: string | null
+          moisture_note?: string | null
+          score: number
+          soil_note?: string | null
+          step_1?: string | null
+          step_2?: string | null
+          step_3?: string | null
+          summary_short?: string | null
+          sunlight_note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          density_note?: string | null
+          id?: string
+          image_url?: string | null
+          moisture_note?: string | null
+          score?: number
+          soil_note?: string | null
+          step_1?: string | null
+          step_2?: string | null
+          step_3?: string | null
+          summary_short?: string | null
+          sunlight_note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analyses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_jobs: {
         Row: {
           completed_at: string | null
@@ -337,10 +393,13 @@ export type Database = {
       }
       profiles: {
         Row: {
+          consent_marketing: boolean | null
           created_at: string | null
           email: string
           email_preferences: Json | null
+          first_name: string | null
           full_name: string | null
+          highscore: number | null
           id: string
           is_active: boolean | null
           last_sign_in_at: string | null
@@ -348,10 +407,13 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          consent_marketing?: boolean | null
           created_at?: string | null
           email: string
           email_preferences?: Json | null
+          first_name?: string | null
           full_name?: string | null
+          highscore?: number | null
           id: string
           is_active?: boolean | null
           last_sign_in_at?: string | null
@@ -359,10 +421,13 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          consent_marketing?: boolean | null
           created_at?: string | null
           email?: string
           email_preferences?: Json | null
+          first_name?: string | null
           full_name?: string | null
+          highscore?: number | null
           id?: string
           is_active?: boolean | null
           last_sign_in_at?: string | null
@@ -397,6 +462,82 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      reminders: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          last_score: number
+          message_key: string
+          payload_url: string
+          send_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          last_score: number
+          message_key: string
+          payload_url: string
+          send_at: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          last_score?: number
+          message_key?: string
+          payload_url?: string
+          send_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      score_history: {
+        Row: {
+          created_at: string
+          id: string
+          score: number
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          score: number
+          source?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          score?: number
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "score_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {
@@ -490,13 +631,17 @@ export type Database = {
       }
       create_analysis_job: {
         Args: {
-          p_user_id: string
-          p_image_path: string
           p_grass_type?: string
+          p_image_path: string
           p_lawn_goal?: string
           p_metadata?: Json
+          p_user_id: string
         }
         Returns: string
+      }
+      create_analysis_reminders: {
+        Args: { p_analysis_id: string; p_score: number; p_user_id: string }
+        Returns: undefined
       }
       get_analysis_job: {
         Args: { p_job_id: string }
@@ -506,35 +651,51 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      handle_analysis_completion: {
+        Args: {
+          p_density_note: string
+          p_image_url: string
+          p_moisture_note: string
+          p_score: number
+          p_soil_note: string
+          p_step_1: string
+          p_step_2: string
+          p_step_3: string
+          p_summary_short: string
+          p_sunlight_note: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       update_analysis_job: {
         Args: {
-          p_job_id: string
-          p_status?: string
-          p_result?: Json
           p_error_message?: string
+          p_job_id: string
+          p_result?: Json
+          p_status?: string
         }
         Returns: boolean
       }
       update_user_highscore: {
         Args:
           | {
+              p_email?: string
+              p_grass_type?: string
+              p_lawn_image_url?: string
+              p_lawn_score: number
+              p_lawn_size?: string
+              p_location?: string
               p_user_id: string
               p_user_name: string
-              p_lawn_score: number
-              p_lawn_image_url?: string
-              p_location?: string
-              p_grass_type?: string
-              p_lawn_size?: string
             }
           | {
+              p_grass_type?: string
+              p_lawn_image_url?: string
+              p_lawn_score: number
+              p_lawn_size?: string
+              p_location?: string
               p_user_id: string
               p_user_name: string
-              p_lawn_score: number
-              p_lawn_image_url?: string
-              p_location?: string
-              p_grass_type?: string
-              p_lawn_size?: string
-              p_email?: string
             }
         Returns: undefined
       }

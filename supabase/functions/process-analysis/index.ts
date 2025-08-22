@@ -240,6 +240,43 @@ Antworten Sie als JSON-Objekt:
       throw new Error('Failed to save analysis results');
     }
 
+    // Process analysis completion - create reminders and update highscore
+    if (job.user_id) {
+      try {
+        console.log('Processing analysis completion for user:', job.user_id);
+        
+        // Extract structured data from analysisResult
+        const score = parseInt(analysisResult.score) || 75;
+        const summaryShort = analysisResult.grass_condition || 'Analyse abgeschlossen';
+        const step1 = Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[0] : 'Regelmäßig mähen';
+        const step2 = Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[1] : 'Bewässern nach Bedarf';
+        const step3 = Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[2] : 'Düngen im Frühjahr';
+        
+        const { data: completionResult, error: completionError } = await supabase.rpc('handle_analysis_completion', {
+          p_user_id: job.user_id,
+          p_score: score,
+          p_summary_short: summaryShort,
+          p_density_note: analysisResult.detailed_scoring?.grass_density || 'Gute Dichte',
+          p_sunlight_note: 'Ausreichend Sonneneinstrahlung',
+          p_moisture_note: 'Moderate Feuchtigkeit',
+          p_soil_note: analysisResult.detailed_scoring?.soil_condition || 'Stabiler Boden',
+          p_step_1: step1,
+          p_step_2: step2,
+          p_step_3: step3,
+          p_image_url: job.image_path
+        });
+
+        if (completionError) {
+          console.error('Error in analysis completion:', completionError);
+        } else {
+          console.log('Analysis completion processed successfully:', completionResult);
+        }
+      } catch (error) {
+        console.error('Failed to process analysis completion:', error);
+        // Don't throw here - we want the analysis to still succeed even if reminder creation fails
+      }
+    }
+
     console.log('Analysis completed successfully');
 
     return new Response(

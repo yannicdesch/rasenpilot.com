@@ -28,6 +28,8 @@ const AnalysisResult = () => {
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userHighscore, setUserHighscore] = useState<number>(0);
+  const [isNewHighscore, setIsNewHighscore] = useState(false);
 
   useEffect(() => {
     const fetchAnalysisResult = async () => {
@@ -45,6 +47,23 @@ const AnalysisResult = () => {
 
         if (data && typeof data === 'object' && !Array.isArray(data)) {
           setAnalysisData(data as unknown as AnalysisJobResult);
+          
+          // Check user's highscore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user && data.result) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('highscore')
+              .eq('id', user.id)
+              .single();
+            
+            if (profile) {
+              setUserHighscore(profile.highscore || 0);
+              const resultData = data.result as any;
+              const currentScore = parseInt(String(resultData?.score || resultData?.overall_health || '0')) || 0;
+              setIsNewHighscore(currentScore > (profile.highscore || 0));
+            }
+          }
         } else {
           setError('Analyse-Ergebnis nicht gefunden');
         }
@@ -297,6 +316,14 @@ Website: www.rasenpilot.com
                 </div>
               </div>
               <CardTitle className="text-xl">Rasen-Gesundheits-Score</CardTitle>
+              {isNewHighscore && (
+                <div className="bg-yellow-500 text-white px-4 py-2 rounded-full font-bold mb-2 inline-block">
+                  🎉 Neuer Bestwert!
+                </div>
+              )}
+              <div className="text-sm text-gray-500 mb-2">
+                Bester Wert bisher: {userHighscore}/100
+              </div>
               <Badge variant="outline" className={getScoreColor(healthScore)}>
                 {getScoreLabel(healthScore)}
               </Badge>
@@ -605,6 +632,16 @@ Website: www.rasenpilot.com
           </CardContent>
         </Card>
 
+
+        {/* Reminder Notice */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-blue-700 font-medium">
+            📅 Wir erinnern dich in 3 Tagen an den Fortschritts-Check!
+          </p>
+          <p className="text-blue-600 text-sm mt-1">
+            So siehst du, wie sich dein Rasen entwickelt hat.
+          </p>
+        </div>
 
         {/* CTA Buttons */}
         <div className="space-y-3">

@@ -2,8 +2,9 @@ import React from 'react';
 import MainNavigation from '@/components/MainNavigation';
 import UserDataManagement from '@/components/UserDataManagement';
 import CookieSettings from '@/components/CookieSettings';
+import ConsentManagement from '@/components/ConsentManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Cookie, User } from 'lucide-react';
+import { Shield, Cookie, User, Mail } from 'lucide-react';
 
 const AccountSettings = () => {
   return (
@@ -22,21 +23,30 @@ const AccountSettings = () => {
           </div>
 
           <Tabs defaultValue="data" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="data" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline">Meine Daten</span>
                 <span className="sm:hidden">Daten</span>
               </TabsTrigger>
+              <TabsTrigger value="email" className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                <span className="hidden sm:inline">E-Mail</span>
+                <span className="sm:hidden">E-Mail</span>
+              </TabsTrigger>
               <TabsTrigger value="cookies" className="flex items-center gap-2">
                 <Cookie className="h-4 w-4" />
-                <span className="hidden sm:inline">Cookie-Einstellungen</span>
+                <span className="hidden sm:inline">Cookies</span>
                 <span className="sm:hidden">Cookies</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="data" className="space-y-6">
               <UserDataManagement />
+            </TabsContent>
+
+            <TabsContent value="email" className="space-y-6">
+              <ConsentManagement />
             </TabsContent>
 
             <TabsContent value="cookies" className="space-y-6">
