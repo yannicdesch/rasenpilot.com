@@ -101,11 +101,39 @@ const RetentionSignUpForm: React.FC<RetentionSignUpFormProps> = ({
         }
       }
 
-      toast.success(
-        consentMarketing 
-          ? `Vielen Dank, ${firstName}! Sie erhalten bald Ihre ersten Rasenpflege-Tipps.`
-          : `Vielen Dank für Ihre Anmeldung, ${firstName}!`
-      );
+      // Send immediate welcome email with analysis results
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+          body: {
+            email: email,
+            firstName: firstName,
+            analysisScore: analysisScore,
+            analysisId: analysisId || ''
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending welcome email:', emailError);
+          // Don't block the signup process if email fails
+          toast.success(
+            consentMarketing 
+              ? `Vielen Dank, ${firstName}! Ihre Erinnerungen sind aktiviert.`
+              : `Vielen Dank für Ihre Anmeldung, ${firstName}!`
+          );
+        } else {
+          console.log('✅ Welcome email sent successfully');
+          toast.success(
+            `Willkommen bei RasenPilot, ${firstName}! 🎉 Check Ihre E-Mails - wir haben Ihnen Ihre Analyse-Ergebnisse gesendet!`
+          );
+        }
+      } catch (error) {
+        console.error('Error sending welcome email:', error);
+        toast.success(
+          consentMarketing 
+            ? `Vielen Dank, ${firstName}! Ihre Erinnerungen sind aktiviert.`
+            : `Vielen Dank für Ihre Anmeldung, ${firstName}!`
+        );
+      }
 
       onSignUpComplete?.();
     } catch (error) {
