@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import WeatherEnhancedResults from '@/components/WeatherEnhancedResults';
 import MainNavigation from '@/components/MainNavigation';
 import RetentionSignUpForm from '@/components/RetentionSignUpForm';
@@ -194,8 +194,7 @@ Website: www.rasenpilot.com
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    toast({
-      title: "Pflegeplan heruntergeladen",
+    toast.success("Pflegeplan heruntergeladen", {
       description: "Ihr personalisierter Rasenplan wurde als Textdatei gespeichert.",
     });
   };
@@ -210,8 +209,7 @@ Website: www.rasenpilot.com
     } catch (error) {
       // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link kopiert",
+      toast.success("Link kopiert", {
         description: "Der Link zu Ihrer Analyse wurde in die Zwischenablage kopiert.",
       });
     }
