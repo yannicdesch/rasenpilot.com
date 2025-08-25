@@ -29,15 +29,28 @@ const useAnalytics = () => {
       setIsLoading(true);
       setError(null);
 
-      // Try to fetch page views
+      // Get total counts
+      let totalPageViews = 0;
+      let totalEvents = 0;
       let pageViews: any[] = [];
       let events: any[] = [];
 
       try {
+        // Get total page views count
+        const { count: pageViewCount, error: pageViewCountError } = await supabase
+          .from('page_views')
+          .select('*', { count: 'exact', head: true });
+
+        if (!pageViewCountError) {
+          totalPageViews = pageViewCount || 0;
+        }
+
+        // Get recent page views for processing top pages
         const { data: pageViewData, error: pageViewError } = await supabase
           .from('page_views')
           .select('*')
-          .order('timestamp', { ascending: false });
+          .order('timestamp', { ascending: false })
+          .limit(5000); // Get more data for better analytics
 
         if (!pageViewError) {
           pageViews = pageViewData || [];
@@ -47,10 +60,21 @@ const useAnalytics = () => {
       }
 
       try {
+        // Get total events count
+        const { count: eventCount, error: eventCountError } = await supabase
+          .from('events')
+          .select('*', { count: 'exact', head: true });
+
+        if (!eventCountError) {
+          totalEvents = eventCount || 0;
+        }
+
+        // Get recent events for activity feed
         const { data: eventData, error: eventError } = await supabase
           .from('events')
           .select('*')
-          .order('timestamp', { ascending: false });
+          .order('timestamp', { ascending: false })
+          .limit(1000);
 
         if (!eventError) {
           events = eventData || [];
@@ -85,8 +109,8 @@ const useAnalytics = () => {
         .slice(0, 20);
 
       setData({
-        totalPageViews: pageViews.length,
-        totalEvents: events.length,
+        totalPageViews,
+        totalEvents,
         topPages: topPagesArray,
         recentActivity
       });
