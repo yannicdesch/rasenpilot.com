@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import useAnalytics from '@/hooks/useAnalytics';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp, Users, Eye, Clock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ConversionDashboard from './analytics/ConversionDashboard';
+import DailyStatsChart from './analytics/DailyStatsChart';
 
 const SiteAnalytics = () => {
   const { data: analyticsData, isLoading, error, refetch } = useAnalytics();
@@ -43,6 +45,15 @@ const SiteAnalytics = () => {
           Aktualisieren
         </Button>
       </div>
+
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Übersicht</TabsTrigger>
+          <TabsTrigger value="daily">Tägliche Statistiken</TabsTrigger>
+          <TabsTrigger value="conversion">Conversion</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -134,11 +145,16 @@ const SiteAnalytics = () => {
         </CardContent>
       </Card>
 
-      {/* Conversion Analytics */}
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">Conversion Analytics</h3>
-        <ConversionDashboard />
-      </div>
+        </TabsContent>
+
+        <TabsContent value="daily" className="space-y-6">
+          <DailyStatsChart dailyStats={analyticsData.dailyStats} />
+        </TabsContent>
+
+        <TabsContent value="conversion" className="space-y-6">
+          <ConversionDashboard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

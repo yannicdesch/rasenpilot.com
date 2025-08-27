@@ -3,6 +3,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
+export interface DailyStats {
+  date: string;
+  pageViews: number;
+  events: number;
+  uniquePaths: number;
+}
+
 export interface AnalyticsData {
   totalPageViews: number;
   totalEvents: number;
@@ -12,6 +19,7 @@ export interface AnalyticsData {
     path?: string;
     timestamp: string;
   }>;
+  dailyStats: DailyStats[];
 }
 
 const useAnalytics = () => {
@@ -19,7 +27,8 @@ const useAnalytics = () => {
     totalPageViews: 0,
     totalEvents: 0,
     topPages: [],
-    recentActivity: []
+    recentActivity: [],
+    dailyStats: []
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,11 +117,15 @@ const useAnalytics = () => {
       ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, 20);
 
+      // Generate daily statistics for the last 30 days
+      const dailyStats = generateDailyStats(pageViews, events);
+
       setData({
         totalPageViews,
         totalEvents,
         topPages: topPagesArray,
-        recentActivity
+        recentActivity,
+        dailyStats
       });
 
     } catch (err: any) {
@@ -151,6 +164,44 @@ const useAnalytics = () => {
     } catch (err) {
       console.error('Error tracking event:', err);
     }
+  };
+
+  const generateDailyStats = (pageViews: any[], events: any[]): DailyStats[] => {
+    const dailyData: Record<string, { pageViews: number; events: number; paths: Set<string> }> = {};
+    
+    // Process last 30 days
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateKey = date.toISOString().split('T')[0];
+      dailyData[dateKey] = { pageViews: 0, events: 0, paths: new Set() };
+    }
+
+    // Count page views by day
+    pageViews.forEach(view => {
+      const date = new Date(view.timestamp).toISOString().split('T')[0];
+      if (dailyData[date]) {
+        dailyData[date].pageViews++;
+        dailyData[date].paths.add(view.path);
+      }
+    });
+
+    // Count events by day
+    events.forEach(event => {
+      const date = new Date(event.timestamp).toISOString().split('T')[0];
+      if (dailyData[date]) {
+        dailyData[date].events++;
+      }
+    });
+
+    return Object.entries(dailyData)
+      .map(([date, data]) => ({
+        date,
+        pageViews: data.pageViews,
+        events: data.events,
+        uniquePaths: data.paths.size
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
   };
 
   useEffect(() => {
