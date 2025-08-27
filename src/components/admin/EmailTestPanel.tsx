@@ -12,38 +12,49 @@ const EmailTestPanel = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const sendTestEmail = async () => {
+    console.log('=== EMAIL TEST DEBUG START ===');
+    console.log('Test email value:', testEmail);
+    
     if (!testEmail) {
+      console.log('ERROR: No email provided');
       toast.error('Bitte geben Sie eine E-Mail-Adresse ein');
       return;
     }
 
     try {
       setIsLoading(true);
-      console.log('Testing email function with:', testEmail);
+      console.log('Starting email test function call...');
+      console.log('Supabase client exists:', !!supabase);
 
       const { data, error } = await supabase.functions.invoke('test-email', {
         body: { email: testEmail }
       });
 
+      console.log('Function response - data:', data);
+      console.log('Function response - error:', error);
+
       if (error) {
-        console.error('Function error:', error);
+        console.error('Function invocation error:', error);
         toast.error('E-Mail-Test fehlgeschlagen', {
-          description: error.message || 'Unbekannter Fehler'
+          description: error.message || 'Unbekannter Fehler bei der Funktions-Ausführung'
         });
         return;
       }
 
-      console.log('Test email response:', data);
+      console.log('Test email response successful:', data);
       toast.success('Test-E-Mail erfolgreich gesendet!', {
         description: `E-Mail wurde an ${testEmail} gesendet`
       });
 
     } catch (err: any) {
-      console.error('Error testing email:', err);
+      console.error('Catch block - Error testing email:', err);
+      console.error('Error type:', typeof err);
+      console.error('Error stack:', err.stack);
       toast.error('Fehler beim E-Mail-Test', {
         description: err.message || 'Bitte überprüfen Sie die Konsole für Details'
       });
     } finally {
+      console.log('=== EMAIL TEST DEBUG END ===');
       setIsLoading(false);
     }
   };
