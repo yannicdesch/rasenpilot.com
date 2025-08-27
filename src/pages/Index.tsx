@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import MainNavigation from '@/components/MainNavigation';
 import { useLawn } from '@/context/LawnContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen, Trophy, Star, Medal, Award } from 'lucide-react';
+import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen, Trophy, Star, Medal, Award, Mail, Clock, Users, Target, Shield } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import type { SEOContentType } from '@/components/SEOContentEditor';
 import Logo from '@/components/Logo';
@@ -11,12 +11,17 @@ import SEO from '@/components/SEO';
 import StructuredData from '@/components/StructuredData';
 import FAQ from '@/components/FAQ';
 import Testimonials from '@/components/Testimonials';
+import PostAnalysisConversion from '@/components/conversion/PostAnalysisConversion';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import lawnBefore from '@/assets/lawn-before.jpg';
 import lawnAfter from '@/assets/lawn-after.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
   const [seoContent, setSeoContent] = useState<SEOContentType | null>(null);
+  const [email, setEmail] = useState('');
+  const [emailCaptured, setEmailCaptured] = useState(false);
   
   useEffect(() => {
     // Load SEO content
@@ -33,6 +38,15 @@ const Index = () => {
   
   const handleGetStarted = () => {
     navigate('/lawn-analysis');
+  };
+
+  const handleEmailCapture = (capturedEmail: string) => {
+    setEmail(capturedEmail);
+    setEmailCaptured(true);
+    // Navigate to analysis after email capture
+    setTimeout(() => {
+      navigate('/lawn-analysis');
+    }, 2000);
   };
   
   return (
@@ -357,14 +371,62 @@ const Index = () => {
               </Button>
             </div>
           </div>
-          
-          <div className="text-center mt-12">
-            <Button 
-              onClick={handleGetStarted} 
-              className="bg-green-600 hover:bg-green-700"
-            >
-              Jetzt kostenlose Rasenanalyse starten!
-            </Button>
+        </div>
+      </section>
+      
+      {/* Enhanced Email Capture Section */}
+      <section className="py-16 bg-gradient-to-br from-green-600 via-green-700 to-green-800">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            {!emailCaptured ? (
+              <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full text-green-800 font-medium mb-4">
+                    <Clock className="h-4 w-4" />
+                    <span>Limitiertes Angebot - Nur heute kostenlos!</span>
+                  </div>
+                  
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Starten Sie jetzt Ihre <span className="text-green-600">kostenlose Rasenanalyse</span>
+                  </h2>
+                  
+                  <p className="text-xl text-gray-600 mb-6">
+                    Über 50.000 Gartenbesitzer vertrauen bereits unserem KI-Rasenexperten
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div className="flex items-center gap-2 justify-center md:justify-start">
+                      <Shield className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-medium">100% kostenlos</span>
+                    </div>
+                    <div className="flex items-center gap-2 justify-center">
+                      <Target className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-medium">Sofortige Ergebnisse</span>
+                    </div>
+                    <div className="flex items-center gap-2 justify-center md:justify-end">
+                      <Users className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-medium">Wissenschaftlich validiert</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <PostAnalysisConversion 
+                  score={75} // Demo score for homepage
+                  onEmailCaptured={handleEmailCapture}
+                  onRegistrationComplete={() => navigate('/lawn-analysis')}
+                />
+              </div>
+            ) : (
+              <div className="text-center text-white">
+                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check className="h-10 w-10 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold mb-4">Perfekt! Sie werden in Kürze weitergeleitet...</h2>
+                <p className="text-green-100">
+                  Ihre kostenlose Rasenanalyse beginnt jetzt. Ihr personalisierter Plan wird an {email} gesendet.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
