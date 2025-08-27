@@ -10,6 +10,7 @@ import WeatherEnhancedResults from '@/components/WeatherEnhancedResults';
 import MainNavigation from '@/components/MainNavigation';
 import RetentionSignUpForm from '@/components/RetentionSignUpForm';
 import LawnJourneyTracker from '@/components/LawnJourneyTracker';
+import PostAnalysisConversion from '@/components/conversion/PostAnalysisConversion';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
@@ -533,26 +534,20 @@ Website: www.rasenpilot.com
               </Card>
             </div>
 
-            {/* 7. Retention-Sign-Up */}
+            {/* 7. Enhanced Post-Analysis Conversion */}
             {!retentionData.isSignedUp && (
               <div className="mb-8">
-                <Card className="bg-gradient-to-br from-green-600 to-green-700 border-none text-white">
-                  <CardContent className="p-6">
-                    <div className="text-center mb-4">
-                      <h3 className="text-lg font-bold mb-2">
-                        👉 Hol dir deine persönlichen Rasen-Tipps per Mail
-                      </h3>
-                      <p className="text-green-100 text-sm">
-                        Trag deine E-Mail ein und wir erinnern dich automatisch in 14 Tagen an den nächsten Fortschritts-Check 📸. Zusätzlich bekommst du Tipps, die genau zu deinem Rasen passen.
-                      </p>
-                    </div>
-                    <RetentionSignUpForm 
-                      analysisScore={healthScore}
-                      analysisId={jobId}
-                      onSignUpComplete={handleSignUpComplete}
-                    />
-                  </CardContent>
-                </Card>
+                <PostAnalysisConversion 
+                  score={healthScore}
+                  userId={profile?.id}
+                  onEmailCaptured={(email) => {
+                    console.log('Email captured:', email);
+                    // Add analytics tracking here
+                  }}
+                  onRegistrationComplete={() => {
+                    handleSignUpComplete();
+                  }}
+                />
               </div>
             )}
 
