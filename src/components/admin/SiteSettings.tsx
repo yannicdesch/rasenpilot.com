@@ -9,8 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import useSettings, { SiteSettings } from '@/hooks/useSettings';
-import { Settings, Globe, Shield, Search, Mail } from 'lucide-react';
+import { Settings, Globe, Shield, Search, Mail, TestTube } from 'lucide-react';
 import EmailReportSettings from './EmailReportSettings';
+import EmailTestPanel from './EmailTestPanel';
 
 const SiteSettingsComponent = () => {
   const { settings, isLoading, isSaving, saveSettings, updateSettings } = useSettings();
@@ -55,7 +56,7 @@ const SiteSettingsComponent = () => {
       </div>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Allgemein
@@ -71,6 +72,10 @@ const SiteSettingsComponent = () => {
           <TabsTrigger value="email" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             E-Mail
+          </TabsTrigger>
+          <TabsTrigger value="email-test" className="flex items-center gap-2">
+            <TestTube className="h-4 w-4" />
+            E-Mail Tests
           </TabsTrigger>
           <TabsTrigger value="advanced" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
@@ -309,6 +314,10 @@ const SiteSettingsComponent = () => {
 
         <TabsContent value="email" className="space-y-6">
           <EmailReportSettings />
+        </TabsContent>
+
+        <TabsContent value="email-test" className="space-y-6">
+          <EmailTestPanel />
         </TabsContent>
 
         <TabsContent value="advanced" className="space-y-6">
