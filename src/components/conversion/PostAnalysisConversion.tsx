@@ -74,6 +74,29 @@ const PostAnalysisConversion: React.FC<PostAnalysisConversionProps> = ({
 
       if (error) throw error;
 
+      // Send welcome email with analysis details
+      const analysisId = window.location.pathname.split('/').pop() || '';
+      const firstName = email.split('@')[0]; // Extract name from email
+      
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+          body: {
+            email,
+            firstName,
+            analysisScore: score,
+            analysisId
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending welcome email:', emailError);
+          // Don't fail the entire process if email fails
+        }
+      } catch (emailError) {
+        console.error('Error sending welcome email:', emailError);
+        // Don't fail the entire process if email fails
+      }
+
       trackEvent('conversion', 'email_captured', 'post_analysis');
       setStep('success');
       onEmailCaptured?.(email);
