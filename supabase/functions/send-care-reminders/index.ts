@@ -298,6 +298,17 @@ async function sendReminderEmail(user: UserProfile, lawnProfile: LawnProfile, ta
           <p style="margin: 0; color: #065f46;"><strong>💡 Tipp:</strong> Die beste Zeit für die Rasenpflege ist am frühen Morgen oder späten Nachmittag.</p>
         </div>
         
+        <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #7c2d12; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <h3 style="color: #7c2d12; margin: 0 0 10px 0;">🚀 Nie wieder verpassen!</h3>
+          <p style="margin: 0 0 15px 0; color: #7c2d12;">
+            Premium-Mitglieder erhalten <strong>SMS-Erinnerungen</strong> und <strong>Wetter-Alerts</strong> für perfektes Timing.
+          </p>
+          <a href="https://www.rasenpilot.com/subscription" 
+             style="background: #7c2d12; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Premium werden - €9,99/Monat
+          </a>
+        </div>
+        
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
           <p style="color: #64748b; font-size: 14px; margin: 0;">
             Sie erhalten diese E-Mail, weil Sie Rasenpflege-Erinnerungen aktiviert haben.<br>

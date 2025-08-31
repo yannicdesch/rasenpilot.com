@@ -75,6 +75,29 @@ const handler = async (req: Request): Promise<Response> => {
             </a>
           </div>
 
+          <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #7c2d12; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
+            <h3 style="color: #7c2d12; margin: 0 0 15px 0; font-size: 20px;">🚀 Bereit für mehr?</h3>
+            <p style="margin: 0 0 15px 0; font-size: 16px; color: #7c2d12;">
+              <strong>Premium-Mitglieder erhalten:</strong>
+            </p>
+            <div style="text-align: left; margin: 15px 0;">
+              <div style="margin: 8px 0;">✨ <strong>Unbegrenzte Analysen</strong> - Verfolge deinen Fortschritt wöchentlich</div>
+              <div style="margin: 8px 0;">📱 <strong>SMS-Erinnerungen</strong> - Verpasse nie den optimalen Zeitpunkt</div>
+              <div style="margin: 8px 0;">🌦️ <strong>Wetter-Alerts</strong> - Automatische Anpassung an das Wetter</div>
+              <div style="margin: 8px 0;">📊 <strong>Detaillierte Reports</strong> - Alle Unterpunkte deiner Analyse</div>
+              <div style="margin: 8px 0;">💡 <strong>Personalisierte Tipps</strong> - Basierend auf deinem Rasentyp</div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+              <a href="https://www.rasenpilot.com/subscription" 
+                 style="background: #7c2d12; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                🌟 Jetzt Premium werden - nur €9,99/Monat
+              </a>
+            </div>
+            <p style="margin: 15px 0 0 0; font-size: 12px; color: #7c2d12;">
+              Jederzeit kündbar • 30 Tage Geld-zurück-Garantie
+            </p>
+          </div>
+
           <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
             <h4 style="color: #2d5a27; margin-top: 0;">💡 Dein erster Tipp:</h4>
             <p style="margin-bottom: 0;">

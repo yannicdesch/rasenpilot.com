@@ -150,6 +150,18 @@ serve(async (req) => {
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #22c55e;">Rasenpilot</h2>
               ${content}
+              
+              <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #7c2d12; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                <h3 style="color: #7c2d12; margin: 0 0 10px 0;">🌟 Upgrade auf Premium</h3>
+                <p style="margin: 0 0 15px 0; color: #7c2d12;">
+                  <strong>Unbegrenzte Analysen • SMS-Alerts • Detaillierte Reports</strong>
+                </p>
+                <a href="https://www.rasenpilot.com/subscription" 
+                   style="background: #7c2d12; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                  Jetzt Premium werden - €9,99/Monat
+                </a>
+              </div>
+              
               <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;">
               <p style="font-size: 12px; color: #666;">
                 Du kannst Erinnerungen jederzeit abbestellen: 
