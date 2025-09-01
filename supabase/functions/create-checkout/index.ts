@@ -9,6 +9,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log(`[CREATE-CHECKOUT] Function started, method: ${req.method}`);
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -20,6 +22,15 @@ serve(async (req) => {
 
   try {
     const { priceType, email } = await req.json();
+    console.log(`[CREATE-CHECKOUT] Request data:`, { priceType, email: email || 'not provided' });
+    
+    // Check if Stripe secret key is available
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      console.error("[CREATE-CHECKOUT] STRIPE_SECRET_KEY not found in environment");
+      throw new Error("Stripe configuration error: Missing API key");
+    }
+    console.log(`[CREATE-CHECKOUT] Stripe key found: ${stripeKey.substring(0, 10)}...`);
     
     let userEmail = email;
     let userId = null;
@@ -33,34 +44,45 @@ serve(async (req) => {
         if (data.user?.email) {
           userEmail = data.user.email;
           userId = data.user.id;
+          console.log(`[CREATE-CHECKOUT] Authenticated user found: ${userEmail}`);
         }
       } catch (error) {
-        console.log("Auth failed, proceeding as guest");
+        console.log("[CREATE-CHECKOUT] Auth failed, proceeding as guest");
       }
     }
 
-    if (!userEmail) {
-      throw new Error("Email is required for checkout");
+    if (!userEmail || !userEmail.includes('@')) {
+      console.error(`[CREATE-CHECKOUT] Invalid email: ${userEmail}`);
+      throw new Error("Gültige E-Mail-Adresse ist erforderlich");
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2023-10-16" });
+    console.log(`[CREATE-CHECKOUT] Using email: ${userEmail}`);
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+    console.log("[CREATE-CHECKOUT] Stripe client initialized");
+    
     const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+      console.log(`[CREATE-CHECKOUT] Existing customer found: ${customerId}`);
+    } else {
+      console.log("[CREATE-CHECKOUT] No existing customer found");
     }
 
     // Determine price based on priceType
     let unitAmount, interval;
     if (priceType === "monthly") {
-      unitAmount = 999; // $9.99
+      unitAmount = 999; // €9.99
       interval = "month";
     } else if (priceType === "yearly") {
-      unitAmount = 9900; // $99.00
+      unitAmount = 9900; // €99.00
       interval = "year";
     } else {
-      throw new Error("Invalid price type. Must be 'monthly' or 'yearly'");
+      throw new Error("Ungültiger Preistyp. Muss 'monthly' oder 'yearly' sein");
     }
+
+    console.log(`[CREATE-CHECKOUT] Creating session for ${interval}ly subscription: €${unitAmount/100}`);
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -70,8 +92,8 @@ serve(async (req) => {
           price_data: {
             currency: "eur",
             product_data: { 
-              name: "Premium Membership",
-              description: "Unlimited access to all premium features"
+              name: "Rasenpilot Premium",
+              description: "Unbegrenzter Zugang zu allen Premium-Features"
             },
             unit_amount: unitAmount,
             recurring: { interval },
@@ -80,20 +102,27 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/subscription-success`,
-      cancel_url: `${req.headers.get("origin")}/`,
+      success_url: `${req.headers.get("origin")}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/subscription?ref=canceled`,
       metadata: {
         user_id: userId || "",
         price_type: priceType,
+        user_email: userEmail,
       },
     });
+
+    console.log(`[CREATE-CHECKOUT] Session created successfully: ${session.id}`);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[CREATE-CHECKOUT] Error:", error.message);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: "Überprüfen Sie die Stripe-Konfiguration"
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

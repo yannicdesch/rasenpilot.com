@@ -19,6 +19,7 @@ export default function Subscription() {
   const { subscription, loading, checkSubscription, openCustomerPortal, isSubscribed, subscriptionTier } = useSubscription();
 
   const ref = searchParams.get('ref');
+  const emailFromUrl = searchParams.get('email');
 
   useEffect(() => {
     const getUser = async () => {
@@ -26,7 +27,12 @@ export default function Subscription() {
       setUser(user);
     };
     getUser();
-  }, []);
+    
+    // Set email from URL if available
+    if (emailFromUrl && !guestEmail) {
+      setGuestEmail(decodeURIComponent(emailFromUrl));
+    }
+  }, [emailFromUrl]);
 
   const subscriptionPlans = [
     {
