@@ -56,11 +56,12 @@ export const useCommunicationTracking = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      // Get communication preferences from new table using function call
+      // Get communication preferences from communication_contacts table
       const { data, error } = await supabase
-        .rpc('get_user_communication_preferences', { 
-          user_id_param: user.user.id 
-        });
+        .from('communication_contacts')
+        .select('phone_number, country_code, whatsapp_opt_in, sms_opt_in')
+        .eq('user_id', user.user.id)
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching communication preferences:', error);
@@ -91,7 +92,7 @@ export const useCommunicationTracking = () => {
         return;
       }
 
-      setStats(data);
+      setStats(data as unknown as CommunicationStats);
     } catch (err) {
       console.error('Error in fetchStats:', err);
     }
