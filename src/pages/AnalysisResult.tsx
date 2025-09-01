@@ -449,7 +449,7 @@ Website: www.rasenpilot.com
                 {!showEmailCapture ? (
                   <PremiumPreview 
                     score={healthScore}
-                    sampleProblems={getProblems().slice(0, 2)}
+                    sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
                     onUpgrade={() => window.location.href = '/subscription?ref=analysis'}
                   />
                 ) : (
