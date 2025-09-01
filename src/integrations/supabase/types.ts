@@ -199,6 +199,105 @@ export type Database = {
         }
         Relationships: []
       }
+      communication_contacts: {
+        Row: {
+          country_code: string | null
+          created_at: string
+          email: string | null
+          email_opt_in: boolean | null
+          id: string
+          last_email_date: string | null
+          last_sms_date: string | null
+          last_whatsapp_date: string | null
+          phone_number: string | null
+          sms_opt_in: boolean | null
+          total_email_count: number | null
+          total_sms_count: number | null
+          total_whatsapp_count: number | null
+          updated_at: string
+          user_id: string
+          whatsapp_opt_in: boolean | null
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string
+          email?: string | null
+          email_opt_in?: boolean | null
+          id?: string
+          last_email_date?: string | null
+          last_sms_date?: string | null
+          last_whatsapp_date?: string | null
+          phone_number?: string | null
+          sms_opt_in?: boolean | null
+          total_email_count?: number | null
+          total_sms_count?: number | null
+          total_whatsapp_count?: number | null
+          updated_at?: string
+          user_id: string
+          whatsapp_opt_in?: boolean | null
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string
+          email?: string | null
+          email_opt_in?: boolean | null
+          id?: string
+          last_email_date?: string | null
+          last_sms_date?: string | null
+          last_whatsapp_date?: string | null
+          phone_number?: string | null
+          sms_opt_in?: boolean | null
+          total_email_count?: number | null
+          total_sms_count?: number | null
+          total_whatsapp_count?: number | null
+          updated_at?: string
+          user_id?: string
+          whatsapp_opt_in?: boolean | null
+        }
+        Relationships: []
+      }
+      communication_events: {
+        Row: {
+          channel: string
+          content: string | null
+          created_at: string
+          email: string | null
+          event_type: string
+          id: string
+          message_id: string
+          metadata: Json | null
+          phone_number: string | null
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          channel: string
+          content?: string | null
+          created_at?: string
+          email?: string | null
+          event_type: string
+          id?: string
+          message_id: string
+          metadata?: Json | null
+          phone_number?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          channel?: string
+          content?: string | null
+          created_at?: string
+          email?: string | null
+          event_type?: string
+          id?: string
+          message_id?: string
+          metadata?: Json | null
+          phone_number?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           action: string
@@ -670,6 +769,14 @@ export type Database = {
           p_user_id: string
         }
         Returns: Json
+      }
+      increment_sms_count: {
+        Args: { phone_number_param: string; user_id_param: string }
+        Returns: undefined
+      }
+      increment_whatsapp_count: {
+        Args: { phone_number_param: string; user_id_param: string }
+        Returns: undefined
       }
       update_analysis_job: {
         Args: {
