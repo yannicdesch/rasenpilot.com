@@ -67,9 +67,9 @@ export function SubscriptionCard({
         throw new Error('Keine Checkout-URL erhalten');
       }
 
-      console.log('Redirecting to:', data.url);
-      // Redirect in same window instead of new tab for better UX
-      window.location.href = data.url;
+      console.log('Opening checkout in new tab:', data.url);
+      // Open Stripe checkout in a new tab to avoid iframe restrictions
+      window.open(data.url, '_blank');
     } catch (error) {
       console.error('Error creating checkout:', error);
       
