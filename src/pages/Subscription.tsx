@@ -30,8 +30,8 @@ export default function Subscription() {
 
   const subscriptionPlans = [
     {
-      title: "Monthly Premium",
-      description: "Perfect for getting started",
+      title: "Monatlich Premium",
+      description: "Perfekt für den Einstieg",
       price: "€9.99",
       interval: "month",
       priceType: "monthly" as const,
@@ -47,7 +47,7 @@ export default function Subscription() {
       isPopular: false
     },
     {
-      title: "Yearly Premium",
+      title: "Jährlich Premium",
       description: "Bester Wert - Sparen Sie €20!",
       price: "€99.00",
       interval: "year",

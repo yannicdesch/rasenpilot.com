@@ -49,8 +49,8 @@ export function SubscriptionCard({
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast({
-        title: "Error",
-        description: "Failed to start checkout process",
+        title: "Fehler",
+        description: "Checkout-Prozess konnte nicht gestartet werden",
         variant: "destructive",
       });
     } finally {
@@ -63,7 +63,7 @@ export function SubscriptionCard({
       {isPopular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
           <Badge variant="default" className="bg-primary text-primary-foreground">
-            Most Popular
+            Beliebt
           </Badge>
         </div>
       )}
@@ -71,7 +71,7 @@ export function SubscriptionCard({
       {isCurrentPlan && (
         <div className="absolute -top-3 right-4">
           <Badge variant="secondary" className="bg-green-100 text-green-800">
-            Current Plan
+            Aktueller Plan
           </Badge>
         </div>
       )}
@@ -103,7 +103,7 @@ export function SubscriptionCard({
           disabled={loading || isCurrentPlan}
           variant={isPopular ? "default" : "outline"}
         >
-          {loading ? "Processing..." : isCurrentPlan ? "Current Plan" : `Subscribe ${interval}ly`}
+          {loading ? "Verarbeitung..." : isCurrentPlan ? "Aktueller Plan" : interval === 'month' ? 'Monatlich abonnieren' : 'Jährlich abonnieren'}
         </Button>
       </CardFooter>
     </Card>
