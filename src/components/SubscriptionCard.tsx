@@ -37,19 +37,30 @@ export function SubscriptionCard({
     try {
       console.log('Starting checkout with:', { priceType, email: userEmail || 'guest@example.com' });
       
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { 
+      const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ`,
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ'
+        },
+        body: JSON.stringify({
           priceType,
           email: userEmail || 'guest@example.com'
-        }
+        })
       });
 
-      console.log('Checkout response:', { data, error });
+      const result = await response.text();
+      console.log('Raw response:', { status: response.status, statusText: response.statusText, body: result });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
+      if (!response.ok) {
+        console.error('Response not OK:', response.status, response.statusText);
+        console.error('Error body:', result);
+        throw new Error(`Server error: ${response.status} - ${result}`);
       }
+
+      const data = JSON.parse(result);
+      console.log('Parsed response:', data);
 
       if (!data?.url) {
         console.error('No checkout URL returned:', data);
