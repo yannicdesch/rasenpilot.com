@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Crown, ArrowRight, Lightbulb, Target, Clock, Zap } from 'lucide-react';
 
 interface PremiumPreviewProps {
   score: number;
   sampleProblems: string[];
-  onUpgrade: () => void;
+  onUpgrade: (email?: string) => void;
 }
 
 const PremiumPreview: React.FC<PremiumPreviewProps> = ({ score, sampleProblems, onUpgrade }) => {
+  const [email, setEmail] = useState('');
   return (
     <div className="space-y-6">
       {/* Score Breakdown Preview */}
@@ -188,9 +191,25 @@ const PremiumPreview: React.FC<PremiumPreviewProps> = ({ score, sampleProblems, 
           </div>
           
           <div className="space-y-3">
+            <div className="mb-4">
+              <Label htmlFor="premium-email" className="block text-sm font-medium text-yellow-700 mb-2">
+                E-Mail für Premium-Zugang
+              </Label>
+              <Input
+                id="premium-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ihre.email@beispiel.de"
+                className="w-full border-yellow-300 focus:border-yellow-500"
+                required
+              />
+            </div>
+            
             <Button 
-              onClick={onUpgrade}
-              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-3"
+              onClick={() => onUpgrade(email)}
+              disabled={!email || !email.includes('@')}
+              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Zap className="mr-2 h-4 w-4" />
               Premium für €9,99/Monat
