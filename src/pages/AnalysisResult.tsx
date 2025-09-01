@@ -448,7 +448,7 @@ Website: www.rasenpilot.com
                 {!showEmailCapture ? (
                   <FreeAnalysisGate 
                     score={healthScore}
-                    onUpgrade={createCheckout}
+                    onUpgrade={() => createCheckout('monthly')}
                     onEmailCapture={() => setShowEmailCapture(true)}
                   />
                 ) : (
@@ -600,7 +600,7 @@ Website: www.rasenpilot.com
               <div className="mb-8">
                 <FreeAnalysisGate 
                   score={healthScore}
-                  onUpgrade={createCheckout}
+                  onUpgrade={() => createCheckout('monthly')}
                   onEmailCapture={() => setShowEmailCapture(true)}
                 />
               </div>
@@ -683,7 +683,7 @@ Website: www.rasenpilot.com
               <div className="mb-8">
                 <FreeAnalysisGate 
                   score={healthScore}
-                  onUpgrade={createCheckout}
+                  onUpgrade={() => createCheckout('monthly')}
                   onEmailCapture={() => setShowEmailCapture(true)}
                 />
               </div>
