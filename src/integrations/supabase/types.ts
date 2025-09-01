@@ -750,6 +750,10 @@ export type Database = {
         Args: { p_job_id: string }
         Returns: Json
       }
+      get_communication_analytics: {
+        Args: { p_timeframe?: string }
+        Returns: Json
+      }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -778,6 +782,17 @@ export type Database = {
         Args: { phone_number_param: string; user_id_param: string }
         Returns: undefined
       }
+      track_communication_event: {
+        Args: {
+          p_channel: string
+          p_event_type: string
+          p_message_id: string
+          p_metadata?: Json
+          p_phone_number?: string
+          p_user_id?: string
+        }
+        Returns: undefined
+      }
       update_analysis_job: {
         Args: {
           p_error_message?: string
@@ -786,6 +801,16 @@ export type Database = {
           p_status?: string
         }
         Returns: boolean
+      }
+      update_communication_contact: {
+        Args: {
+          p_country_code: string
+          p_phone_number: string
+          p_sms_opt_in: boolean
+          p_user_id: string
+          p_whatsapp_opt_in: boolean
+        }
+        Returns: undefined
       }
       update_user_highscore: {
         Args:
