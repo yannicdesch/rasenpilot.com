@@ -82,9 +82,20 @@ serve(async (req) => {
       const subscription = subscriptions.data[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
-      // Set as Premium tier
-      subscriptionTier = "Premium";
-      logStep("Determined subscription tier", { subscriptionTier });
+      
+      // Determine subscription tier from price
+      const priceId = subscription.items.data[0].price.id;
+      const price = await stripe.prices.retrieve(priceId);
+      const amount = price.unit_amount || 0;
+      
+      if (amount === 999) {
+        subscriptionTier = "Monthly";
+      } else if (amount === 9900) {
+        subscriptionTier = "Yearly";
+      } else {
+        subscriptionTier = "Premium";
+      }
+      logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
     } else {
       logStep("No active subscription found");
     }

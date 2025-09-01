@@ -110,7 +110,7 @@ const SubscriptionCard = () => {
           ) : (
             <Button 
               className="w-full bg-green-600 hover:bg-green-700"
-              onClick={createCheckout}
+              onClick={() => createCheckout('monthly')}
             >
               Premium upgraden
             </Button>

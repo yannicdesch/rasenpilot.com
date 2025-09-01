@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/use-toast';
 
 interface SubscriptionData {
   subscribed: boolean;
@@ -16,68 +16,75 @@ export const useSubscription = () => {
     subscription_end: null
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const checkSubscription = async () => {
     try {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) {
-        setSubscription({ subscribed: false, subscription_tier: null, subscription_end: null });
-        setLoading(false);
+      setLoading(true);
+      setError(null);
+
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) {
+        setSubscription({
+          subscribed: false,
+          subscription_tier: null,
+          subscription_end: null
+        });
         return;
       }
 
       const { data, error } = await supabase.functions.invoke('check-subscription');
-      
+
       if (error) {
-        console.error('Error checking subscription:', error);
-        return;
+        throw error;
       }
 
-      if (data) {
-        setSubscription({
-          subscribed: data.subscribed || false,
-          subscription_tier: data.subscription_tier || null,
-          subscription_end: data.subscription_end || null
-        });
-      }
-    } catch (error) {
-      console.error('Subscription check failed:', error);
+      setSubscription(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to check subscription';
+      setError(errorMessage);
+      console.error('Error checking subscription:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const createCheckout = async () => {
+  const createCheckout = async (priceType: 'monthly' | 'yearly' = 'monthly') => {
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout');
-      
-      if (error) {
-        toast.error('Fehler beim Erstellen der Checkout-Session');
-        return;
-      }
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceType }
+      });
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
+      if (error) throw error;
+
+      // Open Stripe checkout in a new tab
+      window.open(data.url, '_blank');
     } catch (error) {
-      toast.error('Fehler beim Starten des Checkout-Prozesses');
+      console.error('Error creating checkout:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process",
+        variant: "destructive",
+      });
     }
   };
 
   const openCustomerPortal = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');
-      
-      if (error) {
-        toast.error('Fehler beim Öffnen des Kundenportals');
-        return;
-      }
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
+      if (error) throw error;
+
+      // Open customer portal in a new tab
+      window.open(data.url, '_blank');
     } catch (error) {
-      toast.error('Fehler beim Öffnen des Kundenportals');
+      console.error('Error opening customer portal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open customer portal",
+        variant: "destructive",
+      });
     }
   };
 
@@ -85,27 +92,29 @@ export const useSubscription = () => {
     checkSubscription();
 
     // Listen for auth changes
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          checkSubscription();
-        } else if (event === 'SIGNED_OUT') {
-          setSubscription({ subscribed: false, subscription_tier: null, subscription_end: null });
-        }
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        checkSubscription();
       }
-    );
+    });
 
-    return () => authSubscription.unsubscribe();
+    return () => {
+      authSubscription.unsubscribe();
+    };
   }, []);
 
-  const isPremium = subscription.subscribed && subscription.subscription_tier === 'Premium';
+  const isPremium = subscription.subscribed && (subscription.subscription_tier === 'Monthly' || subscription.subscription_tier === 'Yearly' || subscription.subscription_tier === 'Premium');
 
   return {
     subscription,
     loading,
-    isPremium,
+    error,
     checkSubscription,
     createCheckout,
-    openCustomerPortal
+    openCustomerPortal,
+    isPremium,
+    isSubscribed: subscription.subscribed,
+    subscriptionTier: subscription.subscription_tier,
+    subscriptionEnd: subscription.subscription_end
   };
 };
