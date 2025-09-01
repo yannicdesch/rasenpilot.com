@@ -601,7 +601,7 @@ Website: www.rasenpilot.com
               <div className="mb-8">
                 <PremiumPreview 
                   score={healthScore}
-                  sampleProblems={getProblems().slice(0, 2)}
+                  sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
                   onUpgrade={() => window.location.href = '/subscription?ref=analysis'}
                 />
               </div>
@@ -684,7 +684,7 @@ Website: www.rasenpilot.com
               <div className="mb-8">
                 <PremiumPreview 
                   score={healthScore}
-                  sampleProblems={getProblems().slice(0, 2)}
+                  sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
                   onUpgrade={() => window.location.href = '/subscription?ref=analysis'}
                 />
               </div>
