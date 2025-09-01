@@ -25,10 +25,13 @@ serve(async (req) => {
     console.log(`[CREATE-CHECKOUT] Request data:`, { priceType, email: email || 'not provided' });
     console.log(`[CREATE-CHECKOUT] Environment check: STRIPE_SECRET_KEY exists: ${!!Deno.env.get("STRIPE_SECRET_KEY")}`);
     
+    
     // Check if Stripe secret key is available
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    console.log(`[CREATE-CHECKOUT] Environment check: STRIPE_SECRET_KEY exists: ${!!stripeKey}`);
     if (!stripeKey) {
       console.error("[CREATE-CHECKOUT] STRIPE_SECRET_KEY not found in environment");
+      console.error("[CREATE-CHECKOUT] Available env keys:", Object.keys(Deno.env.toObject()));
       throw new Error("Stripe configuration error: Missing API key");
     }
     console.log(`[CREATE-CHECKOUT] Stripe key found: ${stripeKey.substring(0, 10)}...`);
