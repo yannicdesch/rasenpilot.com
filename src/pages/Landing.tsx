@@ -6,6 +6,7 @@ import HeroSection from '@/components/landing/HeroSection';
 import SpecialFeaturesSection from '@/components/landing/SpecialFeaturesSection';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
+import FreeVsPremiumSection from '@/components/landing/FreeVsPremiumSection';
 import CallToActionSection from '@/components/landing/CallToActionSection';
 import FooterSection from '@/components/landing/FooterSection';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,7 @@ const Landing = () => {
       <SpecialFeaturesSection />
       <HowItWorksSection />
       <FeaturesSection />
+      <FreeVsPremiumSection />
       <CallToActionSection />
       
       {/* Blog Call-to-Action */}
