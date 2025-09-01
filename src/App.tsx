@@ -28,6 +28,7 @@ import WeatherAdvice from "./pages/WeatherAdvice";
 import SeasonGuide from "./pages/SeasonGuide";
 import Subscription from "./pages/Subscription";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+import PremiumDashboard from "./pages/PremiumDashboard";
 
 // Local SEO Pages
 import Munich from "./pages/local/Munich";
@@ -109,6 +110,7 @@ const App = () => {
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+            <Route path="/premium-dashboard" element={<PremiumDashboard />} />
             <Route path="/account-settings" element={<AccountSettings />} />
             
             {/* Admin Panel */}

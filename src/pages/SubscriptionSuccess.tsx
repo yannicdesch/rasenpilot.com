@@ -104,9 +104,15 @@ const SubscriptionSuccess = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Link to="/lawn-analysis">
+                    <Link to="/premium-dashboard">
                       <Button className="w-full bg-green-600 hover:bg-green-700">
-                        Jetzt Premium-Features nutzen
+                        Premium Dashboard öffnen
+                      </Button>
+                    </Link>
+                    
+                    <Link to="/lawn-analysis">
+                      <Button variant="outline" className="w-full">
+                        Premium-Features nutzen
                       </Button>
                     </Link>
                     

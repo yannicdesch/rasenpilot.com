@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Leaf, Menu, X, BookOpen, Trophy, Settings, Camera } from 'lucide-react';
+import { Leaf, Menu, X, BookOpen, Trophy, Settings, Camera, Crown } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { isPremium } = useSubscription();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -78,8 +80,22 @@ const MainNavigation = () => {
               <Trophy size={18} />
               <span>Bestenliste</span>
             </Link>
+
+            {isPremium && (
+              <Link 
+                to="/premium-dashboard" 
+                className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
+                  isActive('/premium-dashboard') 
+                    ? 'bg-yellow-100 text-yellow-700' 
+                    : 'text-yellow-700 hover:text-yellow-600 hover:bg-yellow-50'
+                }`}
+              >
+                <Crown size={18} />
+                <span>Premium</span>
+              </Link>
+            )}
             
-            <Link 
+            <Link
               to="/admin-panel" 
               className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
                 isActive('/admin-panel') 
@@ -166,8 +182,23 @@ const MainNavigation = () => {
                       <Trophy size={20} />
                       <span>Bestenliste</span>
                     </Link>
+
+                    {isPremium && (
+                      <Link 
+                        to="/premium-dashboard" 
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                          isActive('/premium-dashboard') 
+                            ? 'bg-yellow-100 text-yellow-700 font-medium' 
+                            : 'text-yellow-700 hover:text-yellow-600 hover:bg-yellow-50'
+                        }`}
+                        onClick={closeMenu}
+                      >
+                        <Crown size={20} />
+                        <span>Premium</span>
+                      </Link>
+                    )}
                     
-                    <Link 
+                    <Link
                       to="/admin-panel" 
                       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
                         isActive('/admin-panel') 
