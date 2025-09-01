@@ -35,6 +35,8 @@ export function SubscriptionCard({
   const handleSubscribe = async () => {
     setLoading(true);
     try {
+      console.log('Starting checkout with:', { priceType, email: userEmail || 'guest@example.com' });
+      
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { 
           priceType,
@@ -42,15 +44,33 @@ export function SubscriptionCard({
         }
       });
 
-      if (error) throw error;
+      console.log('Checkout response:', { data, error });
 
-      // Open Stripe checkout in a new tab
-      window.open(data.url, '_blank');
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      if (!data?.url) {
+        console.error('No checkout URL returned:', data);
+        throw new Error('Keine Checkout-URL erhalten');
+      }
+
+      console.log('Redirecting to:', data.url);
+      // Redirect in same window instead of new tab for better UX
+      window.location.href = data.url;
     } catch (error) {
       console.error('Error creating checkout:', error);
+      
+      // Show more detailed error message
+      let errorMessage = "Checkout-Prozess konnte nicht gestartet werden";
+      if (error?.message) {
+        errorMessage += `: ${error.message}`;
+      }
+      
       toast({
         title: "Fehler",
-        description: "Checkout-Prozess konnte nicht gestartet werden",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
