@@ -68,7 +68,7 @@ serve(async (req) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "eur",
             product_data: { 
               name: "Premium Membership",
               description: "Unlimited access to all premium features"

@@ -28,6 +28,7 @@ const LawnAnalysis = () => {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState<string>('');
 
   // Rotating lawn tips during analysis
   const lawnTips = [
@@ -131,6 +132,12 @@ const LawnAnalysis = () => {
       return;
     }
 
+    // Validate email before proceeding
+    if (!email || !email.includes('@')) {
+      setError('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+      return;
+    }
+
     setSelectedFile(file);
     
     // Create preview
@@ -141,7 +148,7 @@ const LawnAnalysis = () => {
       startAnalysis(file);
     };
     reader.readAsDataURL(file);
-  }, []);
+  }, [email]);
 
   const startAnalysis = async (file: File) => {
     setIsUploading(true);
@@ -182,7 +189,8 @@ const LawnAnalysis = () => {
             upload_timestamp: new Date().toISOString(),
             zipCode: zipCode || '10115',
             userLocation: userLocation,
-            locationMethod: locationStatus
+            locationMethod: locationStatus,
+            email: email
           })
         });
 
@@ -442,6 +450,27 @@ const LawnAnalysis = () => {
             <span>Wissenschaftlich validiert</span>
           </div>
         </div>
+
+        {/* Email Input */}
+        {!isUploading && !preview && (
+          <div className="mb-6">
+            <Label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              E-Mail für Ihr Analyse-Ergebnis
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ihre.email@beispiel.de"
+              className="w-full"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Wir senden Ihnen das Ergebnis zu und speichern es für später.
+            </p>
+          </div>
+        )}
 
         {/* Hidden file input */}
         <input
