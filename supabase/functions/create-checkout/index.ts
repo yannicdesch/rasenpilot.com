@@ -8,6 +8,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Force redeployment to pick up new secrets
+
 serve(async (req) => {
   console.log(`[CREATE-CHECKOUT] Function started, method: ${req.method}`);
   
