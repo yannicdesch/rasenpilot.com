@@ -23,6 +23,7 @@ serve(async (req) => {
   try {
     const { priceType, email } = await req.json();
     console.log(`[CREATE-CHECKOUT] Request data:`, { priceType, email: email || 'not provided' });
+    console.log(`[CREATE-CHECKOUT] Environment check: STRIPE_SECRET_KEY exists: ${!!Deno.env.get("STRIPE_SECRET_KEY")}`);
     
     // Check if Stripe secret key is available
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
