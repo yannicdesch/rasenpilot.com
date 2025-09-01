@@ -12,6 +12,7 @@ import RetentionSignUpForm from '@/components/RetentionSignUpForm';
 import LawnJourneyTracker from '@/components/LawnJourneyTracker';
 import PostAnalysisConversion from '@/components/conversion/PostAnalysisConversion';
 import FreeAnalysisGate from '@/components/conversion/FreeAnalysisGate';
+import PremiumPreview from '@/components/conversion/PremiumPreview';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
@@ -442,14 +443,14 @@ Website: www.rasenpilot.com
               </Card>
             </div>
 
-            {/* Premium Gate or Premium Content */}
+            {/* Premium Preview or Premium Content */}
             {!isPremium ? (
               <div className="mb-8">
                 {!showEmailCapture ? (
-                  <FreeAnalysisGate 
+                  <PremiumPreview 
                     score={healthScore}
-                    onUpgrade={() => createCheckout('monthly')}
-                    onEmailCapture={() => setShowEmailCapture(true)}
+                    sampleProblems={getProblems().slice(0, 2)}
+                    onUpgrade={() => window.location.href = '/subscription?ref=analysis'}
                   />
                 ) : (
                   <PostAnalysisConversion 
@@ -598,10 +599,10 @@ Website: www.rasenpilot.com
               />
             ) : (
               <div className="mb-8">
-                <FreeAnalysisGate 
+                <PremiumPreview 
                   score={healthScore}
-                  onUpgrade={() => createCheckout('monthly')}
-                  onEmailCapture={() => setShowEmailCapture(true)}
+                  sampleProblems={getProblems().slice(0, 2)}
+                  onUpgrade={() => window.location.href = '/subscription?ref=analysis'}
                 />
               </div>
             )}
@@ -681,10 +682,10 @@ Website: www.rasenpilot.com
               </div>
             ) : (
               <div className="mb-8">
-                <FreeAnalysisGate 
+                <PremiumPreview 
                   score={healthScore}
-                  onUpgrade={() => createCheckout('monthly')}
-                  onEmailCapture={() => setShowEmailCapture(true)}
+                  sampleProblems={getProblems().slice(0, 2)}
+                  onUpgrade={() => window.location.href = '/subscription?ref=analysis'}
                 />
               </div>
             )}

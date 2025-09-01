@@ -50,10 +50,10 @@ export const useSubscription = () => {
     }
   };
 
-  const createCheckout = async (priceType: 'monthly' | 'yearly' = 'monthly') => {
+  const createCheckout = async (priceType: 'monthly' | 'yearly' = 'monthly', guestEmail?: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceType }
+        body: { priceType, email: guestEmail }
       });
 
       if (error) throw error;

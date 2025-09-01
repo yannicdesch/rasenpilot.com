@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCcw, ExternalLink } from 'lucide-react';
+import { RefreshCcw, ExternalLink, ArrowLeft } from 'lucide-react';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,11 @@ import SEO from '@/components/SEO';
 export default function Subscription() {
   const [guestEmail, setGuestEmail] = useState('');
   const [user, setUser] = useState<any>(null);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { subscription, loading, checkSubscription, openCustomerPortal, isSubscribed, subscriptionTier } = useSubscription();
+
+  const ref = searchParams.get('ref');
 
   useEffect(() => {
     const getUser = async () => {
@@ -28,55 +32,73 @@ export default function Subscription() {
     {
       title: "Monthly Premium",
       description: "Perfect for getting started",
-      price: "$9.99",
+      price: "€9.99",
       interval: "month",
       priceType: "monthly" as const,
       features: [
-        "Unlimited access to all features",
-        "Priority support",
-        "Advanced analytics",
-        "Custom integrations"
+        "Detaillierte Rasen-Analyse mit Teilbewertungen",
+        "Personalisierte 7-Tage Aktionspläne",
+        "PDF-Download für alle Pflegepläne",
+        "Unbegrenzte weitere Analysen",
+        "Wetter-basierte Empfehlungen",
+        "Premium Support"
       ],
-      isCurrentPlan: isSubscribed && subscriptionTier === "Monthly"
+      isCurrentPlan: isSubscribed && subscriptionTier === "Monthly",
+      isPopular: false
     },
     {
       title: "Yearly Premium",
-      description: "Best value - Save $20!",
-      price: "$99.00",
+      description: "Bester Wert - Sparen Sie €20!",
+      price: "€99.00",
       interval: "year",
       priceType: "yearly" as const,
       features: [
-        "Everything in Monthly",
-        "2 months free",
-        "Priority onboarding",
-        "Dedicated account manager"
+        "Alles aus Monthly Premium",
+        "2 Monate gratis",
+        "Vorrangiger Support",
+        "Früher Zugang zu neuen Features",
+        "Saison-spezifische Pflegepläne",
+        "Experten-Beratung bei Problemen"
       ],
-      isPopular: true,
-      isCurrentPlan: isSubscribed && subscriptionTier === "Yearly"
+      isCurrentPlan: isSubscribed && subscriptionTier === "Yearly",
+      isPopular: true
     }
   ];
 
   return (
     <>
       <SEO 
-        title="Subscription Plans - Choose Your Premium Plan"
-        description="Choose between monthly ($9.99) or yearly ($99) premium subscription plans. Get unlimited access to all features with flexible pricing options."
+        title="Premium Subscription - Rasenpilot"
+        description="Entdecken Sie die Premium-Features von Rasenpilot. Detaillierte Analysen, personalisierte Pflegepläne und unbegrenzte Rasen-Analysen ab €9,99/Monat."
       />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {ref === 'analysis' && (
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Zurück zur Analyse
+            </Button>
+          </div>
+        )}
+
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
+          <h1 className="text-4xl font-bold mb-4">Premium Features freischalten</h1>
           <p className="text-xl text-muted-foreground mb-6">
-            Unlock premium features with our flexible subscription options
+            Erhalten Sie Zugang zu detaillierten Analysen und personalisierten Pflegeplänen
           </p>
           
           {isSubscribed && (
             <div className="mb-6">
               <Badge variant="secondary" className="bg-green-100 text-green-800 text-lg px-4 py-2">
-                ✓ Premium Member - {subscriptionTier} Plan
+                ✓ Premium Mitglied - {subscriptionTier} Plan
               </Badge>
               {subscription.subscription_end && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Renews on: {new Date(subscription.subscription_end).toLocaleDateString()}
+                  Verlängert sich am: {new Date(subscription.subscription_end).toLocaleDateString('de-DE')}
                 </p>
               )}
             </div>
@@ -87,18 +109,18 @@ export default function Subscription() {
         {!user && (
           <Card className="mb-8 max-w-md mx-auto">
             <CardHeader>
-              <CardTitle>Guest Checkout</CardTitle>
+              <CardTitle>E-Mail für Checkout</CardTitle>
               <CardDescription>
-                Enter your email to proceed with guest checkout
+                Geben Sie Ihre E-Mail-Adresse ein, um fortzufahren
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="guest-email">Email Address</Label>
+                <Label htmlFor="guest-email">E-Mail-Adresse</Label>
                 <Input
                   id="guest-email"
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder="ihre@email.de"
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
                 />
@@ -118,53 +140,66 @@ export default function Subscription() {
           ))}
         </div>
 
-        {/* Subscription Management */}
+        {/* Manage Subscription */}
         {isSubscribed && (
-          <Card className="max-w-2xl mx-auto">
+          <Card className="max-w-md mx-auto">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Manage Your Subscription
-                <Badge variant="secondary">Active</Badge>
-              </CardTitle>
+              <CardTitle>Abonnement verwalten</CardTitle>
               <CardDescription>
-                Update your payment method, billing details, or cancel your subscription
+                Verwalten Sie Ihr Abonnement, ändern Sie Ihre Zahlungsmethode oder kündigen Sie
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-4">
-                <Button onClick={checkSubscription} variant="outline" disabled={loading}>
-                  <RefreshCcw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                  Refresh Status
-                </Button>
-                <Button onClick={openCustomerPortal} variant="default">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Manage Subscription
-                </Button>
-              </div>
+              <Button
+                onClick={checkSubscription}
+                variant="outline"
+                className="w-full"
+                disabled={loading}
+              >
+                <RefreshCcw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Status aktualisieren
+              </Button>
+              
+              <Button
+                onClick={openCustomerPortal}
+                className="w-full"
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Abonnement verwalten
+              </Button>
             </CardContent>
           </Card>
         )}
 
-        {/* Features Information */}
-        <div className="mt-12 text-center">
-          <h2 className="text-2xl font-bold mb-4">Why Choose Premium?</h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="space-y-2">
-              <h3 className="font-semibold">Unlimited Access</h3>
+        {/* Benefits Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-center mb-8">Warum Premium wählen?</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🔬</span>
+              </div>
+              <h3 className="font-semibold mb-2">Detaillierte Analysen</h3>
               <p className="text-sm text-muted-foreground">
-                Get unlimited access to all premium features and content
+                Erhalten Sie Teilbewertungen für Dichte, Feuchtigkeit, Boden und mehr
               </p>
             </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold">Priority Support</h3>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📅</span>
+              </div>
+              <h3 className="font-semibold mb-2">Personalisierte Pläne</h3>
               <p className="text-sm text-muted-foreground">
-                Get help when you need it with our priority support team
+                7-Tage Aktionspläne, abgestimmt auf Ihren Rasen und das aktuelle Wetter
               </p>
             </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold">Advanced Features</h3>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">♾️</span>
+              </div>
+              <h3 className="font-semibold mb-2">Unbegrenzte Nutzung</h3>
               <p className="text-sm text-muted-foreground">
-                Access to advanced tools and integrations for power users
+                Analysieren Sie Ihren Rasen so oft Sie möchten, das ganze Jahr über
               </p>
             </div>
           </div>

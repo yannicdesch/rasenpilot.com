@@ -57,7 +57,10 @@ const FreeAnalysisGate: React.FC<FreeAnalysisGateProps> = ({
 
         <div className="space-y-3">
           <Button 
-            onClick={onUpgrade}
+            onClick={() => {
+              // For guests, redirect to subscription page
+              window.location.href = '/subscription?ref=analysis';
+            }}
             className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-3"
           >
             <Crown className="mr-2 h-4 w-4" />
