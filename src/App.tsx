@@ -27,6 +27,7 @@ import AdminPanel from "./pages/AdminPanel";
 import WeatherAdvice from "./pages/WeatherAdvice";
 import SeasonGuide from "./pages/SeasonGuide";
 import Subscription from "./pages/Subscription";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 
 // Local SEO Pages
 import Munich from "./pages/local/Munich";
@@ -107,6 +108,7 @@ const App = () => {
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />
+            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
             <Route path="/account-settings" element={<AccountSettings />} />
             
             {/* Admin Panel */}
