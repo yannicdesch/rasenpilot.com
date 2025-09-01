@@ -12,6 +12,7 @@ import StructuredData from '@/components/StructuredData';
 import FAQ from '@/components/FAQ';
 import Testimonials from '@/components/Testimonials';
 import PostAnalysisConversion from '@/components/conversion/PostAnalysisConversion';
+import FreeVsPremiumSection from '@/components/landing/FreeVsPremiumSection';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import lawnBefore from '@/assets/lawn-before.jpg';
@@ -373,6 +374,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+      
+      {/* Free vs Premium Section */}
+      <FreeVsPremiumSection />
       
       {/* Enhanced Email Capture Section */}
       <section className="py-16 bg-gradient-to-br from-green-600 via-green-700 to-green-800">
