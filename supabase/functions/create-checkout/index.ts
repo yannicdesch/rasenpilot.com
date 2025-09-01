@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -7,8 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-// Force redeployment to pick up new secrets
 
 serve(async (req) => {
   console.log(`[CREATE-CHECKOUT] Function started, method: ${req.method}`);
@@ -25,15 +22,17 @@ serve(async (req) => {
   try {
     const { priceType, email } = await req.json();
     console.log(`[CREATE-CHECKOUT] Request data:`, { priceType, email: email || 'not provided' });
-    console.log(`[CREATE-CHECKOUT] Environment check: STRIPE_SECRET_KEY exists: ${!!Deno.env.get("STRIPE_SECRET_KEY")}`);
     
+    // Debug: Log all environment variables
+    const allEnvVars = Deno.env.toObject();
+    console.log(`[CREATE-CHECKOUT] Available environment variables:`, Object.keys(allEnvVars));
     
     // Check if Stripe secret key is available
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     console.log(`[CREATE-CHECKOUT] Environment check: STRIPE_SECRET_KEY exists: ${!!stripeKey}`);
     if (!stripeKey) {
       console.error("[CREATE-CHECKOUT] STRIPE_SECRET_KEY not found in environment");
-      console.error("[CREATE-CHECKOUT] Available env keys:", Object.keys(Deno.env.toObject()));
+      console.error("[CREATE-CHECKOUT] Available env keys:", Object.keys(allEnvVars));
       throw new Error("Stripe configuration error: Missing API key");
     }
     console.log(`[CREATE-CHECKOUT] Stripe key found: ${stripeKey.substring(0, 10)}...`);
