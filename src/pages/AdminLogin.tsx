@@ -9,7 +9,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   const handleLoginSuccess = () => {
-    navigate('/admin');
+    navigate('/admin-panel');
   };
 
   return (
