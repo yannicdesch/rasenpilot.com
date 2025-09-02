@@ -34,16 +34,16 @@ const useSubscribers = () => {
         throw fetchError;
       }
 
-      // Transform data to match Subscriber interface
+      // Transform data to match Subscriber interface (now for billing subscribers)
       const transformedSubscribers: Subscriber[] = (data || []).map(subscriber => ({
         id: subscriber.id,
         email: subscriber.email,
-        name: subscriber.name || undefined,
-        status: (subscriber.status === 'active' || subscriber.status === 'inactive') ? subscriber.status : 'active',
-        source: subscriber.source || 'Website',
+        name: subscriber.subscription_tier || 'Unknown',
+        status: subscriber.subscribed ? 'active' : 'inactive',
+        source: subscriber.stripe_customer_id ? 'Stripe' : 'Manual',
         dateSubscribed: subscriber.created_at,
-        openRate: subscriber.open_rate || 0,
-        interests: subscriber.interests || []
+        openRate: 0, // Not applicable for billing subscribers
+        interests: [] // Not applicable for billing subscribers
       }));
 
       setSubscribers(transformedSubscribers);
@@ -61,10 +61,9 @@ const useSubscribers = () => {
         .from('subscribers')
         .insert([{
           email: subscriberData.email,
-          name: subscriberData.name,
-          status: subscriberData.status,
-          source: subscriberData.source,
-          interests: subscriberData.interests
+          subscription_tier: subscriberData.name,
+          subscribed: subscriberData.status === 'active',
+          stripe_customer_id: null
         }])
         .select()
         .single();
@@ -77,12 +76,12 @@ const useSubscribers = () => {
       const newSubscriber: Subscriber = {
         id: data.id,
         email: data.email,
-        name: data.name || undefined,
-        status: (data.status === 'active' || data.status === 'inactive') ? data.status : 'active',
-        source: data.source || 'Website',
+        name: data.subscription_tier || 'Unknown',
+        status: data.subscribed ? 'active' : 'inactive',
+        source: data.stripe_customer_id ? 'Stripe' : 'Manual',
         dateSubscribed: data.created_at,
-        openRate: data.open_rate || 0,
-        interests: data.interests || []
+        openRate: 0,
+        interests: []
       };
 
       setSubscribers(prev => [newSubscriber, ...prev]);
@@ -103,10 +102,8 @@ const useSubscribers = () => {
         .from('subscribers')
         .update({
           email: updates.email,
-          name: updates.name,
-          status: updates.status,
-          source: updates.source,
-          interests: updates.interests,
+          subscription_tier: updates.name,
+          subscribed: updates.status === 'active',
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
@@ -121,12 +118,12 @@ const useSubscribers = () => {
       const updatedSubscriber: Subscriber = {
         id: data.id,
         email: data.email,
-        name: data.name || undefined,
-        status: (data.status === 'active' || data.status === 'inactive') ? data.status : 'active',
-        source: data.source || 'Website',
+        name: data.subscription_tier || 'Unknown',
+        status: data.subscribed ? 'active' : 'inactive',
+        source: data.stripe_customer_id ? 'Stripe' : 'Manual',
         dateSubscribed: data.created_at,
-        openRate: data.open_rate || 0,
-        interests: data.interests || []
+        openRate: 0,
+        interests: []
       };
 
       setSubscribers(prev => prev.map(sub => sub.id === id ? updatedSubscriber : sub));

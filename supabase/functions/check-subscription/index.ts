@@ -31,10 +31,6 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
     logStep("Authorization header found");
@@ -48,11 +44,62 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // First check local subscribers table for existing subscription
+    const { data: localSubscriber, error: localError } = await supabaseClient
+      .from("subscribers")
+      .select("*")
+      .eq("email", user.email)
+      .single();
+
+    if (localSubscriber && !localError) {
+      logStep("Found local subscription record", { 
+        subscribed: localSubscriber.subscribed, 
+        tier: localSubscriber.subscription_tier 
+      });
+      
+      // Update user_id if it's not set
+      if (!localSubscriber.user_id) {
+        await supabaseClient.from("subscribers").update({
+          user_id: user.id,
+          updated_at: new Date().toISOString(),
+        }).eq("email", user.email);
+      }
+
+      return new Response(JSON.stringify({
+        subscribed: localSubscriber.subscribed,
+        subscription_tier: localSubscriber.subscription_tier,
+        subscription_end: localSubscriber.subscription_end
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // If no local record, check Stripe (for actual paying customers)
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      logStep("No Stripe key, creating local unsubscribed record");
+      await supabaseClient.from("subscribers").upsert({
+        email: user.email,
+        user_id: user.id,
+        stripe_customer_id: null,
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'email' });
+      return new Response(JSON.stringify({ subscribed: false }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    logStep("Stripe key verified, checking Stripe customer");
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No customer found, updating unsubscribed state");
+      logStep("No Stripe customer found, creating unsubscribed record");
       await supabaseClient.from("subscribers").upsert({
         email: user.email,
         user_id: user.id,
