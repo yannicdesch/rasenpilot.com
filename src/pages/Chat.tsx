@@ -9,6 +9,7 @@ import MainNavigation from '@/components/MainNavigation';
 import SEO from '@/components/SEO';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatMessage {
   id: string;
@@ -58,8 +59,33 @@ const Chat = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response (in a real implementation, this would call an AI service)
-    setTimeout(() => {
+    try {
+      // Call the chat-with-ai edge function
+      const { data, error } = await supabase.functions.invoke('chat-with-ai', {
+        body: {
+          message: inputMessage,
+          conversation_history: messages.filter(msg => msg.sender !== 'ai' || msg.content !== 'Hallo! Ich bin Ihr KI-Rasenberater. Ich kann Ihnen bei allen Fragen rund um die Rasenpflege helfen. Was möchten Sie wissen?')
+        }
+      });
+
+      if (error) {
+        console.error('Chat API error:', error);
+        throw new Error(error.message);
+      }
+
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: data.reply,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error calling chat API:', error);
+      toast.error('Fehler beim Senden der Nachricht. Bitte versuchen Sie es erneut.');
+      
+      // Fallback to mock response if API fails
       const aiResponse = generateAIResponse(inputMessage);
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -69,8 +95,9 @@ const Chat = () => {
       };
       
       setMessages(prev => [...prev, aiMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const generateAIResponse = (userInput: string): string => {
