@@ -173,65 +173,80 @@ export const fetchWeatherData = async (zipCode: string): Promise<WeatherData> =>
     }
   }
   
-  return new Promise((resolve, reject) => {
-    // Simulate API call with timeout
-    setTimeout(() => {
-      try {
-        console.log("Generating weather data for ZIP code:", zipCode);
-        
-        // For German ZIP codes specific data
-        const isGermanZipCode = /^\d{5}$/.test(zipCode);
-        
-        const weatherData = {
-          location: isGermanZipCode ? `Bereich ${zipCode}, Deutschland` : "Berlin, Deutschland",
-          current: {
-            temp: 18, // Temperatures in Celsius for Germany
-            condition: "Teilweise bewölkt",
-            humidity: 65,
-            windSpeed: 12,
-            icon: "cloud-sun"
-          },
-          forecast: [
-            { day: "Heute", high: 18, low: 10, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 10 },
-            { day: "Morgen", high: 19, low: 11, condition: "Überwiegend sonnig", icon: "sun", chanceOfRain: 5 },
-            { day: "Mittwoch", high: 17, low: 9, condition: "Regen", icon: "cloud-rain", chanceOfRain: 80 },
-            { day: "Donnerstag", high: 15, low: 8, condition: "Leichter Regen", icon: "cloud-drizzle", chanceOfRain: 60 },
-            { day: "Freitag", high: 16, low: 9, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 20 }
-          ]
-        };
-        
-        console.log("Weather data generated:", weatherData);
-        
-        // Cache weather data to improve user experience
-        localStorage.setItem('lastWeatherData', JSON.stringify({
-          data: weatherData,
-          timestamp: Date.now(),
-          zipCode: zipCode
-        }));
-        
-        resolve(weatherData);
-      } catch (error) {
-        console.error("Error generating weather data:", error);
-        
-        // Try to use cached weather data if available
-        const cachedWeather = localStorage.getItem('lastWeatherData');
-        if (cachedWeather) {
-          try {
-            const parsed = JSON.parse(cachedWeather);
-            // Only use cached data if it's less than 1 hour old
-            if (Date.now() - parsed.timestamp < 3600000) {
-              console.log("Using cached weather data");
-              return resolve(parsed.data);
-            }
-          } catch (e) {
-            console.error("Error parsing cached weather:", e);
-          }
-        }
-        
-        reject(error);
-      }
-    }, 800);
-  });
+  try {
+    console.log("Fetching weather data from Supabase for ZIP code:", zipCode);
+    
+    // Import supabase client
+    const { supabase } = await import('@/integrations/supabase/client');
+    
+    // Call the get-weather-data edge function
+    const { data, error } = await supabase.functions.invoke('get-weather-data', {
+      body: { zipCode, countryCode: 'DE' }
+    });
+
+    if (error) {
+      console.error("Error calling weather function:", error);
+      throw new Error(`Weather API error: ${error.message}`);
+    }
+
+    if (!data?.success) {
+      console.error("Weather API returned error:", data);
+      throw new Error(`Weather API failed: ${data?.error || 'Unknown error'}`);
+    }
+
+    const weatherResult = data.data;
+    console.log("Weather data received:", weatherResult);
+
+    // Transform the API response to match our WeatherData interface
+    const weatherData: WeatherData = {
+      location: weatherResult.location,
+      current: {
+        temp: weatherResult.current.temp,
+        condition: weatherResult.current.condition,
+        humidity: weatherResult.current.humidity,
+        windSpeed: weatherResult.current.windSpeed,
+        icon: weatherResult.current.icon
+      },
+      forecast: weatherResult.forecast.map((day: any) => ({
+        day: day.day,
+        high: day.high,
+        low: day.low,
+        condition: day.condition,
+        icon: day.icon,
+        chanceOfRain: Math.round(day.chanceOfRain)
+      }))
+    };
+
+    return weatherData;
+    
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+    
+    // Fallback to mock data if API fails
+    console.log("Falling back to mock weather data for ZIP code:", zipCode);
+    
+    const isGermanZipCode = /^\d{5}$/.test(zipCode);
+    
+    const fallbackWeatherData: WeatherData = {
+      location: isGermanZipCode ? `Bereich ${zipCode}, Deutschland` : "Berlin, Deutschland",
+      current: {
+        temp: 18, // Temperatures in Celsius for Germany
+        condition: "Teilweise bewölkt",
+        humidity: 65,
+        windSpeed: 12,
+        icon: "cloud-sun"
+      },
+      forecast: [
+        { day: "Heute", high: 18, low: 10, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 10 },
+        { day: "Morgen", high: 19, low: 11, condition: "Überwiegend sonnig", icon: "sun", chanceOfRain: 5 },
+        { day: "Mittwoch", high: 17, low: 9, condition: "Regen", icon: "cloud-rain", chanceOfRain: 80 },
+        { day: "Donnerstag", high: 15, low: 8, condition: "Leichter Regen", icon: "cloud-drizzle", chanceOfRain: 60 },
+        { day: "Freitag", high: 16, low: 9, condition: "Teilweise bewölkt", icon: "cloud-sun", chanceOfRain: 20 }
+      ]
+    };
+    
+    return fallbackWeatherData;
+  }
 };
 
 // Add ability to manually regenerate the care plan
