@@ -42,12 +42,12 @@ export default function Subscription() {
       interval: "month",
       priceType: "monthly" as const,
       features: [
-        "Detaillierte Rasen-Analyse mit Teilbewertungen",
-        "Personalisierte 7-Tage Aktionspläne",
-        "PDF-Download für alle Pflegepläne",
-        "Unbegrenzte weitere Analysen",
-        "Wetter-basierte Empfehlungen",
-        "Premium Support"
+        "🗓️ Ganzjahres-Pflegeplan mit saisonalen Empfehlungen",
+        "💬 Unbegrenzte KI-Beratung für alle Rasenfragen",
+        "☁️ Wetter-Alerts & automatische Pflegetipps",
+        "📸 Fortschritts-Tracking mit Bildvergleich",
+        "🔔 Email-Erinnerungen für wichtige Pflegetermine",
+        "🎧 Priority Support & persönliche Beratung"
       ],
       isCurrentPlan: isSubscribed && subscriptionTier === "Monthly",
       isPopular: false
@@ -59,12 +59,12 @@ export default function Subscription() {
       interval: "year",
       priceType: "yearly" as const,
       features: [
-        "Alles aus Monthly Premium",
-        "2 Monate gratis",
-        "Vorrangiger Support",
-        "Früher Zugang zu neuen Features",
-        "Saison-spezifische Pflegepläne",
-        "Experten-Beratung bei Problemen"
+        "✅ Alle Features aus Monthly Premium",
+        "💰 2 Monate gratis (€119.88 Wert für €99.00)",
+        "⚡ Vorrangiger Support mit Express-Antworten",
+        "🎯 Früher Zugang zu neuen KI-Features",
+        "📅 Erweiterte saisonale Pflegepläne",
+        "👨‍🌾 Persönliche Experten-Beratung bei Problemen"
       ],
       isCurrentPlan: isSubscribed && subscriptionTier === "Yearly",
       isPopular: true
@@ -179,33 +179,63 @@ export default function Subscription() {
 
         {/* Benefits Section */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-center mb-8">Warum Premium wählen?</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">Was Sie mit Premium erhalten</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🔬</span>
+                <span className="text-2xl">🗓️</span>
               </div>
-              <h3 className="font-semibold mb-2">Detaillierte Analysen</h3>
+              <h3 className="font-semibold mb-2">Ganzjahres-Pflegeplan</h3>
               <p className="text-sm text-muted-foreground">
-                Erhalten Sie Teilbewertungen für Dichte, Feuchtigkeit, Boden und mehr
+                Personalisierte Pflegepläne für jede Jahreszeit mit automatischen Wetter-Alerts
               </p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">📅</span>
+                <span className="text-2xl">💬</span>
               </div>
-              <h3 className="font-semibold mb-2">Personalisierte Pläne</h3>
+              <h3 className="font-semibold mb-2">Unbegrenzte KI-Beratung</h3>
               <p className="text-sm text-muted-foreground">
-                7-Tage Aktionspläne, abgestimmt auf Ihren Rasen und das aktuelle Wetter
+                Stellen Sie so viele Fragen wie Sie möchten - Ihr persönlicher Rasen-Experte
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">♾️</span>
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📸</span>
               </div>
-              <h3 className="font-semibold mb-2">Unbegrenzte Nutzung</h3>
+              <h3 className="font-semibold mb-2">Fortschritts-Tracking</h3>
               <p className="text-sm text-muted-foreground">
-                Analysieren Sie Ihren Rasen so oft Sie möchten, das ganze Jahr über
+                Verfolgen Sie die Entwicklung Ihres Rasens mit intelligenten Bildvergleichen
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6 mt-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🔔</span>
+              </div>
+              <h3 className="font-semibold mb-2">Smart Erinnerungen</h3>
+              <p className="text-sm text-muted-foreground">
+                Nie wieder wichtige Pflegetermine vergessen mit personalisierten Email-Alerts
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">☁️</span>
+              </div>
+              <h3 className="font-semibold mb-2">Wetter-Integration</h3>
+              <p className="text-sm text-muted-foreground">
+                Automatische Pflegetipps basierend auf aktuellen Wettervorhersagen
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🎧</span>
+              </div>
+              <h3 className="font-semibold mb-2">Priority Support</h3>
+              <p className="text-sm text-muted-foreground">
+                Bevorzugter Kundensupport und persönliche Beratung durch Rasen-Experten
               </p>
             </div>
           </div>
