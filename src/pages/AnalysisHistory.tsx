@@ -17,6 +17,8 @@ interface AnalysisHistoryItem {
   created_at: string;
   status: string;
   result?: any;
+  image_path?: string;
+  image_url?: string;
 }
 
 const AnalysisHistory: React.FC = () => {
@@ -96,27 +98,47 @@ const AnalysisHistory: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('analysis_jobs')
-        .select('id, created_at, status, result')
+        .select('id, created_at, status, result, image_path')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const historyItems: AnalysisHistoryItem[] = data.map(item => {
-        let score = 0;
-        if (item.result && typeof item.result === 'object') {
-          const result = item.result as any;
-          score = result.score || result.overall_health || 0;
-        }
-        
-        return {
-          id: item.id,
-          score: score,
-          created_at: item.created_at,
-          status: item.status,
-          result: item.result
-        };
-      });
+      const historyItems: AnalysisHistoryItem[] = await Promise.all(
+        data.map(async (item) => {
+          let score = 0;
+          if (item.result && typeof item.result === 'object') {
+            const result = item.result as any;
+            score = result.score || result.overall_health || 0;
+          }
+          
+          // Get signed URL for the image if image_path exists
+          let imageUrl = '';
+          if (item.image_path) {
+            try {
+              const { data: signedUrlData } = await supabase.storage
+                .from('lawn-images')
+                .createSignedUrl(item.image_path, 3600); // 1 hour expiry
+              
+              if (signedUrlData?.signedUrl) {
+                imageUrl = signedUrlData.signedUrl;
+              }
+            } catch (imageError) {
+              console.warn('Could not load image for analysis:', item.id, imageError);
+            }
+          }
+          
+          return {
+            id: item.id,
+            score: score,
+            created_at: item.created_at,
+            status: item.status,
+            result: item.result,
+            image_path: item.image_path,
+            image_url: imageUrl
+          };
+        })
+      );
 
       setAnalyses(historyItems);
     } catch (error) {
@@ -292,6 +314,20 @@ const AnalysisHistory: React.FC = () => {
                 
                 <CardContent>
                   <div className="space-y-4">
+                    {/* Lawn Image */}
+                    {analysis.image_url && (
+                      <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden">
+                        <img 
+                          src={analysis.image_url} 
+                          alt={`Rasen Analyse vom ${formatDate(analysis.created_at)}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     {/* Score Display */}
                     <div className="text-center">
                       <div className={`text-3xl font-bold ${getScoreColor(analysis.score)}`}>
