@@ -36,7 +36,7 @@ const PremiumDashboard = () => {
       title: "Unbegrenzte KI-Beratung",
       description: "Stelle so viele Fragen wie du möchtest",
       action: "KI-Chat starten",
-      link: "/lawn-analysis",
+      link: "/chat",
       color: "text-blue-600"
     },
     {

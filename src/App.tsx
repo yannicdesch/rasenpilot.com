@@ -51,6 +51,7 @@ import Dortmund from "./pages/local/Dortmund";
 import Bonn from "./pages/local/Bonn";
 import NotFound from "./pages/NotFound";
 import AccountSettings from "@/pages/AccountSettings";
+import Chat from "@/pages/Chat";
 import CookieConsent from '@/components/CookieConsent';
 
 const queryClient = new QueryClient();
@@ -116,6 +117,8 @@ const App = () => {
             <Route path="/subscription-success" element={<SubscriptionSuccess />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat-assistant" element={<Chat />} />
             <Route path="/account-settings" element={<AccountSettings />} />
             
             {/* Admin Panel */}
