@@ -23,6 +23,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import UeberUns from "./pages/UeberUns";
 import Kontakt from "./pages/Kontakt";
 import AdminPanel from "./pages/AdminPanel";
+import AdminLogin from "./pages/AdminLogin";
 
 import WeatherAdvice from "./pages/WeatherAdvice";
 import SeasonGuide from "./pages/SeasonGuide";
@@ -114,6 +115,7 @@ const App = () => {
             <Route path="/account-settings" element={<AccountSettings />} />
             
             {/* Admin Panel */}
+            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin-panel" element={<AdminPanel />} />
             
             {/* Catch-all route for 404 errors */}
