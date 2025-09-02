@@ -49,13 +49,10 @@ serve(async (req) => {
       .from("subscribers")
       .select("*")
       .eq("email", user.email)
-      .single();
+      .maybeSingle();
 
+    logStep("Local subscriber check", { found: !!localSubscriber, error: localError });
     if (localSubscriber && !localError) {
-      logStep("Found local subscription record", { 
-        subscribed: localSubscriber.subscribed, 
-        tier: localSubscriber.subscription_tier 
-      });
       
       // Update user_id if it's not set
       if (!localSubscriber.user_id) {

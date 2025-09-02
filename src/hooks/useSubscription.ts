@@ -23,9 +23,11 @@ export const useSubscription = () => {
     try {
       setLoading(true);
       setError(null);
+      console.log('🔍 Starting subscription check...');
 
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
+        console.log('❌ No user found');
         setSubscription({
           subscribed: false,
           subscription_tier: null,
@@ -34,17 +36,22 @@ export const useSubscription = () => {
         return;
       }
 
+      console.log('👤 User found:', { id: user.user.id, email: user.user.email });
+
       const { data, error } = await supabase.functions.invoke('check-subscription');
+      console.log('📡 Subscription check response:', { data, error });
 
       if (error) {
+        console.error('❌ Subscription check error:', error);
         throw error;
       }
 
+      console.log('✅ Setting subscription data:', data);
       setSubscription(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to check subscription';
       setError(errorMessage);
-      console.error('Error checking subscription:', err);
+      console.error('💥 Error checking subscription:', err);
     } finally {
       setLoading(false);
     }
@@ -104,6 +111,11 @@ export const useSubscription = () => {
   }, []);
 
   const isPremium = subscription.subscribed && (subscription.subscription_tier === 'Monthly' || subscription.subscription_tier === 'Yearly' || subscription.subscription_tier === 'Premium');
+  console.log('🎯 isPremium calculation:', { 
+    subscribed: subscription.subscribed, 
+    tier: subscription.subscription_tier, 
+    isPremium 
+  });
 
   return {
     subscription,
