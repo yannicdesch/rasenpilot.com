@@ -3,13 +3,16 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Leaf, Menu, X, BookOpen, Trophy, Settings, Camera, Crown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Leaf, Menu, X, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { isPremium } = useSubscription();
+  const { user, signOut } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -81,7 +84,7 @@ const MainNavigation = () => {
               <span>Bestenliste</span>
             </Link>
 
-            {isPremium && (
+            {user && isPremium && (
               <Link 
                 to="/premium-dashboard" 
                 className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
@@ -95,17 +98,39 @@ const MainNavigation = () => {
               </Link>
             )}
             
-            <Link
-              to="/admin-panel" 
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors ${
-                isActive('/admin-panel') 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-              }`}
-            >
-              <Settings size={18} />
-              <span>Admin</span>
-            </Link>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="hidden lg:inline">{user.email?.split('@')[0]}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem asChild>
+                    <Link to="/account-settings">Konto-Einstellungen</Link>
+                  </DropdownMenuItem>
+                  {isPremium && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/premium-dashboard">Premium Dashboard</Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={signOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Abmelden
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Button asChild variant="ghost">
+                  <Link to="/auth">Anmelden</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/subscription">Premium</Link>
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu */}

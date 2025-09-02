@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
 import JourneyTracker from "@/components/JourneyTracker";
 import ConversionTracker from "@/components/ConversionTracker";
@@ -24,6 +25,7 @@ import UeberUns from "./pages/UeberUns";
 import Kontakt from "./pages/Kontakt";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
+import Auth from "./pages/Auth";
 
 import WeatherAdvice from "./pages/WeatherAdvice";
 import SeasonGuide from "./pages/SeasonGuide";
@@ -62,7 +64,8 @@ const App = () => {
   return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <LawnProvider>
+      <AuthProvider>
+        <LawnProvider>
         <Toaster />
         <BrowserRouter>
           <JourneyTracker />
@@ -112,6 +115,7 @@ const App = () => {
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/subscription-success" element={<SubscriptionSuccess />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/account-settings" element={<AccountSettings />} />
             
             {/* Admin Panel */}
@@ -122,7 +126,8 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </LawnProvider>
+        </LawnProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
   );
