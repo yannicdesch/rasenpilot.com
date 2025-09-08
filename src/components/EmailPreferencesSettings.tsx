@@ -10,6 +10,7 @@ import { useEmailPreferences } from '@/hooks/useEmailPreferences';
 import { Mail, Clock, CheckCircle, Send } from 'lucide-react';
 
 export const EmailPreferencesSettings = () => {
+  console.log('EmailPreferencesSettings component rendering...');
   const { 
     preferences, 
     reminderHistory, 
@@ -17,6 +18,8 @@ export const EmailPreferencesSettings = () => {
     updatePreferences, 
     sendTestReminder 
   } = useEmailPreferences();
+  
+  console.log('EmailPreferencesSettings state:', { preferences, loading, reminderHistory });
   
   const [saving, setSaving] = useState(false);
 

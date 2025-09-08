@@ -26,6 +26,7 @@ export const useEmailPreferences = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('useEmailPreferences: Loading preferences and history...');
     loadPreferences();
     loadReminderHistory();
   }, []);
