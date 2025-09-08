@@ -3,6 +3,7 @@ import MainNavigation from '@/components/MainNavigation';
 import UserDataManagement from '@/components/UserDataManagement';
 import CookieSettings from '@/components/CookieSettings';
 import ConsentManagement from '@/components/ConsentManagement';
+import EmailPreferencesSettings from '@/components/EmailPreferencesSettings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Cookie, User, Mail } from 'lucide-react';
 
@@ -47,6 +48,7 @@ const AccountSettings = () => {
 
             <TabsContent value="email" className="space-y-6">
               <ConsentManagement />
+              <EmailPreferencesSettings />
             </TabsContent>
 
             <TabsContent value="cookies" className="space-y-6">
