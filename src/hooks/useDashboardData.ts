@@ -41,14 +41,43 @@ export const useDashboardData = () => {
       
       if (!user.user) return;
 
-      // Load latest analysis
-      const { data: analysisData } = await supabase
+      // Load latest analysis - check both tables
+      let analysisData = null;
+      
+      // First try the analyses table
+      const { data: directAnalysis } = await supabase
         .from('analyses')
         .select('id, score, summary_short, image_url, created_at')
         .eq('user_id', user.user.id)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
+      
+      if (directAnalysis) {
+        analysisData = directAnalysis;
+      } else {
+        // If no direct analysis, check analysis_jobs
+        const { data: jobAnalysis } = await supabase
+          .from('analysis_jobs')
+          .select('id, result, image_path, created_at')
+          .eq('user_id', user.user.id)
+          .eq('status', 'completed')
+          .not('result', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (jobAnalysis) {
+          const result = jobAnalysis.result as any;
+          analysisData = {
+            id: jobAnalysis.id,
+            score: parseInt(result.score) || 0,
+            summary_short: result.grass_condition || 'Analyse abgeschlossen',
+            image_url: jobAnalysis.image_path,
+            created_at: jobAnalysis.created_at
+          };
+        }
+      }
 
       if (analysisData) {
         setLatestAnalysis(analysisData);
