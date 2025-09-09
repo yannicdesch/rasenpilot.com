@@ -7,6 +7,14 @@ interface LatestAnalysis {
   summary_short: string;
   image_url: string;
   created_at: string;
+  density_note?: string;
+  sunlight_note?: string;
+  moisture_note?: string;
+  soil_note?: string;
+  density_score?: number;
+  sunlight_score?: number;
+  moisture_score?: number;
+  soil_score?: number;
 }
 
 interface LawnProfile {
@@ -47,7 +55,7 @@ export const useDashboardData = () => {
       // First try the analyses table
       const { data: directAnalysis } = await supabase
         .from('analyses')
-        .select('id, score, summary_short, image_url, created_at')
+        .select('id, score, summary_short, image_url, created_at, density_note, sunlight_note, moisture_note, soil_note')
         .eq('user_id', user.user.id)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -74,7 +82,15 @@ export const useDashboardData = () => {
             score: parseInt(result.score) || 0,
             summary_short: result.grass_condition || 'Analyse abgeschlossen',
             image_url: `https://ugaxwcslhoppflrbuwxv.supabase.co/storage/v1/object/public/lawn-images/${jobAnalysis.image_path}`,
-            created_at: jobAnalysis.created_at
+            created_at: jobAnalysis.created_at,
+            density_note: result.density_condition,
+            sunlight_note: result.sunlight_condition,
+            moisture_note: result.moisture_condition,
+            soil_note: result.soil_condition,
+            density_score: parseInt(result.density_score) || 0,
+            sunlight_score: parseInt(result.sunlight_score) || 0,
+            moisture_score: parseInt(result.moisture_score) || 0,
+            soil_score: parseInt(result.soil_score) || 0
           };
         }
       }

@@ -263,7 +263,7 @@ const PremiumDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Lawn Stats */}
+            {/* Detailed Scores */}
             <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -292,6 +292,56 @@ const PremiumDashboard = () => {
                       <span className="text-sm text-gray-600">Analysen</span>
                       <span className="font-semibold">{dashboardStats.totalAnalyses}</span>
                     </div>
+                    
+                    {/* Detail Scores */}
+                    {latestAnalysis && (latestAnalysis.density_score || latestAnalysis.sunlight_score || latestAnalysis.moisture_score || latestAnalysis.soil_score) && (
+                      <div className="pt-3 border-t border-blue-200">
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium text-gray-700 mb-3">Detail-Scores</div>
+                          
+                          {latestAnalysis.density_score && (
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <span>🌱</span>
+                                <span>Dichte:</span>
+                              </div>
+                              <span className="font-semibold">{latestAnalysis.density_score}/100</span>
+                            </div>
+                          )}
+                          
+                          {latestAnalysis.sunlight_score && (
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <span>🌞</span>
+                                <span>Sonneneinstrahlung:</span>
+                              </div>
+                              <span className="font-semibold">{latestAnalysis.sunlight_score}/100</span>
+                            </div>
+                          )}
+                          
+                          {latestAnalysis.moisture_score && (
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <span>💧</span>
+                                <span>Feuchtigkeit:</span>
+                              </div>
+                              <span className="font-semibold">{latestAnalysis.moisture_score}/100</span>
+                            </div>
+                          )}
+                          
+                          {latestAnalysis.soil_score && (
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <span>🪱</span>
+                                <span>Bodenqualität:</span>
+                              </div>
+                              <span className="font-semibold">{latestAnalysis.soil_score}/100</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
                     {dashboardStats.rankInRegion && dashboardStats.totalUsersInRegion && (
                       <div className="pt-3 border-t border-blue-200">
                         <div className="flex items-center gap-2 mb-2">
