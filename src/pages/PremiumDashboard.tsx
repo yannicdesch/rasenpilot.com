@@ -207,11 +207,27 @@ const PremiumDashboard = () => {
               <CardContent>
                 {loading ? (
                   <div className="animate-pulse space-y-3">
+                    <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                     <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                   </div>
                 ) : latestAnalysis ? (
                   <div className="space-y-4">
+                    {latestAnalysis.image_url && (
+                      <div className="relative">
+                        <img 
+                          src={latestAnalysis.image_url} 
+                          alt="Letzte Rasenanalyse" 
+                          className="w-full h-48 object-cover rounded-lg border border-green-200"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 rounded text-sm font-semibold">
+                          {latestAnalysis.score}/100
+                        </div>
+                      </div>
+                    )}
                     <p className="text-gray-700">{latestAnalysis.summary_short}</p>
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-600">
