@@ -223,7 +223,7 @@ const PremiumDashboard = () => {
                         </Button>
                       </Link>
                     </div>
-                    {dashboardStats?.improvementTrend !== 0 && (
+                    {dashboardStats?.improvementTrend !== undefined && dashboardStats?.improvementTrend !== 0 && (
                       <div className="flex items-center gap-2 text-sm">
                         <TrendingUp className={`h-4 w-4 ${dashboardStats.improvementTrend > 0 ? 'text-green-600' : 'text-orange-600'}`} />
                         <span className={dashboardStats.improvementTrend > 0 ? 'text-green-600' : 'text-orange-600'}>
