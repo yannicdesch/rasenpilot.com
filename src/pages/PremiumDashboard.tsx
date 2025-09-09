@@ -21,7 +21,8 @@ import {
   Leaf,
   MapPin,
   Sparkles,
-  Award
+  Award,
+  Edit3
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -326,10 +327,18 @@ const PremiumDashboard = () => {
           {lawnProfile && (
             <Card className="mb-8 border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Leaf className="h-5 w-5 text-purple-600" />
-                  Ihr Rasen-Profil
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Leaf className="h-5 w-5 text-purple-600" />
+                    Ihr Rasen-Profil
+                  </CardTitle>
+                  <Link to="/lawn-analysis">
+                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                      <Edit3 className="h-4 w-4" />
+                      Bearbeiten
+                    </Button>
+                  </Link>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
