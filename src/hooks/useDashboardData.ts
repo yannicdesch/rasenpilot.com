@@ -77,9 +77,11 @@ export const useDashboardData = () => {
         
         if (jobAnalysis) {
           const result = jobAnalysis.result as any;
+          const detailedScoring = result.detailed_scoring || {};
+          
           analysisData = {
             id: jobAnalysis.id,
-            score: parseInt(result.score) || 0,
+            score: parseInt(result.score) || parseInt(result.overall_health) || 0,
             summary_short: result.grass_condition || 'Analyse abgeschlossen',
             image_url: `https://ugaxwcslhoppflrbuwxv.supabase.co/storage/v1/object/public/lawn-images/${jobAnalysis.image_path}`,
             created_at: jobAnalysis.created_at,
@@ -87,10 +89,11 @@ export const useDashboardData = () => {
             sunlight_note: result.sunlight_condition,
             moisture_note: result.moisture_condition,
             soil_note: result.soil_condition,
-            density_score: parseInt(result.density_score) || 0,
-            sunlight_score: parseInt(result.sunlight_score) || 0,
-            moisture_score: parseInt(result.moisture_score) || 0,
-            soil_score: parseInt(result.soil_score) || 0
+            // Extract scores from detailed_scoring object
+            density_score: detailedScoring.grass_density || 0,
+            sunlight_score: detailedScoring.color_quality || 0,
+            moisture_score: detailedScoring.health_status || 0,
+            soil_score: detailedScoring.soil_condition || 0
           };
         }
       }
