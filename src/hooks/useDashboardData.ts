@@ -73,7 +73,7 @@ export const useDashboardData = () => {
             id: jobAnalysis.id,
             score: parseInt(result.score) || 0,
             summary_short: result.grass_condition || 'Analyse abgeschlossen',
-            image_url: jobAnalysis.image_path,
+            image_url: `https://ugaxwcslhoppflrbuwxv.supabase.co/storage/v1/object/public/lawn-images/${jobAnalysis.image_path}`,
             created_at: jobAnalysis.created_at
           };
         }
@@ -88,8 +88,9 @@ export const useDashboardData = () => {
         .from('lawn_profiles')
         .select('grass_type, lawn_size, zip_code')
         .eq('user_id', user.user.id)
+        .order('updated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (profileData) {
         setLawnProfile({
@@ -99,7 +100,10 @@ export const useDashboardData = () => {
         });
       }
 
-      // Calculate dashboard stats
+      // Calculate dashboard stats from both sources
+      let allScores = [];
+      
+      // Get scores from analyses table
       const { data: allAnalyses } = await supabase
         .from('analyses')
         .select('score, created_at')
@@ -107,7 +111,31 @@ export const useDashboardData = () => {
         .order('created_at', { ascending: false });
 
       if (allAnalyses && allAnalyses.length > 0) {
-        const scores = allAnalyses.map(a => a.score);
+        allScores = allAnalyses.map(a => ({ score: a.score, created_at: a.created_at }));
+      }
+
+      // Get scores from analysis_jobs table
+      const { data: jobAnalyses } = await supabase
+        .from('analysis_jobs')
+        .select('result, created_at')
+        .eq('user_id', user.user.id)
+        .eq('status', 'completed')
+        .not('result', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (jobAnalyses && jobAnalyses.length > 0) {
+        const jobScores = jobAnalyses.map(job => ({
+          score: parseInt((job.result as any)?.score) || 0,
+          created_at: job.created_at
+        }));
+        allScores = [...allScores, ...jobScores];
+      }
+
+      // Sort all scores by date
+      allScores.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      if (allScores.length > 0) {
+        const scores = allScores.map(s => s.score);
         const totalAnalyses = scores.length;
         const averageScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / totalAnalyses);
         const bestScore = Math.max(...scores);
