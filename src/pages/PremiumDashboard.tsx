@@ -332,7 +332,7 @@ const PremiumDashboard = () => {
                     <Leaf className="h-5 w-5 text-purple-600" />
                     Ihr Rasen-Profil
                   </CardTitle>
-                  <Link to="/lawn-analysis">
+                  <Link to="/account-settings" state={{ activeTab: 'profile' }}>
                     <Button variant="outline" size="sm" className="flex items-center gap-2">
                       <Edit3 className="h-4 w-4" />
                       Bearbeiten
