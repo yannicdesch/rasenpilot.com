@@ -9,9 +9,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import useSettings, { SiteSettings } from '@/hooks/useSettings';
-import { Settings, Globe, Shield, Search, Mail, TestTube } from 'lucide-react';
+import { Settings, Globe, Shield, Search, Mail, TestTube, CreditCard } from 'lucide-react';
 import EmailReportSettings from './EmailReportSettings';
 import EmailTestPanel from './EmailTestPanel';
+import { StripeProductSync } from './StripeProductSync';
 
 const SiteSettingsComponent = () => {
   const { settings, isLoading, isSaving, saveSettings, updateSettings } = useSettings();
@@ -56,7 +57,7 @@ const SiteSettingsComponent = () => {
       </div>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Allgemein
@@ -68,6 +69,10 @@ const SiteSettingsComponent = () => {
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Sicherheit
+          </TabsTrigger>
+          <TabsTrigger value="stripe" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Stripe
           </TabsTrigger>
           <TabsTrigger value="email" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
@@ -310,6 +315,10 @@ const SiteSettingsComponent = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="stripe" className="space-y-6">
+          <StripeProductSync />
         </TabsContent>
 
         <TabsContent value="email" className="space-y-6">
