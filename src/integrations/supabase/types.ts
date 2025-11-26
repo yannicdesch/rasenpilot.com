@@ -728,10 +728,7 @@ export type Database = {
         Args: { p_analysis_id?: string; p_email: string; p_user_id: string }
         Returns: Json
       }
-      cleanup_old_logs: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_old_logs: { Args: never; Returns: undefined }
       create_analysis_job: {
         Args: {
           p_grass_type?: string
@@ -746,18 +743,12 @@ export type Database = {
         Args: { p_analysis_id: string; p_score: number; p_user_id: string }
         Returns: undefined
       }
-      get_analysis_job: {
-        Args: { p_job_id: string }
-        Returns: Json
-      }
+      get_analysis_job: { Args: { p_job_id: string }; Returns: Json }
       get_communication_analytics: {
         Args: { p_timeframe?: string }
         Returns: Json
       }
-      get_current_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_id: { Args: never; Returns: string }
       handle_analysis_completion: {
         Args: {
           p_density_note: string
@@ -812,9 +803,9 @@ export type Database = {
         }
         Returns: undefined
       }
-      update_user_highscore: {
-        Args:
-          | {
+      update_user_highscore:
+        | {
+            Args: {
               p_email?: string
               p_grass_type?: string
               p_lawn_image_url?: string
@@ -824,7 +815,10 @@ export type Database = {
               p_user_id: string
               p_user_name: string
             }
-          | {
+            Returns: undefined
+          }
+        | {
+            Args: {
               p_grass_type?: string
               p_lawn_image_url?: string
               p_lawn_score: number
@@ -833,8 +827,8 @@ export type Database = {
               p_user_id: string
               p_user_name: string
             }
-        Returns: undefined
-      }
+            Returns: undefined
+          }
     }
     Enums: {
       [_ in never]: never
