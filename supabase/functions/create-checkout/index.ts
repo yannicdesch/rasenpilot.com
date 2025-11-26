@@ -18,52 +18,43 @@ serve(async (req) => {
     const { priceType, email } = await req.json();
     console.log(`[CREATE-CHECKOUT-NEW] Request data:`, { priceType, email: email || 'not provided' });
     
-    // Debug: Log all environment variables
-    const allEnvVars = Deno.env.toObject();
-    console.log(`[CREATE-CHECKOUT-NEW] Available environment variables:`, Object.keys(allEnvVars));
-    
-    // Check if Stripe secret key is available
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    console.log(`[CREATE-CHECKOUT-NEW] STRIPE_SECRET_KEY exists: ${!!stripeKey}`);
-    
     if (!stripeKey) {
-      console.error("[CREATE-CHECKOUT-NEW] STRIPE_SECRET_KEY not found in environment");
-      console.error("[CREATE-CHECKOUT-NEW] Available env keys:", Object.keys(allEnvVars));
       throw new Error("Stripe configuration error: Missing API key");
     }
-    
-    console.log(`[CREATE-CHECKOUT-NEW] Stripe key found: ${stripeKey.substring(0, 10)}...`);
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     console.log("[CREATE-CHECKOUT-NEW] Stripe client initialized");
 
-    // Determine price based on priceType
-    let unitAmount, interval;
-    if (priceType === "monthly") {
-      unitAmount = 999; // €9.99
-      interval = "month";
-    } else if (priceType === "yearly") {
-      unitAmount = 9900; // €99.00
-      interval = "year";
-    } else {
-      throw new Error("Ungültiger Preistyp. Muss 'monthly' oder 'yearly' sein");
+    // Initialize Supabase client to fetch stored price IDs
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Fetch the stored Stripe price ID for this price type
+    const { data: stripeProduct, error: fetchError } = await supabase
+      .from("stripe_products")
+      .select("stripe_price_id, amount")
+      .eq("price_type", priceType)
+      .eq("active", true)
+      .single();
+
+    if (fetchError || !stripeProduct?.stripe_price_id) {
+      console.error("[CREATE-CHECKOUT-NEW] No synced price found for type:", priceType);
+      console.error("[CREATE-CHECKOUT-NEW] Error:", fetchError);
+      throw new Error(
+        "Product not synced with Stripe. Please contact support or run product sync."
+      );
     }
 
-    console.log(`[CREATE-CHECKOUT-NEW] Creating session for ${interval}ly subscription: €${unitAmount/100}`);
+    console.log(`[CREATE-CHECKOUT-NEW] Using Stripe price ID: ${stripeProduct.stripe_price_id}`);
+    console.log(`[CREATE-CHECKOUT-NEW] Creating session for ${priceType} subscription: €${stripeProduct.amount/100}`);
 
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
       line_items: [
         {
-          price_data: {
-            currency: "eur",
-            product_data: { 
-              name: "Rasenpilot Premium",
-              description: "Unbegrenzter Zugang zu allen Premium-Features"
-            },
-            unit_amount: unitAmount,
-            recurring: { interval },
-          },
+          price: stripeProduct.stripe_price_id,
           quantity: 1,
         },
       ],
