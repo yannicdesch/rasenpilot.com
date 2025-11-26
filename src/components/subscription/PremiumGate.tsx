@@ -75,9 +75,9 @@ const PremiumGate: React.FC<PremiumGateProps> = ({ feature, description, childre
         </div>
         <Button 
           className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
-          onClick={() => createCheckout('monthly')}
+          onClick={() => navigate('/subscription')}
         >
-          Jetzt Premium werden - €9,99/Monat
+          Jetzt Premium abonnieren
         </Button>
       </CardContent>
     </Card>
