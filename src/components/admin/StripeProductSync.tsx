@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { StripeWebhookSetup } from "./StripeWebhookSetup";
 
 export const StripeProductSync = () => {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -44,16 +45,17 @@ export const StripeProductSync = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <RefreshCw className="h-5 w-5" />
-          Stripe Produkt-Synchronisation
-        </CardTitle>
-        <CardDescription>
-          Synchronisiere deine Subscription-Produkte mit Stripe. Dies erstellt Produkte und Preise in deinem Stripe-Konto.
-        </CardDescription>
-      </CardHeader>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <RefreshCw className="h-5 w-5" />
+            Stripe Produkt-Synchronisation
+          </CardTitle>
+          <CardDescription>
+            Synchronisiere deine Subscription-Produkte mit Stripe. Dies erstellt Produkte und Preise in deinem Stripe-Konto.
+          </CardDescription>
+        </CardHeader>
       <CardContent className="space-y-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
@@ -105,5 +107,8 @@ export const StripeProductSync = () => {
         </Button>
       </CardContent>
     </Card>
+    
+    <StripeWebhookSetup />
+  </div>
   );
 };
