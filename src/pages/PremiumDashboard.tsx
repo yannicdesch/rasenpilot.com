@@ -132,8 +132,8 @@ const PremiumDashboard = () => {
               </CardHeader>
               <CardContent className="text-center">
                 <Link to="/subscription">
-                  <Button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">
-                    Jetzt Premium werden
+                  <Button className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+                    Jetzt Premium abonnieren
                   </Button>
                 </Link>
               </CardContent>

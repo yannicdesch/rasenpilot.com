@@ -170,8 +170,11 @@ const Chat = () => {
                   Der KI-Chat ist ein exklusives Feature für Premium-Mitglieder. 
                   Upgraden Sie jetzt, um unbegrenzt mit unserem Rasenexperten zu chatten!
                 </p>
-                <Button className="bg-green-600 hover:bg-green-700">
-                  Jetzt Premium werden
+                <Button 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => window.location.href = '/subscription'}
+                >
+                  Jetzt Premium abonnieren
                 </Button>
               </CardContent>
             </Card>

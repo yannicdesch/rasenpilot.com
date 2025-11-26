@@ -35,7 +35,7 @@ export function SubscriptionCard({
   const handleSubscribe = async () => {
     setLoading(true);
     try {
-      console.log('Starting checkout with:', { priceType, email: userEmail || 'guest@example.com' });
+      console.log('Starting checkout with:', { priceType, email: userEmail });
       
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
         method: 'POST',
@@ -46,7 +46,7 @@ export function SubscriptionCard({
         },
         body: JSON.stringify({
           priceType,
-          email: userEmail || 'guest@example.com'
+          email: userEmail
         })
       });
 
@@ -90,11 +90,11 @@ export function SubscriptionCard({
   };
 
   return (
-    <Card className={`relative ${isCurrentPlan ? 'ring-2 ring-primary' : ''} ${isPopular ? 'border-primary' : ''}`}>
+    <Card className={`relative ${isCurrentPlan ? 'ring-2 ring-primary' : ''} ${isPopular ? 'border-primary border-2 shadow-xl' : ''}`}>
       {isPopular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <Badge variant="default" className="bg-primary text-primary-foreground">
-            Beliebt
+          <Badge variant="default" className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1">
+            Beliebt ⭐
           </Badge>
         </div>
       )}

@@ -1,25 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCcw, ExternalLink, ArrowLeft } from 'lucide-react';
+import { RefreshCcw, ExternalLink, ArrowLeft, Star, Users, RotateCcw, Shield } from 'lucide-react';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import SEO from '@/components/SEO';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function Subscription() {
-  const [guestEmail, setGuestEmail] = useState('');
   const [user, setUser] = useState<any>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { subscription, loading, checkSubscription, openCustomerPortal, isSubscribed, subscriptionTier } = useSubscription();
 
   const ref = searchParams.get('ref');
-  const emailFromUrl = searchParams.get('email');
 
   useEffect(() => {
     const getUser = async () => {
@@ -27,12 +24,7 @@ export default function Subscription() {
       setUser(user);
     };
     getUser();
-    
-    // Set email from URL if available
-    if (emailFromUrl && !guestEmail) {
-      setGuestEmail(decodeURIComponent(emailFromUrl));
-    }
-  }, [emailFromUrl]);
+  }, []);
 
   const subscriptionPlans = [
     {
@@ -91,10 +83,10 @@ export default function Subscription() {
           </div>
         )}
 
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Premium Features freischalten</h1>
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Wählen Sie Ihren Premium-Plan</h1>
           <p className="text-xl text-muted-foreground mb-6">
-            Erhalten Sie Zugang zu detaillierten Analysen und personalisierten Pflegeplänen
+            Unbegrenzte Analysen, KI-Beratung und personalisierte Pflegepläne
           </p>
           
           {isSubscribed && (
@@ -111,39 +103,35 @@ export default function Subscription() {
           )}
         </div>
 
-        {/* Guest Email Input */}
-        {!user && (
-          <Card className="mb-8 max-w-md mx-auto">
-            <CardHeader>
-              <CardTitle>E-Mail für Checkout</CardTitle>
-              <CardDescription>
-                Geben Sie Ihre E-Mail-Adresse ein, um fortzufahren
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="guest-email">E-Mail-Adresse</Label>
-                <Input
-                  id="guest-email"
-                  type="email"
-                  placeholder="ihre@email.de"
-                  value={guestEmail}
-                  onChange={(e) => setGuestEmail(e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Subscription Plans */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
           {subscriptionPlans.map((plan, index) => (
             <SubscriptionCard
               key={index}
               {...plan}
-              userEmail={user?.email || guestEmail}
+              userEmail={user?.email}
             />
           ))}
+        </div>
+
+        {/* Trust Badges */}
+        <div className="flex flex-wrap justify-center items-center gap-6 mb-12 py-6 border-y border-border">
+          <div className="flex items-center gap-2 text-sm">
+            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+            <span className="font-semibold">4,8/5 bewertet</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Users className="h-5 w-5 text-primary" />
+            <span className="font-semibold">23.847 Nutzer</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <RotateCcw className="h-5 w-5 text-primary" />
+            <span className="font-semibold">Jederzeit kündbar</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Shield className="h-5 w-5 text-primary" />
+            <span className="font-semibold">30 Tage Geld-zurück-Garantie</span>
+          </div>
         </div>
 
         {/* Manage Subscription */}
@@ -177,67 +165,49 @@ export default function Subscription() {
           </Card>
         )}
 
-        {/* Benefits Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-center mb-8">Was Sie mit Premium erhalten</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🗓️</span>
-              </div>
-              <h3 className="font-semibold mb-2">Ganzjahres-Pflegeplan</h3>
-              <p className="text-sm text-muted-foreground">
-                Personalisierte Pflegepläne für jede Jahreszeit mit automatischen Wetter-Alerts
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💬</span>
-              </div>
-              <h3 className="font-semibold mb-2">Unbegrenzte KI-Beratung</h3>
-              <p className="text-sm text-muted-foreground">
-                Stellen Sie so viele Fragen wie Sie möchten - Ihr persönlicher Rasen-Experte
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">📸</span>
-              </div>
-              <h3 className="font-semibold mb-2">Fortschritts-Tracking</h3>
-              <p className="text-sm text-muted-foreground">
-                Verfolgen Sie die Entwicklung Ihres Rasens mit intelligenten Bildvergleichen
-              </p>
-            </div>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 mt-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🔔</span>
-              </div>
-              <h3 className="font-semibold mb-2">Smart Erinnerungen</h3>
-              <p className="text-sm text-muted-foreground">
-                Nie wieder wichtige Pflegetermine vergessen mit personalisierten Email-Alerts
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">☁️</span>
-              </div>
-              <h3 className="font-semibold mb-2">Wetter-Integration</h3>
-              <p className="text-sm text-muted-foreground">
-                Automatische Pflegetipps basierend auf aktuellen Wettervorhersagen
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🎧</span>
-              </div>
-              <h3 className="font-semibold mb-2">Priority Support</h3>
-              <p className="text-sm text-muted-foreground">
-                Bevorzugter Kundensupport und persönliche Beratung durch Rasen-Experten
-              </p>
-            </div>
+        {/* FAQ Section */}
+        <div className="mt-12 max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center mb-8">Häufig gestellte Fragen</h2>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="cancel">
+              <AccordionTrigger>Kann ich jederzeit kündigen?</AccordionTrigger>
+              <AccordionContent>
+                Ja, Sie können Ihr Abonnement jederzeit über das Kundenportal mit nur einem Klick kündigen. 
+                Es gibt keine versteckten Gebühren oder Kündigungsfristen.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="payment">
+              <AccordionTrigger>Wie läuft die Zahlung ab?</AccordionTrigger>
+              <AccordionContent>
+                Die Zahlung erfolgt sicher über Stripe, einen der führenden Zahlungsanbieter weltweit. 
+                Sie können mit Kreditkarte, Apple Pay, Google Pay und weiteren Zahlungsmethoden bezahlen.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="invoice">
+              <AccordionTrigger>Bekomme ich eine Rechnung?</AccordionTrigger>
+              <AccordionContent>
+                Ja, Sie erhalten automatisch eine Rechnung per E-Mail nach jeder Zahlung. 
+                Diese können Sie auch jederzeit im Kundenportal herunterladen.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="guarantee">
+              <AccordionTrigger>Gibt es eine Garantie?</AccordionTrigger>
+              <AccordionContent>
+                Ja, wir bieten eine 30-Tage-Geld-zurück-Garantie. Wenn Sie nicht zufrieden sind, 
+                erstatten wir Ihnen den vollen Betrag ohne Nachfragen.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        {/* Legal Links */}
+        <div className="mt-12 text-center text-sm text-muted-foreground">
+          <div className="flex flex-wrap justify-center gap-4">
+            <a href="/agb" className="hover:text-foreground transition-colors">AGB</a>
+            <span>•</span>
+            <a href="/datenschutz" className="hover:text-foreground transition-colors">Datenschutz</a>
+            <span>•</span>
+            <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
           </div>
         </div>
       </div>

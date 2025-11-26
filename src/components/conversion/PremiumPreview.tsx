@@ -183,7 +183,7 @@ const PremiumPreview: React.FC<PremiumPreviewProps> = ({ score, sampleProblems, 
           <div className="mb-4">
             <Crown className="h-12 w-12 text-yellow-600 mx-auto mb-2" />
             <h3 className="text-xl font-bold text-yellow-800 mb-2">
-              Jetzt Premium freischalten
+              Premium abonnieren
             </h3>
             <p className="text-yellow-700 text-sm mb-4">
               Erhalten Sie Zugang zu allen detaillierten Analysen, personalisierten Pflegeplänen und unbegrenzten weiteren Analysen
