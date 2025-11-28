@@ -172,8 +172,15 @@ serve(async (req) => {
 
         if (email) {
           const isActive = subscription.status === "active" || subscription.status === "trialing";
+          const isTrialing = subscription.status === "trialing";
           const subscriptionEnd = subscription.current_period_end 
             ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null;
+          const trialEnd = subscription.trial_end 
+            ? new Date(subscription.trial_end * 1000).toISOString() 
+            : null;
+          const trialStart = subscription.trial_start 
+            ? new Date(subscription.trial_start * 1000).toISOString() 
             : null;
 
           // Determine tier based on price
@@ -192,6 +199,9 @@ serve(async (req) => {
               subscribed: isActive,
               subscription_tier: product?.price_type || "monthly",
               subscription_end: subscriptionEnd,
+              is_trial: isTrialing,
+              trial_start: trialStart,
+              trial_end: trialEnd,
               updated_at: new Date().toISOString(),
             }, {
               onConflict: "email",

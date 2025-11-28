@@ -65,7 +65,10 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         subscribed: localSubscriber.subscribed,
         subscription_tier: localSubscriber.subscription_tier,
-        subscription_end: localSubscriber.subscription_end
+        subscription_end: localSubscriber.subscription_end,
+        is_trial: localSubscriber.is_trial || false,
+        trial_start: localSubscriber.trial_start,
+        trial_end: localSubscriber.trial_end
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
