@@ -141,9 +141,30 @@ export const useEmailReports = () => {
     }
   };
   
+  const checkStatus = async (): Promise<{
+    status: 'success' | 'warning' | 'error' | 'inactive';
+    message: string;
+    lastSent: string | null;
+  } | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-email-report-status');
+      
+      if (error) {
+        console.error('Error checking status:', error);
+        return null;
+      }
+      
+      return data;
+    } catch (err) {
+      console.error('Error checking status:', err);
+      return null;
+    }
+  };
+  
   return {
     isLoading,
     saveEmailConfig,
-    sendTestEmail
+    sendTestEmail,
+    checkStatus
   };
 };

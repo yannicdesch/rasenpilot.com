@@ -22,7 +22,7 @@ interface EmailReportConfig {
 }
 
 const EmailReportSettings = () => {
-  const { isLoading, saveEmailConfig, sendTestEmail } = useEmailReports();
+  const { isLoading, saveEmailConfig, sendTestEmail, checkStatus } = useEmailReports();
   const [config, setConfig] = useState<EmailReportConfig>({
     enabled: true,
     recipientEmail: 'Yannic.Desch@gmail.com', // Default email address
@@ -33,6 +33,11 @@ const EmailReportSettings = () => {
       siteStatistics: true
     }
   });
+  const [status, setStatus] = useState<{
+    status: 'success' | 'warning' | 'error' | 'inactive';
+    message: string;
+    lastSent: string | null;
+  } | null>(null);
   
   useEffect(() => {
     const fetchConfig = async () => {
@@ -62,9 +67,21 @@ const EmailReportSettings = () => {
         console.error('Error fetching email config:', err);
       }
     };
+
+    const loadStatus = async () => {
+      const statusData = await checkStatus();
+      if (statusData) {
+        setStatus(statusData);
+      }
+    };
     
     fetchConfig();
-  }, []);
+    loadStatus();
+    
+    // Refresh status every 60 seconds
+    const interval = setInterval(loadStatus, 60000);
+    return () => clearInterval(interval);
+  }, [checkStatus]);
   
   const handleSaveConfig = async () => {
     const success = await saveEmailConfig(config);
@@ -82,16 +99,52 @@ const EmailReportSettings = () => {
     await sendTestEmail(config.recipientEmail);
   };
   
+  const getStatusColor = () => {
+    if (!status) return 'bg-gray-400';
+    switch (status.status) {
+      case 'success': return 'bg-green-500';
+      case 'warning': return 'bg-yellow-500';
+      case 'error': return 'bg-red-500';
+      case 'inactive': return 'bg-gray-400';
+      default: return 'bg-gray-400';
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Mail className="h-5 w-5" />
-          E-Mail Berichte
-        </CardTitle>
-        <CardDescription>
-          Konfigurieren Sie automatische E-Mail-Berichte zu Statistiken und neuen Registrierungen
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              E-Mail Berichte
+            </CardTitle>
+            <CardDescription>
+              Konfigurieren Sie automatische E-Mail-Berichte zu Statistiken und neuen Registrierungen
+            </CardDescription>
+          </div>
+          
+          {/* Traffic Light Status */}
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end">
+              <span className="text-xs text-muted-foreground font-medium">Status</span>
+              <span className="text-sm font-medium">{status?.message || 'Wird geladen...'}</span>
+              {status?.lastSent && (
+                <span className="text-xs text-muted-foreground">
+                  {new Date(status.lastSent).toLocaleString('de-DE', { 
+                    day: '2-digit', 
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              )}
+            </div>
+            <div className={`w-4 h-4 rounded-full ${getStatusColor()} shadow-lg ring-2 ring-background`} 
+                 title={status?.message || 'Status wird geladen'}
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
