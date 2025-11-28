@@ -21,6 +21,8 @@ export default {
       fontFamily: {
         'playfair': ['Playfair Display', 'Georgia', 'serif'],
         'inter': ['Inter', 'system-ui', 'sans-serif'],
+        'poppins': ['Poppins', 'system-ui', 'sans-serif'],
+        'dm-serif': ['DM Serif Display', 'Georgia', 'serif'],
       },
       colors: {
 				border: 'hsl(var(--border))',
