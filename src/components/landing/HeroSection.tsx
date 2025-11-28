@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Rocket, Star, Trophy, Shield, CheckCircle, Sparkles } from 'lucide-react';
+import lawnBefore from '@/assets/lawn-before.jpg';
+import lawnAfter from '@/assets/lawn-after.jpg';
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -111,27 +113,29 @@ const HeroSection = () => {
                 <div className="flex h-72 md:h-80 lg:h-96">
                   
                   {/* Before */}
-                  <div className="flex-1 relative bg-gradient-to-br from-amber-100 via-amber-200 to-amber-300 flex items-center justify-center p-6">
+                  <div 
+                    className="flex-1 relative flex items-end justify-center p-6 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${lawnBefore})` }}
+                  >
+                    <div className="absolute inset-0 bg-black/20"></div>
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
                       Vorher
                     </div>
-                    <div className="text-center">
-                      <div className="w-24 h-24 md:w-28 md:h-28 bg-amber-300/60 rounded-2xl mb-4 mx-auto flex items-center justify-center shadow-lg">
-                        <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-500/40 rounded-xl"></div>
-                      </div>
-                      <p className="text-amber-900 font-bold text-sm md:text-base font-poppins">Trockener,<br/>lückenhafter Rasen</p>
+                    <div className="relative z-10 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-xl">
+                      <p className="text-white font-bold text-sm md:text-base font-poppins">Trockener,<br/>lückenhafter Rasen</p>
                     </div>
                   </div>
                   
                   {/* After */}
-                  <div className="flex-1 relative bg-gradient-to-br from-emerald-400 via-green-500 to-green-600 flex items-center justify-center p-6">
+                  <div 
+                    className="flex-1 relative flex items-end justify-center p-6 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${lawnAfter})` }}
+                  >
+                    <div className="absolute inset-0 bg-black/10"></div>
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
                       Nachher
                     </div>
-                    <div className="text-center">
-                      <div className="w-24 h-24 md:w-28 md:h-28 bg-green-200/60 rounded-2xl mb-4 mx-auto flex items-center justify-center shadow-lg">
-                        <div className="w-16 h-16 md:w-20 md:h-20 bg-green-700 rounded-xl"></div>
-                      </div>
+                    <div className="relative z-10 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-xl">
                       <p className="text-white font-bold text-sm md:text-base drop-shadow-lg font-poppins">Saftiger,<br/>perfekter Rasen</p>
                     </div>
                   </div>
