@@ -4,15 +4,17 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Leaf, Menu, X, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut } from 'lucide-react';
+import { Leaf, Menu, X, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut, LogIn } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/hooks/useAdmin';
 
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { isPremium } = useSubscription();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -208,33 +210,95 @@ const MainNavigation = () => {
                       <span>Bestenliste</span>
                     </Link>
 
-                    {isPremium && (
-                      <Link 
-                        to="/premium-dashboard" 
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
-                          isActive('/premium-dashboard') 
-                            ? 'bg-yellow-100 text-yellow-700 font-medium' 
-                            : 'text-yellow-700 hover:text-yellow-600 hover:bg-yellow-50'
-                        }`}
-                        onClick={closeMenu}
-                      >
-                        <Crown size={20} />
-                        <span>Premium</span>
-                      </Link>
+                    {/* Premium/Login Section */}
+                    {user ? (
+                      <>
+                        {isPremium ? (
+                          <Link 
+                            to="/premium-dashboard" 
+                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                              isActive('/premium-dashboard') 
+                                ? 'bg-yellow-100 text-yellow-700 font-medium' 
+                                : 'text-yellow-700 hover:text-yellow-600 hover:bg-yellow-50'
+                            }`}
+                            onClick={closeMenu}
+                          >
+                            <Crown size={20} />
+                            <span>Premium</span>
+                          </Link>
+                        ) : (
+                          <Link 
+                            to="/subscription" 
+                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                              isActive('/subscription') 
+                                ? 'bg-yellow-100 text-yellow-700 font-medium' 
+                                : 'text-yellow-700 hover:text-yellow-600 hover:bg-yellow-50'
+                            }`}
+                            onClick={closeMenu}
+                          >
+                            <Crown size={20} />
+                            <span>Premium werden</span>
+                          </Link>
+                        )}
+                        
+                        {/* Admin link only for admins */}
+                        {isAdmin && (
+                          <Link
+                            to="/admin-panel" 
+                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                              isActive('/admin-panel') 
+                                ? 'bg-green-100 text-green-700 font-medium' 
+                                : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                            }`}
+                            onClick={closeMenu}
+                          >
+                            <Settings size={20} />
+                            <span>Admin</span>
+                          </Link>
+                        )}
+
+                        {/* User Menu */}
+                        <div className="border-t pt-4 mt-4">
+                          <Link 
+                            to="/account-settings" 
+                            className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg text-gray-700 hover:text-green-600 hover:bg-green-50"
+                            onClick={closeMenu}
+                          >
+                            <User size={20} />
+                            <span>Konto</span>
+                          </Link>
+                          <button
+                            onClick={() => {
+                              signOut();
+                              closeMenu();
+                            }}
+                            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg text-gray-700 hover:text-green-600 hover:bg-green-50"
+                          >
+                            <LogOut size={20} />
+                            <span>Abmelden</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="border-t pt-4 mt-4 space-y-2">
+                        <Link 
+                          to="/auth" 
+                          className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors text-lg bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 font-medium"
+                          onClick={closeMenu}
+                        >
+                          <LogIn size={20} />
+                          <span>Anmelden</span>
+                        </Link>
+                        <Link 
+                          to="/subscription" 
+                          className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors text-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 font-medium"
+                          onClick={closeMenu}
+                        >
+                          <Crown size={20} />
+                          <span>Premium werden</span>
+                        </Link>
+                      </div>
                     )}
-                    
-                    <Link
-                      to="/admin-panel" 
-                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
-                        isActive('/admin-panel') 
-                          ? 'bg-green-100 text-green-700 font-medium' 
-                          : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                      }`}
-                      onClick={closeMenu}
-                    >
-                      <Settings size={20} />
-                      <span>Admin</span>
-                    </Link>
                   </div>
                 </div>
               </SheetContent>
