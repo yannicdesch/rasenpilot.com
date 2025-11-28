@@ -50,7 +50,7 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white font-poppins">
       <SEO 
         title={seoContent?.title || "Rasenpilot - KI-Rasenberater | Kostenloser Pflegeplan in 30 Sekunden"}
         description={seoContent?.description || "✅ Kostenloser KI-Rasenpflegeplan in 30 Sek. ✅ 98,3% Genauigkeit ✅ Ohne Anmeldung ✅ Sofortige Ergebnisse → Jetzt starten!"}
@@ -100,158 +100,255 @@ const Index = () => {
       
       <HeroSection />
       
-      {/* KI Technology Section */}
-      <section className="py-16 bg-white">
+      {/* Value Proposition Section */}
+      <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Modernste <span className="text-green-600">KI-Technologie</span> für Ihren Rasen
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
+              Warum 50.000+ Gartenbesitzer <br className="hidden md:block" />
+              uns vertrauen
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Unsere proprietäre KI wurde mit über 1 Million Rasenbildern trainiert und erkennt selbst kleinste Probleme
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+              Modernste KI-Technologie trifft auf jahrzehntelange Rasenexpertise
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-green-50 p-8 rounded-2xl border border-green-100">
-              <div className="w-16 h-16 bg-green-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                🧠
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="relative bg-gradient-to-br from-emerald-50 to-green-50 p-8 rounded-3xl border border-green-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center transform rotate-12">
+                <span className="text-2xl">🧠</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Deep Learning Analyse</h3>
-              <p className="text-gray-600 text-center leading-relaxed">
-                Unsere KI erkennt über <strong>200 verschiedene Rasenprobleme</strong> - von Pilzkrankheiten bis zu Nährstoffmängel. Trainiert mit Millionen von Bildern deutscher Rasenflächen.
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">Deep Learning Analyse</h3>
+              <p className="text-gray-700 leading-relaxed">
+                Über <strong>200 Rasenparameter</strong> werden in Echtzeit analysiert. 
+                Trainiert mit 1 Million+ Rasenbildern aus ganz Deutschland.
               </p>
+              <div className="mt-6 pt-6 border-t border-green-200">
+                <div className="text-3xl font-bold text-green-600">98,3%</div>
+                <div className="text-sm text-gray-600">Genauigkeit</div>
+              </div>
             </div>
             
-            <div className="bg-blue-50 p-8 rounded-2xl border border-blue-100">
-              <div className="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                🛡️
+            <div className="relative bg-gradient-to-br from-blue-50 to-cyan-50 p-8 rounded-3xl border border-blue-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center transform -rotate-12">
+                <Shield className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Wissenschaftlich validiert</h3>
-              <p className="text-gray-600 text-center leading-relaxed">
-                Entwickelt in Zusammenarbeit mit Agrarwissenschaftlern und Rasenexperten <strong>98,3% Diagnosesicherheit</strong> in unabhängigen Tests bestätigt. 
-                Basierend auf <a href="https://www.dlg.org/" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-700 underline font-medium">DLG-Standards</a> für Rasenpflege.
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">Wissenschaftlich validiert</h3>
+              <p className="text-gray-700 leading-relaxed">
+                Entwickelt mit Agrarwissenschaftlern. Basierend auf 
+                <strong> DLG-Standards</strong> für professionelle Rasenpflege.
               </p>
+              <div className="mt-6 pt-6 border-t border-blue-200">
+                <div className="text-3xl font-bold text-blue-600">TÜV</div>
+                <div className="text-sm text-gray-600">Geprüft</div>
+              </div>
             </div>
             
-            <div className="bg-purple-50 p-8 rounded-2xl border border-purple-100">
-              <div className="w-16 h-16 bg-purple-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                📊
+            <div className="relative bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-3xl border border-amber-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center transform rotate-6">
+                <Clock className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Präzise Bewertung</h3>
-              <p className="text-gray-600 text-center leading-relaxed">
-                Detaillierte Gesundheitsbewertung von 0-100 Punkten mit spezifischen Empfehlungen für <strong>optimale Rasenpflege</strong> in jedem Entwicklungsstadium.
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">Sofortige Ergebnisse</h3>
+              <p className="text-gray-700 leading-relaxed">
+                Kein Warten, keine Verzögerung. Dein personalisierter 
+                <strong> Pflegeplan in 30 Sekunden</strong> – 24/7 verfügbar.
               </p>
+              <div className="mt-6 pt-6 border-t border-amber-200">
+                <div className="text-3xl font-bold text-amber-600">24/7</div>
+                <div className="text-sm text-gray-600">Verfügbar</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
       
-      <section className="py-16 bg-white">
+      {/* How It Works Section */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">So funktioniert's</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              In nur drei einfachen Schritten zu deinem personalisierten Rasenpflegeplan
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
+              In 3 einfachen Schritten zum <br className="hidden md:block" />
+              perfekten Rasen
+            </h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+              Keine Vorkenntnisse nötig • Keine Anmeldung erforderlich • Sofortige Ergebnisse
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center p-6">
-              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-green-700">1</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto">
+            <div className="relative">
+              <div className="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-3xl font-bold text-white">1</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Onboarding</h3>
-              <p className="text-gray-600">
-                Beantworte kurze Fragen zu deinem Rasen (PLZ, Größe, Ziele)
-              </p>
+              <div className="bg-white p-8 pt-12 rounded-3xl shadow-lg border border-gray-100 h-full">
+                <div className="mb-6">
+                  <Camera className="h-12 w-12 text-green-600 mx-auto" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-center">Foto hochladen</h3>
+                <p className="text-gray-600 text-center leading-relaxed">
+                  Mache ein Foto von deinem Rasen mit dem Smartphone. Achte auf gute Beleuchtung 
+                  und einen Überblick über die Fläche.
+                </p>
+              </div>
             </div>
             
-            <div className="text-center p-6">
-              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-green-700">2</span>
+            <div className="relative">
+              <div className="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-3xl font-bold text-white">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Pflegeplan</h3>
-              <p className="text-gray-600">
-                Erhalte tägliche Aufgaben mit wetterbasierter Anpassung
-              </p>
+              <div className="bg-white p-8 pt-12 rounded-3xl shadow-lg border border-gray-100 h-full">
+                <div className="mb-6">
+                  <Target className="h-12 w-12 text-blue-600 mx-auto" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-center">KI-Analyse</h3>
+                <p className="text-gray-600 text-center leading-relaxed">
+                  Unsere KI analysiert automatisch über 200 Parameter: Farbe, Dichte, 
+                  Unkraut, Moos, Krankheiten und mehr.
+                </p>
+              </div>
             </div>
             
-            <div className="text-center p-6">
-              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-green-700">3</span>
+            <div className="relative">
+              <div className="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-3xl font-bold text-white">3</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Registrieren</h3>
-              <p className="text-gray-600">
-                Erstelle ein Konto für weitere Funktionen
-              </p>
+              <div className="bg-white p-8 pt-12 rounded-3xl shadow-lg border border-gray-100 h-full">
+                <div className="mb-6">
+                  <Check className="h-12 w-12 text-purple-600 mx-auto" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-center">Pflegeplan erhalten</h3>
+                <p className="text-gray-600 text-center leading-relaxed">
+                  Erhalte einen detaillierten, personalisierten Pflegeplan mit konkreten 
+                  Schritten zur Verbesserung deines Rasens.
+                </p>
+              </div>
             </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <Button 
+              onClick={() => navigate('/lawn-analysis')} 
+              size="lg"
+              className="text-lg py-6 px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
+              style={{ 
+                background: 'linear-gradient(135deg, #00A651 0%, #00C853 100%)',
+                color: 'white'
+              }}
+            >
+              Jetzt kostenlos starten
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>
       
-      <section className="py-16 bg-gray-50">
+      {/* Premium Features Comparison */}
+      <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">Unsere Funktionen</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Alles was du für deinen perfekten Rasen brauchst
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-2 text-base">
+              Beliebtes Upgrade
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
+              Hol dir noch mehr aus <br className="hidden md:block" />
+              deinem Rasen
+            </h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+              Starte kostenlos und upgrade jederzeit für erweiterte Features
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <Calendar className="h-6 w-6 text-green-700" />
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Free Plan */}
+            <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-3xl border-2 border-gray-200">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-2">Kostenlos</h3>
+                <div className="text-4xl font-bold text-gray-900 mb-1">€0</div>
+                <div className="text-gray-600">Für immer kostenlos</div>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Tägliche Aufgaben</h3>
-              <p className="text-gray-600">
-                Personalisierter Plan mit einfachen, täglichen Aufgaben für deinen Rasen
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <Camera className="h-6 w-6 text-green-700" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Rasen-Analyzer</h3>
-              <p className="text-gray-600">
-                Lade Fotos hoch und erhalte KI-Diagnosen zu Problemen wie Krankheiten und Nährstoffmangel
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <MessageSquare className="h-6 w-6 text-green-700" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">KI-Chatbot</h3>
-              <p className="text-gray-600">
-                Stelle deine Rasenfragen und erhalte sofort fachkundige Antworten
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <BookOpen className="h-6 w-6 text-green-700" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Blog & Ratgeber</h3>
-              <p className="text-gray-600">
-                Entdecke unsere Expertentipps und Anleitungen für deinen perfekten Rasen
-              </p>
+              
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700">1 kostenlose Rasenanalyse</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700">Basis-Pflegeplan</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700">Allgemeine Empfehlungen</span>
+                </li>
+              </ul>
+              
               <Button 
-                onClick={() => navigate('/blog-overview')} 
-                variant="ghost" 
-                className="mt-2 text-green-600 hover:text-green-700 p-0"
+                onClick={() => navigate('/lawn-analysis')}
+                variant="outline"
+                className="w-full py-6 text-lg border-2"
               >
-                Zum Blog <ArrowRight className="ml-1 h-4 w-4" />
+                Kostenlos starten
               </Button>
             </div>
+            
+            {/* Premium Plan */}
+            <div className="relative bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 p-8 rounded-3xl border-2 border-green-500 shadow-2xl transform md:scale-105">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-6 py-2 text-base shadow-lg">
+                  Beliebt
+                </Badge>
+              </div>
+              
+              <div className="mb-6 text-white">
+                <h3 className="text-2xl font-bold mb-2">Premium</h3>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-4xl font-bold">€9,99</span>
+                  <span className="text-lg opacity-90">/Monat</span>
+                </div>
+                <div className="opacity-90">7 Tage kostenlos testen</div>
+              </div>
+              
+              <ul className="space-y-4 mb-8 text-white">
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Unbegrenzte Analysen</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Detaillierter Pflegekalender</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Wetter-basierte Empfehlungen</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">KI-Chat Assistent 24/7</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Fortschritts-Tracking</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Regionale Bestenliste</span>
+                </li>
+              </ul>
+              
+              <Button 
+                onClick={() => navigate('/subscription')}
+                className="w-full py-6 text-lg bg-white text-green-700 hover:bg-gray-50 font-bold"
+              >
+                7 Tage kostenlos testen
+              </Button>
+              
+              <p className="text-center text-white/80 text-sm mt-4">
+                ✓ Jederzeit kündbar • ✓ 30 Tage Geld-zurück-Garantie
+              </p>
+            </div>
           </div>
         </div>
       </section>
-      
-      {/* Free vs Premium Section */}
-      <FreeVsPremiumSection />
       
       {/* Enhanced Email Capture Section */}
       <section className="py-16 bg-gradient-to-br from-green-600 via-green-700 to-green-800">
