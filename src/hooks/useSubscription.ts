@@ -7,13 +7,19 @@ interface SubscriptionData {
   subscribed: boolean;
   subscription_tier: string | null;
   subscription_end: string | null;
+  is_trial?: boolean;
+  trial_start?: string | null;
+  trial_end?: string | null;
 }
 
 export const useSubscription = () => {
   const [subscription, setSubscription] = useState<SubscriptionData>({
     subscribed: false,
     subscription_tier: null,
-    subscription_end: null
+    subscription_end: null,
+    is_trial: false,
+    trial_start: null,
+    trial_end: null
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +37,10 @@ export const useSubscription = () => {
         setSubscription({
           subscribed: false,
           subscription_tier: null,
-          subscription_end: null
+          subscription_end: null,
+          is_trial: false,
+          trial_start: null,
+          trial_end: null
         });
         return;
       }
@@ -127,6 +136,9 @@ export const useSubscription = () => {
     isPremium,
     isSubscribed: subscription.subscribed,
     subscriptionTier: subscription.subscription_tier,
-    subscriptionEnd: subscription.subscription_end
+    subscriptionEnd: subscription.subscription_end,
+    isTrial: subscription.is_trial || false,
+    trialEnd: subscription.trial_end,
+    trialStart: subscription.trial_start
   };
 };

@@ -3,18 +3,19 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCcw, ExternalLink, ArrowLeft, Star, Users, RotateCcw, Shield } from 'lucide-react';
+import { RefreshCcw, ExternalLink, ArrowLeft, Star, Users, RotateCcw, Shield, Clock } from 'lucide-react';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import SEO from '@/components/SEO';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { TrialBadge } from '@/components/subscription/TrialBadge';
 
 export default function Subscription() {
   const [user, setUser] = useState<any>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { subscription, loading, checkSubscription, openCustomerPortal, isSubscribed, subscriptionTier } = useSubscription();
+  const { subscription, loading, checkSubscription, openCustomerPortal, isSubscribed, subscriptionTier, isTrial, trialEnd } = useSubscription();
 
   const ref = searchParams.get('ref');
 
@@ -90,18 +91,44 @@ export default function Subscription() {
           </p>
           
           {isSubscribed && (
-            <div className="mb-6">
+            <div className="mb-6 flex flex-col items-center gap-2">
               <Badge variant="secondary" className="bg-green-100 text-green-800 text-lg px-4 py-2">
                 ✓ Premium Mitglied - {subscriptionTier} Plan
               </Badge>
+              <TrialBadge isTrial={isTrial} trialEnd={trialEnd} />
               {subscription.subscription_end && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Verlängert sich am: {new Date(subscription.subscription_end).toLocaleDateString('de-DE')}
+                  {isTrial ? 'Testphase endet am' : 'Verlängert sich am'}: {new Date(subscription.subscription_end).toLocaleDateString('de-DE')}
                 </p>
               )}
             </div>
           )}
         </div>
+
+        {/* Trial Information */}
+        {!isSubscribed && (
+          <Card className="max-w-3xl mx-auto mb-8 bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg mb-2">7 Tage kostenlos testen</h3>
+                  <p className="text-muted-foreground mb-3">
+                    Starten Sie Ihre Premium-Mitgliedschaft mit einer kostenlosen 7-tägigen Testphase. 
+                    Keine Kosten während der Testphase - erst nach 7 Tagen beginnt Ihr gewähltes Abonnement.
+                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>✓ Voller Zugriff auf alle Premium-Features</li>
+                    <li>✓ Jederzeit während der Testphase kündbar</li>
+                    <li>✓ Keine Gebühren bis die Testphase endet</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Subscription Plans */}
         <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
