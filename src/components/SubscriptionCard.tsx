@@ -90,10 +90,10 @@ export function SubscriptionCard({
   };
 
   return (
-    <Card className={`relative ${isCurrentPlan ? 'ring-2 ring-primary' : ''} ${isPopular ? 'border-primary border-2 shadow-xl' : ''}`}>
+    <Card className={`relative transition-all duration-300 hover:shadow-2xl ${isCurrentPlan ? 'ring-2 ring-primary' : ''} ${isPopular ? 'border-primary border-2 shadow-xl bg-gradient-to-br from-primary/5 to-accent/5' : ''}`}>
       {isPopular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <Badge variant="default" className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1">
+          <Badge variant="default" className="bg-gradient-to-r from-primary via-primary/90 to-accent text-white px-5 py-1.5 text-sm font-semibold shadow-lg">
             Beliebt ⭐
           </Badge>
         </div>
@@ -108,20 +108,20 @@ export function SubscriptionCard({
       )}
 
       <CardHeader>
-        <CardTitle className="text-xl">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-        <div className="mt-4">
-          <span className="text-3xl font-bold">{price}</span>
-          <span className="text-muted-foreground">/{interval}</span>
+        <CardTitle className="text-2xl font-display font-bold">{title}</CardTitle>
+        <CardDescription className="text-base font-body">{description}</CardDescription>
+        <div className="mt-6">
+          <span className="text-4xl md:text-5xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{price}</span>
+          <span className="text-muted-foreground text-lg font-body">/{interval === 'month' ? 'Monat' : 'Jahr'}</span>
         </div>
       </CardHeader>
 
       <CardContent>
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {features.map((feature, index) => (
-            <li key={index} className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span className="text-sm">{feature}</span>
+            <li key={index} className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+              <span className="text-sm font-body">{feature}</span>
             </li>
           ))}
         </ul>
@@ -129,12 +129,12 @@ export function SubscriptionCard({
 
       <CardFooter>
         <Button 
-          className="w-full" 
+          className={`w-full font-semibold text-base py-6 transition-all duration-300 ${isPopular ? 'bg-gradient-to-r from-primary via-primary/90 to-accent hover:shadow-xl hover:scale-105' : ''}`}
           onClick={handleSubscribe}
           disabled={loading || isCurrentPlan}
           variant={isPopular ? "default" : "outline"}
         >
-          {loading ? "Verarbeitung..." : isCurrentPlan ? "Aktueller Plan" : interval === 'month' ? 'Monatlich abonnieren' : 'Jährlich abonnieren'}
+          {loading ? "Verarbeitung..." : isCurrentPlan ? "✓ Aktueller Plan" : interval === 'month' ? 'Monatlich abonnieren' : 'Jährlich abonnieren'}
         </Button>
       </CardFooter>
     </Card>

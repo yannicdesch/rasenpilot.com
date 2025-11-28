@@ -36,21 +36,21 @@ const SubscriptionSuccess = () => {
         description="Ihre Premium-Mitgliedschaft wurde erfolgreich aktiviert. Entdecken Sie alle Premium-Features von Rasenpilot."
       />
       
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <Card className="shadow-lg border-green-200">
-            <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-accent/10 flex items-center justify-center p-4">
+        <div className="max-w-lg w-full">
+          <Card className="shadow-2xl border-primary/20 bg-white/95 backdrop-blur">
+            <CardHeader className="text-center pb-6">
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
                 {isVerifying ? (
-                  <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
+                  <Loader2 className="h-10 w-10 text-primary animate-spin" />
                 ) : (
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+                  <CheckCircle className="h-10 w-10 text-primary" />
                 )}
               </div>
-              <CardTitle className="text-2xl text-green-800">
+              <CardTitle className="text-3xl md:text-4xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
                 {isVerifying ? 'Verarbeitung...' : 'Zahlung erfolgreich!'}
               </CardTitle>
-              <CardDescription className="text-lg">
+              <CardDescription className="text-lg font-body">
                 {isVerifying 
                   ? 'Wir aktivieren gerade Ihre Premium-Mitgliedschaft'
                   : 'Willkommen bei Rasenpilot Premium!'
@@ -61,69 +61,69 @@ const SubscriptionSuccess = () => {
             <CardContent className="space-y-6">
               {!isVerifying && (
                 <>
-                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
-                    <div className="flex items-center gap-3">
-                      <Crown className="h-6 w-6 text-yellow-600" />
+                  <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-6 rounded-xl border border-primary/20">
+                    <div className="flex items-center gap-4">
+                      <Crown className="h-8 w-8 text-primary" />
                       <div>
-                        <h3 className="font-semibold text-yellow-800">Premium aktiviert</h3>
-                        <p className="text-sm text-yellow-700">
+                        <h3 className="font-display font-bold text-lg text-primary">Premium aktiviert</h3>
+                        <p className="text-sm font-body text-muted-foreground">
                           Sie haben jetzt Zugang zu allen Premium-Features
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-800">Ihre neuen Premium-Vorteile:</h4>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        Ganzjahres-Pflegeplan
+                  <div className="space-y-4">
+                    <h4 className="font-display font-semibold text-lg">Ihre neuen Premium-Vorteile:</h4>
+                    <ul className="space-y-3 text-sm font-body">
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>Ganzjahres-Pflegeplan</span>
                       </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        Unbegrenzte KI-Fragen
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>Unbegrenzte KI-Fragen</span>
                       </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        Wetter-Alerts & Tipps
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>Wetter-Alerts & Tipps</span>
                       </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        Email-Erinnerungen
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>Email-Erinnerungen</span>
                       </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        Fortschritts-Tracking
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>Fortschritts-Tracking</span>
                       </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        Priority Support
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>Priority Support</span>
                       </li>
                     </ul>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-3 pt-4">
                     <Link to="/premium-dashboard">
-                      <Button className="w-full bg-green-600 hover:bg-green-700">
+                      <Button className="w-full bg-gradient-to-r from-primary via-primary/90 to-accent hover:shadow-xl transition-all duration-300 py-6 text-base font-semibold">
                         Premium Dashboard öffnen
                       </Button>
                     </Link>
                     
                     <Link to="/lawn-analysis">
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full py-6 text-base font-semibold border-primary/20 hover:bg-primary/5">
                         Premium-Features nutzen
                       </Button>
                     </Link>
                     
                     <Link to="/subscription">
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full py-6 text-base font-semibold border-primary/20 hover:bg-primary/5">
                         Abonnement verwalten
                       </Button>
                     </Link>
                     
                     <Link to="/">
-                      <Button variant="ghost" className="w-full">
+                      <Button variant="ghost" className="w-full py-6 text-base font-semibold hover:bg-primary/5">
                         Zur Startseite
                       </Button>
                     </Link>
