@@ -1,73 +1,75 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Rocket, Star, CheckCircle, Shield } from 'lucide-react';
+import { Rocket, Star, Trophy } from 'lucide-react';
 
 const HeroSection = () => {
   const navigate = useNavigate();
   
   return (
     <section 
-      className="w-full py-10 md:py-16 lg:py-20"
+      className="w-full py-6 md:py-16 lg:py-20"
       style={{
         background: 'linear-gradient(to bottom, #E6F5E6 0%, #ffffff 100%)'
       }}
     >
-      <div className="container mx-auto px-12 sm:px-16 md:px-4">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+      <div className="container mx-auto px-4 md:px-8 lg:px-4">
+        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-16">
           
           {/* Left Column */}
-          <div className="flex-1 space-y-6 lg:space-y-8 text-center lg:text-left">
-            {/* Headline */}
+          <div className="flex-1 space-y-4 md:space-y-6 lg:space-y-8 text-center lg:text-left">
+            {/* Trust Badge - Mobile Optimized */}
+            <div className="flex items-center justify-center lg:justify-start gap-2 text-sm md:text-base">
+              <Trophy className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
+              <span className="font-semibold text-foreground">
+                Deutschlands #1 KI-Rasenexperte • 50.000+ zufriedene Nutzer
+              </span>
+            </div>
+            
+            {/* Headline - Reduced size for mobile */}
             <h1 
-              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
               style={{ color: '#006400', fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
             >
               Perfekter Rasen in 30 Sekunden – kostenlos & wissenschaftlich präzise
             </h1>
             
-            {/* Paragraph */}
-            <p className="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto lg:mx-0">
+            {/* Paragraph - Reduced size for mobile */}
+            <p className="text-base md:text-lg lg:text-xl text-gray-700 max-w-2xl mx-auto lg:mx-0">
               Unsere KI analysiert über <strong>200 Rasenparameter</strong> und erstellt deinen persönlichen Pflegeplan – 
               mit <strong>98,3 % Genauigkeit</strong>.
             </p>
             
-            {/* CTA Button */}
+            {/* CTA Button - Full width on mobile */}
             <div className="pt-2">
               <Button 
                 onClick={() => navigate('/lawn-analysis')} 
                 size="lg"
-                className="text-lg sm:text-xl py-4 sm:py-6 px-8 sm:px-12 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="w-full md:w-auto text-base md:text-lg lg:text-xl py-6 md:py-6 px-8 md:px-12 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 style={{ 
                   backgroundColor: '#00A651',
                   color: 'white'
                 }}
               >
-                <Rocket className="mr-3 h-5 w-5 sm:h-6 sm:w-6" />
+                <Rocket className="mr-2 md:mr-3 h-5 w-5 md:h-6 md:w-6" />
                 Jetzt kostenlose Rasenanalyse starten
               </Button>
             </div>
             
-            {/* Trust Badges */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6 pt-4">
-              {/* Stars and 50,000+ */}
+            {/* Trust Badges - Simplified for mobile */}
+            <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-3 md:gap-6 pt-2">
+              {/* Stars and count combined */}
               <div className="flex items-center gap-2">
                 <div className="flex text-yellow-500">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-current" />
+                    <Star key={i} className="h-4 w-4 md:h-5 md:w-5 fill-current" />
                   ))}
                 </div>
-                <span className="text-xl font-bold text-gray-900">50.000+</span>
+                <span className="text-lg md:text-xl font-bold text-gray-900">50.000+</span>
               </div>
               
               {/* Text */}
-              <span className="text-gray-700 font-medium">Von Gartenexperten empfohlen</span>
-              
-              {/* Validation Badge */}
-              <div className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full">
-                <Shield className="h-4 w-4 text-blue-600" />
-                <span className="text-sm text-blue-700 font-medium">Wissenschaftlich validiert</span>
-              </div>
+              <span className="text-sm md:text-base text-gray-700 font-medium">Von Gartenexperten empfohlen</span>
             </div>
           </div>
           
