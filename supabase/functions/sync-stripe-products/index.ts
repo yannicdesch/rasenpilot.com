@@ -59,6 +59,30 @@ serve(async (req) => {
       let stripeProductId = existingProduct?.stripe_product_id;
       let stripePriceId = existingProduct?.stripe_price_id;
 
+      // Validate that existing Stripe IDs belong to the CURRENT Stripe account/mode
+      if (stripeProductId) {
+        try {
+          await stripe.products.retrieve(stripeProductId);
+        } catch (err) {
+          console.log(
+            `[SYNC-STRIPE-PRODUCTS] Stored product ${stripeProductId} not found for current Stripe key – recreating for this environment.`,
+          );
+          stripeProductId = undefined;
+          stripePriceId = undefined;
+        }
+      }
+
+      if (stripePriceId) {
+        try {
+          await stripe.prices.retrieve(stripePriceId);
+        } catch (err) {
+          console.log(
+            `[SYNC-STRIPE-PRODUCTS] Stored price ${stripePriceId} not found for current Stripe key – recreating for this environment.`,
+          );
+          stripePriceId = undefined;
+        }
+      }
+
       // Create or retrieve Stripe Product
       if (!stripeProductId) {
         console.log(`[SYNC-STRIPE-PRODUCTS] Creating new Stripe product for ${productDef.product_id}`);
