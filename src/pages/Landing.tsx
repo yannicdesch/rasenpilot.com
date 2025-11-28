@@ -74,22 +74,30 @@ const Landing = () => {
       <CallToActionSection />
       
       {/* Blog Call-to-Action */}
-      <div className="bg-green-50 border-y border-green-100">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <BookOpen className="h-8 w-8 text-green-600" />
-              <div>
-                <h3 className="text-xl font-semibold text-green-800">Expertentipps für Ihren Rasen</h3>
-                <p className="text-green-700">Entdecken Sie unsere aktuellen Ratgeber und Pflegetipps</p>
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-accent/10 to-primary/5 border-y border-primary/10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(34,197,94,0.1),transparent_50%)]"></div>
+        <div className="container mx-auto px-4 py-16 relative">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col items-center text-center gap-8">
+              <div className="p-4 bg-primary/10 rounded-2xl">
+                <BookOpen className="h-12 w-12 text-primary" />
               </div>
+              <div className="space-y-3">
+                <h3 className="text-3xl md:text-4xl font-bold text-foreground font-serif">
+                  Expertentipps für Ihren perfekten Rasen
+                </h3>
+                <p className="text-lg text-muted-foreground max-w-2xl">
+                  Entdecken Sie professionelle Ratgeber, saisonale Pflegetipps und bewährte Strategien für einen gesunden, grünen Rasen
+                </p>
+              </div>
+              <Button 
+                onClick={handleBlogClick}
+                size="lg"
+                className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 px-8 py-6 text-lg"
+              >
+                Zum Ratgeber <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
-            <Button 
-              onClick={handleBlogClick}
-              className="bg-green-600 hover:bg-green-700 px-6 py-3"
-            >
-              Zum Blog <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>

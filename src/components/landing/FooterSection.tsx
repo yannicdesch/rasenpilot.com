@@ -8,77 +8,77 @@ const FooterSection = () => {
   const navigate = useNavigate();
   
   return (
-    <footer className="bg-white py-12 border-t border-gray-200">
+    <footer className="bg-gradient-to-br from-background via-accent/5 to-background py-16 border-t border-border">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           <div>
-            <h2 className="text-2xl font-bold text-green-600 mb-4">
+            <h2 className="text-2xl font-bold font-dm-serif text-primary mb-4">
               <a 
                 href="https://www.rasenpilot.com/" 
-                className="hover:text-green-700 transition-colors"
+                className="hover:text-primary/80 transition-colors"
                 title="Zur Rasenpilot Startseite"
               >
                 Rasenpilot
               </a>
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4 font-poppins">
               Deutschlands intelligentester KI-Rasenberater für perfekte Rasenpflege.
             </p>
-            <div className="mb-3">
+            <div className="mb-4">
               <a 
                 href="https://www.rasenpilot.com/" 
-                className="text-sm text-green-600 hover:text-green-700 font-medium"
+                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
                 title="Rasenpilot Hauptseite besuchen"
               >
                 🌐 www.rasenpilot.com
               </a>
             </div>
             <div className="flex space-x-4">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <Star className="w-4 h-4 text-green-600" />
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <Star className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <div className="text-sm font-semibold">KI-Experte</div>
-                <div className="text-xs text-gray-500">98,3% Erfolgsrate</div>
+                <div className="text-sm font-semibold text-foreground font-poppins">KI-Experte</div>
+                <div className="text-xs text-muted-foreground">98,3% Erfolgsrate</div>
               </div>
             </div>
           </div>
           
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Produkt</h3>
-            <ul className="space-y-2">
-              <li><Button variant="link" onClick={() => navigate('/lawn-analysis')} className="p-0 h-auto text-gray-600 hover:text-green-600">KI-Analyse</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/blog-overview')} className="p-0 h-auto text-gray-600 hover:text-green-600">Ratgeber</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/weather-advice')} className="p-0 h-auto text-gray-600 hover:text-green-600">Wetter-Tipps</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/')} className="p-0 h-auto text-gray-600 hover:text-green-600">Startseite</Button></li>
+            <h3 className="font-semibold text-foreground mb-4 font-poppins">Produkt</h3>
+            <ul className="space-y-3">
+              <li><Button variant="link" onClick={() => navigate('/lawn-analysis')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">KI-Analyse</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/blog-overview')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Ratgeber</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/weather-advice')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Wetter-Tipps</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Startseite</Button></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Unternehmen</h3>
-            <ul className="space-y-2">
-              <li><Button variant="link" onClick={() => navigate('/ueber-uns')} className="p-0 h-auto text-gray-600 hover:text-green-600">Über uns</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/kontakt')} className="p-0 h-auto text-gray-600 hover:text-green-600">Kontakt</Button></li>
-              <li><span className="p-0 h-auto text-gray-600 opacity-50 cursor-not-allowed text-sm">Karriere</span></li>
+            <h3 className="font-semibold text-foreground mb-4 font-poppins">Unternehmen</h3>
+            <ul className="space-y-3">
+              <li><Button variant="link" onClick={() => navigate('/ueber-uns')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Über uns</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/kontakt')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Kontakt</Button></li>
+              <li><span className="p-0 h-auto text-muted-foreground/50 cursor-not-allowed text-sm">Karriere</span></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Rechtliches</h3>
-            <ul className="space-y-2">
-              <li><Button variant="link" onClick={() => navigate('/datenschutz')} className="p-0 h-auto text-gray-600 hover:text-green-600">Datenschutz</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/agb')} className="p-0 h-auto text-gray-600 hover:text-green-600">AGB</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/impressum')} className="p-0 h-auto text-gray-600 hover:text-green-600">Impressum</Button></li>
+            <h3 className="font-semibold text-foreground mb-4 font-poppins">Rechtliches</h3>
+            <ul className="space-y-3">
+              <li><Button variant="link" onClick={() => navigate('/datenschutz')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Datenschutz</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/agb')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">AGB</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/impressum')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Impressum</Button></li>
             </ul>
           </div>
         </div>
         
-        <div className="border-t border-gray-200 pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-600 text-sm mb-4 md:mb-0">
+        <div className="border-t border-border pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-muted-foreground text-sm font-poppins">
               &copy; {new Date().getFullYear()} Rasenpilot - Deutschlands intelligentester KI-Rasenberater. Alle Rechte vorbehalten.
             </p>
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
+            <div className="flex items-center space-x-4 text-sm text-muted-foreground font-poppins">
               <span>🇩🇪 Made in Germany</span>
               <span>•</span>
               <span>🏆 #1 Rasenpflege-App</span>
