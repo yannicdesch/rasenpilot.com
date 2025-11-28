@@ -20,21 +20,22 @@ const CallToActionSection = () => {
   };
   
   return (
-    <section className="py-20 bg-gradient-to-r from-green-600 via-green-700 to-green-800" id="jetzt-starten">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-          Bereit für Ihren <span className="text-green-200">Traumrasen?</span>
+    <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 relative overflow-hidden" id="jetzt-starten">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
+      <div className="container mx-auto px-4 text-center relative">
+        <h2 className="text-4xl md:text-5xl font-bold font-dm-serif text-primary-foreground mb-6">
+          Bereit für Ihren <span className="text-primary-foreground/90">Traumrasen?</span>
         </h2>
-        <p className="text-xl text-green-100 mb-8 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-xl text-primary-foreground/90 mb-10 max-w-3xl mx-auto leading-relaxed font-poppins">
           Erleben Sie die Zukunft der Rasenpflege mit wissenschaftlich fundierter KI-Analyse. 
           Kostenlose Analyse, sofortige Ergebnisse, garantierter Erfolg.
         </p>
         
-        <div className="flex flex-col sm:flex-row justify-center gap-6 mb-8">
+        <div className="flex flex-col sm:flex-row justify-center gap-6 mb-10">
           <Button 
             onClick={handleFreeAnalysisClick}
             size="lg"
-            className="bg-white text-green-700 hover:bg-green-50 text-xl py-6 px-10 shadow-xl"
+            className="bg-background text-primary hover:bg-background/90 text-xl py-7 px-12 shadow-2xl font-poppins font-semibold transition-all duration-300 transform hover:-translate-y-1"
           >
             <Sparkles className="mr-2 h-6 w-6" />
             Kostenlose KI-Analyse starten
@@ -43,24 +44,24 @@ const CallToActionSection = () => {
             onClick={handleFullVersionClick}
             variant="outline"
             size="lg"
-            className="border-2 border-white text-white hover:bg-white hover:text-green-700 text-xl py-6 px-10"
+            className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary text-xl py-7 px-12 font-poppins font-semibold transition-all duration-300 transform hover:-translate-y-1"
           >
             Vollversion freischalten
           </Button>
         </div>
         
-        <div className="flex flex-wrap justify-center gap-8 text-green-100">
+        <div className="flex flex-wrap justify-center gap-8 text-primary-foreground/90 font-poppins">
           <div className="flex items-center">
             <CheckCircle className="h-5 w-5 mr-2" />
-            <span>Keine Kreditkarte erforderlich</span>
+            <span className="font-medium">Keine Kreditkarte erforderlich</span>
           </div>
           <div className="flex items-center">
             <CheckCircle className="h-5 w-5 mr-2" />
-            <span>Sofortige Ergebnisse</span>
+            <span className="font-medium">Sofortige Ergebnisse</span>
           </div>
           <div className="flex items-center">
             <CheckCircle className="h-5 w-5 mr-2" />
-            <span>98,3% Erfolgsrate</span>
+            <span className="font-medium">98,3% Erfolgsrate</span>
           </div>
         </div>
       </div>

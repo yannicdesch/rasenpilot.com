@@ -54,13 +54,14 @@ const FreeVsPremiumSection = () => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-br from-green-50 to-blue-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+    <section className="py-20 bg-gradient-to-br from-primary/5 via-accent/10 to-primary/5 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(34,197,94,0.08),transparent_50%)]"></div>
+      <div className="container mx-auto px-4 relative">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold font-dm-serif text-foreground mb-6">
             Kostenlos starten, bei Bedarf upgraden
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-poppins">
             Beginnen Sie sofort mit der kostenlosen Rasen-Analyse. Für detaillierte Pflegepläne upgraden Sie jederzeit.
           </p>
         </div>
@@ -107,29 +108,29 @@ const FreeVsPremiumSection = () => {
           </Card>
 
           {/* Premium Plan */}
-          <Card className="relative border-2 border-yellow-300 bg-gradient-to-br from-yellow-50 to-orange-50">
+          <Card className="relative border-2 border-primary bg-gradient-to-br from-primary/5 via-accent/10 to-primary/5 shadow-xl">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-yellow-500 text-white px-4 py-1">
+              <Badge className="bg-primary text-primary-foreground px-4 py-1 shadow-lg">
                 <Crown className="h-4 w-4 mr-1" />
                 Beliebt
               </Badge>
             </div>
             <CardHeader className="text-center">
-              <Badge variant="outline" className="w-fit mx-auto mb-2 border-yellow-300 text-yellow-700">
+              <Badge variant="outline" className="w-fit mx-auto mb-2 border-primary text-primary font-semibold">
                 Premium
               </Badge>
-              <CardTitle className="text-2xl text-yellow-800">Vollständige Analyse</CardTitle>
-              <div className="text-3xl font-bold text-yellow-600">€9,99</div>
-              <p className="text-yellow-700">pro Monat</p>
+              <CardTitle className="text-2xl text-foreground font-poppins">Vollständige Analyse</CardTitle>
+              <div className="text-4xl font-bold text-primary font-poppins">€9,99</div>
+              <p className="text-muted-foreground">pro Monat</p>
             </CardHeader>
             <CardContent className="space-y-4">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-center gap-3">
-                  <Check className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-primary flex-shrink-0" />
                   <div className="flex-1">
-                    <span className="text-gray-900">{feature.name}</span>
+                    <span className="text-foreground font-medium">{feature.name}</span>
                     {feature.premiumNote && (
-                      <div className="text-sm text-yellow-600">
+                      <div className="text-sm text-primary">
                         {feature.premiumNote}
                       </div>
                     )}
@@ -138,7 +139,7 @@ const FreeVsPremiumSection = () => {
               ))}
               <Button 
                 onClick={() => navigate('/subscription')}
-                className="w-full mt-6 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                className="w-full mt-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 <Crown className="mr-2 h-4 w-4" />
                 Premium wählen
