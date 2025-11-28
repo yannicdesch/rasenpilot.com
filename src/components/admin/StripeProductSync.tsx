@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StripeWebhookSetup } from "./StripeWebhookSetup";
+import { StripeWebhookManager } from "./StripeWebhookManager";
 
 export const StripeProductSync = () => {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -107,6 +108,8 @@ export const StripeProductSync = () => {
         </Button>
       </CardContent>
     </Card>
+    
+    <StripeWebhookManager />
     
     <StripeWebhookSetup />
   </div>
