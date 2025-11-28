@@ -86,16 +86,16 @@ export default function Subscription() {
         )}
 
         <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-display font-bold mb-6 bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent">
-            Wählen Sie Ihren Premium-Plan
+          <h1 className="text-5xl md:text-6xl font-display font-bold mb-6 bg-gradient-to-r from-primary via-green-600 to-green-700 bg-clip-text text-transparent">
+            Wählen Sie Ihren Premium-<span className="text-primary">Plan</span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-6 font-body">
+          <p className="text-xl md:text-2xl text-primary/80 mb-6 font-body">
             Unbegrenzte Analysen, KI-Beratung und personalisierte Pflegepläne
           </p>
           
           {isSubscribed && (
             <div className="mb-6 flex flex-col items-center gap-2">
-              <Badge variant="secondary" className="bg-green-100 text-green-800 text-lg px-4 py-2">
+              <Badge variant="secondary" className="bg-green-600 text-white text-lg px-4 py-2">
                 ✓ Premium Mitglied - {subscriptionTier} Plan
               </Badge>
               <TrialBadge isTrial={isTrial} trialEnd={trialEnd} />
@@ -110,14 +110,14 @@ export default function Subscription() {
 
         {/* Trial Information */}
         {!isSubscribed && (
-          <Card className="max-w-3xl mx-auto mb-8 bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
+          <Card className="max-w-3xl mx-auto mb-8 bg-gradient-to-r from-green-50 to-green-100/50 border-primary/40">
             <CardContent className="pt-6">
               <div className="flex items-start gap-4">
-                <div className="bg-primary/10 p-3 rounded-full">
+                <div className="bg-primary/20 p-3 rounded-full">
                   <Clock className="h-6 w-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">7 Tage kostenlos testen</h3>
+                  <h3 className="font-semibold text-lg mb-2 text-primary">7 Tage kostenlos testen</h3>
                   <p className="text-muted-foreground mb-3">
                     Starten Sie Ihre Premium-Mitgliedschaft mit einer kostenlosen 7-tägigen Testphase. 
                     Keine Kosten während der Testphase - erst nach 7 Tagen beginnt Ihr gewähltes Abonnement.
@@ -197,7 +197,7 @@ export default function Subscription() {
 
         {/* FAQ Section */}
         <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-10 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-10 text-primary">
             Häufig gestellte Fragen
           </h2>
           <Accordion type="single" collapsible className="w-full">

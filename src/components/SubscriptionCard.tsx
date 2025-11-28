@@ -90,10 +90,10 @@ export function SubscriptionCard({
   };
 
   return (
-    <Card className={`relative transition-all duration-300 hover:shadow-2xl ${isCurrentPlan ? 'ring-2 ring-primary' : ''} ${isPopular ? 'border-primary border-2 shadow-xl bg-gradient-to-br from-primary/5 to-accent/5' : ''}`}>
+    <Card className={`relative transition-all duration-300 hover:shadow-2xl ${isCurrentPlan ? 'ring-2 ring-primary' : ''} ${isPopular ? 'border-primary border-2 shadow-xl bg-gradient-to-br from-green-50 to-green-100/30' : ''}`}>
       {isPopular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <Badge variant="default" className="bg-gradient-to-r from-primary via-primary/90 to-accent text-white px-5 py-1.5 text-sm font-semibold shadow-lg">
+          <Badge variant="default" className="bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-1.5 text-sm font-semibold shadow-lg">
             Beliebt ⭐
           </Badge>
         </div>
@@ -101,7 +101,7 @@ export function SubscriptionCard({
       
       {isCurrentPlan && (
         <div className="absolute -top-3 right-4">
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
+          <Badge variant="secondary" className="bg-green-600 text-white">
             Aktueller Plan
           </Badge>
         </div>
@@ -111,7 +111,7 @@ export function SubscriptionCard({
         <CardTitle className="text-2xl font-display font-bold">{title}</CardTitle>
         <CardDescription className="text-base font-body">{description}</CardDescription>
         <div className="mt-6">
-          <span className="text-4xl md:text-5xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{price}</span>
+          <span className="text-4xl md:text-5xl font-display font-bold text-primary">{price}</span>
           <span className="text-muted-foreground text-lg font-body">/{interval === 'month' ? 'Monat' : 'Jahr'}</span>
         </div>
       </CardHeader>
@@ -129,7 +129,7 @@ export function SubscriptionCard({
 
       <CardFooter>
         <Button 
-          className={`w-full font-semibold text-base py-6 transition-all duration-300 ${isPopular ? 'bg-gradient-to-r from-primary via-primary/90 to-accent hover:shadow-xl hover:scale-105' : ''}`}
+          className={`w-full font-semibold text-base py-6 transition-all duration-300 ${isPopular ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:shadow-xl hover:scale-105' : ''}`}
           onClick={handleSubscribe}
           disabled={loading || isCurrentPlan}
           variant={isPopular ? "default" : "outline"}
