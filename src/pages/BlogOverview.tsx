@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Calendar, User, Leaf, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
@@ -111,7 +112,7 @@ const BlogOverview = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-green-50/30 via-white to-green-50/30">
       <SEO 
         title="Rasenpflege Ratgeber - Expertentipps & Anleitungen | Rasenpilot Blog"
         description="Entdecken Sie umfassende Ratgeber zur Rasenpflege. Von der Rasensaat bis zur Krankheitsbekämpfung - Expertentipps für den perfekten Rasen das ganze Jahr über."
@@ -135,82 +136,131 @@ const BlogOverview = () => {
       />
       <MainNavigation />
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-foreground mb-6">
-              Rasenpflege Ratgeber
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMC00YzUuNTIzIDAgMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwLTEwLTQuNDc3LTEwLTEwIDQuNDc3LTEwIDEwLTEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L2c+PC9zdmc+')] opacity-20"></div>
+        <div className="container mx-auto px-4 py-20 md:py-32 relative">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6 border border-white/20">
+              <Leaf className="h-4 w-4" />
+              <span className="text-sm font-medium">Expertenwissen</span>
+            </div>
+            <h1 className="font-playfair text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              Rasenpflege<br />Ratgeber
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Expertentipps und Anleitungen für einen gesünderen, grüneren Rasen
+            <p className="text-xl md:text-2xl text-green-50 max-w-2xl mx-auto leading-relaxed font-light">
+              Entdecken Sie professionelle Tipps und bewährte Methoden für einen gesunden, grünen Traumrasen
             </p>
           </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+      </div>
 
-          {/* Blog Posts List */}
-          <div className="space-y-8">
-            {posts.map((post, index) => (
-              <article 
-                key={post.id} 
-                className="group border-b border-border pb-8 last:border-b-0 cursor-pointer hover:bg-muted/50 -mx-6 px-6 py-6 rounded-lg transition-all duration-200"
-                onClick={() => navigate(`/blog/${post.slug}`)}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span>{post.author}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(post.date).toLocaleDateString('de-DE')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>{post.read_time} Min. Lesezeit</span>
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-muted-foreground/30">
-                    {String(index + 1).padStart(2, '0')}
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto">
+          {/* Featured Post */}
+          {posts.length > 0 && (
+            <article 
+              className="group relative mb-16 overflow-hidden rounded-2xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer"
+              onClick={() => navigate(`/blog/${posts[0].slug}`)}
+            >
+              <div className="grid md:grid-cols-2 gap-0">
+                <div className="relative h-80 md:h-auto bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                  <div className="text-white/20 text-9xl font-bold">01</div>
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-500 border-0">
+                      Neu
+                    </Badge>
                   </div>
                 </div>
-                
-                <h2 className="text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors line-clamp-2">
-                  {post.title}
-                </h2>
-                
-                <p className="text-muted-foreground mb-4 line-clamp-3 text-lg leading-relaxed">
-                  {post.excerpt}
-                </p>
-                
-                <div className="flex items-center justify-between">
+                <div className="p-8 md:p-12 flex flex-col justify-center">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                      <span>{posts[0].author}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(posts[0].date).toLocaleDateString('de-DE')}</span>
+                    </div>
+                    <span>{posts[0].read_time} Min.</span>
+                  </div>
+                  <h2 className="font-playfair text-3xl md:text-4xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">
+                    {posts[0].title}
+                  </h2>
+                  <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
+                    {posts[0].excerpt}
+                  </p>
                   <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="text-primary hover:text-primary/80 p-0 h-auto font-medium"
+                    variant="default" 
+                    size="lg"
+                    className="w-fit"
                   >
                     Artikel lesen
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
+                </div>
+              </div>
+            </article>
+          )}
+
+          {/* Blog Posts Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.slice(1).map((post, index) => (
+              <article 
+                key={post.id} 
+                className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+                onClick={() => navigate(`/blog/${post.slug}`)}
+              >
+                <div className="relative h-48 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMC00YzUuNTIzIDAgMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwLTEwLTQuNDc3LTEwLTEwIDQuNDc3LTEwIDEwLTEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMSIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
+                  <div className="relative text-white/20 text-7xl font-bold group-hover:scale-110 transition-transform">
+                    {String(index + 2).padStart(2, '0')}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>{new Date(post.date).toLocaleDateString('de-DE')}</span>
+                    </div>
+                    <span>•</span>
+                    <span>{post.read_time} Min.</span>
+                  </div>
+                  <h3 className="font-playfair text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                    {post.title}
+                  </h3>
+                  <p className="text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                  <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
+                    Weiterlesen
+                    <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </article>
             ))}
           </div>
 
           {/* CTA Section */}
-          <div className="mt-20 text-center bg-card border rounded-2xl p-12">
-            <h2 className="text-3xl font-bold text-foreground mb-6">
-              Bereit, Ihren Rasen zu verbessern?
-            </h2>
-            <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
-              Starten Sie noch heute mit einer kostenlosen KI-Analyse Ihres Rasens und erhalten Sie personalisierte Empfehlungen
-            </p>
-            <Button 
-              onClick={() => navigate('/lawn-analysis')}
-              className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 h-auto"
-            >
-              Rasen analysieren lassen
-              <ArrowRight className="h-5 w-5 ml-3" />
-            </Button>
+          <div className="mt-20 relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 text-white p-12 md:p-16 shadow-2xl">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMC00YzUuNTIzIDAgMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwLTEwLTQuNDc3LTEwLTEwIDQuNDc3LTEwIDEwLTEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L2c+PC9zdmc+')] opacity-20"></div>
+            <div className="relative text-center max-w-3xl mx-auto">
+              <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-6">
+                Bereit für Ihren Traumrasen?
+              </h2>
+              <p className="text-green-50 mb-8 text-lg md:text-xl leading-relaxed">
+                Starten Sie noch heute mit einer kostenlosen KI-gestützten Rasenanalyse und erhalten Sie einen personalisierten Pflegeplan
+              </p>
+              <Button 
+                onClick={() => navigate('/lawn-analysis')}
+                size="lg"
+                className="bg-white text-green-600 hover:bg-green-50 text-lg px-10 py-7 h-auto shadow-xl hover:shadow-2xl transition-all"
+              >
+                Kostenlose Analyse starten
+                <ArrowRight className="h-5 w-5 ml-3" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
