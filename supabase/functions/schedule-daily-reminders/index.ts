@@ -19,20 +19,47 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Call the send-reminders function
-    const { data, error } = await supabase.functions.invoke('send-reminders');
+    const { data: reminderData, error: reminderError } = await supabase.functions.invoke('send-reminders');
 
-    if (error) {
-      console.error('Error calling send-reminders:', error);
-      throw error;
+    if (reminderError) {
+      console.error('Error calling send-reminders:', reminderError);
     }
 
-    console.log('Send reminders result:', data);
+    console.log('Send reminders result:', reminderData);
+
+    // Also send daily email report if configured
+    const { data: settingsData, error: settingsError } = await supabase
+      .from('site_settings')
+      .select('email_reports')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    let emailReportResult = null;
+    if (!settingsError && settingsData?.email_reports?.enabled) {
+      console.log('Email reports enabled, sending daily report...');
+      
+      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-email-report', {
+        body: { 
+          recipient: settingsData.email_reports.recipientEmail,
+          isTest: false 
+        }
+      });
+
+      if (emailError) {
+        console.error('Error sending email report:', emailError);
+      } else {
+        console.log('Email report sent successfully:', emailData);
+        emailReportResult = emailData;
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Daily reminder job completed',
-        result: data
+        message: 'Daily jobs completed',
+        reminders: reminderData,
+        emailReport: emailReportResult
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
