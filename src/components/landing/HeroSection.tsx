@@ -1,118 +1,152 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Rocket, Star, Trophy } from 'lucide-react';
+import { Rocket, Star, Trophy, Shield, CheckCircle, Sparkles } from 'lucide-react';
 
 const HeroSection = () => {
   const navigate = useNavigate();
   
   return (
     <section 
-      className="w-full py-6 md:py-16 lg:py-20"
+      className="relative w-full py-8 md:py-16 lg:py-24 overflow-hidden"
       style={{
-        background: 'linear-gradient(to bottom, #E6F5E6 0%, #ffffff 100%)'
+        background: 'linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 50%, #ffffff 100%)'
       }}
     >
-      <div className="container mx-auto px-4 md:px-8 lg:px-4">
-        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-16">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container relative mx-auto px-4 md:px-8 lg:px-12">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
           
-          {/* Left Column */}
-          <div className="flex-1 space-y-4 md:space-y-6 lg:space-y-8 text-center lg:text-left">
-            {/* Trust Badge - Mobile Optimized */}
-            <div className="flex items-center justify-center lg:justify-start gap-2 text-sm md:text-base">
-              <Trophy className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
-              <span className="font-semibold text-foreground">
-                Deutschlands #1 KI-Rasenexperte • 50.000+ zufriedene Nutzer
+          {/* Left Column - Content */}
+          <div className="flex-1 space-y-5 md:space-y-7 text-center lg:text-left max-w-2xl">
+            
+            {/* Trust Badge */}
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-200 px-4 py-2 rounded-full shadow-sm">
+              <Trophy className="h-4 w-4 text-yellow-600" />
+              <span className="text-sm md:text-base font-semibold text-gray-800 font-poppins">
+                #1 KI-Rasenexperte • 50.000+ Nutzer
               </span>
             </div>
             
-            {/* Headline - Reduced size for mobile */}
-            <h1 
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
-              style={{ color: '#006400', fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              Perfekter Rasen in 30 Sekunden – kostenlos & wissenschaftlich präzise
+            {/* Main Headline */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-dm-serif text-primary">
+              Perfekter Rasen in{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10 text-primary">30 Sekunden</span>
+                <span className="absolute bottom-1 left-0 w-full h-3 bg-accent/40 -rotate-1"></span>
+              </span>
             </h1>
             
-            {/* Paragraph - Reduced size for mobile */}
-            <p className="text-base md:text-lg lg:text-xl text-gray-700 max-w-2xl mx-auto lg:mx-0">
-              Unsere KI analysiert über <strong>200 Rasenparameter</strong> und erstellt deinen persönlichen Pflegeplan – 
-              mit <strong>98,3 % Genauigkeit</strong>.
+            {/* Subheadline */}
+            <p className="text-lg md:text-xl text-gray-700 leading-relaxed font-poppins">
+              Unsere KI analysiert über{' '}
+              <span className="font-bold text-primary">200 Rasenparameter</span>{' '}
+              und erstellt deinen persönlichen Pflegeplan – mit{' '}
+              <span className="font-bold text-primary">98,3% Genauigkeit</span>
             </p>
             
-            {/* CTA Button - Full width on mobile */}
+            {/* CTA Button */}
             <div className="pt-2">
               <Button 
                 onClick={() => navigate('/lawn-analysis')} 
                 size="lg"
-                className="w-full md:w-auto text-base md:text-lg lg:text-xl py-6 md:py-6 px-8 md:px-12 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="group relative w-full md:w-auto text-base md:text-lg py-6 px-10 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden font-poppins"
                 style={{ 
-                  backgroundColor: '#00A651',
+                  background: 'linear-gradient(135deg, #00A651 0%, #00C853 100%)',
                   color: 'white'
                 }}
               >
-                <Rocket className="mr-2 md:mr-3 h-5 w-5 md:h-6 md:w-6" />
-                Jetzt kostenlose Rasenanalyse starten
+                <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+                <span className="relative flex items-center justify-center gap-3">
+                  <Rocket className="h-5 w-5 md:h-6 md:w-6" />
+                  Jetzt kostenlos analysieren
+                </span>
               </Button>
+              <p className="text-xs md:text-sm text-gray-600 mt-3 font-poppins">
+                ✓ Keine Kreditkarte erforderlich • ✓ Ergebnis in 30 Sekunden
+              </p>
             </div>
             
-            {/* Trust Badges - Simplified for mobile */}
-            <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-3 md:gap-6 pt-2">
-              {/* Stars and count combined */}
+            {/* Trust Elements */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6 pt-3">
               <div className="flex items-center gap-2">
-                <div className="flex text-yellow-500">
+                <div className="flex">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 md:h-5 md:w-5 fill-current" />
+                    <Star key={i} className="h-4 w-4 md:h-5 md:w-5 text-yellow-500 fill-yellow-500" />
                   ))}
                 </div>
-                <span className="text-lg md:text-xl font-bold text-gray-900">50.000+</span>
+                <span className="text-base md:text-lg font-bold text-gray-900 font-poppins">4.9/5</span>
               </div>
               
-              {/* Text */}
-              <span className="text-sm md:text-base text-gray-700 font-medium">Von Gartenexperten empfohlen</span>
+              <div className="h-4 w-px bg-gray-300 hidden md:block"></div>
+              
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-primary" />
+                <span className="text-sm md:text-base text-gray-700 font-medium font-poppins">
+                  TÜV geprüft
+                </span>
+              </div>
+              
+              <div className="h-4 w-px bg-gray-300 hidden md:block"></div>
+              
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-primary" />
+                <span className="text-sm md:text-base text-gray-700 font-medium font-poppins">
+                  100% kostenlos
+                </span>
+              </div>
             </div>
           </div>
           
-          {/* Right Column */}
-          <div className="flex-1 w-full max-w-lg lg:max-w-none">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              {/* Before/After Container */}
-              <div className="flex h-64 sm:h-80 lg:h-96">
-                
-                {/* Vorher (Before) */}
-                <div className="flex-1 relative bg-gradient-to-br from-yellow-200 to-yellow-300 flex items-center justify-center">
-                  <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Vorher
-                  </div>
-                  <div className="text-center">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-yellow-400/60 rounded-full mb-3 mx-auto flex items-center justify-center">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-600/40 rounded-lg"></div>
+          {/* Right Column - Visual */}
+          <div className="flex-1 w-full max-w-md lg:max-w-none">
+            <div className="relative">
+              {/* Main Card */}
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-300">
+                <div className="flex h-72 md:h-80 lg:h-96">
+                  
+                  {/* Before */}
+                  <div className="flex-1 relative bg-gradient-to-br from-amber-100 via-amber-200 to-amber-300 flex items-center justify-center p-6">
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
+                      Vorher
                     </div>
-                    <p className="text-yellow-800 font-medium text-sm">Trockener,<br/>lückenhafter Rasen</p>
-                  </div>
-                </div>
-                
-                {/* Nachher (After) */}
-                <div className="flex-1 relative bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                  <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Nachher
-                  </div>
-                  <div className="text-center">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-green-200/60 rounded-full mb-3 mx-auto flex items-center justify-center">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-700 rounded-lg"></div>
+                    <div className="text-center">
+                      <div className="w-24 h-24 md:w-28 md:h-28 bg-amber-300/60 rounded-2xl mb-4 mx-auto flex items-center justify-center shadow-lg">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-500/40 rounded-xl"></div>
+                      </div>
+                      <p className="text-amber-900 font-bold text-sm md:text-base font-poppins">Trockener,<br/>lückenhafter Rasen</p>
                     </div>
-                    <p className="text-white font-medium text-sm">Saftiger,<br/>perfekter Rasen</p>
+                  </div>
+                  
+                  {/* After */}
+                  <div className="flex-1 relative bg-gradient-to-br from-emerald-400 via-green-500 to-green-600 flex items-center justify-center p-6">
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
+                      Nachher
+                    </div>
+                    <div className="text-center">
+                      <div className="w-24 h-24 md:w-28 md:h-28 bg-green-200/60 rounded-2xl mb-4 mx-auto flex items-center justify-center shadow-lg">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-green-700 rounded-xl"></div>
+                      </div>
+                      <p className="text-white font-bold text-sm md:text-base drop-shadow-lg font-poppins">Saftiger,<br/>perfekter Rasen</p>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              {/* Yellow Floating Badge */}
+              {/* Floating Badge */}
               <div 
-                className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 flex flex-col items-center justify-center shadow-lg text-black font-bold"
-                style={{ backgroundColor: '#FFD700' }}
+                className="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 rounded-2xl w-20 h-20 md:w-24 md:h-24 flex flex-col items-center justify-center shadow-2xl border-4 border-white font-poppins"
+                style={{ 
+                  background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'
+                }}
               >
-                <span className="text-lg sm:text-xl font-bold">30</span>
-                <span className="text-xs sm:text-sm leading-tight text-center">Sekunden<br/>später...</span>
+                <Sparkles className="h-5 w-5 text-white mb-1" />
+                <span className="text-xl md:text-2xl font-extrabold text-white">30s</span>
               </div>
             </div>
           </div>
