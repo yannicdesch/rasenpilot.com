@@ -16,6 +16,7 @@ interface BlogPost {
   date: string;
   slug: string;
   read_time: number;
+  image?: string;
 }
 
 const BlogOverview = () => {
@@ -38,7 +39,23 @@ const BlogOverview = () => {
       if (error) {
         console.error('Error fetching blog posts:', error);
       } else {
-        setBlogPosts(data || []);
+        const posts = data || [];
+        
+        // Generate images for posts without images
+        for (const post of posts) {
+          if (!post.image && post.title && post.slug) {
+            console.log('Generating image for post:', post.title);
+            try {
+              await supabase.functions.invoke('generate-blog-image', {
+                body: { title: post.title, slug: post.slug }
+              });
+            } catch (err) {
+              console.error('Error generating image for post:', post.slug, err);
+            }
+          }
+        }
+        
+        setBlogPosts(posts);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -55,7 +72,8 @@ const BlogOverview = () => {
       author: "Yannic",
       date: "2025-07-15",
       slug: "rasen-nachsaen-ultimate-anleitung",
-      read_time: 6
+      read_time: 6,
+      image: undefined
     },
     {
       id: 2,
@@ -64,7 +82,8 @@ const BlogOverview = () => {
       author: "Lars",
       date: "2025-07-15",
       slug: "rasenkrankheiten-erkennen-profi-tipps",
-      read_time: 6
+      read_time: 6,
+      image: undefined
     },
     {
       id: 3,
@@ -73,7 +92,8 @@ const BlogOverview = () => {
       author: "Lars",
       date: "2025-07-15",
       slug: "profi-rasenpflege-ultimative-anleitung",
-      read_time: 6
+      read_time: 6,
+      image: undefined
     }
   ];
 
@@ -165,9 +185,17 @@ const BlogOverview = () => {
               onClick={() => navigate(`/blog/${posts[0].slug}`)}
             >
               <div className="grid md:grid-cols-2 gap-0">
-                <div className="relative h-80 md:h-auto bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                  <div className="text-white/20 text-9xl font-bold">01</div>
-                  <div className="absolute top-4 left-4">
+                <div className="relative h-80 md:h-auto bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
+                  {posts[0].image ? (
+                    <img 
+                      src={posts[0].image} 
+                      alt={posts[0].title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-white/20 text-9xl font-bold">01</div>
+                  )}
+                  <div className="absolute top-4 left-4 z-10">
                     <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-500 border-0">
                       Neu
                     </Badge>
@@ -213,10 +241,20 @@ const BlogOverview = () => {
                 onClick={() => navigate(`/blog/${post.slug}`)}
               >
                 <div className="relative h-48 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMC00YzUuNTIzIDAgMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwLTEwLTQuNDc3LTEwLTEwIDQuNDc3LTEwIDEwLTEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMSIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
-                  <div className="relative text-white/20 text-7xl font-bold group-hover:scale-110 transition-transform">
-                    {String(index + 2).padStart(2, '0')}
-                  </div>
+                  {post.image ? (
+                    <img 
+                      src={post.image} 
+                      alt={post.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMC00YzUuNTIzIDAgMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwLTEwLTQuNDc3LTEwLTEwIDQuNDc3LTEwIDEwLTEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMSIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
+                      <div className="relative text-white/20 text-7xl font-bold group-hover:scale-110 transition-transform">
+                        {String(index + 2).padStart(2, '0')}
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
