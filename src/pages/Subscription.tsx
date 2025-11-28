@@ -70,7 +70,8 @@ export default function Subscription() {
         title="Premium Subscription - Rasenpilot"
         description="Entdecken Sie die Premium-Features von Rasenpilot. Detaillierte Analysen, personalisierte Pflegepläne und unbegrenzte Rasen-Analysen ab €9,99/Monat."
       />
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-accent/10">
+        <div className="container mx-auto px-4 py-12 max-w-6xl">
         {ref === 'analysis' && (
           <div className="mb-6">
             <Button
@@ -85,8 +86,10 @@ export default function Subscription() {
         )}
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Wählen Sie Ihren Premium-Plan</h1>
-          <p className="text-xl text-muted-foreground mb-6">
+          <h1 className="text-5xl md:text-6xl font-display font-bold mb-6 bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent">
+            Wählen Sie Ihren Premium-Plan
+          </h1>
+          <p className="text-xl md:text-2xl text-muted-foreground mb-6 font-body">
             Unbegrenzte Analysen, KI-Beratung und personalisierte Pflegepläne
           </p>
           
@@ -193,8 +196,10 @@ export default function Subscription() {
         )}
 
         {/* FAQ Section */}
-        <div className="mt-12 max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8">Häufig gestellte Fragen</h2>
+        <div className="mt-16 max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-10 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Häufig gestellte Fragen
+          </h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="cancel">
               <AccordionTrigger>Kann ich jederzeit kündigen?</AccordionTrigger>
@@ -228,14 +233,15 @@ export default function Subscription() {
         </div>
 
         {/* Legal Links */}
-        <div className="mt-12 text-center text-sm text-muted-foreground">
+        <div className="mt-16 text-center text-sm text-muted-foreground font-body">
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="/agb" className="hover:text-foreground transition-colors">AGB</a>
+            <a href="/agb" className="hover:text-primary transition-colors">AGB</a>
             <span>•</span>
-            <a href="/datenschutz" className="hover:text-foreground transition-colors">Datenschutz</a>
+            <a href="/datenschutz" className="hover:text-primary transition-colors">Datenschutz</a>
             <span>•</span>
-            <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
+            <a href="/impressum" className="hover:text-primary transition-colors">Impressum</a>
           </div>
+        </div>
         </div>
       </div>
     </>
