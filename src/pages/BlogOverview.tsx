@@ -40,9 +40,11 @@ const BlogOverview = () => {
         console.error('Error fetching blog posts:', error);
       } else {
         const posts = data || [];
+        setBlogPosts(posts);
+        setLoading(false);
         
-        // Generate images for posts without images or with placeholder
-        for (const post of posts) {
+        // Generate images in background without blocking UI
+        posts.forEach(async (post) => {
           if ((!post.image || post.image === '/placeholder.svg') && post.title && post.slug) {
             console.log('Generating image for post:', post.title);
             try {
@@ -53,13 +55,10 @@ const BlogOverview = () => {
               console.error('Error generating image for post:', post.slug, err);
             }
           }
-        }
-        
-        setBlogPosts(posts);
+        });
       }
     } catch (error) {
       console.error('Error:', error);
-    } finally {
       setLoading(false);
     }
   };
