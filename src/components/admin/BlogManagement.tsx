@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit2, Trash2, Eye, Save, X, Sparkles, List, Instagram } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, Save, X, Sparkles, List, Instagram, Image } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AiBlogGenerator from '@/components/AiBlogGenerator';
@@ -38,6 +38,8 @@ const BlogManagement = () => {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [regeneratingImages, setRegeneratingImages] = useState(false);
+  const [regenerationProgress, setRegenerationProgress] = useState({ current: 0, total: 0 });
   const { toast } = useToast();
 
   const emptyPost: Omit<BlogPost, 'id' | 'created_at' | 'updated_at' | 'views' | 'seo'> = {
@@ -160,6 +162,57 @@ const BlogManagement = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleBulkRegenerateImages = async () => {
+    if (!confirm('Möchten Sie wirklich alle Blog-Bilder neu generieren? Dies kann einige Minuten dauern.')) return;
+
+    setRegeneratingImages(true);
+    const postsToRegenerate = posts.filter(
+      post => !post.image || post.image === '/placeholder.svg' || post.image.includes('placeholder')
+    );
+    
+    setRegenerationProgress({ current: 0, total: postsToRegenerate.length });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < postsToRegenerate.length; i++) {
+      const post = postsToRegenerate[i];
+      setRegenerationProgress({ current: i + 1, total: postsToRegenerate.length });
+
+      try {
+        console.log(`Generating image ${i + 1}/${postsToRegenerate.length} for: ${post.title}`);
+        const { error } = await supabase.functions.invoke('generate-blog-image', {
+          body: { title: post.title, slug: post.slug }
+        });
+
+        if (error) {
+          console.error(`Failed to generate image for ${post.slug}:`, error);
+          failCount++;
+        } else {
+          successCount++;
+        }
+      } catch (error) {
+        console.error(`Error generating image for ${post.slug}:`, error);
+        failCount++;
+      }
+
+      // Small delay between requests to avoid overwhelming the API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    setRegeneratingImages(false);
+    setRegenerationProgress({ current: 0, total: 0 });
+    
+    toast({
+      title: "Bildgenerierung abgeschlossen",
+      description: `${successCount} Bilder erfolgreich generiert, ${failCount} fehlgeschlagen`,
+      variant: failCount > 0 ? "destructive" : "default",
+    });
+
+    // Refresh posts to show new images
+    fetchPosts();
   };
 
   const PostEditor = ({ post, onSave, onCancel }: {
@@ -331,13 +384,27 @@ const BlogManagement = () => {
         <TabsContent value="manual" className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Blog-Artikel verwalten</h2>
-            <Button
-              onClick={() => setIsCreating(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Neuer Artikel
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleBulkRegenerateImages}
+                disabled={regeneratingImages}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Image className="h-4 w-4" />
+                {regeneratingImages 
+                  ? `Generiere ${regenerationProgress.current}/${regenerationProgress.total}...`
+                  : 'Alle Bilder neu generieren'
+                }
+              </Button>
+              <Button
+                onClick={() => setIsCreating(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Neuer Artikel
+              </Button>
+            </div>
           </div>
 
           {isCreating && (
