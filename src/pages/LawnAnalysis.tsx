@@ -1,7 +1,7 @@
 
 import React, { useCallback, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, FlaskConical, MapPin } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, FlaskConical, MapPin, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,14 +13,22 @@ import lawnBefore from '@/assets/lawn-before.jpg';
 import lawnAfter from '@/assets/lawn-after.jpg';
 import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
+import { useFreeTierLimit } from '@/hooks/useFreeTierLimit';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
+import { trackAnalysisStarted } from '@/lib/analytics/conversionTracking';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
   const { profile } = useLawn();
+  const { user } = useAuth();
+  const { isPremium } = useSubscription();
+  const { hasReachedLimit, remainingAnalyses, canAnalyze, loading: limitLoading } = useFreeTierLimit();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [zipCode, setZipCode] = useState<string>(profile?.zipCode || '10115'); // Default fallback
+  const [zipCode, setZipCode] = useState<string>(profile?.zipCode || '10115');
   const [locationStatus, setLocationStatus] = useState<'detecting' | 'success' | 'failed'>('detecting');
   const [userLocation, setUserLocation] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -125,6 +133,27 @@ const LawnAnalysis = () => {
   const handleFileSelect = useCallback((file: File) => {
     setError(null);
     
+    // Check if user can analyze
+    if (!user) {
+      toast({
+        title: "Anmeldung erforderlich",
+        description: "Bitte melden Sie sich an, um eine Rasenanalyse durchzuführen.",
+        variant: "destructive"
+      });
+      navigate('/auth?redirect=/lawn-analysis');
+      return;
+    }
+
+    if (hasReachedLimit && !isPremium) {
+      toast({
+        title: "Analyse-Limit erreicht",
+        description: `Sie haben Ihre kostenlose Analyse bereits verwendet. Upgraden Sie auf Premium für unbegrenzte Analysen!`,
+        variant: "destructive"
+      });
+      navigate('/subscription?ref=analysis-limit');
+      return;
+    }
+    
     const validationError = validateFile(file);
     if (validationError) {
       setError(validationError);
@@ -141,12 +170,15 @@ const LawnAnalysis = () => {
       startAnalysis(file);
     };
     reader.readAsDataURL(file);
-  }, []);
+  }, [hasReachedLimit, isPremium, user]);
 
   const startAnalysis = async (file: File) => {
     setIsUploading(true);
     setUploadProgress(0);
     setAnalysisStep(0);
+
+    // Track conversion event
+    trackAnalysisStarted(user?.id);
 
     try {
       // Simulate analysis progress with tips rotation
@@ -172,7 +204,7 @@ const LawnAnalysis = () => {
       // Create analysis job
       const { data: jobData, error: jobError } = await supabase
         .rpc('create_analysis_job', {
-          p_user_id: null,
+          p_user_id: user?.id || null,
           p_image_path: uploadData.path,
           p_grass_type: profile?.grassType || 'unbekannt',
           p_lawn_goal: profile?.lawnGoal || 'gesunder-rasen',
@@ -276,6 +308,48 @@ const LawnAnalysis = () => {
       <MainNavigation />
       
       <div className="container mx-auto px-4 py-6 max-w-md">
+        {/* Free Tier Limit Warning */}
+        {user && !isPremium && !limitLoading && (
+          <Card className={`mb-6 ${hasReachedLimit ? 'border-red-300 bg-red-50' : 'border-yellow-300 bg-yellow-50'}`}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                {hasReachedLimit ? (
+                  <>
+                    <Lock className="h-4 w-4 text-red-600" />
+                    <span className="text-red-700">Analyse-Limit erreicht</span>
+                  </>
+                ) : (
+                  <>
+                    <Star className="h-4 w-4 text-yellow-600" />
+                    <span className="text-yellow-700">Kostenlose Analyse: {remainingAnalyses} von 1 verfügbar</span>
+                  </>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {hasReachedLimit ? (
+                <>
+                  <p className="text-sm text-red-700 mb-3">
+                    Sie haben Ihre kostenlose Analyse bereits verwendet. Upgraden Sie auf Premium für unbegrenzte Analysen!
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/subscription?ref=analysis-limit')}
+                    size="sm"
+                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                  >
+                    <Crown className="mr-2 h-4 w-4" />
+                    Jetzt Premium upgraden
+                  </Button>
+                </>
+              ) : (
+                <p className="text-sm text-yellow-700">
+                  Dies ist Ihre kostenlose Analyse. Für unbegrenzte Analysen upgraden Sie auf Premium.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-3">
