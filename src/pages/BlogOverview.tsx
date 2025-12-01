@@ -39,26 +39,11 @@ const BlogOverview = () => {
       if (error) {
         console.error('Error fetching blog posts:', error);
       } else {
-        const posts = data || [];
-        setBlogPosts(posts);
-        setLoading(false);
-        
-        // Generate images in background without blocking UI
-        posts.forEach(async (post) => {
-          if ((!post.image || post.image === '/placeholder.svg') && post.title && post.slug) {
-            console.log('Generating image for post:', post.title);
-            try {
-              await supabase.functions.invoke('generate-blog-image', {
-                body: { title: post.title, slug: post.slug }
-              });
-            } catch (err) {
-              console.error('Error generating image for post:', post.slug, err);
-            }
-          }
-        });
+        setBlogPosts(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
+    } finally {
       setLoading(false);
     }
   };
