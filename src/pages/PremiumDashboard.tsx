@@ -166,14 +166,21 @@ const PremiumDashboard = () => {
                 </p>
               </div>
               <div className="text-right">
-                <Badge className="bg-yellow-500 text-yellow-900 mb-2">
-                  {subscription.subscription_tier} Mitglied
-                </Badge>
-                {subscription.subscription_end && (
-                  <p className="text-sm text-green-100">
-                    Aktiv bis: {new Date(subscription.subscription_end).toLocaleDateString('de-DE')}
-                  </p>
-                )}
+                <div className="flex flex-col items-end gap-2">
+                  <Badge className="bg-yellow-500 text-yellow-900">
+                    {subscription.subscription_tier} Mitglied
+                  </Badge>
+                  {subscription.subscription_end && (
+                    <p className="text-sm text-green-100">
+                      Aktiv bis: {new Date(subscription.subscription_end).toLocaleDateString('de-DE')}
+                    </p>
+                  )}
+                  <Link to="/subscription/manage">
+                    <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20 mt-2">
+                      Abonnement verwalten
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
