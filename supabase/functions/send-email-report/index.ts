@@ -19,6 +19,13 @@ interface StatisticsData {
   uniqueVisitors: number;
   signups: number;
   conversionRate: string;
+  conversionFunnel: {
+    visitors: number;
+    registrations: number;
+    premiumConversions: number;
+    visitorToRegistration: string;
+    registrationToPremium: string;
+  };
 }
 
 serve(async (req) => {
@@ -50,6 +57,8 @@ serve(async (req) => {
     let pageViews = 0;
     let uniqueVisitors = 0;
     let signups = 0;
+    let premiumSubscribers = 0;
+    let totalUsers = 0;
     
     try {
       // Versuchen, tatsächliche Benutzerdaten zu holen
@@ -139,14 +148,52 @@ serve(async (req) => {
       signups = 2;
     }
     
+    // Get premium subscriber count
+    try {
+      const { data: subscribers, error: subsError } = await supabaseClient
+        .from('subscribers')
+        .select('id')
+        .eq('subscribed', true);
+      
+      if (!subsError && subscribers) {
+        premiumSubscribers = subscribers.length;
+      }
+    } catch (err) {
+      console.log('Error fetching subscribers:', err);
+      premiumSubscribers = 0;
+    }
+    
+    // Get total user count
+    try {
+      const { data: profiles, error: profilesError } = await supabaseClient
+        .from('profiles')
+        .select('id');
+      
+      if (!profilesError && profiles) {
+        totalUsers = profiles.length;
+      }
+    } catch (err) {
+      console.log('Error fetching profiles:', err);
+      totalUsers = signups;
+    }
+    
     // Calculate stats
     const conversionRate = pageViews > 0 ? ((signups / pageViews) * 100).toFixed(2) : '0.00';
+    const visitorToReg = uniqueVisitors > 0 ? ((totalUsers / uniqueVisitors) * 100).toFixed(1) : '0.0';
+    const regToPremium = totalUsers > 0 ? ((premiumSubscribers / totalUsers) * 100).toFixed(1) : '0.0';
     
     const stats: StatisticsData = {
       pageViews,
       uniqueVisitors,
       signups,
-      conversionRate: `${conversionRate}%`
+      conversionRate: `${conversionRate}%`,
+      conversionFunnel: {
+        visitors: uniqueVisitors,
+        registrations: totalUsers,
+        premiumConversions: premiumSubscribers,
+        visitorToRegistration: `${visitorToReg}%`,
+        registrationToPremium: `${regToPremium}%`
+      }
     };
     
     // Get site name
@@ -376,6 +423,33 @@ function generateEmailHTML({ siteName, date, newUsers, stats, isTest = false }) 
             <div class="stat-card">
               <div class="stat-value">${stats.conversionRate}</div>
               <div class="stat-label">Konversionsrate</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2 class="section-title">Conversion Funnel</h2>
+          <div style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <div style="text-align: center; flex: 1;">
+                <div style="font-size: 32px; font-weight: bold; color: #0f172a;">${stats.conversionFunnel.visitors}</div>
+                <div style="color: #64748b; margin-top: 5px;">Besucher</div>
+              </div>
+              <div style="color: #cbd5e1; font-size: 24px; padding: 0 10px;">→</div>
+              <div style="text-align: center; flex: 1; background: #f1f5f9; padding: 15px; border-radius: 6px;">
+                <div style="font-size: 32px; font-weight: bold; color: #166534;">${stats.conversionFunnel.registrations}</div>
+                <div style="color: #64748b; margin-top: 5px;">Registrierungen</div>
+                <div style="color: #166534; font-size: 14px; font-weight: 600; margin-top: 5px;">${stats.conversionFunnel.visitorToRegistration}</div>
+              </div>
+              <div style="color: #cbd5e1; font-size: 24px; padding: 0 10px;">→</div>
+              <div style="text-align: center; flex: 1; background: #f1f5f9; padding: 15px; border-radius: 6px;">
+                <div style="font-size: 32px; font-weight: bold; color: #166534;">${stats.conversionFunnel.premiumConversions}</div>
+                <div style="color: #64748b; margin-top: 5px;">Premium</div>
+                <div style="color: #166534; font-size: 14px; font-weight: 600; margin-top: 5px;">${stats.conversionFunnel.registrationToPremium}</div>
+              </div>
+            </div>
+            <div style="text-align: center; padding-top: 15px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 14px;">
+              Gesamte Conversion-Rate: <strong style="color: #166534;">${((stats.conversionFunnel.premiumConversions / stats.conversionFunnel.visitors) * 100).toFixed(2)}%</strong> (Besucher zu Premium)
             </div>
           </div>
         </div>

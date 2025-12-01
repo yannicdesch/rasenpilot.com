@@ -24,8 +24,8 @@ interface EmailReportConfig {
 const EmailReportSettings = () => {
   const { isLoading, saveEmailConfig, sendTestEmail, checkStatus } = useEmailReports();
   const [config, setConfig] = useState<EmailReportConfig>({
-    enabled: true,
-    recipientEmail: 'Yannic.Desch@gmail.com', // Default email address
+    enabled: true, // Changed to true by default
+    recipientEmail: 'Yannic.Desch@gmail.com',
     sendTime: '08:00',
     lastSent: null,
     reportTypes: {
@@ -84,9 +84,12 @@ const EmailReportSettings = () => {
   }, [checkStatus]);
   
   const handleSaveConfig = async () => {
-    const success = await saveEmailConfig(config);
+    // Automatically enable reports when saving
+    const configToSave = { ...config, enabled: true };
+    const success = await saveEmailConfig(configToSave);
     if (success) {
-      toast.success('E-Mail-Konfiguration gespeichert');
+      setConfig(configToSave);
+      toast.success('E-Mail-Konfiguration gespeichert und aktiviert');
     }
   };
   
