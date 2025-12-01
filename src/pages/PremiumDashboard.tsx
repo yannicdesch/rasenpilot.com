@@ -27,13 +27,21 @@ import {
 import { useSubscription } from '@/hooks/useSubscription';
 import { useProfileData } from '@/hooks/useProfileData';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 
 const PremiumDashboard = () => {
   const { subscription, isPremium, openCustomerPortal } = useSubscription();
   const { user } = useProfileData();
   const { latestAnalysis, lawnProfile, dashboardStats, loading } = useDashboardData();
+  const navigate = useNavigate();
+
+  // Redirect non-premium users
+  React.useEffect(() => {
+    if (!loading && !isPremium) {
+      navigate('/subscription?ref=premium-dashboard');
+    }
+  }, [isPremium, loading, navigate]);
 
   const premiumFeatures = [
     {

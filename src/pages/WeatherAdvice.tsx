@@ -4,12 +4,15 @@ import MainNavigation from '@/components/MainNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, Cloud, CloudRain, Droplet, Sun, Thermometer, Wind } from 'lucide-react';
+import { Calendar, Cloud, CloudRain, Droplet, Sun, Thermometer, Wind, Crown, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from '@/components/ui/use-toast';
 import { useLawn } from '@/context/LawnContext';
 import { fetchWeatherData, getWeatherBasedAdvice, WeatherData } from '@/services/lawnService';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
+import PremiumGate from '@/components/subscription/PremiumGate';
 
 interface WeatherFormData {
   zipCode: string;
@@ -17,6 +20,9 @@ interface WeatherFormData {
 
 const WeatherAdvice = () => {
   const { profile } = useLawn();
+  const { isPremium } = useSubscription();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [advice, setAdvice] = useState<string[]>([]);
@@ -91,7 +97,16 @@ const WeatherAdvice = () => {
           <h1 className="text-3xl font-bold text-green-800 mb-2">Wetter-intelligente Rasenberatung</h1>
           <p className="text-gray-600 mb-6">Erhalten Sie personalisierte Rasenpflegeempfehlungen basierend auf Ihrer lokalen Wettervorhersage</p>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Premium Gate */}
+          {!user || !isPremium ? (
+            <div className="max-w-2xl mx-auto">
+              <PremiumGate 
+                feature="Wetter-basierte Pflegetipps" 
+                description="Erhalten Sie automatische Benachrichtigungen und personalisierte Empfehlungen basierend auf Wettervorhersagen für Ihre Region."
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">{/* Weather Info */}
             {/* Weather Info */}
             <div className="lg:col-span-2 space-y-6">
               <Card>
@@ -243,6 +258,7 @@ const WeatherAdvice = () => {
               </Link>
             </div>
           </div>
+          )}
         </div>
       </main>
       

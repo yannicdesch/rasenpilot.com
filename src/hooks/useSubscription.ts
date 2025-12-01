@@ -33,10 +33,10 @@ export const useSubscription = () => {
 
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        console.log('❌ No user found');
+        console.log('❌ No user found - free tier');
         setSubscription({
           subscribed: false,
-          subscription_tier: null,
+          subscription_tier: 'free',
           subscription_end: null,
           is_trial: false,
           trial_start: null,
@@ -56,11 +56,27 @@ export const useSubscription = () => {
       }
 
       console.log('✅ Setting subscription data:', data);
-      setSubscription(data);
+      setSubscription(data || {
+        subscribed: false,
+        subscription_tier: 'free',
+        subscription_end: null,
+        is_trial: false,
+        trial_start: null,
+        trial_end: null
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to check subscription';
       setError(errorMessage);
       console.error('💥 Error checking subscription:', err);
+      // Set to free tier on error
+      setSubscription({
+        subscribed: false,
+        subscription_tier: 'free',
+        subscription_end: null,
+        is_trial: false,
+        trial_start: null,
+        trial_end: null
+      });
     } finally {
       setLoading(false);
     }
