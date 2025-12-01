@@ -68,8 +68,7 @@ const PostAnalysisConversion: React.FC<PostAnalysisConversionProps> = ({
         .from('subscribers')
         .insert({
           email,
-          source: 'post_analysis_conversion',
-          interests: ['lawn_care', 'analysis_results']
+          subscribed: true
         });
 
       if (error) throw error;
