@@ -41,9 +41,9 @@ const BlogOverview = () => {
       } else {
         const posts = data || [];
         
-        // Generate images for posts without images
+        // Generate images for posts without images or with placeholder
         for (const post of posts) {
-          if (!post.image && post.title && post.slug) {
+          if ((!post.image || post.image === '/placeholder.svg') && post.title && post.slug) {
             console.log('Generating image for post:', post.title);
             try {
               await supabase.functions.invoke('generate-blog-image', {
