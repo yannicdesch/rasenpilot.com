@@ -113,9 +113,14 @@ const MainNavigation = () => {
                     <Link to="/account-settings">Konto-Einstellungen</Link>
                   </DropdownMenuItem>
                   {isPremium && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/premium-dashboard">Premium Dashboard</Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/premium-dashboard">Premium Dashboard</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/subscription/manage">Abonnement verwalten</Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   <DropdownMenuItem onClick={signOut}>
                     <LogOut className="h-4 w-4 mr-2" />
@@ -214,18 +219,32 @@ const MainNavigation = () => {
                     {user ? (
                       <>
                         {isPremium ? (
-                          <Link 
-                            to="/premium-dashboard" 
-                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
-                              isActive('/premium-dashboard') 
-                                ? 'bg-yellow-100 text-yellow-700 font-medium' 
-                                : 'text-yellow-700 hover:text-yellow-600 hover:bg-yellow-50'
-                            }`}
-                            onClick={closeMenu}
-                          >
-                            <Crown size={20} />
-                            <span>Premium</span>
-                          </Link>
+                          <>
+                            <Link 
+                              to="/premium-dashboard" 
+                              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                                isActive('/premium-dashboard') 
+                                  ? 'bg-yellow-100 text-yellow-700 font-medium' 
+                                  : 'text-yellow-700 hover:text-yellow-600 hover:bg-yellow-50'
+                              }`}
+                              onClick={closeMenu}
+                            >
+                              <Crown size={20} />
+                              <span>Premium</span>
+                            </Link>
+                            <Link 
+                              to="/subscription/manage" 
+                              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-lg ${
+                                isActive('/subscription/manage') 
+                                  ? 'bg-green-100 text-green-700 font-medium' 
+                                  : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                              }`}
+                              onClick={closeMenu}
+                            >
+                              <Settings size={20} />
+                              <span>Abonnement</span>
+                            </Link>
+                          </>
                         ) : (
                           <Link 
                             to="/subscription" 

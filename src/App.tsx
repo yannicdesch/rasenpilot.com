@@ -31,6 +31,7 @@ import WeatherAdvice from "./pages/WeatherAdvice";
 import SeasonGuide from "./pages/SeasonGuide";
 import Subscription from "./pages/Subscription";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+import SubscriptionManagement from "./pages/SubscriptionManagement";
 import PremiumDashboard from "./pages/PremiumDashboard";
 
 // Local SEO Pages
@@ -113,8 +114,9 @@ const App = () => {
             
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
-            <Route path="/subscription" element={<Subscription />} />
-            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+          <Route path="/subscription" element={<Subscription />} />
+          <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+          <Route path="/subscription/manage" element={<SubscriptionManagement />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/chat" element={<Chat />} />
