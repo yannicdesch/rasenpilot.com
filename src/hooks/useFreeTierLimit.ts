@@ -32,11 +32,12 @@ export const useFreeTierLimit = () => {
     }
 
     try {
-      // Count how many analyses this user has done
+      // Count completed analysis jobs for this user
       const { count, error } = await supabase
-        .from('analyses')
+        .from('analysis_jobs')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('status', 'completed');
 
       if (error) throw error;
 
