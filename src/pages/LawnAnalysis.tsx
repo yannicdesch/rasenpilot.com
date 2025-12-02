@@ -144,6 +144,15 @@ const LawnAnalysis = () => {
       return;
     }
 
+    // Wait for limit check to complete
+    if (limitLoading) {
+      toast({
+        title: "Bitte warten",
+        description: "Ihr Analyse-Status wird überprüft...",
+      });
+      return;
+    }
+
     if (hasReachedLimit && !isPremium) {
       toast({
         title: "Analyse-Limit erreicht",
@@ -170,7 +179,7 @@ const LawnAnalysis = () => {
       startAnalysis(file);
     };
     reader.readAsDataURL(file);
-  }, [hasReachedLimit, isPremium, user]);
+  }, [hasReachedLimit, isPremium, user, limitLoading, navigate]);
 
   const startAnalysis = async (file: File) => {
     setIsUploading(true);
@@ -429,26 +438,51 @@ const LawnAnalysis = () => {
 
         {/* Upload Dropzone */}
         <div className="mb-6">
+          {/* Block upload when limit reached */}
+          {user && !isPremium && hasReachedLimit && !limitLoading ? (
+            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center opacity-60 cursor-not-allowed">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-400 rounded-full flex items-center justify-center">
+                <Lock className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                Upload gesperrt
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Sie haben Ihre kostenlose Analyse bereits verwendet.
+              </p>
+              <Button 
+                onClick={() => navigate('/subscription?ref=analysis-limit')}
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+              >
+                <Crown className="mr-2 h-4 w-4" />
+                Jetzt Premium upgraden
+              </Button>
+            </div>
+          ) : (
           <div
-            className={`bg-green-50 border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 ${
-              isDragOver 
-                ? 'border-green-400 bg-green-100' 
+            className={`bg-green-50 border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${
+              limitLoading
+                ? 'cursor-wait opacity-70 border-gray-300'
+                : isDragOver 
+                ? 'border-green-400 bg-green-100 cursor-pointer' 
                 : error
-                ? 'border-red-300 bg-red-50'
-                : 'border-green-200 hover:border-green-300 hover:bg-green-100'
+                ? 'border-red-300 bg-red-50 cursor-pointer'
+                : 'border-green-200 hover:border-green-300 hover:bg-green-100 cursor-pointer'
             }`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onClick={handleClick}
+            onDrop={limitLoading ? undefined : handleDrop}
+            onDragOver={limitLoading ? undefined : handleDragOver}
+            onDragLeave={limitLoading ? undefined : handleDragLeave}
+            onClick={limitLoading ? undefined : handleClick}
             role="button"
             aria-label="Rasenfoto hochladen"
-            tabIndex={0}
+            tabIndex={limitLoading ? -1 : 0}
           >
             {!isUploading && !preview ? (
               <>
-                <div className="w-16 h-16 mx-auto mb-4 bg-green-600 rounded-full flex items-center justify-center">
-                  {error ? (
+                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${limitLoading ? 'bg-gray-400' : 'bg-green-600'}`}>
+                  {limitLoading ? (
+                    <div className="h-8 w-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : error ? (
                     <AlertCircle className="h-8 w-8 text-white" />
                   ) : (
                     <Upload className="h-8 w-8 text-white" />
@@ -456,11 +490,11 @@ const LawnAnalysis = () => {
                 </div>
                 
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Foto hier ablegen
+                  {limitLoading ? 'Lade Status...' : 'Foto hier ablegen'}
                 </h3>
                 
-                <p className="text-green-600 font-medium underline mb-3">
-                  oder klicken zum Auswählen
+                <p className={`font-medium mb-3 ${limitLoading ? 'text-gray-500' : 'text-green-600 underline'}`}>
+                  {limitLoading ? 'Bitte warten...' : 'oder klicken zum Auswählen'}
                 </p>
                 
                 <p className="text-sm text-gray-500">
@@ -517,6 +551,7 @@ const LawnAnalysis = () => {
               </div>
             )}
           </div>
+          )}
         </div>
 
         {/* Trust Line */}
