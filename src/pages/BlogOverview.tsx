@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Calendar, User, Leaf, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar, User, Leaf } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import MainNavigation from '@/components/MainNavigation';
+import LazyImage from '@/components/LazyImage';
 
 interface BlogPost {
   id: number;
@@ -170,8 +170,8 @@ const BlogOverview = () => {
             >
               <div className="grid md:grid-cols-2 gap-0">
                 <div className="relative h-80 md:h-auto bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
-                  {posts[0].image ? (
-                    <img 
+                {posts[0].image ? (
+                    <LazyImage 
                       src={posts[0].image} 
                       alt={posts[0].title}
                       className="absolute inset-0 w-full h-full object-cover"
@@ -225,8 +225,8 @@ const BlogOverview = () => {
                 onClick={() => navigate(`/blog/${post.slug}`)}
               >
                 <div className="relative h-48 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
-                  {post.image ? (
-                    <img 
+                {post.image ? (
+                    <LazyImage 
                       src={post.image} 
                       alt={post.title}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
