@@ -25,28 +25,36 @@ const BlogOverview = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBlogPosts();
-  }, []);
+    let isMounted = true;
+    
+    const fetchBlogPosts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('status', 'published')
+          .order('created_at', { ascending: false });
 
-  const fetchBlogPosts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('status', 'published')
-        .order('created_at', { ascending: false });
+        if (!isMounted) return;
 
-      if (error) {
-        console.error('Error fetching blog posts:', error);
-      } else {
-        setBlogPosts(data || []);
+        if (error) {
+          console.error('Error fetching blog posts:', error);
+        } else {
+          setBlogPosts(data || []);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchBlogPosts();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const defaultPosts = [
     {
