@@ -317,20 +317,6 @@ const LawnAnalysis = () => {
       <MainNavigation />
       
       <div className="container mx-auto px-4 py-6 max-w-md">
-        {/* Subscription Status Debug (only in dev or for testing) */}
-        {user && (
-          <Card className="mb-4 border-blue-200 bg-blue-50">
-            <CardContent className="py-3">
-              <div className="text-xs text-blue-800 space-y-1">
-                <p><strong>Account:</strong> {user.email}</p>
-                <p><strong>Status:</strong> {isPremium ? '✅ Premium aktiv' : '❌ Kein Premium'}</p>
-                {!limitLoading && !isPremium && (
-                  <p><strong>Analysen verwendet:</strong> {1 - remainingAnalyses} von 1 kostenlos</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Free Tier Limit Warning */}
         {user && !isPremium && (
