@@ -319,7 +319,47 @@ const LawnAnalysis = () => {
       
       <div className="container mx-auto px-4 py-6 max-w-md">
 
-        {/* Free Tier Limit Warning */}
+        {/* Not Logged In Info */}
+        {!user && (
+          <Card className="mb-6 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold flex items-center gap-2 text-blue-800">
+                <Lock className="h-5 w-5" />
+                Anmeldung erforderlich
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-4">
+              <p className="text-sm text-blue-700">
+                Um Ihren Rasen zu analysieren, melden Sie sich bitte an oder erstellen Sie ein kostenloses Konto.
+              </p>
+              
+              <div className="bg-white/60 rounded-lg p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <span className="text-sm text-gray-700"><strong>1 kostenlose Analyse</strong> für neue Nutzer</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Ergebnisse in 30 Sekunden</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Crown className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Unbegrenzt mit Premium</span>
+                </div>
+              </div>
+
+              <Button 
+                onClick={() => navigate('/auth?redirect=/lawn-analysis')}
+                size="lg"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
+              >
+                Jetzt anmelden / Registrieren
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Free Tier Limit Warning - for logged in users */}
         {user && !isPremium && (
           <Card className={`mb-6 ${hasReachedLimit ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg' : 'border-yellow-300 bg-yellow-50'}`}>
             <CardHeader className="pb-3">
