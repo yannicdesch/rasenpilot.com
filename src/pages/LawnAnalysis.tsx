@@ -24,7 +24,7 @@ const LawnAnalysis = () => {
   const { profile } = useLawn();
   const { user } = useAuth();
   const { isPremium } = useSubscription();
-  const { hasReachedLimit, remainingAnalyses, canAnalyze, loading: limitLoading } = useFreeTierLimit();
+  const { hasReachedLimit, remainingAnalyses, canAnalyze, loading: limitLoading, markAnonymousAnalysisUsed } = useFreeTierLimit();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -133,17 +133,6 @@ const LawnAnalysis = () => {
   const handleFileSelect = useCallback((file: File) => {
     setError(null);
     
-    // Check if user is logged in - show error but don't redirect immediately
-    if (!user) {
-      setError("Bitte melden Sie sich an, um eine Rasenanalyse durchzuführen.");
-      toast({
-        title: "Anmeldung erforderlich",
-        description: "Bitte melden Sie sich an, um eine Rasenanalyse durchzuführen.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     // Wait for limit check to complete
     if (limitLoading) {
       toast({
@@ -153,14 +142,23 @@ const LawnAnalysis = () => {
       return;
     }
 
-    // Check if limit reached - show error but don't redirect
+    // Check if limit reached - require login if anonymous, show upgrade if logged in
     if (hasReachedLimit && !isPremium) {
-      setError("Sie haben Ihre kostenlose Analyse bereits verwendet.");
-      toast({
-        title: "Analyse-Limit erreicht",
-        description: "Sie haben Ihre kostenlose Analyse bereits verwendet. Upgraden Sie auf Premium für unbegrenzte Analysen!",
-        variant: "destructive"
-      });
+      if (!user) {
+        setError("Ihre kostenlose Analyse wurde bereits verwendet. Bitte melden Sie sich an oder upgraden Sie auf Premium.");
+        toast({
+          title: "Kostenlose Analyse aufgebraucht",
+          description: "Melden Sie sich an oder upgraden Sie auf Premium für weitere Analysen.",
+          variant: "destructive"
+        });
+      } else {
+        setError("Sie haben Ihre kostenlose Analyse bereits verwendet.");
+        toast({
+          title: "Analyse-Limit erreicht",
+          description: "Upgraden Sie auf Premium für unbegrenzte Analysen!",
+          variant: "destructive"
+        });
+      }
       return;
     }
     
@@ -180,7 +178,7 @@ const LawnAnalysis = () => {
       startAnalysis(file);
     };
     reader.readAsDataURL(file);
-  }, [hasReachedLimit, isPremium, user, limitLoading, navigate]);
+  }, [hasReachedLimit, isPremium, user, limitLoading]);
 
   const startAnalysis = async (file: File) => {
     setIsUploading(true);
@@ -248,6 +246,11 @@ const LawnAnalysis = () => {
       }
 
       clearInterval(tipInterval);
+      
+      // Mark anonymous analysis as used
+      if (!user) {
+        markAnonymousAnalysisUsed();
+      }
       
       // Success feedback
       toast({
@@ -319,42 +322,83 @@ const LawnAnalysis = () => {
       
       <div className="container mx-auto px-4 py-6 max-w-md">
 
-        {/* Not Logged In Info */}
-        {!user && (
-          <Card className="mb-6 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg">
+        {/* Limit Reached Warning - for anonymous users who used their free analysis */}
+        {!user && hasReachedLimit && !limitLoading && (
+          <Card className="mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold flex items-center gap-2 text-blue-800">
-                <Lock className="h-5 w-5" />
-                Anmeldung erforderlich
+              <CardTitle className="text-base font-semibold flex items-center gap-2 text-amber-800">
+                <Crown className="h-5 w-5 text-amber-600" />
+                Kostenlose Analyse aufgebraucht
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-4">
-              <p className="text-sm text-blue-700">
-                Um Ihren Rasen zu analysieren, melden Sie sich bitte an oder erstellen Sie ein kostenloses Konto.
+              <p className="text-sm text-amber-700">
+                Sie haben Ihre kostenlose Analyse bereits verwendet. Melden Sie sich an oder starten Sie mit Premium:
               </p>
               
-              <div className="bg-white/60 rounded-lg p-3 space-y-2">
-                <div className="flex items-center gap-2">
+              {/* Premium Benefits */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
                   <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <span className="text-sm text-gray-700"><strong>1 kostenlose Analyse</strong> für neue Nutzer</span>
+                  <span className="text-xs text-gray-700">Unbegrenzte Analysen</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
                   <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <span className="text-sm text-gray-700">Ergebnisse in 30 Sekunden</span>
+                  <span className="text-xs text-gray-700">Persönlicher Pflegeplan</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Crown className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                  <span className="text-sm text-gray-700">Unbegrenzt mit Premium</span>
+                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <span className="text-xs text-gray-700">Wetter-Empfehlungen</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <span className="text-xs text-gray-700">KI-Chat Support</span>
                 </div>
               </div>
 
-              <Button 
-                onClick={() => navigate('/auth?redirect=/lawn-analysis')}
-                size="lg"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
-              >
-                Jetzt anmelden / Registrieren
-              </Button>
+              {/* Price Teaser */}
+              <div className="text-center py-2">
+                <span className="text-xs text-gray-500">Ab nur </span>
+                <span className="text-lg font-bold text-green-700">9,99€</span>
+                <span className="text-xs text-gray-500">/Monat</span>
+                <span className="block text-xs text-green-600 font-medium">7 Tage kostenlos testen</span>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={() => navigate('/subscription?ref=analysis-limit')}
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-md"
+                >
+                  <Crown className="mr-2 h-5 w-5" />
+                  Jetzt Premium starten
+                </Button>
+                <Button 
+                  onClick={() => navigate('/auth?redirect=/lawn-analysis')}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  Bereits registriert? Anmelden
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Free Analysis Available - for anonymous users */}
+        {!user && !hasReachedLimit && !limitLoading && (
+          <Card className="mb-6 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50">
+            <CardContent className="py-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-100 rounded-full p-2">
+                  <Star className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-green-800">1 kostenlose Analyse verfügbar</p>
+                  <p className="text-xs text-green-600">Keine Anmeldung erforderlich</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
