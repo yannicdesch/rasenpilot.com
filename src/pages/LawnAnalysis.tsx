@@ -133,14 +133,14 @@ const LawnAnalysis = () => {
   const handleFileSelect = useCallback((file: File) => {
     setError(null);
     
-    // Check if user can analyze
+    // Check if user is logged in - show error but don't redirect immediately
     if (!user) {
+      setError("Bitte melden Sie sich an, um eine Rasenanalyse durchzuführen.");
       toast({
         title: "Anmeldung erforderlich",
         description: "Bitte melden Sie sich an, um eine Rasenanalyse durchzuführen.",
         variant: "destructive"
       });
-      navigate('/auth?redirect=/lawn-analysis');
       return;
     }
 
@@ -153,13 +153,14 @@ const LawnAnalysis = () => {
       return;
     }
 
+    // Check if limit reached - show error but don't redirect
     if (hasReachedLimit && !isPremium) {
+      setError("Sie haben Ihre kostenlose Analyse bereits verwendet.");
       toast({
         title: "Analyse-Limit erreicht",
-        description: `Sie haben Ihre kostenlose Analyse bereits verwendet. Upgraden Sie auf Premium für unbegrenzte Analysen!`,
+        description: "Sie haben Ihre kostenlose Analyse bereits verwendet. Upgraden Sie auf Premium für unbegrenzte Analysen!",
         variant: "destructive"
       });
-      navigate('/subscription?ref=analysis-limit');
       return;
     }
     
