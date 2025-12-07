@@ -321,7 +321,7 @@ const LawnAnalysis = () => {
 
         {/* Free Tier Limit Warning */}
         {user && !isPremium && (
-          <Card className={`mb-6 ${hasReachedLimit ? 'border-red-300 bg-red-50' : 'border-yellow-300 bg-yellow-50'}`}>
+          <Card className={`mb-6 ${hasReachedLimit ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg' : 'border-yellow-300 bg-yellow-50'}`}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 {limitLoading ? (
@@ -331,8 +331,8 @@ const LawnAnalysis = () => {
                   </>
                 ) : hasReachedLimit ? (
                   <>
-                    <Lock className="h-4 w-4 text-red-600" />
-                    <span className="text-red-700">Analyse-Limit erreicht</span>
+                    <Crown className="h-5 w-5 text-amber-600" />
+                    <span className="text-amber-800 text-base">Jetzt Premium freischalten</span>
                   </>
                 ) : (
                   <>
@@ -344,19 +344,48 @@ const LawnAnalysis = () => {
             </CardHeader>
             <CardContent className="pt-0">
               {hasReachedLimit ? (
-                <>
-                  <p className="text-sm text-red-700 mb-3">
-                    Sie haben Ihre kostenlose Analyse bereits verwendet. Upgraden Sie auf Premium für unbegrenzte Analysen!
+                <div className="space-y-4">
+                  <p className="text-sm text-amber-800">
+                    Sie haben Ihre kostenlose Analyse verwendet. Mit Premium erhalten Sie:
                   </p>
+                  
+                  {/* Premium Benefits Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <span className="text-xs text-gray-700">Unbegrenzte Analysen</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <span className="text-xs text-gray-700">Persönlicher Pflegeplan</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <span className="text-xs text-gray-700">Wetter-Empfehlungen</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <span className="text-xs text-gray-700">KI-Chat Support</span>
+                    </div>
+                  </div>
+
+                  {/* Price Teaser */}
+                  <div className="text-center py-2">
+                    <span className="text-xs text-gray-500">Ab nur </span>
+                    <span className="text-lg font-bold text-green-700">9,99€</span>
+                    <span className="text-xs text-gray-500">/Monat</span>
+                    <span className="block text-xs text-green-600 font-medium">7 Tage kostenlos testen</span>
+                  </div>
+
                   <Button 
                     onClick={() => navigate('/subscription?ref=analysis-limit')}
-                    size="sm"
-                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                    size="lg"
+                    className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-md"
                   >
-                    <Crown className="mr-2 h-4 w-4" />
-                    Jetzt Premium upgraden
+                    <Crown className="mr-2 h-5 w-5" />
+                    Jetzt Premium starten
                   </Button>
-                </>
+                </div>
               ) : !limitLoading && (
                 <p className="text-sm text-yellow-700">
                   Dies ist Ihre kostenlose Analyse. Für unbegrenzte Analysen upgraden Sie auf Premium.
