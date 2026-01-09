@@ -450,7 +450,7 @@ Website: www.rasenpilot.com
                   <PremiumPreview 
                     score={healthScore}
                     sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-                    onUpgrade={() => window.location.href = '/subscription?ref=analysis'}
+                    onUpgrade={(email) => createCheckout('monthly', email || undefined)}
                   />
                 ) : (
                   <PostAnalysisConversion 
@@ -602,10 +602,7 @@ Website: www.rasenpilot.com
                 <PremiumPreview 
                   score={healthScore}
                   sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-                  onUpgrade={(email) => {
-                    const url = email ? `/subscription?ref=analysis&email=${encodeURIComponent(email)}` : '/subscription?ref=analysis';
-                    window.location.href = url;
-                  }}
+                  onUpgrade={(email) => createCheckout('monthly', email || undefined)}
                 />
               </div>
             )}
@@ -688,10 +685,7 @@ Website: www.rasenpilot.com
                 <PremiumPreview 
                   score={healthScore}
                   sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-                  onUpgrade={(email) => {
-                    const url = email ? `/subscription?ref=analysis&email=${encodeURIComponent(email)}` : '/subscription?ref=analysis';
-                    window.location.href = url;
-                  }}
+                  onUpgrade={(email) => createCheckout('monthly', email || undefined)}
                 />
               </div>
             )}

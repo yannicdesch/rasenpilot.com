@@ -889,7 +889,6 @@ export type Database = {
       update_user_highscore:
         | {
             Args: {
-              p_email?: string
               p_grass_type?: string
               p_lawn_image_url?: string
               p_lawn_score: number
@@ -902,6 +901,7 @@ export type Database = {
           }
         | {
             Args: {
+              p_email?: string
               p_grass_type?: string
               p_lawn_image_url?: string
               p_lawn_score: number
