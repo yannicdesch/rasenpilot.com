@@ -50,9 +50,23 @@ export default function Subscription() {
       });
 
       const result = await response.text();
-      if (!response.ok) throw new Error(result);
-      
       const data = JSON.parse(result);
+      
+      // Handle already subscribed error
+      if (!response.ok) {
+        if (data.error === 'already_subscribed') {
+          toast({
+            title: "Bereits abonniert",
+            description: data.message || "Diese E-Mail hat bereits ein aktives Abo. Bitte melden Sie sich an.",
+            variant: "default",
+          });
+          // Offer to navigate to login
+          navigate('/auth?redirect=/subscription/manage');
+          return;
+        }
+        throw new Error(data.message || data.error || 'Checkout fehlgeschlagen');
+      }
+      
       if (!data?.url) throw new Error('Keine Checkout-URL erhalten');
       
       window.location.href = data.url;
