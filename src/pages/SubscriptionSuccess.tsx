@@ -16,17 +16,31 @@ const SubscriptionSuccess = () => {
     // Refresh subscription status after successful payment
     const verifySubscription = async () => {
       setIsVerifying(true);
-      // Wait a moment for Stripe to process the subscription
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      await checkSubscription();
-      setIsVerifying(false);
+      
+      try {
+        // Wait a moment for Stripe webhook to process
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await checkSubscription();
+      } catch (error) {
+        console.error('Error verifying subscription:', error);
+      } finally {
+        // Always stop loading after max 5 seconds total
+        setIsVerifying(false);
+      }
     };
+
+    // Set a hard timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      setIsVerifying(false);
+    }, 8000);
 
     if (sessionId) {
       verifySubscription();
     } else {
       setIsVerifying(false);
     }
+
+    return () => clearTimeout(timeout);
   }, [sessionId, checkSubscription]);
 
   return (
