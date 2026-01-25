@@ -26,6 +26,7 @@ import Kontakt from "./pages/Kontakt";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 
 import WeatherAdvice from "./pages/WeatherAdvice";
 import SeasonGuide from "./pages/SeasonGuide";
@@ -119,6 +120,7 @@ const App = () => {
           <Route path="/subscription/manage" element={<SubscriptionManagement />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/chat-assistant" element={<Chat />} />
             <Route path="/account-settings" element={<AccountSettings />} />
