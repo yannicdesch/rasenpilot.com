@@ -51,7 +51,7 @@ serve(async (req) => {
     console.log(`[CREATE-CHECKOUT-NEW] Creating session for ${priceType} subscription: €${stripeProduct.amount/100}`);
 
     // Use origin header or fallback to production URL
-    const origin = req.headers.get("origin") || "https://rasenpilot.lovable.app";
+    const origin = req.headers.get("origin") || "https://www.rasenpilot.com";
     console.log(`[CREATE-CHECKOUT-NEW] Using origin: ${origin}`);
 
     const session = await stripe.checkout.sessions.create({
