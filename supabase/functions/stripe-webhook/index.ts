@@ -37,7 +37,8 @@ serve(async (req) => {
     // Verify webhook signature if secret is configured
     if (webhookSecret) {
       try {
-        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+        // Use constructEventAsync for Deno compatibility
+        event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         console.log("[STRIPE-WEBHOOK] Signature verified successfully");
       } catch (err) {
         console.error("[STRIPE-WEBHOOK] Signature verification failed:", err.message);
