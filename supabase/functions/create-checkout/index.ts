@@ -50,8 +50,12 @@ serve(async (req) => {
     console.log(`[CREATE-CHECKOUT-NEW] Using Stripe price ID: ${stripeProduct.stripe_price_id}`);
     console.log(`[CREATE-CHECKOUT-NEW] Creating session for ${priceType} subscription: €${stripeProduct.amount/100}`);
 
+    // Use origin header or fallback to production URL
+    const origin = req.headers.get("origin") || "https://rasenpilot.lovable.app";
+    console.log(`[CREATE-CHECKOUT-NEW] Using origin: ${origin}`);
+
     const session = await stripe.checkout.sessions.create({
-      customer_email: email,
+      customer_email: email || undefined,
       line_items: [
         {
           price: stripeProduct.stripe_price_id,
@@ -62,11 +66,11 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: 7,
       },
-      success_url: `${req.headers.get("origin")}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/subscription?ref=canceled`,
+      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/subscription?ref=canceled`,
       metadata: {
         price_type: priceType,
-        user_email: email,
+        user_email: email || "",
       },
     });
 
