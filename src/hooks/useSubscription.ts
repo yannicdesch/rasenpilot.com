@@ -135,10 +135,12 @@ export const useSubscription = () => {
     };
   }, []);
 
-  const isPremium = subscription.subscribed && (subscription.subscription_tier === 'Monthly' || subscription.subscription_tier === 'Yearly' || subscription.subscription_tier === 'Premium');
+  const tier = subscription.subscription_tier?.toLowerCase();
+  const isPremium = subscription.subscribed && (tier === 'monthly' || tier === 'yearly' || tier === 'premium');
   console.log('🎯 isPremium calculation:', { 
     subscribed: subscription.subscribed, 
     tier: subscription.subscription_tier, 
+    tierLower: tier,
     isPremium 
   });
 
