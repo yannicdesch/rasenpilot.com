@@ -48,7 +48,8 @@ serve(async (req) => {
     if (stripeKey) {
       logStep("Stripe key found, verifying subscription with Stripe");
       const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      // Get ALL customers with this email (user might have multiple Stripe customers)
+      const customers = await stripe.customers.list({ email: user.email, limit: 100 });
       
       if (customers.data.length === 0) {
         logStep("No Stripe customer found, user has no subscription");
@@ -81,25 +82,59 @@ serve(async (req) => {
         });
       }
 
-      const customerId = customers.data[0].id;
-      logStep("Found Stripe customer", { customerId });
+      logStep("Found Stripe customers", { count: customers.data.length, customerIds: customers.data.map(c => c.id) });
 
-      // Check for active subscriptions
-      const subscriptions = await stripe.subscriptions.list({
-        customer: customerId,
-        status: "active",
-        limit: 1,
-      });
+      // Check ALL customers for active subscriptions (user might have multiple Stripe customers)
+      let activeSubscription = null;
+      let customerId = null;
       
-      const hasActiveSub = subscriptions.data.length > 0;
+      for (const customer of customers.data) {
+        const subscriptions = await stripe.subscriptions.list({
+          customer: customer.id,
+          status: "active",
+          limit: 1,
+        });
+        
+        if (subscriptions.data.length > 0) {
+          activeSubscription = subscriptions.data[0];
+          customerId = customer.id;
+          logStep("Found active subscription for customer", { customerId: customer.id, subscriptionId: activeSubscription.id });
+          break;
+        }
+      }
+      
+      // Also check for trialing subscriptions if no active found
+      if (!activeSubscription) {
+        for (const customer of customers.data) {
+          const subscriptions = await stripe.subscriptions.list({
+            customer: customer.id,
+            status: "trialing",
+            limit: 1,
+          });
+          
+          if (subscriptions.data.length > 0) {
+            activeSubscription = subscriptions.data[0];
+            customerId = customer.id;
+            logStep("Found trialing subscription for customer", { customerId: customer.id, subscriptionId: activeSubscription.id });
+            break;
+          }
+        }
+      }
+
+      // Fallback to first customer ID if none had active subscription
+      if (!customerId) {
+        customerId = customers.data[0].id;
+      }
+      
+      const hasActiveSub = !!activeSubscription;
       let subscriptionTier = null;
       let subscriptionEnd = null;
       let isTrial = false;
       let trialStart = null;
       let trialEnd = null;
 
-      if (hasActiveSub) {
-        const subscription = subscriptions.data[0];
+      if (hasActiveSub && activeSubscription) {
+        const subscription = activeSubscription;
         subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
         logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
         
@@ -129,7 +164,7 @@ serve(async (req) => {
         }
         logStep("Determined subscription tier", { priceId, amount, subscriptionTier, isTrial });
       } else {
-        logStep("No active subscription found in Stripe");
+        logStep("No active subscription found in Stripe for any customer");
       }
 
       // Update database with verified Stripe data
