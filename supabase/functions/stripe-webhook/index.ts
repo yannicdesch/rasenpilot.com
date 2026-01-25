@@ -59,6 +59,81 @@ serve(async (req) => {
 
     // Handle different event types
     switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        console.log(`[STRIPE-WEBHOOK] Processing checkout.session.completed:`, session.id);
+
+        const customerEmail = session.customer_email || session.customer_details?.email;
+        const customerId = session.customer as string;
+        const subscriptionId = session.subscription as string;
+
+        if (!customerEmail) {
+          console.error("[STRIPE-WEBHOOK] No customer email in checkout session");
+          break;
+        }
+
+        console.log(`[STRIPE-WEBHOOK] Customer email: ${customerEmail}, Subscription: ${subscriptionId}`);
+
+        // Get subscription details if this was a subscription checkout
+        if (subscriptionId) {
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const isActive = subscription.status === "active" || subscription.status === "trialing";
+          const isTrialing = subscription.status === "trialing";
+          const subscriptionEnd = subscription.current_period_end 
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null;
+          const trialEnd = subscription.trial_end 
+            ? new Date(subscription.trial_end * 1000).toISOString() 
+            : null;
+          const trialStart = subscription.trial_start 
+            ? new Date(subscription.trial_start * 1000).toISOString() 
+            : null;
+
+          // Determine tier based on price
+          const priceId = subscription.items.data[0]?.price.id;
+          const { data: product } = await supabase
+            .from("stripe_products")
+            .select("price_type")
+            .eq("stripe_price_id", priceId)
+            .single();
+
+          // Try to find the user_id from profiles table by email
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", customerEmail)
+            .single();
+
+          const userId = profile?.id || null;
+          console.log(`[STRIPE-WEBHOOK] Found user_id: ${userId} for email: ${customerEmail}`);
+
+          // Upsert subscriber record with user_id
+          const { error: upsertError } = await supabase
+            .from("subscribers")
+            .upsert({
+              email: customerEmail,
+              user_id: userId,
+              stripe_customer_id: customerId,
+              subscribed: isActive,
+              subscription_tier: product?.price_type || "monthly",
+              subscription_end: subscriptionEnd,
+              is_trial: isTrialing,
+              trial_start: trialStart,
+              trial_end: trialEnd,
+              updated_at: new Date().toISOString(),
+            }, {
+              onConflict: "email",
+            });
+
+          if (upsertError) {
+            console.error("[STRIPE-WEBHOOK] Error creating subscriber:", upsertError);
+          } else {
+            console.log("[STRIPE-WEBHOOK] Successfully created/updated subscriber with user_id");
+          }
+        }
+        break;
+      }
+
       case "product.created":
       case "product.updated": {
         const product = event.data.object as Stripe.Product;
@@ -191,10 +266,20 @@ serve(async (req) => {
             .eq("stripe_price_id", priceId)
             .single();
 
+          // Try to find the user_id from profiles table by email
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", email)
+            .single();
+
+          const userId = profile?.id || null;
+
           const { error } = await supabase
             .from("subscribers")
             .upsert({
               email,
+              user_id: userId,
               stripe_customer_id: subscription.customer as string,
               subscribed: isActive,
               subscription_tier: product?.price_type || "monthly",
