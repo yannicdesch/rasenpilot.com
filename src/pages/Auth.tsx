@@ -9,11 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
 import MainNavigation from '@/components/MainNavigation';
+import PasswordResetLink from '@/components/PasswordResetLink';
 
 const Auth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -105,148 +107,170 @@ const Auth = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="signin" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signin">Anmelden</TabsTrigger>
-                  <TabsTrigger value="signup">Registrieren</TabsTrigger>
-                </TabsList>
+              {showPasswordReset ? (
+                <div className="space-y-4">
+                  <PasswordResetLink />
+                  <Button
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setShowPasswordReset(false)}
+                  >
+                    Zurück zur Anmeldung
+                  </Button>
+                </div>
+              ) : (
+                <Tabs defaultValue="signin" className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="signin">Anmelden</TabsTrigger>
+                    <TabsTrigger value="signup">Registrieren</TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="signin">
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">E-Mail</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signin-email"
-                          name="email"
-                          type="email"
-                          placeholder="ihre@email.de"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className="pl-10"
-                          required
-                        />
+                  <TabsContent value="signin">
+                    <form onSubmit={handleSignIn} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signin-email">E-Mail</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="signin-email"
+                            name="email"
+                            type="email"
+                            placeholder="ihre@email.de"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            className="pl-10"
+                            required
+                          />
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">Passwort</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signin-password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Ihr Passwort"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          className="pl-10 pr-10"
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="signin-password">Passwort</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="signin-password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Ihr Passwort"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            className="pl-10 pr-10"
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
 
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Anmelden...' : 'Anmelden'}
-                    </Button>
-                  </form>
-                </TabsContent>
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Anmelden...' : 'Anmelden'}
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="w-full text-sm text-muted-foreground"
+                        onClick={() => setShowPasswordReset(true)}
+                      >
+                        Passwort vergessen?
+                      </Button>
+                    </form>
+                  </TabsContent>
 
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-name">Name</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signup-name"
-                          name="fullName"
-                          type="text"
-                          placeholder="Ihr vollständiger Name"
-                          value={formData.fullName}
-                          onChange={handleInputChange}
-                          className="pl-10"
-                          required
-                        />
+                  <TabsContent value="signup">
+                    <form onSubmit={handleSignUp} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-name">Name</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="signup-name"
+                            name="fullName"
+                            type="text"
+                            placeholder="Ihr vollständiger Name"
+                            value={formData.fullName}
+                            onChange={handleInputChange}
+                            className="pl-10"
+                            required
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">E-Mail</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signup-email"
-                          name="email"
-                          type="email"
-                          placeholder="ihre@email.de"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className="pl-10"
-                          required
-                        />
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-email">E-Mail</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="signup-email"
+                            name="email"
+                            type="email"
+                            placeholder="ihre@email.de"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            className="pl-10"
+                            required
+                          />
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">Passwort</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signup-password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Mindestens 6 Zeichen"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          className="pl-10 pr-10"
-                          minLength={6}
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-password">Passwort</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="signup-password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Mindestens 6 Zeichen"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            className="pl-10 pr-10"
+                            minLength={6}
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
 
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Registrieren...' : 'Registrieren'}
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Registrieren...' : 'Registrieren'}
+                      </Button>
+                    </form>
+                  </TabsContent>
+                </Tabs>
+              )}
             </CardContent>
           </Card>
         </div>
