@@ -14,6 +14,7 @@ import SEO from '@/components/SEO';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { TrialBadge } from '@/components/subscription/TrialBadge';
 import { useToast } from '@/hooks/use-toast';
+import { trackMetaViewContent, trackMetaInitiateCheckout } from '@/lib/analytics/metaPixel';
 
 export default function Subscription() {
   const [user, setUser] = useState<any>(null);
@@ -31,10 +32,18 @@ export default function Subscription() {
       setUser(user);
     };
     getUser();
+    
+    // Track Meta Pixel ViewContent event
+    trackMetaViewContent('Premium Subscription', 'subscription', 9.99, 'EUR');
   }, []);
 
   const handleSubscribe = async (priceType: 'monthly' | 'yearly') => {
     setLoadingPlan(priceType);
+    
+    // Track InitiateCheckout event for Meta Pixel
+    const checkoutValue = priceType === 'yearly' ? 99 : 9.99;
+    trackMetaInitiateCheckout(checkoutValue, 'EUR', `Premium ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
+    
     try {
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
         method: 'POST',
