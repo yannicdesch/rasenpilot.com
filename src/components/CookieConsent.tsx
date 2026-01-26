@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Cookie, Settings, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { initializeMetaPixel } from '@/lib/analytics/metaPixel';
 
 export interface CookiePreferences {
   necessary: boolean;
@@ -43,6 +44,11 @@ const CookieConsent: React.FC = () => {
     setPreferences(prefs);
     setIsVisible(false);
     setShowPreferences(false);
+    
+    // Initialize Meta Pixel if marketing consent is given
+    if (prefs.marketing) {
+      initializeMetaPixel();
+    }
     
     // Trigger event for other components to listen to
     window.dispatchEvent(new CustomEvent('cookiePreferencesChanged', { detail: prefs }));

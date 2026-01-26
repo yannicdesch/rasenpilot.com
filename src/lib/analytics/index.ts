@@ -43,3 +43,14 @@ export {
   setupDropOffDetection,
   getSessionId
 } from './userJourneyTracking';
+
+// Export Meta Pixel tracking
+export {
+  initializeMetaPixel,
+  trackMetaPageView,
+  trackMetaViewContent,
+  trackMetaInitiateCheckout,
+  trackMetaPurchase,
+  trackMetaLead,
+  trackMetaCompleteRegistration
+} from './metaPixel';

@@ -1,18 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Crown, Loader2 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import { useSubscription } from '@/hooks/useSubscription';
+import { trackMetaPurchase } from '@/lib/analytics/metaPixel';
 
 const SubscriptionSuccess = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [isVerifying, setIsVerifying] = useState(true);
   const { checkSubscription, isPremium } = useSubscription();
+  const purchaseTracked = useRef(false);
 
   useEffect(() => {
+    // Track Purchase event for Meta Pixel (only once)
+    if (sessionId && !purchaseTracked.current) {
+      purchaseTracked.current = true;
+      
+      // Get price from URL params or default to monthly price
+      const priceType = searchParams.get('plan') || 'monthly';
+      const purchaseValue = priceType === 'yearly' ? 99 : 9.99;
+      
+      trackMetaPurchase(
+        purchaseValue, 
+        'EUR', 
+        `Premium ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`,
+        ['premium_subscription']
+      );
+      
+      console.log('[SubscriptionSuccess] Meta Purchase event tracked:', purchaseValue);
+    }
+    
     // Refresh subscription status after successful payment
     const verifySubscription = async () => {
       setIsVerifying(true);
@@ -41,7 +61,7 @@ const SubscriptionSuccess = () => {
     }
 
     return () => clearTimeout(timeout);
-  }, [sessionId, checkSubscription]);
+  }, [sessionId, searchParams, checkSubscription]);
 
   return (
     <>

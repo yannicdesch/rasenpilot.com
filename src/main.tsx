@@ -5,10 +5,14 @@ import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
 import { initializeGA, trackPageView, testSupabaseConnection } from './lib/analytics'
+import { initializeMetaPixel } from './lib/analytics/metaPixel'
 import { toast } from 'sonner'
 
 // Initialize Google Analytics
 initializeGA();
+
+// Initialize Meta Pixel (respects cookie consent)
+initializeMetaPixel();
 
 // Create a client
 const queryClient = new QueryClient()
