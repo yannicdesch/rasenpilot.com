@@ -12,6 +12,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import SEO from '@/components/SEO';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import MainNavigation from '@/components/MainNavigation';
 import { TrialBadge } from '@/components/subscription/TrialBadge';
 import { useToast } from '@/hooks/use-toast';
 import { trackMetaViewContent, trackMetaInitiateCheckout } from '@/lib/analytics/metaPixel';
@@ -104,6 +105,7 @@ export default function Subscription() {
       />
       
       <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50/30">
+        <MainNavigation />
         {/* Hero Section */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-green-600/5 via-transparent to-green-600/10" />

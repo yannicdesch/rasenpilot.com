@@ -450,7 +450,7 @@ Website: www.rasenpilot.com
                   <PremiumPreview 
                     score={healthScore}
                     sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-                    onUpgrade={(email) => createCheckout('monthly', email || undefined)}
+                    onUpgrade={() => navigate('/subscription?ref=analysis-result')}
                   />
                 ) : (
                   <PostAnalysisConversion 
@@ -599,10 +599,10 @@ Website: www.rasenpilot.com
               />
             ) : (
               <div className="mb-8">
-                <PremiumPreview 
+              <PremiumPreview 
                   score={healthScore}
                   sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-                  onUpgrade={(email) => createCheckout('monthly', email || undefined)}
+                  onUpgrade={() => navigate('/subscription?ref=analysis-journey')}
                 />
               </div>
             )}
@@ -682,10 +682,10 @@ Website: www.rasenpilot.com
               </div>
             ) : (
               <div className="mb-8">
-                <PremiumPreview 
+              <PremiumPreview 
                   score={healthScore}
                   sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-                  onUpgrade={(email) => createCheckout('monthly', email || undefined)}
+                  onUpgrade={() => navigate('/subscription?ref=analysis-details')}
                 />
               </div>
             )}
