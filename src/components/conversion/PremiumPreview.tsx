@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Crown, ArrowRight, Lightbulb, Target, Clock, Zap } from 'lucide-react';
+import { Crown, Lightbulb, Target, Clock, Zap, CheckCircle, Star, Shield } from 'lucide-react';
 
 interface PremiumPreviewProps {
   score: number;
@@ -13,7 +12,8 @@ interface PremiumPreviewProps {
 }
 
 const PremiumPreview: React.FC<PremiumPreviewProps> = ({ score, sampleProblems, onUpgrade }) => {
-  const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-6">
       {/* Score Breakdown Preview */}
@@ -177,46 +177,46 @@ const PremiumPreview: React.FC<PremiumPreviewProps> = ({ score, sampleProblems, 
         </CardContent>
       </Card>
 
-      {/* Upgrade CTA */}
-      <Card className="border-2 border-yellow-300 bg-gradient-to-br from-yellow-50 to-orange-50">
+      {/* Upgrade CTA - No email required, direct checkout */}
+      <Card className="border-2 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50 shadow-lg">
         <CardContent className="pt-6 text-center">
           <div className="mb-4">
-            <Crown className="h-12 w-12 text-yellow-600 mx-auto mb-2" />
-            <h3 className="text-xl font-bold text-yellow-800 mb-2">
-              Premium abonnieren
+            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-sm font-semibold mb-3">
+              <Zap className="h-4 w-4" />
+              7 Tage kostenlos testen
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Jetzt alle Details freischalten
             </h3>
-            <p className="text-yellow-700 text-sm mb-4">
-              Erhalten Sie Zugang zu allen detaillierten Analysen, personalisierten Pflegeplänen und unbegrenzten weiteren Analysen
+            <p className="text-gray-600 text-sm mb-2">
+              Detaillierte Scores, Aktionsplan, Wetter-Empfehlungen & unbegrenzte Analysen
             </p>
           </div>
           
           <div className="space-y-3">
-            <div className="mb-4">
-              <Label htmlFor="premium-email" className="block text-sm font-medium text-yellow-700 mb-2">
-                E-Mail für Premium-Zugang
-              </Label>
-              <Input
-                id="premium-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ihre.email@beispiel.de"
-                className="w-full border-yellow-300 focus:border-yellow-500"
-                required
-              />
-            </div>
-            
             <Button 
-              onClick={() => onUpgrade(email)}
-              disabled={!email || !email.includes('@')}
-              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => onUpgrade()}
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-6 text-base font-bold shadow-md"
             >
-              <Zap className="mr-2 h-4 w-4" />
-              Premium für €9,99/Monat
+              <Crown className="mr-2 h-5 w-5" />
+              7 Tage kostenlos starten
             </Button>
             
-            <div className="text-xs text-yellow-600">
-              ✓ 30 Tage Geld-zurück-Garantie ✓ Jederzeit kündbar
+            <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
+              <span>Danach ab</span>
+              <span className="font-bold text-green-700">€9,99/Monat</span>
+              <span>· Jederzeit kündbar</span>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 text-xs text-gray-500 pt-2">
+              <div className="flex items-center gap-1">
+                <Shield className="h-3 w-3" />
+                <span>30 Tage Garantie</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 text-yellow-500" />
+                <span>4,8/5 Bewertung</span>
+              </div>
             </div>
           </div>
         </CardContent>
