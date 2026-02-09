@@ -139,8 +139,8 @@ const Index = () => {
                 <strong> DLG-Standards</strong> für professionelle Rasenpflege.
               </p>
               <div className="mt-6 pt-6 border-t border-blue-200">
-                <div className="text-3xl font-bold text-blue-600">TÜV</div>
-                <div className="text-sm text-gray-600">Geprüft</div>
+                <div className="text-3xl font-bold text-blue-600">DLG</div>
+                <div className="text-sm text-gray-600">Standards</div>
               </div>
             </div>
             
