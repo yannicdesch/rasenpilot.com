@@ -9,6 +9,7 @@ import FeaturesSection from '@/components/landing/FeaturesSection';
 import FreeVsPremiumSection from '@/components/landing/FreeVsPremiumSection';
 import CallToActionSection from '@/components/landing/CallToActionSection';
 import FooterSection from '@/components/landing/FooterSection';
+import StickyMobileCTA from '@/components/landing/StickyMobileCTA';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -103,6 +104,7 @@ const Landing = () => {
       </div>
       
       <FooterSection />
+      <StickyMobileCTA />
     </div>
   );
 };
