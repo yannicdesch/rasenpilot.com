@@ -375,6 +375,7 @@ export type Database = {
           location: string | null
           user_id: string
           user_name: string
+          zip_code: string | null
         }
         Insert: {
           analysis_date?: string
@@ -387,6 +388,7 @@ export type Database = {
           location?: string | null
           user_id: string
           user_name: string
+          zip_code?: string | null
         }
         Update: {
           analysis_date?: string
@@ -399,6 +401,7 @@ export type Database = {
           location?: string | null
           user_id?: string
           user_name?: string
+          zip_code?: string | null
         }
         Relationships: []
       }
@@ -843,6 +846,7 @@ export type Database = {
           location: string | null
           user_id: string | null
           user_name: string | null
+          zip_code: string | null
         }
         Insert: {
           analysis_date?: string | null
@@ -855,6 +859,7 @@ export type Database = {
           location?: string | null
           user_id?: string | null
           user_name?: string | null
+          zip_code?: string | null
         }
         Update: {
           analysis_date?: string | null
@@ -867,6 +872,7 @@ export type Database = {
           location?: string | null
           user_id?: string | null
           user_name?: string | null
+          zip_code?: string | null
         }
         Relationships: []
       }
@@ -959,18 +965,32 @@ export type Database = {
         }
         Returns: undefined
       }
-      update_user_highscore: {
-        Args: {
-          p_grass_type?: string
-          p_lawn_image_url?: string
-          p_lawn_score: number
-          p_lawn_size?: string
-          p_location?: string
-          p_user_id: string
-          p_user_name: string
-        }
-        Returns: undefined
-      }
+      update_user_highscore:
+        | {
+            Args: {
+              p_grass_type?: string
+              p_lawn_image_url?: string
+              p_lawn_score: number
+              p_lawn_size?: string
+              p_location?: string
+              p_user_id: string
+              p_user_name: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_grass_type?: string
+              p_lawn_image_url?: string
+              p_lawn_score: number
+              p_lawn_size?: string
+              p_location?: string
+              p_user_id: string
+              p_user_name: string
+              p_zip_code?: string
+            }
+            Returns: undefined
+          }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
