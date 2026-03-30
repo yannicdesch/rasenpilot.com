@@ -73,6 +73,45 @@ const Landing = () => {
       <HowItWorksSection />
       <FeaturesSection />
       <FreeVsPremiumSection />
+      
+      {/* Social Proof - Testimonials */}
+      <div className="py-16 bg-gradient-to-b from-background to-accent/20">
+        <div className="container mx-auto px-4">
+          <Testimonials 
+            title="Das sagen unsere Nutzer"
+            testimonials={[
+              {
+                id: 1,
+                name: "Markus R.",
+                location: "Stuttgart",
+                rating: 5,
+                text: "Endlich weiß ich, was meinem Rasen wirklich fehlt. Die KI-Analyse hat sofort erkannt, dass mein Boden zu verdichtet war. Nach 4 Wochen sieht mein Garten aus wie vom Profi gepflegt!",
+                lawnType: "Zierrasen",
+                improvement: "Von 38 auf 91 Punkte"
+              },
+              {
+                id: 2,
+                name: "Julia H.",
+                location: "Köln",
+                rating: 5,
+                text: "Als berufstätige Mutter habe ich wenig Zeit für den Garten. Der Pflegekalender sagt mir genau, wann ich was tun muss. Mein Rasen war noch nie so grün – und ich spare sogar Zeit!",
+                lawnType: "Spielrasen",
+                improvement: "Von 42 auf 87 Punkte"
+              },
+              {
+                id: 3,
+                name: "Frank W.",
+                location: "München",
+                rating: 5,
+                text: "Die Wetter-Integration ist genial. Ich bekomme immer genau die richtigen Tipps zur richtigen Zeit. Meine Nachbarn fragen schon, wie ich das geschafft habe.",
+                lawnType: "Gebrauchsrasen",
+                improvement: "Von 55 auf 93 Punkte"
+              }
+            ]}
+          />
+        </div>
+      </div>
+
       <CallToActionSection />
       
       {/* Blog Call-to-Action */}
