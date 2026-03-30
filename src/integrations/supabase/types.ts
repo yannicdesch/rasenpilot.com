@@ -329,7 +329,6 @@ export type Database = {
         Row: {
           analysis_date: string
           created_at: string
-          email: string | null
           grass_type: string | null
           id: string
           lawn_image_url: string | null
@@ -342,7 +341,6 @@ export type Database = {
         Insert: {
           analysis_date?: string
           created_at?: string
-          email?: string | null
           grass_type?: string | null
           id?: string
           lawn_image_url?: string | null
@@ -355,7 +353,6 @@ export type Database = {
         Update: {
           analysis_date?: string
           created_at?: string
-          email?: string | null
           grass_type?: string | null
           id?: string
           lawn_image_url?: string | null
@@ -924,32 +921,18 @@ export type Database = {
         }
         Returns: undefined
       }
-      update_user_highscore:
-        | {
-            Args: {
-              p_grass_type?: string
-              p_lawn_image_url?: string
-              p_lawn_score: number
-              p_lawn_size?: string
-              p_location?: string
-              p_user_id: string
-              p_user_name: string
-            }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              p_email?: string
-              p_grass_type?: string
-              p_lawn_image_url?: string
-              p_lawn_score: number
-              p_lawn_size?: string
-              p_location?: string
-              p_user_id: string
-              p_user_name: string
-            }
-            Returns: undefined
-          }
+      update_user_highscore: {
+        Args: {
+          p_grass_type?: string
+          p_lawn_image_url?: string
+          p_lawn_score: number
+          p_lawn_size?: string
+          p_location?: string
+          p_user_id: string
+          p_user_name: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

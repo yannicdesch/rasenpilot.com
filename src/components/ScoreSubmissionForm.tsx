@@ -77,10 +77,9 @@ const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({
         formData.nickname,
         score,
         lawnImageUrl,
-        `PLZ ${formData.zipcode}`, // location field
+        `PLZ ${formData.zipcode}`,
         grassType,
         lawnSize,
-        formData.email
       );
       
       toast({
