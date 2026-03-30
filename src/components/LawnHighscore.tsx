@@ -224,7 +224,7 @@ const LawnHighscore = () => {
           ) : (
             <div className="divide-y divide-border">
               {displayScores.map((entry, index) => {
-                const isCurrentUser = entry.user_id === profile?.user_id;
+                const isCurrentUser = entry.user_id === profile?.userId;
                 return (
                   <div
                     key={entry.id}
