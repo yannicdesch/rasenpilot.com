@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { emailLayout, greeting, paragraph, heading, scoreDisplay, featureList, ctaButton, infoCard, signoff } from '../_shared/email-template.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,33 +27,23 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Find subscribers who started trial exactly 3-4 days ago (send on day 4)
-    const now = new Date();
-    const fourDaysAgo = new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000);
-    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+    // Find users who started trial 4 days ago
+    const fourDaysAgo = new Date();
+    fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
+    const dateStr = fourDaysAgo.toISOString().split("T")[0];
 
-    const { data: trialUsers, error } = await supabase
+    const { data: trialUsers } = await supabase
       .from("subscribers")
-      .select("email, trial_start, user_id")
+      .select("email, user_id")
       .eq("is_trial", true)
-      .eq("subscribed", true)
-      .gte("trial_start", fourDaysAgo.toISOString())
-      .lte("trial_start", threeDaysAgo.toISOString());
-
-    if (error) {
-      console.error("[TRIAL-DAY4] Query error:", error);
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+      .gte("trial_start", `${dateStr}T00:00:00`)
+      .lte("trial_start", `${dateStr}T23:59:59`);
 
     console.log(`[TRIAL-DAY4] Found ${trialUsers?.length || 0} users for Day 4 email`);
 
     let sent = 0;
     for (const user of trialUsers || []) {
-      // Get latest analysis for user if available
-      let analysisInfo = "";
+      let analysisContent = "";
       if (user.user_id) {
         const { data: analysis } = await supabase
           .from("analyses")
@@ -63,15 +54,37 @@ serve(async (req) => {
           .maybeSingle();
 
         if (analysis) {
-          analysisInfo = `
-            <div style="background:#f0fdf4;border-radius:12px;padding:16px;margin:16px 0;">
-              <p style="font-weight:bold;color:#16a34a;margin:0 0 8px;">Dein letztes Analyse-Ergebnis:</p>
-              <p style="font-size:24px;font-weight:bold;margin:0;">Score: ${analysis.score}/100</p>
-              ${analysis.summary_short ? `<p style="color:#666;margin:8px 0 0;">${analysis.summary_short}</p>` : ""}
-            </div>
-          `;
+          analysisContent = scoreDisplay(analysis.score, analysis.summary_short || undefined);
         }
       }
+
+      if (!analysisContent) {
+        analysisContent = infoCard(
+          'Noch keine Analyse gemacht',
+          'Lade jetzt ein Foto deines Rasens hoch und erhalte deinen personalisierten Pflegeplan – nur als Premium-Mitglied.',
+          '📸',
+          '#fffbeb',
+          '#fde68a'
+        );
+      }
+
+      const content = `
+        ${greeting('Rasenfreund')}
+        ${paragraph('Du bist jetzt seit <strong>4 Tagen</strong> Premium-Mitglied bei Rasenpilot. Hier ist dein Fortschritt:')}
+        ${analysisContent}
+        ${heading('Diese Premium-Features warten auf dich')}
+        ${featureList([
+          { icon: '🔍', text: '<strong>Detaillierte Teilbewertungen</strong> – Dichte, Boden, Feuchtigkeit & Sonnenlicht' },
+          { icon: '📅', text: '<strong>Persönlicher Pflegekalender</strong> mit Wetter-Daten' },
+          { icon: '📈', text: '<strong>Fortschritts-Tracking</strong> über mehrere Analysen' },
+          { icon: '💬', text: '<strong>Unbegrenzte KI-Beratung</strong> für alle Rasenfragen' },
+        ])}
+        ${ctaButton('Neue Analyse starten →', 'https://www.rasenpilot.com/lawn-analysis')}
+        ${paragraph('<span style="color:#9ca3af;font-size:13px;">Deine Testphase endet in 3 Tagen. Danach wird dein Abo automatisch aktiviert.</span>')}
+        ${signoff()}
+      `;
+
+      const emailHtml = emailLayout(content, 'Dein Rasen-Fortschritt nach 4 Tagen Premium');
 
       try {
         const res = await fetch("https://api.resend.com/emails", {
@@ -84,28 +97,7 @@ serve(async (req) => {
             from: "Rasenpilot <noreply@rasenpilot.com>",
             to: user.email,
             subject: "🌱 Dein Rasen-Fortschritt – So geht's weiter",
-            html: `
-              <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
-                <h2 style="color:#16a34a;">Dein Rasen-Fortschritt 📊</h2>
-                <p>Du bist jetzt seit <strong>4 Tagen</strong> Premium-Mitglied bei Rasenpilot.</p>
-                ${analysisInfo || `
-                  <div style="background:#fffbeb;border-radius:12px;padding:16px;margin:16px 0;">
-                    <p style="font-weight:bold;color:#d97706;margin:0 0 8px;">📸 Du hast noch keine Analyse gemacht!</p>
-                    <p style="margin:0;">Lade jetzt ein Foto deines Rasens hoch und erhalte deinen personalisierten Pflegeplan.</p>
-                  </div>
-                `}
-                <p><strong>Diese Premium-Features warten auf dich:</strong></p>
-                <ul style="padding-left:20px;">
-                  <li style="margin:6px 0;">🔍 Detaillierte Teilbewertungen (Dichte, Boden, Feuchtigkeit)</li>
-                  <li style="margin:6px 0;">📅 Persönlicher Pflegekalender mit Wetter-Daten</li>
-                  <li style="margin:6px 0;">📈 Fortschritts-Tracking über mehrere Analysen</li>
-                  <li style="margin:6px 0;">💬 Unbegrenzte KI-Beratung für alle Rasenfragen</li>
-                </ul>
-                <p><a href="https://www.rasenpilot.com/lawn-analysis" style="background:#16a34a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:bold;">Neue Analyse starten →</a></p>
-                <p style="color:#999;font-size:13px;margin-top:24px;">Deine Testphase endet in 3 Tagen. Danach wird dein Abo automatisch aktiviert.</p>
-                <p style="color:#666;font-size:14px;">Viele Grüße,<br/>Dein Rasenpilot-Team 🌿</p>
-              </div>
-            `,
+            html: emailHtml,
           }),
         });
         if (res.ok) sent++;
@@ -123,7 +115,7 @@ serve(async (req) => {
     console.error("[TRIAL-DAY4] Error:", e);
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : String(e) }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
