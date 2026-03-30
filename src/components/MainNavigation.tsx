@@ -17,6 +17,7 @@ const MainNavigation = () => {
   const { isPremium } = useSubscription();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { streak, streakAboutToBreak } = useAnalysisStreak();
 
   const closeMenu = () => setIsMenuOpen(false);
   const isActive = (path: string) => location.pathname === path;
