@@ -329,7 +329,6 @@ export type Database = {
         Row: {
           analysis_date: string
           created_at: string
-          email: string | null
           grass_type: string | null
           id: string
           lawn_image_url: string | null
@@ -342,7 +341,6 @@ export type Database = {
         Insert: {
           analysis_date?: string
           created_at?: string
-          email?: string | null
           grass_type?: string | null
           id?: string
           lawn_image_url?: string | null
@@ -355,7 +353,6 @@ export type Database = {
         Update: {
           analysis_date?: string
           created_at?: string
-          email?: string | null
           grass_type?: string | null
           id?: string
           lawn_image_url?: string | null
