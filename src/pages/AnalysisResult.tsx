@@ -541,6 +541,16 @@ Website: www.rasenpilot.com
                   </Card>
                 </div>
 
+                {/* Disease Detection */}
+                <div className="mb-8">
+                  <DiseaseDetection analysisResult={getAnalysisResult()} />
+                </div>
+
+                {/* Product Recommendations */}
+                <div className="mb-8">
+                  <ProductRecommendations analysisResult={getAnalysisResult()} />
+                </div>
+
                 {/* Premium - Download & Share Actions */}
                 <div className="mb-8 space-y-4">
                   <Button 
