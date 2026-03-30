@@ -796,7 +796,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      lawn_highscores_public: {
+        Row: {
+          analysis_date: string | null
+          created_at: string | null
+          grass_type: string | null
+          id: string | null
+          lawn_image_url: string | null
+          lawn_score: number | null
+          lawn_size: string | null
+          location: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          analysis_date?: string | null
+          created_at?: string | null
+          grass_type?: string | null
+          id?: string | null
+          lawn_image_url?: string | null
+          lawn_score?: number | null
+          lawn_size?: string | null
+          location?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          analysis_date?: string | null
+          created_at?: string | null
+          grass_type?: string | null
+          id?: string | null
+          lawn_image_url?: string | null
+          lawn_score?: number | null
+          lawn_size?: string | null
+          location?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       claim_orphaned_analysis: {
