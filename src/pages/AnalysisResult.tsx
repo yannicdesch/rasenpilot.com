@@ -20,6 +20,7 @@ import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
 import { useRetentionTracking } from '@/hooks/useRetentionTracking';
 import { useSubscription } from '@/hooks/useSubscription';
+import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 
 interface AnalysisJobResult {
   id: string;
