@@ -75,7 +75,7 @@ async function getCustomerEmail(
   return "email" in customer ? customer.email : null;
 }
 
-async function sendTrialEndingEmail(email: string, resendKey: string) {
+async function sendEmail(email: string, resendKey: string, subject: string, html: string) {
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -86,22 +86,53 @@ async function sendTrialEndingEmail(email: string, resendKey: string) {
       body: JSON.stringify({
         from: "Rasenpilot <noreply@rasenpilot.com>",
         to: email,
-        subject: "Deine Rasenpilot-Testphase endet bald",
-        html: `
-          <h2>Hallo!</h2>
-          <p>Deine 7-tägige kostenlose Testphase bei <strong>Rasenpilot Premium</strong> endet in Kürze.</p>
-          <p>Nach Ablauf wird dein Abonnement automatisch aktiviert. Falls du nicht fortfahren möchtest, kannst du jederzeit vorher kündigen.</p>
-          <p>Wir freuen uns, dass du Rasenpilot nutzt! 🌱</p>
-          <p><a href="https://www.rasenpilot.com/subscription-management" style="background:#16a34a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Abonnement verwalten</a></p>
-          <p>Viele Grüße,<br/>Dein Rasenpilot-Team</p>
-        `,
+        subject,
+        html,
       }),
     });
     const data = await res.text();
-    console.log("[STRIPE-WEBHOOK] Trial ending email sent:", res.status, data);
+    console.log(`[STRIPE-WEBHOOK] Email sent (${subject}):`, res.status, data);
   } catch (e) {
-    console.error("[STRIPE-WEBHOOK] Failed to send trial ending email:", err(e));
+    console.error(`[STRIPE-WEBHOOK] Failed to send email (${subject}):`, err(e));
   }
+}
+
+async function sendTrialWelcomeEmail(email: string, resendKey: string) {
+  await sendEmail(email, resendKey, "Willkommen bei Rasenpilot Premium! 🌱 3 Tipps für den Start", `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+      <h2 style="color:#16a34a;">Willkommen bei Rasenpilot Premium! 🎉</h2>
+      <p>Schön, dass du dabei bist! Deine 7-tägige kostenlose Testphase hat begonnen.</p>
+      <p>Hier sind <strong>3 Tipps</strong>, um das Beste aus Premium herauszuholen:</p>
+      <div style="background:#f0fdf4;border-radius:12px;padding:16px;margin:16px 0;">
+        <p style="margin:8px 0;"><strong>1. 📸 Lade ein Foto deines Rasens hoch</strong><br/>Unsere KI analysiert deinen Rasen und erstellt einen personalisierten Pflegeplan.</p>
+        <p style="margin:8px 0;"><strong>2. 📅 Schau in den Pflegekalender</strong><br/>Du bekommst täglich passende Aufgaben basierend auf Wetter und Saison.</p>
+        <p style="margin:8px 0;"><strong>3. 💬 Nutze den KI-Chat</strong><br/>Stelle deine Rasenfragen direkt – du bekommst sofort Experten-Antworten.</p>
+      </div>
+      <p><a href="https://www.rasenpilot.com/lawn-analysis" style="background:#16a34a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:bold;">Jetzt erste Analyse starten →</a></p>
+      <p style="color:#666;font-size:14px;margin-top:24px;">Viele Grüße,<br/>Dein Rasenpilot-Team 🌿</p>
+    </div>
+  `);
+}
+
+async function sendTrialEndingEmail(email: string, resendKey: string) {
+  await sendEmail(email, resendKey, "⏰ Deine Testphase endet in 2 Tagen", `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+      <h2 style="color:#16a34a;">Deine Testphase endet bald</h2>
+      <p>In <strong>2 Tagen</strong> endet deine kostenlose Rasenpilot Premium Testphase.</p>
+      <p style="color:#dc2626;font-weight:bold;">Was du danach verlierst:</p>
+      <ul style="background:#fef2f2;border-radius:12px;padding:16px 16px 16px 32px;margin:16px 0;">
+        <li style="margin:6px 0;">❌ Detaillierte Rasen-Analyse mit Teilbewertungen</li>
+        <li style="margin:6px 0;">❌ Personalisierter Pflegekalender</li>
+        <li style="margin:6px 0;">❌ Rasen-Score Verlauf & Fortschritt</li>
+        <li style="margin:6px 0;">❌ Unbegrenzte KI-Beratung</li>
+        <li style="margin:6px 0;">❌ Wetter-basierte Empfehlungen</li>
+      </ul>
+      <p>Wenn du zufrieden bist, musst du nichts tun – dein Abo wird automatisch aktiviert.</p>
+      <p>Falls du nicht fortfahren möchtest, kannst du jederzeit kündigen:</p>
+      <p><a href="https://www.rasenpilot.com/subscription-management" style="background:#16a34a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:bold;">Abonnement verwalten</a></p>
+      <p style="color:#666;font-size:14px;margin-top:24px;">Viele Grüße,<br/>Dein Rasenpilot-Team 🌿</p>
+    </div>
+  `);
 }
 
 // ── event processor ──────────────────────────────────────────────────────────
