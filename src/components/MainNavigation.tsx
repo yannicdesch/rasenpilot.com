@@ -4,10 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Leaf, Menu, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut, LogIn, CloudSun, MessageCircle, LayoutDashboard, CreditCard, Shield, History, Calendar } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Leaf, Menu, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut, LogIn, CloudSun, MessageCircle, LayoutDashboard, CreditCard, Shield, History, Calendar, Flame } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useAnalysisStreak } from '@/hooks/useAnalysisStreak';
 
 const MainNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,6 +17,7 @@ const MainNavigation = () => {
   const { isPremium } = useSubscription();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { streak, streakAboutToBreak } = useAnalysisStreak();
 
   const closeMenu = () => setIsMenuOpen(false);
   const isActive = (path: string) => location.pathname === path;
@@ -34,6 +37,7 @@ const MainNavigation = () => {
     }`;
 
   return (
+    <>
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
@@ -127,6 +131,23 @@ const MainNavigation = () => {
                 <Crown size={18} />
                 <span>Premium werden</span>
               </Link>
+            )}
+
+            {/* Streak Counter */}
+            {user && streak > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-semibold cursor-default">
+                      <Flame size={16} className="text-orange-500" />
+                      <span>{streak}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Dein Streak: {streak} Woche{streak !== 1 ? 'n' : ''} — verliere ihn nicht! 🔥</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
 
             {/* User menu */}
@@ -286,6 +307,15 @@ const MainNavigation = () => {
         </div>
       </div>
     </nav>
+      {/* Streak Warning Banner */}
+      {user && streakAboutToBreak && (
+        <div className="bg-orange-500 text-white text-center py-2 px-4 text-sm font-medium">
+          <Link to="/lawn-analysis" className="hover:underline">
+            ⚠️ Dein Streak endet heute! Jetzt analysieren → 🔥
+          </Link>
+        </div>
+      )}
+    </>
   );
 };
 
