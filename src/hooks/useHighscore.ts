@@ -41,6 +41,17 @@ export const useHighscore = () => {
         
         if (currentScore && currentScore.lawn_score === lawnScore) {
           toast.success(`Glückwunsch! Neuer Bestwert: ${lawnScore}/100 🏆`);
+          
+          // Notify overtaken neighbors via email (fire-and-forget)
+          if (zipCode) {
+            supabase.functions.invoke('notify-score-overtaken', {
+              body: { userId, userName, newScore: lawnScore, zipCode }
+            }).then(res => {
+              if (res.data) {
+                console.log('Overtaken notifications:', res.data);
+              }
+            }).catch(err => console.error('Notification error:', err));
+          }
         } else if (currentScore && currentScore.lawn_score > lawnScore) {
           toast.error(`Score ${lawnScore}/100 ist niedriger als dein Bestwert (${currentScore.lawn_score}/100). Nur bessere Scores werden gespeichert.`);
         } else if (lawnScore >= 80) {
