@@ -716,6 +716,7 @@ Website: www.rasenpilot.com
         </div>
       )}
     </div>
+  );
 };
 
 export default AnalysisResult;
