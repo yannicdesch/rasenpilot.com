@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Download, Share, Star, Leaf, Target, Calendar, AlertTriangle, Droplets, Zap, Sun, Thermometer, Bug, MapPin, TrendingUp, BookOpen, Lightbulb, Crown } from 'lucide-react';
+import DiseaseDetection from '@/components/DiseaseDetection';
+import ProductRecommendations from '@/components/ProductRecommendations';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -537,6 +539,16 @@ Website: www.rasenpilot.com
                       </div>
                     </CardContent>
                   </Card>
+                </div>
+
+                {/* Disease Detection */}
+                <div className="mb-8">
+                  <DiseaseDetection analysisResult={getAnalysisResult()} />
+                </div>
+
+                {/* Product Recommendations */}
+                <div className="mb-8">
+                  <ProductRecommendations analysisResult={getAnalysisResult()} />
                 </div>
 
                 {/* Premium - Download & Share Actions */}

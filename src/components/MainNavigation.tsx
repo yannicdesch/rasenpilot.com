@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Leaf, Menu, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut, LogIn, CloudSun, MessageCircle, LayoutDashboard, CreditCard, Shield } from 'lucide-react';
+import { Leaf, Menu, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut, LogIn, CloudSun, MessageCircle, LayoutDashboard, CreditCard, Shield, History } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -92,6 +92,12 @@ const MainNavigation = () => {
                     <Link to="/chat" className="flex items-center gap-2">
                       <MessageCircle size={16} />
                       KI-Berater
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/analysis-history" className="flex items-center gap-2">
+                      <History size={16} />
+                      Rasen-Verlauf
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -212,6 +218,10 @@ const MainNavigation = () => {
                             <Link to="/chat" className={mobileLinkClass('/chat', true)} onClick={closeMenu}>
                               <MessageCircle size={20} />
                               <span>KI-Berater</span>
+                            </Link>
+                            <Link to="/analysis-history" className={mobileLinkClass('/analysis-history', true)} onClick={closeMenu}>
+                              <History size={20} />
+                              <span>Rasen-Verlauf</span>
                             </Link>
                             <Link to="/subscription/manage" className={mobileLinkClass('/subscription/manage')} onClick={closeMenu}>
                               <CreditCard size={20} />
