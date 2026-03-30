@@ -219,6 +219,10 @@ const MainNavigation = () => {
                               <MessageCircle size={20} />
                               <span>KI-Berater</span>
                             </Link>
+                            <Link to="/analysis-history" className={mobileLinkClass('/analysis-history', true)} onClick={closeMenu}>
+                              <History size={20} />
+                              <span>Rasen-Verlauf</span>
+                            </Link>
                             <Link to="/subscription/manage" className={mobileLinkClass('/subscription/manage')} onClick={closeMenu}>
                               <CreditCard size={20} />
                               <span>Abonnement</span>
