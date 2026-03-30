@@ -20,6 +20,7 @@ import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
 import { useRetentionTracking } from '@/hooks/useRetentionTracking';
 import { useSubscription } from '@/hooks/useSubscription';
+import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 
 interface AnalysisJobResult {
   id: string;
@@ -364,6 +365,15 @@ Website: www.rasenpilot.com
           </Card>
         </div>
 
+        {/* Share Card - visible to all users */}
+        <div className="mb-8">
+          <LawnScoreShareCard 
+            score={healthScore} 
+            analysisDate={analysisData?.created_at}
+            jobId={jobId}
+          />
+        </div>
+
         {/* Tab Navigation */}
         <div className="mb-6">
           <div className="flex bg-gray-100 rounded-lg p-1">
@@ -551,23 +561,14 @@ Website: www.rasenpilot.com
                   <ProductRecommendations analysisResult={getAnalysisResult()} />
                 </div>
 
-                {/* Premium - Download & Share Actions */}
-                <div className="mb-8 space-y-4">
+                {/* Premium - Download Action */}
+                <div className="mb-8">
                   <Button 
                     onClick={handleDownloadPlan}
                     className="w-full bg-green-600 hover:bg-green-700 h-12"
                   >
                     <Download className="h-5 w-5 mr-2" />
                     Pflegeplan herunterladen
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleShare}
-                    variant="outline" 
-                    className="w-full h-10 border-green-200 hover:bg-green-50"
-                  >
-                    <Share className="h-4 w-4 mr-2" />
-                    Ergebnis teilen
                   </Button>
                 </div>
 
