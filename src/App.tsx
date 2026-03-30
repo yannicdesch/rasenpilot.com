@@ -34,6 +34,7 @@ import Subscription from "./pages/Subscription";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionManagement from "./pages/SubscriptionManagement";
 import PremiumDashboard from "./pages/PremiumDashboard";
+import CareCalendar from "./pages/CareCalendar";
 
 // Local SEO Pages
 import Munich from "./pages/local/Munich";
@@ -119,6 +120,7 @@ const App = () => {
           <Route path="/subscription-success" element={<SubscriptionSuccess />} />
           <Route path="/subscription/manage" element={<SubscriptionManagement />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
+            <Route path="/care-calendar" element={<CareCalendar />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/chat" element={<Chat />} />
