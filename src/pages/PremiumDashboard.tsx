@@ -31,17 +31,31 @@ import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 
 const PremiumDashboard = () => {
-  const { subscription, isPremium, openCustomerPortal } = useSubscription();
+  const { subscription, isPremium, loading: subLoading, openCustomerPortal } = useSubscription();
   const { user } = useProfileData();
-  const { latestAnalysis, lawnProfile, dashboardStats, loading } = useDashboardData();
+  const { latestAnalysis, lawnProfile, dashboardStats, loading: dataLoading } = useDashboardData();
   const navigate = useNavigate();
 
-  // Redirect non-premium users
+  const isLoading = subLoading || dataLoading;
+
+  // Redirect non-premium users (only after loading is complete)
   React.useEffect(() => {
-    if (!loading && !isPremium) {
+    if (!isLoading && !isPremium) {
       navigate('/subscription?ref=premium-dashboard');
     }
-  }, [isPremium, loading, navigate]);
+  }, [isPremium, isLoading, navigate]);
+
+  // Show loading state while checking subscription
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-green-800 text-sm">Premium-Zugang wird geprüft...</p>
+        </div>
+      </div>
+    );
+  }
 
   const premiumFeatures = [
     {
@@ -221,7 +235,7 @@ const PremiumDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {loading ? (
+                {dataLoading ? (
                   <div className="animate-pulse space-y-3">
                     <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -287,7 +301,7 @@ const PremiumDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {loading ? (
+                {dataLoading ? (
                   <div className="animate-pulse space-y-3">
                     <div className="h-4 bg-gray-200 rounded"></div>
                     <div className="h-4 bg-gray-200 rounded"></div>
