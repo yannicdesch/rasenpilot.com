@@ -94,6 +94,12 @@ const MainNavigation = () => {
                       KI-Berater
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/analysis-history" className="flex items-center gap-2">
+                      <History size={16} />
+                      Rasen-Verlauf
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/subscription/manage" className="flex items-center gap-2">
