@@ -306,6 +306,15 @@ const MainNavigation = () => {
         </div>
       </div>
     </nav>
+      {/* Streak Warning Banner */}
+      {user && streakAboutToBreak && (
+        <div className="bg-orange-500 text-white text-center py-2 px-4 text-sm font-medium">
+          <Link to="/lawn-analysis" className="hover:underline">
+            ⚠️ Dein Streak endet heute! Jetzt analysieren → 🔥
+          </Link>
+        </div>
+      )}
+    </>
   );
 };
 
