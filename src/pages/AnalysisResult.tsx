@@ -693,6 +693,28 @@ Website: www.rasenpilot.com
         )}
 
       </div>
+
+      {/* Sticky Upsell Banner for free/trial users */}
+      {!isPremium && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-green-700 to-green-600 text-white shadow-2xl border-t-2 border-green-400/30">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-xl flex-shrink-0">🌿</span>
+              <p className="text-sm md:text-base font-medium truncate">
+                <span className="hidden sm:inline">Premium-Nutzer sehen auch: Detaillierter Pflegekalender, Krankheitserkennung & Verlauf.</span>
+                <span className="sm:hidden">Premium: Pflegekalender & mehr</span>
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/subscription?ref=analysis-upsell-banner')}
+              size="sm"
+              className="flex-shrink-0 bg-white text-green-700 hover:bg-green-50 font-bold shadow-lg"
+            >
+              Jetzt upgraden →
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
