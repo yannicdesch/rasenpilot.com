@@ -42,6 +42,31 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Check if user is admin — admins always get premium access
+    const { data: adminRole } = await supabaseClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (adminRole) {
+      logStep("User is admin, granting premium access");
+      return new Response(JSON.stringify({
+        subscribed: true,
+        subscription_tier: "Premium",
+        subscription_end: null,
+        is_trial: false,
+        trial_start: null,
+        trial_end: null,
+        verified_with_stripe: false,
+        is_admin: true
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     
     // ALWAYS verify with Stripe if we have a key - don't trust local DB alone
