@@ -1,0 +1,1 @@
+UPDATE public.subscribers SET subscribed = true, subscription_tier = 'premium_monthly', is_trial = false, updated_at = now() WHERE email = 'yannic.desch@gmail.com';
