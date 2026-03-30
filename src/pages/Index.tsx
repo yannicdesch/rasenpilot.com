@@ -1,53 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import MainNavigation from '@/components/MainNavigation';
-import { useLawn } from '@/context/LawnContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Camera, Calendar, ArrowRight, MessageSquare, Check, BookOpen, Trophy, Star, Medal, Award, Mail, Clock, Users, Target, Shield } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import { Camera, Calendar, ArrowRight, Check, BookOpen, Trophy, Crown, Clock, Users, Target, Shield, Flame, Share2, Bug, ShoppingCart, BarChart3, MapPin } from 'lucide-react';
 import type { SEOContentType } from '@/components/SEOContentEditor';
-import Logo from '@/components/Logo';
 import SEO from '@/components/SEO';
 import StructuredData from '@/components/StructuredData';
 import FAQ from '@/components/FAQ';
 import Testimonials from '@/components/Testimonials';
-import PostAnalysisConversion from '@/components/conversion/PostAnalysisConversion';
-import FreeVsPremiumSection from '@/components/landing/FreeVsPremiumSection';
 import HeroSection from '@/components/landing/HeroSection';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const navigate = useNavigate();
   const [seoContent, setSeoContent] = useState<SEOContentType | null>(null);
-  const [email, setEmail] = useState('');
-  const [emailCaptured, setEmailCaptured] = useState(false);
   
   useEffect(() => {
-    // Load SEO content
     const savedSeoContent = localStorage.getItem('seoContent');
     if (savedSeoContent) {
       try {
-        const parsedContent = JSON.parse(savedSeoContent);
-        setSeoContent(parsedContent);
+        setSeoContent(JSON.parse(savedSeoContent));
       } catch (e) {
         console.error("Error parsing saved SEO content:", e);
       }
     }
   }, []);
-  
-  const handleGetStarted = () => {
-    navigate('/lawn-analysis');
-  };
-
-  const handleEmailCapture = (capturedEmail: string) => {
-    setEmail(capturedEmail);
-    setEmailCaptured(true);
-    // Navigate to analysis after email capture
-    setTimeout(() => {
-      navigate('/lawn-analysis');
-    }, 2000);
-  };
   
   return (
     <div className="min-h-screen flex flex-col bg-white font-poppins">
@@ -108,7 +85,7 @@ const Index = () => {
               Warum 50.000+ Gartenbesitzer <br className="hidden md:block" />
               uns vertrauen
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Modernste KI-Technologie trifft auf jahrzehntelange Rasenexpertise
             </p>
           </div>
@@ -118,14 +95,14 @@ const Index = () => {
               <div className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center transform rotate-12">
                 <span className="text-2xl">🧠</span>
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">Deep Learning Analyse</h3>
-              <p className="text-gray-700 leading-relaxed">
-                Über <strong>200 Rasenparameter</strong> werden in Echtzeit analysiert. 
-                Trainiert mit 1 Million+ Rasenbildern aus ganz Deutschland.
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Deep Learning Analyse</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Über <strong className="text-foreground">200 Rasenparameter</strong> werden in Echtzeit analysiert — 
+                inkl. <strong className="text-foreground">Krankheitserkennung</strong> und Produktempfehlungen.
               </p>
               <div className="mt-6 pt-6 border-t border-green-200">
-                <div className="text-3xl font-bold text-green-600">98,3%</div>
-                <div className="text-sm text-gray-600">Genauigkeit</div>
+                <div className="text-3xl font-bold text-primary">98,3%</div>
+                <div className="text-sm text-muted-foreground">Genauigkeit</div>
               </div>
             </div>
             
@@ -133,14 +110,14 @@ const Index = () => {
               <div className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center transform -rotate-12">
                 <Shield className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">Wissenschaftlich validiert</h3>
-              <p className="text-gray-700 leading-relaxed">
-                Entwickelt mit Agrarwissenschaftlern. Basierend auf 
-                <strong> DLG-Standards</strong> für professionelle Rasenpflege.
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Gamification & Motivation</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Rang-System mit <strong className="text-foreground">8 Leveln</strong>, Analyse-Streaks 🔥 
+                und Nachbarschafts-Ranking — wer hat den besten Rasen?
               </p>
               <div className="mt-6 pt-6 border-t border-blue-200">
-                <div className="text-3xl font-bold text-blue-600">DLG</div>
-                <div className="text-sm text-gray-600">Standards</div>
+                <div className="text-3xl font-bold text-blue-600">8 Ränge</div>
+                <div className="text-sm text-muted-foreground">Vom Neuling zum Legendären Gärtner</div>
               </div>
             </div>
             
@@ -148,14 +125,14 @@ const Index = () => {
               <div className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center transform rotate-6">
                 <Clock className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">Sofortige Ergebnisse</h3>
-              <p className="text-gray-700 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Sofortige Ergebnisse</h3>
+              <p className="text-muted-foreground leading-relaxed">
                 Kein Warten, keine Verzögerung. Dein personalisierter 
-                <strong> Pflegeplan in 30 Sekunden</strong> – 24/7 verfügbar.
+                <strong className="text-foreground"> Pflegeplan in 30 Sekunden</strong> – 24/7 verfügbar.
               </p>
               <div className="mt-6 pt-6 border-t border-amber-200">
                 <div className="text-3xl font-bold text-amber-600">24/7</div>
-                <div className="text-sm text-gray-600">Verfügbar</div>
+                <div className="text-sm text-muted-foreground">Verfügbar</div>
               </div>
             </div>
           </div>
@@ -170,7 +147,7 @@ const Index = () => {
               In 3 einfachen Schritten zum <br className="hidden md:block" />
               perfekten Rasen
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Keine Vorkenntnisse nötig • Keine Anmeldung erforderlich • Sofortige Ergebnisse
             </p>
           </div>
@@ -182,12 +159,12 @@ const Index = () => {
               </div>
               <div className="bg-white p-8 pt-12 rounded-3xl shadow-lg border border-gray-100 h-full">
                 <div className="mb-6">
-                  <Camera className="h-12 w-12 text-green-600 mx-auto" />
+                  <Camera className="h-12 w-12 text-primary mx-auto" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-center">Foto hochladen</h3>
-                <p className="text-gray-600 text-center leading-relaxed">
-                  Mache ein Foto von deinem Rasen mit dem Smartphone. Achte auf gute Beleuchtung 
-                  und einen Überblick über die Fläche.
+                <p className="text-muted-foreground text-center leading-relaxed">
+                  Mache ein Foto von deinem Rasen mit dem Smartphone. Unsere KI erkennt automatisch 
+                  Krankheiten, Schädlinge und Nährstoffmängel.
                 </p>
               </div>
             </div>
@@ -200,10 +177,10 @@ const Index = () => {
                 <div className="mb-6">
                   <Target className="h-12 w-12 text-blue-600 mx-auto" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-center">KI-Analyse</h3>
-                <p className="text-gray-600 text-center leading-relaxed">
-                  Unsere KI analysiert automatisch über 200 Parameter: Farbe, Dichte, 
-                  Unkraut, Moos, Krankheiten und mehr.
+                <h3 className="text-2xl font-bold mb-4 text-center">KI-Analyse + Score</h3>
+                <p className="text-muted-foreground text-center leading-relaxed">
+                  Erhalte deinen Rasen-Score (0–100), passende Produktempfehlungen 
+                  und sieh wo du im Nachbarschafts-Ranking stehst.
                 </p>
               </div>
             </div>
@@ -214,12 +191,12 @@ const Index = () => {
               </div>
               <div className="bg-white p-8 pt-12 rounded-3xl shadow-lg border border-gray-100 h-full">
                 <div className="mb-6">
-                  <Check className="h-12 w-12 text-purple-600 mx-auto" />
+                  <Calendar className="h-12 w-12 text-purple-600 mx-auto" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-center">Pflegeplan erhalten</h3>
-                <p className="text-gray-600 text-center leading-relaxed">
-                  Erhalte einen detaillierten, personalisierten Pflegeplan mit konkreten 
-                  Schritten zur Verbesserung deines Rasens.
+                <h3 className="text-2xl font-bold mb-4 text-center">Pflegekalender folgen</h3>
+                <p className="text-muted-foreground text-center leading-relaxed">
+                  Dein persönlicher Monats-Pflegeplan sagt dir genau, wann du düngen, mähen 
+                  oder vertikutieren sollst — wetterbasiert.
                 </p>
               </div>
             </div>
@@ -229,11 +206,7 @@ const Index = () => {
             <Button 
               onClick={() => navigate('/lawn-analysis')} 
               size="lg"
-              className="text-lg py-6 px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
-              style={{ 
-                background: 'linear-gradient(135deg, #00A651 0%, #00C853 100%)',
-                color: 'white'
-              }}
+              className="text-lg py-6 px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               Jetzt kostenlos starten
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -241,9 +214,95 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* New Features Showcase */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-gradient-to-r from-primary to-emerald-500 text-primary-foreground px-6 py-2 text-base">
+              Neu in 2026
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
+              Alles was dein Rasen braucht
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+              Von der Analyse bis zum perfekten Rasen – mit KI, Gamification und Community
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {/* Feature 1: Krankheitserkennung */}
+            <div className="group bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-2xl border border-red-100 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/lawn-analysis')}>
+              <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-orange-500 rounded-xl flex items-center justify-center mb-4">
+                <Bug className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-foreground">Krankheitserkennung</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                KI erkennt Pilzbefall, Schädlinge und Nährstoffmängel automatisch und empfiehlt Behandlungen.
+              </p>
+            </div>
+
+            {/* Feature 2: Produktempfehlungen */}
+            <div className="group bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-2xl border border-emerald-100 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/lawn-analysis')}>
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center mb-4">
+                <ShoppingCart className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-foreground">Produktempfehlungen</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Passende Dünger, Saatgut und Werkzeug — direkt nach der Analyse, mit Amazon-Link.
+              </p>
+            </div>
+
+            {/* Feature 3: Pflegekalender */}
+            <div className="group bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/care-calendar')}>
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center mb-4">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-foreground">Pflegekalender</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Monatlicher Plan: Wann düngen, mähen, vertikutieren? KI-generiert nach deiner Analyse.
+              </p>
+              <Badge variant="outline" className="mt-2 text-xs border-amber-300 text-amber-700">Premium</Badge>
+            </div>
+
+            {/* Feature 4: PLZ-Ranking */}
+            <div className="group bg-gradient-to-br from-yellow-50 to-amber-50 p-6 rounded-2xl border border-yellow-100 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/highscore')}>
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-xl flex items-center justify-center mb-4">
+                <MapPin className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-foreground">Nachbarschafts-Ranking</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Wer hat den besten Rasen in deiner PLZ? Anonymisiertes Ranking sorgt für Motivation.
+              </p>
+            </div>
+
+            {/* Feature 5: Gamification */}
+            <div className="group bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-100 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/highscore')}>
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center mb-4">
+                <BarChart3 className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-foreground">Rang-System & Streaks</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                8 Level vom "Rasen-Neuling" bis zum "Legendären Gärtner" 🔥 — mit wöchentlichen Streaks.
+              </p>
+            </div>
+
+            {/* Feature 6: Score Sharing */}
+            <div className="group bg-gradient-to-br from-cyan-50 to-sky-50 p-6 rounded-2xl border border-cyan-100 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/lawn-analysis')}>
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-sky-500 rounded-xl flex items-center justify-center mb-4">
+                <Share2 className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-foreground">Score teilen</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Teile deinen Rasen-Score auf WhatsApp, Facebook & Instagram — wie Spotify Wrapped! 🌱
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
       
       {/* Premium Features Comparison */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-2 text-base">
@@ -253,7 +312,7 @@ const Index = () => {
               Hol dir noch mehr aus <br className="hidden md:block" />
               deinem Rasen
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Starte kostenlos und upgrade jederzeit für erweiterte Features
             </p>
           </div>
@@ -263,22 +322,22 @@ const Index = () => {
             <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-3xl border-2 border-gray-200">
               <div className="mb-6">
                 <h3 className="text-2xl font-bold mb-2">Kostenlos</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-1">€0</div>
-                <div className="text-gray-600">Für immer kostenlos</div>
+                <div className="text-4xl font-bold text-foreground mb-1">€0</div>
+                <div className="text-muted-foreground">Für immer kostenlos</div>
               </div>
               
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">1 kostenlose Rasenanalyse</span>
+                  <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">1 kostenlose Rasenanalyse</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">Basis-Pflegeplan</span>
+                  <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Krankheitserkennung & Produkttipps</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">Allgemeine Empfehlungen</span>
+                  <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Score teilen & Bestenliste</span>
                 </li>
               </ul>
               
@@ -315,7 +374,7 @@ const Index = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">Detaillierter Pflegekalender</span>
+                  <span className="font-medium">KI-Pflegekalender (Monat für Monat)</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
@@ -327,11 +386,15 @@ const Index = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">Fortschritts-Tracking</span>
+                  <span className="font-medium">Rasen-Verlauf & Fortschritts-Tracking</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">Regionale Bestenliste</span>
+                  <span className="font-medium">PLZ Nachbarschafts-Ranking</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Rang-Aufstieg & Analyse-Streaks 🔥</span>
                 </li>
               </ul>
               
@@ -349,163 +412,93 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
-      {/* Enhanced Email Capture Section */}
-      <section className="py-16 bg-gradient-to-br from-green-600 via-green-700 to-green-800">
+
+      {/* PLZ Ranking Teaser */}
+      <section className="py-16 md:py-20 bg-gradient-to-br from-primary/5 via-accent/10 to-primary/5">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            {!emailCaptured ? (
-              <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full text-green-800 font-medium mb-4">
-                    <Clock className="h-4 w-4" />
-                    <span>Limitiertes Angebot - Nur heute kostenlos!</span>
-                  </div>
-                  
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                    Starten Sie jetzt Ihre <span className="text-green-600">kostenlose Rasenanalyse</span>
-                  </h2>
-                  
-                  <p className="text-xl text-gray-600 mb-6">
-                    Über 50.000 Gartenbesitzer vertrauen bereits unserem KI-Rasenexperten
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div className="flex items-center gap-2 justify-center md:justify-start">
-                      <Shield className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium">100% kostenlos</span>
-                    </div>
-                    <div className="flex items-center gap-2 justify-center">
-                      <Target className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium">Sofortige Ergebnisse</span>
-                    </div>
-                    <div className="flex items-center gap-2 justify-center md:justify-end">
-                      <Users className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium">Wissenschaftlich validiert</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <PostAnalysisConversion 
-                  score={75} // Demo score for homepage
-                  onEmailCaptured={handleEmailCapture}
-                  onRegistrationComplete={() => navigate('/lawn-analysis')}
-                />
-              </div>
-            ) : (
-              <div className="text-center text-white">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Check className="h-10 w-10 text-green-600" />
-                </div>
-                <h2 className="text-2xl font-bold mb-4">Perfekt! Sie werden in Kürze weitergeleitet...</h2>
-                <p className="text-green-100">
-                  Ihre kostenlose Rasenanalyse beginnt jetzt. Ihr personalisierter Plan wird an {email} gesendet.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-      
-      <section className="py-16 bg-gradient-to-b from-green-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">🏆 Rasen-Bestenliste</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Zeige deinen perfekten Rasen und kämpfe um den Spitzenplatz! Unsere KI bewertet jeden Rasen von 0-100 Punkten.
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-amber-100 px-4 py-2 rounded-full text-amber-800 font-medium mb-6">
+              <Trophy className="h-4 w-4" />
+              <span>Nachbarschafts-Wettbewerb</span>
+            </div>
+            
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
+              Wer hat den besten Rasen <br className="hidden md:block" />
+              in deiner Straße? 🏆
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+              Vergleiche deinen Rasen-Score mit Nachbarn in deiner PLZ. 
+              Niemand will den schlechtesten Rasen in der Nachbarschaft — oder? 😄
             </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-              <h3 className="text-xl font-semibold mb-4 text-center">Top 3 Rasen-Champions</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center justify-center w-10 h-10 bg-yellow-500 rounded-full">
-                      <Trophy className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">RasenProfi_München</p>
-                      <p className="text-sm text-gray-600">München • Zierrasen • 250m²</p>
+
+            {/* Mock Leaderboard Preview */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-lg mx-auto mb-8">
+              <div className="text-sm font-semibold text-muted-foreground mb-4 flex items-center justify-center gap-2">
+                <MapPin className="h-4 w-4" />
+                Beispiel: PLZ 69190
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-200">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">🥇</span>
+                    <div className="text-left">
+                      <p className="font-semibold text-sm">GartenKing_HD</p>
+                      <p className="text-xs text-muted-foreground">👑 Legendärer Gärtner</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-green-600">97</div>
-                    <div className="text-sm text-gray-500">Punkte</div>
-                  </div>
+                  <span className="font-bold text-primary text-lg">94</span>
                 </div>
-                
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center justify-center w-10 h-10 bg-gray-400 rounded-full">
-                      <Medal className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">GrünDaumen_Berlin</p>
-                      <p className="text-sm text-gray-600">Berlin • Spielrasen • 150m²</p>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">🥈</span>
+                    <div className="text-left">
+                      <p className="font-semibold text-sm">RasenProfi_2024</p>
+                      <p className="text-xs text-muted-foreground">🏆 Rasen-Champion</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-green-600">94</div>
-                    <div className="text-sm text-gray-500">Punkte</div>
-                  </div>
+                  <span className="font-bold text-primary text-lg">87</span>
                 </div>
-                
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center justify-center w-10 h-10 bg-orange-500 rounded-full">
-                      <Award className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">Rasenliebhaber_HH</p>
-                      <p className="text-sm text-gray-600">Hamburg • Gebrauchsrasen • 300m²</p>
+                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-200">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">🥉</span>
+                    <div className="text-left">
+                      <p className="font-semibold text-sm">GrünerDaumen</p>
+                      <p className="text-xs text-muted-foreground">🌳 Rasen-Meister</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-green-600">91</div>
-                    <div className="text-sm text-gray-500">Punkte</div>
+                  <span className="font-bold text-primary text-lg">79</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-xl border-2 border-primary/30">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-muted-foreground">📍 Du</span>
+                    <div className="text-left">
+                      <p className="font-semibold text-sm text-primary">Platz 12 von 47</p>
+                      <p className="text-xs text-muted-foreground">💡 Nur 4 Punkte bis Platz 11!</p>
+                    </div>
                   </div>
+                  <span className="font-bold text-primary text-lg">62</span>
                 </div>
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">500+</div>
-                <div className="text-gray-600">Rasen bewertet</div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">87</div>
-                <div className="text-gray-600">Durchschnittsscore</div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">24h</div>
-                <div className="text-gray-600">Neue Bewertungen</div>
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-gray-600 mb-6">
-                Möchtest du auch in die Bestenliste? Lade ein Foto deines Rasens hoch und erhalte eine professionelle KI-Bewertung!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  onClick={() => navigate('/lawn-analysis')}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <Camera className="mr-2 h-4 w-4" />
-                  Jetzt Rasen bewerten lassen
-                </Button>
-                <Button 
-                  onClick={() => navigate('/highscore')}
-                  variant="outline"
-                  className="border-green-600 text-green-600 hover:bg-green-50"
-                >
-                  <Trophy className="mr-2 h-4 w-4" />
-                  Zur kompletten Bestenliste
-                </Button>
-              </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => navigate('/lawn-analysis')}
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+              >
+                <Camera className="mr-2 h-5 w-5" />
+                Jetzt Score ermitteln
+              </Button>
+              <Button 
+                onClick={() => navigate('/highscore')}
+                variant="outline"
+                size="lg"
+                className="border-primary text-primary hover:bg-primary/5"
+              >
+                <Trophy className="mr-2 h-5 w-5" />
+                Zur Bestenliste
+              </Button>
             </div>
           </div>
         </div>
@@ -520,6 +513,43 @@ const Index = () => {
           <FAQ />
         </div>
       </section>
+
+      {/* Final CTA */}
+      <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
+        <div className="container mx-auto px-4 text-center relative">
+          <h2 className="text-4xl md:text-5xl font-bold font-dm-serif text-primary-foreground mb-6">
+            Bereit für deinen Traumrasen?
+          </h2>
+          <p className="text-xl text-primary-foreground/90 mb-10 max-w-3xl mx-auto leading-relaxed font-poppins">
+            Kostenlose KI-Analyse, Krankheitserkennung, Produktempfehlungen und Pflegekalender — alles in einer App.
+          </p>
+          
+          <Button 
+            onClick={() => navigate('/lawn-analysis')}
+            size="lg"
+            className="bg-background text-primary hover:bg-background/90 text-xl py-7 px-12 shadow-2xl font-poppins font-semibold transition-all duration-300 transform hover:-translate-y-1"
+          >
+            Kostenlose KI-Analyse starten
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+          
+          <div className="flex flex-wrap justify-center gap-8 mt-8 text-primary-foreground/90 font-poppins">
+            <div className="flex items-center gap-2">
+              <Check className="h-5 w-5" />
+              <span className="font-medium">Keine Kreditkarte nötig</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="h-5 w-5" />
+              <span className="font-medium">Sofortige Ergebnisse</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="h-5 w-5" />
+              <span className="font-medium">98,3% Erfolgsrate</span>
+            </div>
+          </div>
+        </div>
+      </section>
       
       {/* Hidden SEO content for search engines */}
       {seoContent && (
@@ -528,11 +558,10 @@ const Index = () => {
         </div>
       )}
       
-      {/* Comprehensive Footer */}
+      {/* Footer */}
       <footer className="bg-gray-800 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Company Info */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <div className="bg-green-100 p-1 rounded-full">
@@ -541,147 +570,61 @@ const Index = () => {
                 <span className="text-lg font-bold">Rasenpilot</span>
               </div>
               <p className="text-gray-300 text-sm leading-relaxed">
-                Deutschlands intelligentester KI-Rasenberater. Kostenlose Pflegepläne für jeden Rasentyp mit professionellen Empfehlungen.
+                Deutschlands intelligentester KI-Rasenberater mit Krankheitserkennung, Pflegekalender und Gamification.
               </p>
               <div className="flex items-center gap-4 text-sm text-gray-400">
                 <span>⭐ 4.9/5 Sterne</span>
                 <span>•</span>
-                <span>1.000+ Nutzer</span>
+                <span>50.000+ Nutzer</span>
               </div>
             </div>
 
-            {/* Services */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Services</h3>
+              <h3 className="text-lg font-semibold">Features</h3>
               <ul className="space-y-2 text-sm">
-                <li>
-                  <Link to="/lawn-analysis" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Kostenlose Rasenanalyse
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/care-plan" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Personalisierter Pflegeplan
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/chat-assistant" className="text-gray-300 hover:text-green-400 transition-colors">
-                    KI-Chat Assistent
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/weather-advice" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Wetter-Ratgeber
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/season-guide" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Saisonaler Leitfaden
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/highscore" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Rasen-Bestenliste
-                  </Link>
-                </li>
+                <li><Link to="/lawn-analysis" className="text-gray-300 hover:text-green-400 transition-colors">KI-Rasenanalyse</Link></li>
+                <li><Link to="/care-calendar" className="text-gray-300 hover:text-green-400 transition-colors">Pflegekalender</Link></li>
+                <li><Link to="/highscore" className="text-gray-300 hover:text-green-400 transition-colors">Nachbarschafts-Ranking</Link></li>
+                <li><Link to="/weather-advice" className="text-gray-300 hover:text-green-400 transition-colors">Wetter-Tipps</Link></li>
+                <li><Link to="/chat" className="text-gray-300 hover:text-green-400 transition-colors">KI-Chat Assistent</Link></li>
               </ul>
             </div>
 
-            {/* Content & Support */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Wissen & Support</h3>
               <ul className="space-y-2 text-sm">
-                <li>
-                  <Link to="/blog-overview" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Rasenpflege Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/content-library" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Ratgeber & Tipps
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/kontakt" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Kontakt & Support
-                  </Link>
-                </li>
-                <li>
-                  <a href="#faq" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Häufige Fragen (FAQ)
-                  </a>
-                </li>
-                <li>
-                  <Link to="/ueber-uns" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Über uns
-                  </Link>
-                </li>
+                <li><Link to="/blog-overview" className="text-gray-300 hover:text-green-400 transition-colors">Rasenpflege Blog</Link></li>
+                <li><Link to="/season-guide" className="text-gray-300 hover:text-green-400 transition-colors">Saisonaler Leitfaden</Link></li>
+                <li><Link to="/kontakt" className="text-gray-300 hover:text-green-400 transition-colors">Kontakt & Support</Link></li>
+                <li><Link to="/ueber-uns" className="text-gray-300 hover:text-green-400 transition-colors">Über uns</Link></li>
               </ul>
             </div>
 
-            {/* Legal & Local */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Rechtliches</h3>
               <ul className="space-y-2 text-sm">
-                <li>
-                  <Link to="/impressum" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Impressum
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/datenschutz" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Datenschutz
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/agb" className="text-gray-300 hover:text-green-400 transition-colors">
-                    AGB
-                  </Link>
-                </li>
+                <li><Link to="/impressum" className="text-gray-300 hover:text-green-400 transition-colors">Impressum</Link></li>
+                <li><Link to="/datenschutz" className="text-gray-300 hover:text-green-400 transition-colors">Datenschutz</Link></li>
+                <li><Link to="/agb" className="text-gray-300 hover:text-green-400 transition-colors">AGB</Link></li>
               </ul>
-              
               <div className="pt-4">
                 <h4 className="text-sm font-semibold mb-2">Lokale Rasenpflege</h4>
                 <ul className="space-y-1 text-xs">
-                  <li>
-                    <Link to="/local/berlin" className="text-gray-400 hover:text-green-400 transition-colors">
-                      Rasenpflege Berlin
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/local/munich" className="text-gray-400 hover:text-green-400 transition-colors">
-                      Rasenpflege München
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/local/hamburg" className="text-gray-400 hover:text-green-400 transition-colors">
-                      Rasenpflege Hamburg
-                    </Link>
-                  </li>
+                  <li><Link to="/local/berlin" className="text-gray-400 hover:text-green-400 transition-colors">Berlin</Link></li>
+                  <li><Link to="/local/munich" className="text-gray-400 hover:text-green-400 transition-colors">München</Link></li>
+                  <li><Link to="/local/hamburg" className="text-gray-400 hover:text-green-400 transition-colors">Hamburg</Link></li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Bottom Footer */}
           <div className="border-t border-gray-700 mt-8 pt-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="text-sm text-gray-400">
                 &copy; {new Date().getFullYear()} Rasenpilot. Alle Rechte vorbehalten.
               </div>
-              
-              <div className="flex items-center gap-6 text-sm">
-                <span className="text-gray-400">Made with 💚 für deutsche Rasenliebhaber</span>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <Button 
-                  onClick={() => navigate('/lawn-analysis')}
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Kostenlos starten
-                </Button>
+              <div className="flex items-center gap-6 text-sm text-gray-400">
+                <span>Made with 💚 für deutsche Rasenliebhaber</span>
               </div>
             </div>
           </div>
