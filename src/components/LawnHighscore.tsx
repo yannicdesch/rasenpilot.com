@@ -1,13 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Trophy, Medal, Award, MapPin, Leaf, Calendar, RefreshCw, Image as ImageIcon } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { 
+  MapPin, Trophy, TrendingUp, Lock, Crown, Users, 
+  ArrowUp, ArrowDown, Minus, RefreshCw, Flame, Target
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
-import LazyImage from '@/components/LazyImage';
+import { useLawn } from '@/context/LawnContext';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface HighscoreEntry {
   id: string;
@@ -19,311 +22,337 @@ interface HighscoreEntry {
   lawn_size: string | null;
   analysis_date: string;
   created_at: string;
+  zip_code: string | null;
 }
 
 const LawnHighscore = () => {
-  const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
+  const navigate = useNavigate();
+  const { profile } = useLawn();
+  const { isPremium } = useSubscription();
+  const [allScores, setAllScores] = useState<HighscoreEntry[]>([]);
+  const [neighborhoodScores, setNeighborhoodScores] = useState<HighscoreEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedEntry, setSelectedEntry] = useState<HighscoreEntry | null>(null);
+  const [userZip, setUserZip] = useState<string | null>(null);
+  const [userScore, setUserScore] = useState<number | null>(null);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchHighscores();
-    
-    // Simple auto-refresh when component mounts or becomes visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchHighscores();
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Cleanup
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
+    fetchData();
+  }, [profile]);
 
-  const fetchHighscores = async (showRefreshMessage = false) => {
-    if (showRefreshMessage) {
-      setRefreshing(true);
-    }
-    
+  const fetchData = async () => {
+    setLoading(true);
     try {
+      // Get user's zip code from lawn profile
+      const { data: { user } } = await supabase.auth.getUser();
+      let zip: string | null = null;
+
+      if (user) {
+        const { data: lawnProfile } = await supabase
+          .from('lawn_profiles')
+          .select('zip_code')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        zip = lawnProfile?.zip_code || null;
+        setUserZip(zip);
+
+        // Get user's own score
+        const { data: ownScore } = await supabase
+          .from('lawn_highscores')
+          .select('lawn_score')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        setUserScore(ownScore?.lawn_score || null);
+      }
+
+      // Fetch all scores
       const { data, error } = await supabase
         .from('lawn_highscores_public')
         .select('*')
         .order('lawn_score', { ascending: false })
-        .limit(20);
+        .limit(100);
 
-      if (error) {
-        console.error('Error fetching highscores:', error);
-        toast.error('Fehler beim Laden der Bestenliste');
-      } else {
-        setHighscores(data || []);
-        if (showRefreshMessage && data && data.length > 0) {
-          toast.success('Bestenliste aktualisiert!');
+      if (error) throw error;
+
+      const scores = (data || []) as HighscoreEntry[];
+      setAllScores(scores);
+
+      // Filter neighborhood scores by matching first 2 digits of PLZ
+      if (zip) {
+        const prefix = zip.substring(0, 2);
+        const nearby = scores.filter(s => s.zip_code?.startsWith(prefix));
+        setNeighborhoodScores(nearby);
+
+        // Calculate user's rank in neighborhood
+        if (userScore !== null) {
+          const rank = nearby.filter(s => s.lawn_score > (ownScore?.lawn_score || 0)).length + 1;
+          setUserRank(rank);
         }
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Fehler beim Laden der Bestenliste');
+      console.error('Error fetching leaderboard:', error);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
-  const handleManualRefresh = () => {
-    fetchHighscores(true);
-  };
-
-  const getRankIcon = (index: number) => {
-    if (index === 0) return <Trophy className="h-6 w-6 text-yellow-500" />;
-    if (index === 1) return <Medal className="h-6 w-6 text-gray-400" />;
-    if (index === 2) return <Award className="h-6 w-6 text-amber-600" />;
-    return <span className="text-lg font-bold text-gray-600">#{index + 1}</span>;
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'bg-green-500';
-    if (score >= 80) return 'bg-green-400';
-    if (score >= 70) return 'bg-yellow-500';
-    if (score >= 60) return 'bg-orange-500';
-    return 'bg-red-500';
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE');
-  };
-
-  const handleImageClick = (entry: HighscoreEntry) => {
-    if (entry.lawn_image_url) {
-      setSelectedImage(entry.lawn_image_url);
-      setSelectedEntry(entry);
+  // Fix: use a local variable for rank calculation
+  useEffect(() => {
+    if (userScore !== null && neighborhoodScores.length > 0) {
+      const rank = neighborhoodScores.filter(s => s.lawn_score > userScore).length + 1;
+      setUserRank(rank);
     }
+  }, [userScore, neighborhoodScores]);
+
+  const getAnonymizedName = (name: string, index: number) => {
+    // Show first letter + "***" for privacy
+    const first = name.charAt(0).toUpperCase();
+    return `${first}***`;
   };
 
-  const closeImageModal = () => {
-    setSelectedImage(null);
-    setSelectedEntry(null);
+  const getScoreBadgeClass = (score: number) => {
+    if (score >= 80) return 'bg-emerald-500 text-white';
+    if (score >= 60) return 'bg-yellow-500 text-white';
+    return 'bg-orange-500 text-white';
+  };
+
+  const getMotivationalMessage = () => {
+    if (!userScore || !userRank || neighborhoodScores.length === 0) {
+      return 'Analysiere deinen Rasen, um dein Ranking zu sehen!';
+    }
+    if (userRank === 1) return '🏆 Du hast den besten Rasen in deiner Nachbarschaft!';
+    if (userRank <= 3) return `🔥 Top 3! Nur noch ${neighborhoodScores[0]?.lawn_score - userScore} Punkte bis zur Spitze!`;
+    const ahead = neighborhoodScores[userRank - 2]; // person directly above
+    if (ahead) return `💪 Noch ${ahead.lawn_score - userScore} Punkte bis zum nächsten Platz!`;
+    return '🌱 Verbessere deinen Rasen und steige auf!';
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
 
+  const displayScores = userZip ? neighborhoodScores : allScores.slice(0, 10);
+  const totalNeighbors = neighborhoodScores.length;
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-0">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Trophy className="h-6 sm:h-8 w-6 sm:w-8 text-yellow-500" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-green-800">
-            Rasen-Bestenliste
-          </h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-3">
+          <MapPin className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold text-primary">
+            {userZip ? `Nachbarschaft ${userZip}` : 'Rasen-Ranking'}
+          </span>
         </div>
-        <p className="text-gray-600 mb-4 text-sm sm:text-base px-4">
-          Die besten Rasen-Analysen unserer Community
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+          {userZip ? 'Rasen-Ranking in deiner Nachbarschaft' : 'Rasen-Ranking Deutschland'}
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          {userZip 
+            ? `${totalNeighbors} Rasenflächen in PLZ-Region ${userZip.substring(0, 2)}xxx`
+            : 'Erstelle ein Rasenprofil mit PLZ, um dein lokales Ranking zu sehen'
+          }
         </p>
-        <Button 
-          onClick={handleManualRefresh}
-          disabled={refreshing}
-          variant="outline"
-          size="sm"
-          className="text-green-700 border-green-300 hover:bg-green-50"
-        >
-          {refreshing ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              <span className="hidden sm:inline">Wird aktualisiert...</span>
-              <span className="sm:hidden">Update...</span>
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Aktualisieren
-            </>
-          )}
-        </Button>
       </div>
 
-      {highscores.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">
-              Noch keine Einträge in der Bestenliste. Sei der Erste!
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {highscores.map((entry, index) => (
-            <Card key={entry.id} className={`${index < 3 ? 'border-2 border-yellow-200 bg-yellow-50' : ''}`}>
-              <CardContent className="p-3 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className="flex items-center justify-center w-10 sm:w-12 h-10 sm:h-12 flex-shrink-0">
-                      {getRankIcon(index)}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                        <h3 className="font-semibold text-base sm:text-lg text-green-800 truncate">
-                          {entry.user_name}
-                        </h3>
-                        <Badge className={`${getScoreColor(entry.lawn_score)} text-white w-fit`}>
-                          {entry.lawn_score}/100
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
-                        {entry.location && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 sm:h-4 w-3 sm:w-4 flex-shrink-0" />
-                            <span className="truncate">{entry.location}</span>
-                          </div>
-                        )}
-                        {entry.grass_type && (
-                          <div className="flex items-center gap-1">
-                            <Leaf className="h-3 sm:h-4 w-3 sm:w-4 flex-shrink-0" />
-                            <span className="truncate">{entry.grass_type}</span>
-                          </div>
-                        )}
-                        {entry.lawn_size && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs">📏</span>
-                            <span className="truncate">{entry.lawn_size}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 sm:h-4 w-3 sm:w-4 flex-shrink-0" />
-                          <span className="truncate">{formatDate(entry.analysis_date)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Image Thumbnail */}
-                  <div className="flex justify-center sm:justify-end">
-                    {entry.lawn_image_url ? (
-                      <div 
-                        className="relative group cursor-pointer"
-                        onClick={() => handleImageClick(entry)}
-                      >
-                        <LazyImage
-                          src={entry.lawn_image_url}
-                          alt={`Rasen von ${entry.user_name}`}
-                          className="w-16 sm:w-20 h-16 sm:h-20 rounded-lg object-cover border-2 border-green-200 group-hover:border-green-400 transition-colors"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity rounded-lg flex items-center justify-center">
-                          <ImageIcon className="h-4 sm:h-6 w-4 sm:w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-lg border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
-                        <ImageIcon className="h-4 sm:h-6 w-4 sm:w-6 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
+      {/* User's Position Card */}
+      {userScore !== null && userRank !== null && (
+        <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-accent overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Dein Platz</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-black text-primary">#{userRank}</span>
+                  <span className="text-sm text-muted-foreground">von {totalNeighbors}</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <div className="mt-8 bg-green-50 p-6 rounded-lg border border-green-200">
-        <h3 className="text-lg font-semibold text-green-800 mb-2 flex items-center gap-2">
-          <Trophy className="h-5 w-5" />
-          Wie funktioniert die Bestenliste?
-        </h3>
-        <ul className="text-green-700 space-y-1 text-sm">
-          <li>• Jede Rasen-Analyse wird automatisch bewertet</li>
-          <li>• Nur dein bester Score wird in der Bestenliste angezeigt</li>
-          <li>• Verbessere deinen Rasen und steige in der Rangliste auf!</li>
-          <li>• Die Top 3 erhalten besondere Auszeichnungen</li>
-          <li>• Klicke auf ein Rasenbild, um es in voller Größe zu betrachten</li>
-        </ul>
-      </div>
-
-      {/* Image Zoom Modal */}
-      <Dialog open={!!selectedImage} onOpenChange={closeImageModal}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl w-full h-full max-h-[95vh] sm:max-h-[90vh] p-1 sm:p-2">
-          <DialogHeader className="sr-only">
-            <DialogTitle>
-              Rasenbild von {selectedEntry?.user_name}
-            </DialogTitle>
-            <DialogDescription>
-              Detailansicht des Rasenbildes mit Analysedaten
-            </DialogDescription>
-          </DialogHeader>
-          {selectedImage && selectedEntry && (
-            <div className="flex flex-col h-full">
-              {/* Header with entry details */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b bg-green-50 rounded-t-lg">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Trophy className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-500" />
-                    <h3 className="font-semibold text-base sm:text-lg text-green-800 truncate">
-                      {selectedEntry.user_name}
-                    </h3>
-                  </div>
-                  <Badge className={`${getScoreColor(selectedEntry.lawn_score)} text-white text-xs sm:text-sm`}>
-                    {selectedEntry.lawn_score}/100
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
-                  {selectedEntry.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-3 sm:h-4 w-3 sm:w-4" />
-                      <span className="truncate">{selectedEntry.location}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 sm:h-4 w-3 sm:w-4" />
-                    <span className="truncate">{formatDate(selectedEntry.analysis_date)}</span>
-                  </div>
-                </div>
+                <p className="text-sm text-foreground font-medium">{getMotivationalMessage()}</p>
               </div>
-              
-              {/* Image container */}
-              <div className="flex-1 flex items-center justify-center p-2 sm:p-4 bg-gray-50">
-                <img
-                  src={selectedImage}
-                  alt={`Rasen von ${selectedEntry.user_name}`}
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                  style={{ maxHeight: 'calc(95vh - 140px)' }}
-                />
-              </div>
-              
-              {/* Additional info */}
-              <div className="p-3 sm:p-4 border-t bg-green-50 rounded-b-lg">
-                <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-6 text-xs sm:text-sm text-gray-600">
-                  {selectedEntry.grass_type && (
-                    <div className="flex items-center gap-1">
-                      <Leaf className="h-3 sm:h-4 w-3 sm:w-4" />
-                      <span className="truncate">{selectedEntry.grass_type}</span>
-                    </div>
-                  )}
-                  {selectedEntry.lawn_size && (
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs">📏</span>
-                      <span className="truncate">{selectedEntry.lawn_size}</span>
-                    </div>
-                  )}
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-1">
+                  <span className="text-xl font-bold text-primary">{userScore}</span>
                 </div>
+                <span className="text-xs text-muted-foreground">Dein Score</span>
               </div>
             </div>
+
+            {/* Progress to next rank */}
+            {userRank > 1 && neighborhoodScores[userRank - 2] && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>Dein Score: {userScore}</span>
+                  <span>Platz {userRank - 1}: {neighborhoodScores[userRank - 2].lawn_score}</span>
+                </div>
+                <Progress 
+                  value={(userScore / neighborhoodScores[userRank - 2].lawn_score) * 100} 
+                  className="h-2" 
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  <Target className="h-3 w-3 inline mr-1" />
+                  {neighborhoodScores[userRank - 2].lawn_score - userScore} Punkte bis zum Aufstieg
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Leaderboard */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-yellow-500" />
+              Top-Rasen {userZip ? `(PLZ ${userZip.substring(0, 2)}***)` : ''}
+            </CardTitle>
+            <Button variant="ghost" size="sm" onClick={fetchData}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {displayScores.length === 0 ? (
+            <div className="text-center py-8 px-4">
+              <Users className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">
+                {userZip 
+                  ? 'Noch keine Nachbarn im Ranking. Sei der Erste!'
+                  : 'Noch keine Einträge. Analysiere deinen Rasen!'}
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {displayScores.map((entry, index) => {
+                const isCurrentUser = entry.user_id === profile?.user_id;
+                return (
+                  <div
+                    key={entry.id}
+                    className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                      isCurrentUser ? 'bg-primary/5' : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    {/* Rank */}
+                    <div className="w-8 text-center flex-shrink-0">
+                      {index === 0 ? (
+                        <span className="text-xl">🥇</span>
+                      ) : index === 1 ? (
+                        <span className="text-xl">🥈</span>
+                      ) : index === 2 ? (
+                        <span className="text-xl">🥉</span>
+                      ) : (
+                        <span className="text-sm font-bold text-muted-foreground">
+                          {index + 1}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Name & location */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground text-sm truncate">
+                          {isCurrentUser ? (
+                            <span className="text-primary font-bold">Du</span>
+                          ) : (
+                            getAnonymizedName(entry.user_name, index)
+                          )}
+                        </span>
+                        {isCurrentUser && (
+                          <Badge variant="outline" className="text-xs border-primary/30 text-primary">
+                            Du
+                          </Badge>
+                        )}
+                      </div>
+                      {entry.location && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <MapPin className="h-3 w-3" />
+                          {entry.location}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Score */}
+                    <Badge className={`${getScoreBadgeClass(entry.lawn_score)} font-bold text-sm px-3`}>
+                      {entry.lawn_score}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
+
+      {/* Social Pressure CTA */}
+      {userScore !== null && userRank !== null && userRank > 1 && (
+        <Card className="border-destructive/20 bg-gradient-to-r from-destructive/5 to-orange-50">
+          <CardContent className="p-5 text-center">
+            <Flame className="h-8 w-8 text-destructive mx-auto mb-2" />
+            <h3 className="font-bold text-foreground mb-1">
+              {userRank > 3 
+                ? `${userRank - 1} Nachbarn haben einen besseren Rasen als du!`
+                : 'Fast an der Spitze – gib nicht auf!'
+              }
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {isPremium 
+                ? 'Nutze deinen Pflegeplan und verbessere deinen Score.'
+                : 'Premium-Nutzer verbessern ihren Score 3x schneller mit personalisiertem Pflegeplan.'
+              }
+            </p>
+            {!isPremium ? (
+              <Button 
+                onClick={() => navigate('/subscription?ref=neighborhood-ranking')}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <Crown className="h-4 w-4 mr-2" />
+                Premium holen & aufsteigen
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => navigate('/lawn-analysis')}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Neue Analyse starten
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* No ZIP prompt */}
+      {!userZip && (
+        <Card className="border-border">
+          <CardContent className="p-5 text-center">
+            <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+            <h3 className="font-semibold text-foreground mb-1">Dein lokales Ranking sehen</h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              Erstelle ein Rasenprofil mit deiner PLZ, um zu sehen wie dein Rasen im Vergleich zu deinen Nachbarn abschneidet.
+            </p>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/lawn-analysis')}
+            >
+              Rasen analysieren
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* How it works */}
+      <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground space-y-1">
+        <p className="font-medium text-foreground mb-2">ℹ️ So funktioniert's</p>
+        <p>• Dein bester Analyse-Score wird automatisch ins Ranking aufgenommen</p>
+        <p>• Nur Nutzer in deiner PLZ-Region (gleiche ersten 2 Ziffern) werden angezeigt</p>
+        <p>• Namen werden anonymisiert – niemand sieht deinen vollen Namen</p>
+        <p>• Verbessere deinen Rasen und steige im Ranking auf!</p>
+      </div>
     </div>
   );
 };
