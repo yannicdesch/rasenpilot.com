@@ -65,26 +65,25 @@ const LawnAnalysis = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            // Convert coordinates to zip code using reverse geocoding
             const { latitude, longitude } = position.coords;
+            // Use OpenStreetMap Nominatim for reliable reverse geocoding
             const response = await fetch(
-              `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=dummy`
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1&accept-language=de`,
+              { headers: { 'User-Agent': 'RasenPilot/1.0' } }
             );
             
             if (response.ok) {
               const data = await response.json();
-              if (data.length > 0) {
-                // For demo purposes, use a default zip based on major German cities
-                const germanZips: Record<string, string> = {
-                  'Berlin': '10115',
-                  'Hamburg': '20095',
-                  'Munich': '80331',
-                  'Cologne': '50667',
-                  'Frankfurt': '60311'
-                };
-                const detectedZip = germanZips[data[0].name] || '10115';
-                setZipCode(detectedZip);
-                setUserLocation(data[0].name);
+              const address = data.address;
+              // Extract city name: try city, town, village, municipality in order
+              const cityName = address?.city || address?.town || address?.village || address?.municipality || address?.county;
+              const postcode = address?.postcode;
+              
+              if (postcode) {
+                setZipCode(postcode);
+              }
+              if (cityName) {
+                setUserLocation(cityName);
                 setLocationStatus('success');
                 return;
               }
@@ -95,20 +94,20 @@ const LawnAnalysis = () => {
             setLocationStatus('success');
           } catch (error) {
             console.error('Reverse geocoding failed:', error);
-            setLocationStatus('failed');
+            setZipCode('10115');
+            setUserLocation('Deutschland');
+            setLocationStatus('success');
           }
         },
         (error) => {
           console.error('Geolocation failed:', error);
-          // Use default fallback
           setZipCode('10115');
           setUserLocation('Deutschland');
           setLocationStatus('success');
         },
-        { timeout: 10000, enableHighAccuracy: false }
+        { timeout: 10000, enableHighAccuracy: true }
       );
     } else {
-      // Use default fallback
       setZipCode('10115');
       setUserLocation('Deutschland');
       setLocationStatus('success');
