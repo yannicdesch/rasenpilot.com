@@ -31,20 +31,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 
 const PremiumDashboard = () => {
-  const { subscription, isPremium, openCustomerPortal } = useSubscription();
+  const { subscription, isPremium, loading: subLoading, openCustomerPortal } = useSubscription();
   const { user } = useProfileData();
-  const { latestAnalysis, lawnProfile, dashboardStats, loading } = useDashboardData();
+  const { latestAnalysis, lawnProfile, dashboardStats, loading: dataLoading } = useDashboardData();
   const navigate = useNavigate();
+
+  const isLoading = subLoading || dataLoading;
 
   // Redirect non-premium users (only after loading is complete)
   React.useEffect(() => {
-    if (!loading && !isPremium) {
+    if (!isLoading && !isPremium) {
       navigate('/subscription?ref=premium-dashboard');
     }
-  }, [isPremium, loading, navigate]);
+  }, [isPremium, isLoading, navigate]);
 
   // Show loading state while checking subscription
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
         <div className="text-center">
