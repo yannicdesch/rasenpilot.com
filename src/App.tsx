@@ -34,6 +34,7 @@ import Subscription from "./pages/Subscription";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionManagement from "./pages/SubscriptionManagement";
 import PremiumDashboard from "./pages/PremiumDashboard";
+import CareCalendar from "./pages/CareCalendar";
 
 // Local SEO Pages
 import Munich from "./pages/local/Munich";
