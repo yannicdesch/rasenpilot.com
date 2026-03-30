@@ -99,41 +99,39 @@ async function sendEmail(email: string, resendKey: string, subject: string, html
 }
 
 async function sendTrialWelcomeEmail(email: string, resendKey: string) {
-  await sendEmail(email, resendKey, "Willkommen bei Rasenpilot Premium! 🌱 3 Tipps für den Start", `
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
-      <h2 style="color:#16a34a;">Willkommen bei Rasenpilot Premium! 🎉</h2>
-      <p>Schön, dass du dabei bist! Deine 7-tägige kostenlose Testphase hat begonnen.</p>
-      <p>Hier sind <strong>3 Tipps</strong>, um das Beste aus Premium herauszuholen:</p>
-      <div style="background:#f0fdf4;border-radius:12px;padding:16px;margin:16px 0;">
-        <p style="margin:8px 0;"><strong>1. 📸 Lade ein Foto deines Rasens hoch</strong><br/>Unsere KI analysiert deinen Rasen und erstellt einen personalisierten Pflegeplan.</p>
-        <p style="margin:8px 0;"><strong>2. 📅 Schau in den Pflegekalender</strong><br/>Du bekommst täglich passende Aufgaben basierend auf Wetter und Saison.</p>
-        <p style="margin:8px 0;"><strong>3. 💬 Nutze den KI-Chat</strong><br/>Stelle deine Rasenfragen direkt – du bekommst sofort Experten-Antworten.</p>
-      </div>
-      <p><a href="https://www.rasenpilot.com/lawn-analysis" style="background:#16a34a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:bold;">Jetzt erste Analyse starten →</a></p>
-      <p style="color:#666;font-size:14px;margin-top:24px;">Viele Grüße,<br/>Dein Rasenpilot-Team 🌿</p>
-    </div>
-  `);
+  const content = `
+    ${greeting('Premium-Mitglied')}
+    ${paragraph('Schön, dass du dabei bist! 🎉 Deine <strong>7-tägige kostenlose Testphase</strong> hat begonnen.')}
+    ${heading('3 Tipps für den perfekten Start')}
+    ${featureList([
+      { icon: '📸', text: '<strong>Lade ein Foto hoch</strong> – Unsere KI analysiert deinen Rasen und erstellt einen personalisierten Pflegeplan.' },
+      { icon: '📅', text: '<strong>Entdecke den Pflegekalender</strong> – Tägliche Aufgaben basierend auf Wetter und Saison.' },
+      { icon: '💬', text: '<strong>Nutze den KI-Chat</strong> – Stelle Rasenfragen und bekomme sofort Experten-Antworten.' },
+    ])}
+    ${ctaButton('Erste Analyse starten →', 'https://www.rasenpilot.com/lawn-analysis')}
+    ${infoCard('Deine Testphase', 'Du hast 7 Tage vollen Zugang zu allen Premium-Features. Danach wird dein Abo automatisch aktiviert – du kannst jederzeit vorher kündigen.', '📌', '#eff6ff', '#bfdbfe')}
+    ${signoff()}
+  `;
+  await sendEmail(email, resendKey, "Willkommen bei Rasenpilot Premium! 🌱", emailLayout(content, 'Deine 7-tägige Testphase hat begonnen'));
 }
 
 async function sendTrialEndingEmail(email: string, resendKey: string) {
-  await sendEmail(email, resendKey, "⏰ Deine Testphase endet in 2 Tagen", `
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
-      <h2 style="color:#16a34a;">Deine Testphase endet bald</h2>
-      <p>In <strong>2 Tagen</strong> endet deine kostenlose Rasenpilot Premium Testphase.</p>
-      <p style="color:#dc2626;font-weight:bold;">Was du danach verlierst:</p>
-      <ul style="background:#fef2f2;border-radius:12px;padding:16px 16px 16px 32px;margin:16px 0;">
-        <li style="margin:6px 0;">❌ Detaillierte Rasen-Analyse mit Teilbewertungen</li>
-        <li style="margin:6px 0;">❌ Personalisierter Pflegekalender</li>
-        <li style="margin:6px 0;">❌ Rasen-Score Verlauf & Fortschritt</li>
-        <li style="margin:6px 0;">❌ Unbegrenzte KI-Beratung</li>
-        <li style="margin:6px 0;">❌ Wetter-basierte Empfehlungen</li>
-      </ul>
-      <p>Wenn du zufrieden bist, musst du nichts tun – dein Abo wird automatisch aktiviert.</p>
-      <p>Falls du nicht fortfahren möchtest, kannst du jederzeit kündigen:</p>
-      <p><a href="https://www.rasenpilot.com/subscription-management" style="background:#16a34a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:bold;">Abonnement verwalten</a></p>
-      <p style="color:#666;font-size:14px;margin-top:24px;">Viele Grüße,<br/>Dein Rasenpilot-Team 🌿</p>
-    </div>
-  `);
+  const content = `
+    ${greeting('Rasenfreund')}
+    ${paragraph('In <strong>2 Tagen</strong> endet deine kostenlose Rasenpilot Premium Testphase.')}
+    ${warningCard('⚠️ Das verlierst du danach:', [
+      '❌ Detaillierte Rasen-Analyse mit Teilbewertungen',
+      '❌ Personalisierter Pflegekalender',
+      '❌ Rasen-Score Verlauf & Fortschritt',
+      '❌ Unbegrenzte KI-Beratung',
+      '❌ Wetter-basierte Empfehlungen',
+    ])}
+    ${paragraph('Wenn du zufrieden bist, musst du <strong>nichts tun</strong> – dein Abo wird automatisch aktiviert.')}
+    ${paragraph('Falls du nicht fortfahren möchtest, kannst du jederzeit kündigen:')}
+    ${ctaButton('Abonnement verwalten', 'https://www.rasenpilot.com/subscription-management')}
+    ${signoff()}
+  `;
+  await sendEmail(email, resendKey, "⏰ Deine Testphase endet in 2 Tagen", emailLayout(content, 'Deine Premium-Testphase endet bald – sichere dir deinen Zugang'));
 }
 
 // ── event processor ──────────────────────────────────────────────────────────
