@@ -84,12 +84,6 @@ const LawnHighscore = () => {
         const prefix = zip.substring(0, 2);
         const nearby = scores.filter(s => s.zip_code?.startsWith(prefix));
         setNeighborhoodScores(nearby);
-
-        // Calculate user's rank in neighborhood
-        if (userScore !== null) {
-          const rank = nearby.filter(s => s.lawn_score > (ownScore?.lawn_score || 0)).length + 1;
-          setUserRank(rank);
-        }
       }
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
