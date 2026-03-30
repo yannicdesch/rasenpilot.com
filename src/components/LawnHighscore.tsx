@@ -23,6 +23,7 @@ interface HighscoreEntry {
   analysis_date: string;
   created_at: string;
   zip_code: string | null;
+  user_id: string | null;
 }
 
 const LawnHighscore = () => {
