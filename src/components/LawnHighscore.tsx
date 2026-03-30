@@ -53,7 +53,7 @@ const LawnHighscore = () => {
     
     try {
       const { data, error } = await supabase
-        .from('lawn_highscores')
+        .from('lawn_highscores_public')
         .select('*')
         .order('lawn_score', { ascending: false })
         .limit(20);
