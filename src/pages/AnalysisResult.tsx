@@ -561,23 +561,14 @@ Website: www.rasenpilot.com
                   <ProductRecommendations analysisResult={getAnalysisResult()} />
                 </div>
 
-                {/* Premium - Download & Share Actions */}
-                <div className="mb-8 space-y-4">
+                {/* Premium - Download Action */}
+                <div className="mb-8">
                   <Button 
                     onClick={handleDownloadPlan}
                     className="w-full bg-green-600 hover:bg-green-700 h-12"
                   >
                     <Download className="h-5 w-5 mr-2" />
                     Pflegeplan herunterladen
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleShare}
-                    variant="outline" 
-                    className="w-full h-10 border-green-200 hover:bg-green-50"
-                  >
-                    <Share className="h-4 w-4 mr-2" />
-                    Ergebnis teilen
                   </Button>
                 </div>
 
