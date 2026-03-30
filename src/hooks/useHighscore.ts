@@ -11,6 +11,7 @@ export const useHighscore = () => {
     location?: string | null,
     grassType?: string | null,
     lawnSize?: string | null,
+    zipCode?: string | null,
   ) => {
     try {
       console.log('Updating highscore for user:', userName, 'with score:', lawnScore);
@@ -23,6 +24,7 @@ export const useHighscore = () => {
         p_location: location,
         p_grass_type: grassType,
         p_lawn_size: lawnSize,
+        p_zip_code: zipCode,
       });
 
       if (error) {

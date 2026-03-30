@@ -80,6 +80,7 @@ const ScoreSubmissionForm: React.FC<ScoreSubmissionFormProps> = ({
         `PLZ ${formData.zipcode}`,
         grassType,
         lawnSize,
+        formData.zipcode,
       );
       
       toast({
