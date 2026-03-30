@@ -132,6 +132,23 @@ const MainNavigation = () => {
               </Link>
             )}
 
+            {/* Streak Counter */}
+            {user && streak > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-semibold cursor-default">
+                      <Flame size={16} className="text-orange-500" />
+                      <span>{streak}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Dein Streak: {streak} Woche{streak !== 1 ? 'n' : ''} — verliere ihn nicht! 🔥</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
             {/* User menu */}
             {user ? (
               <DropdownMenu>
