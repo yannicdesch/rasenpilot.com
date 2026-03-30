@@ -36,12 +36,24 @@ const PremiumDashboard = () => {
   const { latestAnalysis, lawnProfile, dashboardStats, loading } = useDashboardData();
   const navigate = useNavigate();
 
-  // Redirect non-premium users
+  // Redirect non-premium users (only after loading is complete)
   React.useEffect(() => {
     if (!loading && !isPremium) {
       navigate('/subscription?ref=premium-dashboard');
     }
   }, [isPremium, loading, navigate]);
+
+  // Show loading state while checking subscription
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-3 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-green-800 text-sm">Premium-Zugang wird geprüft...</p>
+        </div>
+      </div>
+    );
+  }
 
   const premiumFeatures = [
     {

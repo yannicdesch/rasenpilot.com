@@ -13,6 +13,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumGate from '@/components/subscription/PremiumGate';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WeatherFormData {
   zipCode: string;
@@ -33,8 +34,30 @@ const WeatherAdvice = () => {
     }
   });
   
+  // Load zip code from Supabase lawn_profiles if not in local context
+  useEffect(() => {
+    const loadZipFromDB = async () => {
+      if (user && !profile?.zipCode) {
+        const { data } = await supabase
+          .from('lawn_profiles')
+          .select('zip_code')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (data?.zip_code) {
+          form.setValue('zipCode', data.zip_code);
+          loadWeatherData(data.zip_code);
+        }
+      }
+    };
+    loadZipFromDB();
+  }, [user, profile]);
+
   useEffect(() => {
     if (profile?.zipCode) {
+      form.setValue('zipCode', profile.zipCode);
       loadWeatherData(profile.zipCode);
     }
   }, [profile]);
