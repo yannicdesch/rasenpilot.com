@@ -189,6 +189,14 @@ async function processStripeEvent(
       }
 
       await upsertSubscriber(supabase, stripe, subscription, email);
+
+      // Send Day 1 welcome email for trial subscribers
+      if (subscription.status === "trialing") {
+        const resendKey = Deno.env.get("RESEND_API_KEY");
+        if (resendKey) {
+          await sendTrialWelcomeEmail(email, resendKey);
+        }
+      }
       return;
     }
 
