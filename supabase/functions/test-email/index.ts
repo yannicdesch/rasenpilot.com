@@ -51,7 +51,7 @@ serve(async (req: Request): Promise<Response> => {
     console.log(`Attempting to send test email to: ${email}`);
     
     const emailResponse = await resend.emails.send({
-      from: "Lovable <onboarding@resend.dev>", // Use Resend's verified domain for testing
+      from: "Rasenpilot <noreply@rasenpilot.com>",
       to: [email],
       subject: "Email Function Test - RasenPilot",
       html: `
