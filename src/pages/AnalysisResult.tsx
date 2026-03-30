@@ -365,6 +365,15 @@ Website: www.rasenpilot.com
           </Card>
         </div>
 
+        {/* Share Card - visible to all users */}
+        <div className="mb-8">
+          <LawnScoreShareCard 
+            score={healthScore} 
+            analysisDate={analysisData?.created_at}
+            jobId={jobId}
+          />
+        </div>
+
         {/* Tab Navigation */}
         <div className="mb-6">
           <div className="flex bg-gray-100 rounded-lg p-1">
