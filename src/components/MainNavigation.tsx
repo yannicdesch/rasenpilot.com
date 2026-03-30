@@ -229,6 +229,10 @@ const MainNavigation = () => {
                               <History size={20} />
                               <span>Rasen-Verlauf</span>
                             </Link>
+                            <Link to="/care-calendar" className={mobileLinkClass('/care-calendar', true)} onClick={closeMenu}>
+                              <Calendar size={20} />
+                              <span>Pflegekalender</span>
+                            </Link>
                             <Link to="/subscription/manage" className={mobileLinkClass('/subscription/manage')} onClick={closeMenu}>
                               <CreditCard size={20} />
                               <span>Abonnement</span>

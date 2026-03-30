@@ -120,6 +120,7 @@ const App = () => {
           <Route path="/subscription-success" element={<SubscriptionSuccess />} />
           <Route path="/subscription/manage" element={<SubscriptionManagement />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
+            <Route path="/care-calendar" element={<CareCalendar />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/chat" element={<Chat />} />
