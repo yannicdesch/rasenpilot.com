@@ -100,6 +100,12 @@ const MainNavigation = () => {
                       Rasen-Verlauf
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/care-calendar" className="flex items-center gap-2">
+                      <Calendar size={16} />
+                      Pflegekalender
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/subscription/manage" className="flex items-center gap-2">
