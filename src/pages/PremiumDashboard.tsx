@@ -301,7 +301,7 @@ const PremiumDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {loading ? (
+                {dataLoading ? (
                   <div className="animate-pulse space-y-3">
                     <div className="h-4 bg-gray-200 rounded"></div>
                     <div className="h-4 bg-gray-200 rounded"></div>
