@@ -187,6 +187,9 @@ export default function Subscription() {
                     <Clock className="h-3.5 w-3.5 inline mr-1" />
                     7 Tage kostenlos, dann €9,99/Monat
                   </p>
+                  <p className="text-xs text-gray-500 mt-1 font-medium">
+                    Weniger als 34 Cent pro Tag
+                  </p>
                 </div>
               </CardHeader>
 
