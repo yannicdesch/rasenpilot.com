@@ -94,7 +94,7 @@ const SimplifiedLanding = () => {
             
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
               KI analysiert über <strong>200 Rasenparameter</strong> in Sekunden. 
-              <strong>98,3% Genauigkeit</strong> - wissenschaftlich validiert.
+              Powered by <strong>GPT-4o Vision</strong> Technologie.
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
