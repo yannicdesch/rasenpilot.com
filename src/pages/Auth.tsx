@@ -13,6 +13,7 @@ import PasswordResetLink from '@/components/PasswordResetLink';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
