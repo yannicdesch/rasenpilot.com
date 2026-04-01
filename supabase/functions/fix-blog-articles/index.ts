@@ -111,7 +111,8 @@ function fixContent(content: string): string {
   // 3. Remove broken link syntax [text](#) or [text](url)
   fixed = fixed.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
 
-  // 4. Remove "Interne Verlinkungen" lines
+  // 4. Remove entire "Interne Verlinkungen" sections (header + list items)
+  fixed = fixed.replace(/#{1,3}\s*Interne Verlinkungen[^\n]*\n(?:[-*]\s*[^\n]*\n?)*/gm, "");
   fixed = fixed.replace(/^.*Interne Verlinkungen?\s*[-–:].*/gm, "");
 
   // 5. Remove raw --- horizontal rules
