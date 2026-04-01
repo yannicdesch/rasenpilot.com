@@ -291,9 +291,7 @@ export default function Subscription() {
                 }`}
               >
                 Jährlich
-                {billingInterval === 'yearly' && (
-                  <Badge className="bg-yellow-100 text-yellow-800 border-0 text-xs">Spare 2 Monate 🎉</Badge>
-                )}
+                <Badge className="bg-yellow-100 text-yellow-800 border-0 text-xs">Spare 2 Monate 🎉</Badge>
               </button>
             </div>
           </div>
