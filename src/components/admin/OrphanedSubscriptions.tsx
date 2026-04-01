@@ -217,6 +217,10 @@ const OrphanedSubscriptions = () => {
                               <Button size="sm" variant="outline" onClick={() => setLinkingId(sub.id)}>
                                 <Link className="h-3 w-3 mr-1" /> Verknüpfen
                               </Button>
+                              <Button size="sm" variant="outline" onClick={() => handleSendEmail(sub)} disabled={sendingEmailId === sub.id}>
+                                {sendingEmailId === sub.id ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Mail className="h-3 w-3 mr-1" />}
+                                E-Mail
+                              </Button>
                               <Button size="sm" variant="ghost" onClick={() => handleResolve(sub.id)}>
                                 <CheckCircle className="h-3 w-3 mr-1" /> Auflösen
                               </Button>
