@@ -237,7 +237,7 @@ const TaskTimeline = () => {
                   <Button 
                     variant="ghost" 
                     className="w-full text-sm text-green-600 hover:text-green-700 hover:bg-green-50"
-                    onClick={() => navigate('/care-plan')}
+                    onClick={() => navigate('/care-calendar')}
                   >
                     {upcomingTasks.length - 3} weitere Aufgaben anzeigen...
                   </Button>

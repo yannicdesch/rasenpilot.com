@@ -70,7 +70,7 @@ export const generateSitemapUrls = (): SitemapUrl[] => {
     },
     
     {
-      loc: '/care-plan',
+      loc: '/care-calendar',
       lastmod: today,
       changefreq: 'weekly',
       priority: 0.9,

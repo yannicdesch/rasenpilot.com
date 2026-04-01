@@ -79,7 +79,7 @@ const ConversionPrompt: React.FC<ConversionPromptProps> = ({
         // Track successful conversion
         trackEvent('conversion', 'registration_complete', 'quick_register');
         
-        navigate('/free-care-plan');
+        navigate('/care-calendar');
       } else {
         // If confirmation is required
         trackRegistrationStep('email_confirmation_sent');

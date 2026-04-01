@@ -84,7 +84,7 @@ const FeaturesBehindRegistration = () => {
               <Button
                 variant="outline"
                 className="border-green-600 text-green-700"
-                onClick={() => navigate('/care-plan')}
+                onClick={() => navigate('/care-calendar')}
               >
                 Erst Plan erstellen
               </Button>
