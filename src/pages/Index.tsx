@@ -95,14 +95,14 @@ const Index = () => {
               <div className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center transform rotate-12">
                 <span className="text-2xl">🧠</span>
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">Deep Learning Analyse</h3>
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Erkennt 50+ Rasenprobleme</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Über <strong className="text-foreground">200 Rasenparameter</strong> werden in Echtzeit analysiert — 
+                Automatische Diagnose von <strong className="text-foreground">Moos, Pilzen, Nährstoffmängeln</strong> und mehr — 
                 inkl. <strong className="text-foreground">Krankheitserkennung</strong> und Produktempfehlungen.
               </p>
               <div className="mt-6 pt-6 border-t border-green-200">
-                <div className="text-3xl font-bold text-primary">GPT-4o</div>
-                <div className="text-sm text-muted-foreground">Vision KI-Technologie</div>
+                <div className="text-3xl font-bold text-primary">⚡ 30 Sek</div>
+                <div className="text-sm text-muted-foreground">Schneller als jeder Gartenberater</div>
               </div>
             </div>
             
