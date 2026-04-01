@@ -69,7 +69,7 @@ const BlogOverview = () => {
     },
     {
       id: 2,
-      title: "Profi-Tipps für Rasenkrankheiten erkennen - So machen Sie es richtig",
+      title: "Profi-Tipps für Rasenkrankheiten erkennen - So machst du es richtig",
       excerpt: "Rasenkrankheiten erkennen ist ein wichtiger Bestandteil jedes schönen Gartens. Hier sind die besten Methoden, um optimale...",
       author: "Lars",
       date: "2025-07-15",
@@ -80,7 +80,7 @@ const BlogOverview = () => {
     {
       id: 3,
       title: "Profi Rasenpflege: Die ultimative Anleitung für perfekte Ergebnisse",
-      excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfahren Sie die wichtigsten...",
+      excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfährst du die wichtigsten...",
       author: "Lars",
       date: "2025-07-15",
       slug: "profi-rasenpflege-ultimative-anleitung",
@@ -127,7 +127,7 @@ const BlogOverview = () => {
     <div className="min-h-screen bg-gradient-to-b from-green-50/30 via-white to-green-50/30">
       <SEO 
         title="Rasenpflege Ratgeber - Expertentipps & Anleitungen | Rasenpilot Blog"
-        description="Entdecken Sie umfassende Ratgeber zur Rasenpflege. Von der Rasensaat bis zur Krankheitsbekämpfung - Expertentipps für den perfekten Rasen das ganze Jahr über."
+        description="Entdecke umfassende Ratgeber zur Rasenpflege. Von der Rasensaat bis zur Krankheitsbekämpfung - Expertentipps für den perfekten Rasen das ganze Jahr über."
         canonical="https://www.rasenpilot.com/blog-overview"
         keywords="Rasenpflege Ratgeber, Rasen Tipps, Rasenpflege Anleitung, Rasen düngen, Rasen mähen, Rasenkrankheiten, Gartenpflege Blog"
         structuredData={{
@@ -161,7 +161,7 @@ const BlogOverview = () => {
               Rasenpflege<br />Ratgeber
             </h1>
             <p className="text-xl md:text-2xl text-green-50 max-w-2xl mx-auto leading-relaxed font-light">
-              Entdecken Sie professionelle Tipps und bewährte Methoden für einen gesunden, grünen Traumrasen
+              Entdecke professionelle Tipps und bewährte Methoden für einen gesunden, grünen Traumrasen
             </p>
           </div>
         </div>
@@ -277,10 +277,10 @@ const BlogOverview = () => {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMC00YzUuNTIzIDAgMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwLTEwLTQuNDc3LTEwLTEwIDQuNDc3LTEwIDEwLTEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L2c+PC9zdmc+')] opacity-20"></div>
             <div className="relative text-center max-w-3xl mx-auto">
               <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-6">
-                Bereit für Ihren Traumrasen?
+                Bereit für deinen Traumrasen?
               </h2>
               <p className="text-green-50 mb-8 text-lg md:text-xl leading-relaxed">
-                Starten Sie noch heute mit einer kostenlosen KI-gestützten Rasenanalyse und erhalten Sie einen personalisierten Pflegeplan
+                Starte noch heute mit einer kostenlosen KI-gestützten Rasenanalyse und erhalte einen personalisierten Pflegeplan
               </p>
               <Button 
                 onClick={() => navigate('/lawn-analysis')}

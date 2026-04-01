@@ -20,13 +20,13 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const systemPrompt = `Sie sind ein SEO-Experte und Fachautor für Rasenpflege. Erstellen Sie einen detaillierten, SEO-optimierten deutschen Blogbeitrag mit folgender Struktur:
+    const systemPrompt = `Du bist ein SEO-Experte und Fachautor für Rasenpflege. Erstelle einen detaillierten, SEO-optimierten deutschen Blogbeitrag mit folgender Struktur:
 
 INHALTLICHE ANFORDERUNGEN:
-- Ton: Freundlich, hilfsreich, fachkundig
+- Ton: Freundlich, hilfsreich, fachkundig, informelle Du-Ansprache
 - Zielgruppe: Hobbygärtner, Hausbesitzer, Rasenliebhaber
 - Länge: 800-1.500 Wörter
-- Sprache: Klar, strukturiert, Deutsch
+- Sprache: Klar, strukturiert, Deutsch, durchgehend Du-Form (nicht Sie)
 
 SEO-OPTIMIERTE STRUKTUR:
 1. Einleitender Hook (Problem/Nutzen des Lesers ansprechen)
