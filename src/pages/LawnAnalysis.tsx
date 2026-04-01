@@ -480,17 +480,35 @@ const LawnAnalysis = () => {
           </Card>
         )}
         
+        {/* 3-Step Process */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="flex flex-col items-center text-center">
+            <span className="text-2xl mb-1">📸</span>
+            <span className="text-xs font-medium text-gray-700">Foto hochladen</span>
+          </div>
+          <div className="text-gray-300 text-lg">→</div>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-2xl mb-1">🤖</span>
+            <span className="text-xs font-medium text-gray-700">KI analysiert</span>
+          </div>
+          <div className="text-gray-300 text-lg">→</div>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-2xl mb-1">🌱</span>
+            <span className="text-xs font-medium text-gray-700">Plan erhalten</span>
+          </div>
+        </div>
+
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-3">
-            Rasenfoto hochladen
+            Zeig uns deinen Rasen 📸
           </h1>
           <p className="text-lg text-slate-700">
-            In 30 Sekunden zu deinem perfekten Pflegeplan.
+            Wir analysieren ihn sofort mit KI
           </p>
           
           {/* Location Status */}
-          <div className="mt-4">
+          <div className="mt-4 space-y-2">
             {locationStatus === 'detecting' && (
               <div className="flex items-center justify-center gap-2 text-sm text-blue-600">
                 <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -504,36 +522,19 @@ const LawnAnalysis = () => {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Before/After Visual Teaser */}
-        <div className="mb-8">
-          <div className="bg-white rounded-2xl p-4 shadow-lg border border-green-100">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="relative">
-                <img 
-                  src={lawnBefore} 
-                  alt="Ungesunder Rasen vorher" 
-                  className="w-full h-24 object-cover rounded-lg"
-                />
-                <div className="absolute top-2 left-2 bg-green-800 text-white px-2 py-1 rounded text-xs font-medium">
-                  Vorher
-                </div>
-              </div>
-              <div className="relative">
-                <img 
-                  src={lawnAfter} 
-                  alt="Gesunder Rasen nachher" 
-                  className="w-full h-24 object-cover rounded-lg"
-                />
-                <div className="absolute top-2 left-2 bg-green-800 text-white px-2 py-1 rounded text-xs font-medium">
-                  Nachher
-                </div>
-              </div>
-            </div>
-            <p className="text-center text-sm text-gray-600 italic mt-3">
-              Dein Rasen könnte so aussehen …
-            </p>
+          {/* PLZ Input */}
+          <div className="mt-3 max-w-xs mx-auto">
+            <Label htmlFor="plz-input" className="text-xs text-gray-500">Deine PLZ (optional — für lokale Wettertipps)</Label>
+            <Input
+              id="plz-input"
+              type="text"
+              placeholder="z.B. 69190"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              className="mt-1 text-center text-sm h-9"
+              maxLength={5}
+            />
           </div>
         </div>
 
