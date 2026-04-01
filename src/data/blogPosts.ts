@@ -31,14 +31,14 @@ Beachte auch, dass verschiedene Rasenarten unterschiedliche Anforderungen haben.
 Ein weiterer wichtiger Tipp: Wechsle die Mährichtung bei jedem Mähen. Dies fördert ein aufrechtes Wachstum der Gräser und verhindert die Bildung von Fahrspuren.
 
 Durch die Einhaltung eines optimalen Mährhythmus schaffst du die Grundlage für einen dichten und widerstandsfähigen Rasen, der Unkräutern und Krankheiten besser widerstehen kann.`,
-    excerpt: "Erfahre, wie oft Sie deinen Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen.",
+    excerpt: "Erfahre, wie oft du deinen Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen.",
     date: "15.05.2025",
     author: "Thomas Müller",
     category: "mowing",
     readTime: 5,
     keywords: ["Rasenmähen", "Mährhythmus", "Rasenpflege", "Mähtipps", "Rasenschnitt", "Schnitthöhe"],
     metaTitle: "Der perfekte Mährhythmus für deinen Rasen | Rasenpilot",
-    metaDescription: "Erfahre, wie oft Sie deinen Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen.",
+    metaDescription: "Erfahre, wie oft du deinen Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen.",
     image: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=800&h=400&fit=crop"
   },
   {
@@ -53,11 +53,11 @@ Für die Frühjahrsdüngung ist ein Rasendünger mit höherem Stickstoffanteil (
 
 Bei der Ausbringung solltest du einen Streuwagen verwenden, um eine gleichmäßige Verteilung zu gewährleisten. Arbeite in Bahnen und vermeide Überlappungen, um Verbrennungen zu vermeiden.
 
-Wichtig: Düngen Sie nur auf trockenem Rasen, aber wähle einen Tag, an dem Regen vorhergesagt ist oder wässern Sie nach dem Düngen gründlich. Dies hilft, den Dünger in den Boden zu transportieren und verhindert Verbrennungen.
+Wichtig: Dünge nur auf trockenem Rasen, aber wähle einen Tag, an dem Regen vorhergesagt ist oder wässere nach dem Düngen gründlich. Dies hilft, den Dünger in den Boden zu transportieren und verhindert Verbrennungen.
 
 Nach der ersten Frühjahrsdüngung sollte etwa 6-8 Wochen später eine zweite, leichtere Düngergabe erfolgen, um das Wachstum kontinuierlich zu unterstützen.
 
-Mit der richtigen Frühjahrsdüngung legen Sie den Grundstein für einen dichten, widerstandsfähigen und leuchtend grünen Rasen, der den Sommer gut übersteht.`,
+Mit der richtigen Frühjahrsdüngung legst du den Grundstein für einen dichten, widerstandsfähigen und leuchtend grünen Rasen, der den Sommer gut übersteht.`,
     excerpt: "Wann ist der richtige Zeitpunkt für die Frühjahrsdüngung? Lerne die optimale Technik und den besten Zeitpunkt für eine effektive Rasendüngung im Frühjahr.",
     date: "10.05.2025",
     author: "Julia Schmidt",
@@ -78,7 +78,7 @@ Das wichtigste Prinzip lautet: Lieber selten, aber dafür gründlich bewässern.
 
 Der optimale Zeitpunkt für die Bewässerung ist früh am Morgen, idealerweise zwischen 4 und 8 Uhr. Zu dieser Zeit ist die Verdunstung minimal, und der Rasen hat den ganzen Tag Zeit, um abzutrocknen, was Pilzerkrankungen vorbeugt.
 
-Als Faustregel gilt: Bewässern Sie in Hitzeperioden 2-3 Mal pro Woche mit jeweils etwa 15-20 l/m². Dies entspricht einer Wasserhöhe von ca. 1,5-2 cm. Mit einem einfachen Test kannst du prüfen, ob die Wassermenge ausreicht: Stelle kleine Behälter auf die Rasenfläche während der Bewässerung, um die Wassermenge zu messen.
+Als Faustregel gilt: Bewässere in Hitzeperioden 2-3 Mal pro Woche mit jeweils etwa 15-20 l/m². Dies entspricht einer Wasserhöhe von ca. 1,5-2 cm. Mit einem einfachen Test kannst du prüfen, ob die Wassermenge ausreicht: Stelle kleine Behälter auf die Rasenfläche während der Bewässerung, um die Wassermenge zu messen.
 
 Verzichte auf tägliches, kurzes Bewässern! Dies führt zu flachen Wurzeln und macht den Rasen anfälliger für Trockenheitsstress. Außerdem verschwendet es Wasser durch erhöhte Verdunstung.
 
@@ -86,8 +86,8 @@ Bei extremer Hitze (über 30°C) kann eine leichte Bewässerung am Nachmittag zu
 
 Ein weiterer Tipp: Stelle den Rasenmäher während Hitzeperioden etwa 1-2 cm höher ein. Längere Halme beschatten den Boden besser und reduzieren die Verdunstung.
 
-Mit diesen Bewässerungsstrategien überstehen Sie und dein Rasen auch den heißesten Sommer ohne braune Stellen.`,
-    excerpt: "Erfahre, wie Sie deinen Rasen auch bei extremer Hitze gesund halten können. Mit der richtigen Bewässerungsstrategie bleibt dein Grün auch im Hochsommer frisch.",
+Mit diesen Bewässerungsstrategien übersteht dein Rasen auch den heißesten Sommer ohne braune Stellen.`,
+    excerpt: "Erfahre, wie du deinen Rasen auch bei extremer Hitze gesund halten können. Mit der richtigen Bewässerungsstrategie bleibt dein Grün auch im Hochsommer frisch.",
     date: "05.05.2025",
     author: "Michael Weber",
     category: "watering",
@@ -117,7 +117,7 @@ Zur natürlichen Bekämpfung von Moos kannst du folgende Maßnahmen ergreifen:
 
 2. Nach dem Vertikutieren solltest du stark betroffene Bereiche neu einsäen, um den Gräsern einen Vorsprung zu verschaffen.
 
-3. Führe eine Bodenanalyse durch und korrigieren Sie den pH-Wert, falls nötig. Für einen optimalen Rasen sollte der pH-Wert zwischen 5,5 und 7,0 liegen. Bei zu saurem Boden hilft eine Kalkung.
+3. Führe eine Bodenanalyse durch und korrigiere den pH-Wert, falls nötig. Für einen optimalen Rasen sollte der pH-Wert zwischen 5,5 und 7,0 liegen. Bei zu saurem Boden hilft eine Kalkung.
 
 4. Verbesserung der Drainage durch Aerifizieren oder das Einbringen von Sand kann Staunässe reduzieren.
 
@@ -125,19 +125,19 @@ Zur natürlichen Bekämpfung von Moos kannst du folgende Maßnahmen ergreifen:
 
 6. Regelmäßige Düngung mit einem ausgewogenen Rasendünger stärkt die Gräser und lässt dem Moos weniger Raum.
 
-7. Erhöhen Sie die Schnitthöhe auf mindestens 4-5 cm, um den Gräsern mehr Blattmasse für die Photosynthese zu geben.
+7. Erhöhe die Schnitthöhe auf mindestens 4-5 cm, um den Gräsern mehr Blattmasse für die Photosynthese zu geben.
 
 Natürliche Hausmittel wie eine Lösung aus Backpulver und Wasser (1:1) oder verdünnter Essig können in leichten Fällen helfen, sind jedoch bei starkem Befall nicht ausreichend.
 
 Denke daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimaler Bedingungen für das Rasenwachstum. Dann hat Moos langfristig keine Chance.`,
-    excerpt: "Entdecke wirksame und umweltfreundliche Methoden zur Bekämpfung von Moos in deinem Rasen. Erfahre, wie Sie nicht nur das Symptom, sondern die Ursachen angehen können.",
+    excerpt: "Entdecke wirksame und umweltfreundliche Methoden zur Bekämpfung von Moos in deinem Rasen. Erfahre, wie du nicht nur das Symptom, sondern die Ursachen angehen können.",
     date: "01.05.2025",
     author: "Sarah Klein",
     category: "problems",
     readTime: 8,
     keywords: ["Moosbekämpfung", "Moos im Rasen", "natürliche Rasenreinigung", "Vertikutieren", "Rasenpflege", "Rasenprobleme"],
     metaTitle: "Moos im Rasen natürlich bekämpfen - Effektive Methoden | Rasenpilot",
-    metaDescription: "Erfahre, wie Sie Moos in deinem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung.",
+    metaDescription: "Erfahre, wie du Moos in deinem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung.",
     image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&h=400&fit=crop"
   },
   {
@@ -154,7 +154,7 @@ Das Herbstprogramm für deinen Rasen sollte folgende Schritte umfassen:
 
 3. Herbstdüngung: Bringe bis Mitte Oktober einen speziellen Herbstrasendünger aus. Dieser enthält weniger Stickstoff, aber mehr Kalium, was die Winterhärte der Gräser erhöht. Der ideale NPK-Wert für Herbstdünger liegt bei etwa 5-5-20.
 
-4. Aerifizieren und Vertikutieren: Der Herbst ist der ideale Zeitpunkt, um verdichteten Boden zu belüften. Durch Aerifizieren (Stechen von Löchern) oder leichtes Vertikutieren verbessern Sie die Wasser- und Nährstoffaufnahme.
+4. Aerifizieren und Vertikutieren: Der Herbst ist der ideale Zeitpunkt, um verdichteten Boden zu belüften. Durch Aerifizieren (Stechen von Löchern) oder leichtes Vertikutieren verbesserst du die Wasser- und Nährstoffaufnahme.
 
 5. Nachsaat: Kahle oder dünne Stellen können im frühen Herbst noch nachgesät werden. Die Bodentemperaturen sind ideal für die Keimung, und der Herbstregen spart Bewässerungsarbeit.
 
@@ -182,7 +182,7 @@ Bei Befolgung dieses Herbstprogramms wird dein Rasen gestärkt in die kalte Jahr
     content: `Das Vertikutieren ist eine der wichtigsten Pflegemaßnahmen für einen gesunden, dichten Rasen. Es befreit die Grasnarbe von Moos, abgestorbenen Pflanzenteilen und Filz, wodurch Luft, Wasser und Nährstoffe wieder besser zu den Graswurzeln gelangen können.
 
 Wann sollte vertikutiert werden?
-Die besten Zeitpunkte sind das Frühjahr (April bis Mai) und der frühe Herbst (September). Im Frühjahr bereitest du deinen Rasen auf die Wachstumsperiode vor, im Herbst stärken Sie ihn für den Winter und beugen Krankheiten vor.
+Die besten Zeitpunkte sind das Frühjahr (April bis Mai) und der frühe Herbst (September). Im Frühjahr bereitest du deinen Rasen auf die Wachstumsperiode vor, im Herbst stärkst du ihn für den Winter und beugen Krankheiten vor.
 
 Vorbereitung:
 - Mähe den Rasen auf etwa 3-4 cm Höhe
@@ -199,25 +199,25 @@ Die richtige Technik:
 Nach dem Vertikutieren:
 - Dünnen oder kahlen Stellen mit einer Nachsaat behandeln
 - Eine leichte Düngergabe unterstützt die Regeneration
-- Bewässern Sie den Rasen in den folgenden Tagen regelmäßig, besonders bei Trockenheit
+- Bewässere den Rasen in den folgenden Tagen regelmäßig, besonders bei Trockenheit
 
 Wichtige Hinweise:
 - Vertikutiere niemals einen frisch angelegten Rasen (jünger als ein Jahr)
 - Bei sehr verdichtetem Boden kann eine Aerifizierung vor dem Vertikutieren sinnvoll sein
-- Überprüfe die Messer Ihres Vertikutierers vor jedem Einsatz auf Schärfe und Beschädigungen
+- Überprüfe die Messer deines Vertikutierers vor jedem Einsatz auf Schärfe und Beschädigungen
 
 Häufigkeit:
 Ein gesunder Rasen sollte 1-2 Mal jährlich vertikutiert werden. Bei starker Moosbildung oder intensiver Nutzung kann eine zusätzliche Behandlung sinnvoll sein.
 
 Mit regelmäßigem Vertikutieren schaffst du die Grundlage für einen dichten, widerstandsfähigen Rasen, der Unkraut, Moos und Krankheiten besser widersteht.`,
-    excerpt: "Lerne, wie und wann Sie deinen Rasen richtig vertikutieren sollten. Dieser umfassende Leitfaden erklärt Schritt für Schritt die richtige Technik und Vorbereitung.",
+    excerpt: "Lerne, wie und wann du deinen Rasen richtig vertikutieren sollten. Dieser umfassende Leitfaden erklärt Schritt für Schritt die richtige Technik und Vorbereitung.",
     date: "20.04.2025",
     author: "Julia Schmidt",
     category: "mowing",
     readTime: 7,
     keywords: ["Rasen vertikutieren", "Vertikutieren Anleitung", "Rasenfilz entfernen", "Rasenpflege", "Vertikutierer", "Rasenverbesserung"],
     metaTitle: "Rasen vertikutieren: Kompletter Leitfaden für Hobbygärtner | Rasenpilot",
-    metaDescription: "Erfahre, wie Sie deinen Rasen richtig vertikutieren. Der vollständige Leitfaden mit Tipps zu Zeitpunkt, Technik und Nachbehandlung für einen perfekten Rasen.",
+    metaDescription: "Erfahre, wie du deinen Rasen richtig vertikutieren. Der vollständige Leitfaden mit Tipps zu Zeitpunkt, Technik und Nachbehandlung für einen perfekten Rasen.",
     image: "https://images.unsplash.com/photo-1600207438283-a5de6d9df13e?w=800&h=400&fit=crop"
   },
   {
@@ -269,7 +269,7 @@ Nachteile:
 Fazit unseres Tests:
 Für schnelle Ergebnisse und präzise Nährstoffgaben sind hochwertige mineralische Dünger kaum zu schlagen. Für eine nachhaltige Rasenpflege mit verbesserter Bodenstruktur empfehlen wir jedoch organische Alternativen oder kombinierte Produkte, die beide Ansätze vereinen.
 
-Die beste Düngerstrategie für die meisten Hobbygärtner: Starten Sie im Frühjahr mit einem mineralischen Dünger für einen schnellen Start und setzen Sie für die Folgedüngungen auf organische Produkte für langfristige Bodengesundheit.`,
+Die beste Düngerstrategie für die meisten Hobbygärtner: Starte im Frühjahr mit einem mineralischen Dünger für einen schnellen Start und setze für die Folgedüngungen auf organische Produkte für langfristige Bodengesundheit.`,
     excerpt: "Welcher Rasendünger ist wirklich der beste? Wir haben mineralische und organische Dünger im Test verglichen und präsentieren die Vor- und Nachteile beider Varianten für deinen Rasen.",
     date: "15.04.2025",
     author: "Michael Weber",
@@ -317,7 +317,7 @@ Zusätzliche Features, die sich lohnen:
 - Sektorenregner: Ermöglichen die gezielte Bewässerung bestimmter Bereiche ohne Verschwendung
 
 Installations- und Wartungsaufwand:
-Während oberirdische Systeme einfach selbst installiert werden können, erfordern unterirdische Anlagen mehr Planung und oft professionelle Installation. Bedenken Sie auch den Winterschutz: Unterirdische Systeme müssen vor Frost geschützt werden.
+Während oberirdische Systeme einfach selbst installiert werden können, erfordern unterirdische Anlagen mehr Planung und oft professionelle Installation. Bedenke auch den Winterschutz: Unterirdische Systeme müssen vor Frost geschützt werden.
 
 Kosten im Überblick:
 - Einfache Rasensprenger mit Zeitschaltuhr: ca. 50-150€
@@ -342,7 +342,7 @@ Experten-Tipp: Investiere in ein System mit Wassersparfunktionen wie Regensensor
     id: 9,
     title: "Rasenprobleme diagnostizieren: Häufige Krankheiten und ihre Behandlung",
     slug: "rasenprobleme-diagnostizieren-krankheiten-behandlung",
-    content: `Ein gesunder Rasen kann verschiedenen Krankheiten und Schädlingen zum Opfer fallen. Die richtige Diagnose ist der erste Schritt zur erfolgreichen Behandlung. Hier erfahre, wie Sie häufige Rasenprobleme erkennen und bekämpfen können.
+    content: `Ein gesunder Rasen kann verschiedenen Krankheiten und Schädlingen zum Opfer fallen. Die richtige Diagnose ist der erste Schritt zur erfolgreichen Behandlung. Hier erfahre, wie du häufige Rasenprobleme erkennen und bekämpfen können.
 
 Schneeschimmel (Microdochium nivale):
 Erkennungsmerkmal: Runde, hellbraune bis strohfarbene Flecken mit 5-30 cm Durchmesser, oft mit weißlich-rosa Pilzgeflecht am Rand.
@@ -451,15 +451,15 @@ Wenn mehr als 50% der Fläche renovierungsbedürftig sind, kann eine komplette N
 Nachsorge:
 Schone den renovierten Rasen für mindestens 4-6 Wochen. Vermeide intensive Nutzung, bis sich die neuen Gräser etabliert haben und ein dichtes Wurzelwerk gebildet haben.
 
-Mit dieser gründlichen Frühjahrsrenovierung legen Sie den Grundstein für einen dichten, strapazierfähigen und attraktiven Rasen, der dem Sommer gut gewachsen ist.`,
-    excerpt: "Ist dein Rasen nach dem Winter in schlechtem Zustand? Unsere Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr zeigt, wie Sie kahle Stellen beseitigen und deinem Rasen zu neuer Pracht verhelfen.",
+Mit dieser gründlichen Frühjahrsrenovierung legst du den Grundstein für einen dichten, strapazierfähigen und attraktiven Rasen, der dem Sommer gut gewachsen ist.`,
+    excerpt: "Ist dein Rasen nach dem Winter in schlechtem Zustand? Unsere Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr zeigt, wie du kahle Stellen beseitigen und deinem Rasen zu neuer Pracht verhelfen.",
     date: "01.04.2025",
     author: "Julia Schmidt",
     category: "seasonal",
     readTime: 7,
     keywords: ["Rasenrenovierung", "Rasen ausbessern", "Nachsaat", "Frühjahrsrasen", "kahle Stellen", "Rasenpflege Frühling", "Rasen erneuern"],
     metaTitle: "Rasenrenovierung im Frühjahr: Anleitung für neuen Rasen | Rasenpilot",
-    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahre, wie Sie kahle Stellen beseitigen und deinen Rasen wieder in einen prächtigen Zustand versetzen.",
+    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahre, wie du kahle Stellen beseitigen und deinen Rasen wieder in einen prächtigen Zustand versetzen.",
     image: "https://images.unsplash.com/photo-1501004318855-b43cf7c5d87a?w=800&h=400&fit=crop"
   }
 ];
