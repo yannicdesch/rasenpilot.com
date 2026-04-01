@@ -168,7 +168,9 @@ Das Herbstprogramm für deinen Rasen sollte folgende Schritte umfassen:
 
 Vermeide ab November jegliche Düngung, da die Gräser diese nicht mehr verwerten können und überschüssiger Stickstoff ins Grundwasser ausgewaschen werden könnte.
 
-Bei Befolgung dieses Herbstprogramms wird dein Rasen gestärkt in die kalte Jahreszeit gehen und im Frühjahr schneller wieder in sattem Grün erstrahlen.`,
+Bei Befolgung dieses Herbstprogramms wird dein Rasen gestärkt in die kalte Jahreszeit gehen und im Frühjahr schneller wieder in sattem Grün erstrahlen.
+
+Die Herbstpflege unterscheidet sich je nach Klimazone. Lies unsere regionalen Ratgeber für <a href="/rasenpflege-oesterreich">Rasenpflege in Österreich</a> und <a href="/rasenpflege-schweiz">Rasenpflege in der Schweiz</a>.`,
     excerpt: "Der Herbst ist die wichtigste Zeit für die Rasenvorbereitung auf den Winter. Erfahre, welche Maßnahmen jetzt für einen gesunden Rasen im nächsten Frühjahr entscheidend sind.",
     date: "25.04.2025",
     author: "Thomas Müller",
