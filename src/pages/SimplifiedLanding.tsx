@@ -320,7 +320,6 @@ const SimplifiedLanding = () => {
               Das sagen unsere Nutzer
             </h2>
             <p className="text-sm text-gray-500 italic mb-8">* Beispiel-Erfahrungen</p>
-            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-lg">
                 <div className="flex justify-center mb-4">
