@@ -27,28 +27,28 @@ export const validateAdminRole = async (): Promise<boolean> => {
       return false;
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+    const { data: roleData, error: roleError } = await supabase
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
 
-    if (profileError) {
-      await auditLogger.security('admin_validation_profile_error', { 
+    if (roleError) {
+      await auditLogger.security('admin_validation_role_error', { 
         userId: user.id, 
-        error: profileError.message 
+        error: roleError.message 
       });
       return false;
     }
 
-    const isAdmin = profile?.role === 'admin';
+    const isAdmin = !!roleData;
     
     if (isAdmin) {
       await auditLogger.security('admin_validation_success', { userId: user.id });
     } else {
       await auditLogger.security('admin_validation_insufficient_role', { 
-        userId: user.id, 
-        actualRole: profile?.role 
+        userId: user.id
       });
     }
 

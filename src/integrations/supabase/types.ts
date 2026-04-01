@@ -843,10 +843,7 @@ export type Database = {
           lawn_image_url: string | null
           lawn_score: number | null
           lawn_size: string | null
-          location: string | null
-          user_id: string | null
           user_name: string | null
-          zip_code: string | null
         }
         Insert: {
           analysis_date?: string | null
@@ -856,10 +853,7 @@ export type Database = {
           lawn_image_url?: string | null
           lawn_score?: number | null
           lawn_size?: string | null
-          location?: string | null
-          user_id?: string | null
           user_name?: string | null
-          zip_code?: string | null
         }
         Update: {
           analysis_date?: string | null
@@ -869,10 +863,7 @@ export type Database = {
           lawn_image_url?: string | null
           lawn_score?: number | null
           lawn_size?: string | null
-          location?: string | null
-          user_id?: string | null
           user_name?: string | null
-          zip_code?: string | null
         }
         Relationships: []
       }
