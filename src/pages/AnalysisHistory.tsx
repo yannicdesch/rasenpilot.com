@@ -186,7 +186,7 @@ const AnalysisHistory: React.FC = () => {
   if (!isPremium) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-        <SEO title="Mein Rasen-Verlauf | RasenPilot" description="Verfolge deinen Rasen-Fortschritt über die Zeit." />
+        <SEO title="Mein Rasen-Verlauf | Rasenpilot" description="Verfolge deinen Rasen-Fortschritt über die Zeit." canonical="/analysis-history" noindex />
         <MainNavigation />
         <div className="container mx-auto px-4 py-12 max-w-lg">
           <Card className="border-yellow-200 bg-gradient-to-br from-yellow-50 to-white">
@@ -217,9 +217,11 @@ const AnalysisHistory: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO 
-        title="Mein Rasen-Verlauf | RasenPilot"
+        title="Mein Rasen-Verlauf | Rasenpilot"
         description="Verfolge deinen Rasen-Fortschritt mit detaillierter Analyse-Historie und Scores."
         keywords="Rasen Historie, Analyse Verlauf, Rasen Fortschritt"
+        canonical="/analysis-history"
+        noindex
       />
       
       <MainNavigation />

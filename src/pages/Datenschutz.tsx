@@ -1,10 +1,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MainNavigation from '@/components/MainNavigation';
+import SEO from '@/components/SEO';
 
 const Datenschutz = () => {
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO title="Datenschutzerklärung | Rasenpilot" description="Datenschutzerklärung von Rasenpilot. Informationen zur Verarbeitung personenbezogener Daten." canonical="/datenschutz" noindex={false} />
       <MainNavigation />
       
       <div className="container mx-auto px-4 py-8">

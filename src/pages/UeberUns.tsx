@@ -2,10 +2,12 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Users, Target, Leaf } from 'lucide-react';
 import MainNavigation from '@/components/MainNavigation';
+import SEO from '@/components/SEO';
 
 const UeberUns = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <SEO title="Über uns | Rasenpilot" description="Erfahre mehr über Rasenpilot – Deutschlands führende KI-Plattform für intelligente Rasenpflege." canonical="/ueber-uns" />
       <MainNavigation />
       
       <div className="container mx-auto px-4 py-12">

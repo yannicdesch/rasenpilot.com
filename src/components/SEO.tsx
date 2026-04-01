@@ -49,9 +49,18 @@ const SEO: React.FC<SEOProps> = ({
     ? `${description.substring(0, 155)}...`
     : description || 'Erstelle kostenlos deinen personalisierten Rasenpflegeplan in nur 30 Sekunden. KI-gestützte Rasenanalyse basierend auf Standort, Rasentyp & Zielen. Sofort starten - ohne Anmeldung.';
 
-  // Build canonical URL
+  // Build canonical URL - handle both full URLs and paths, strip query params
   const siteUrl = 'https://www.rasenpilot.com';
-  const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
+  const buildCanonical = () => {
+    if (!canonical) return siteUrl;
+    // If already a full URL, use as-is but strip query params
+    if (canonical.startsWith('http')) {
+      return canonical.split('?')[0];
+    }
+    // Otherwise prepend site URL and strip query params
+    return `${siteUrl}${canonical}`.split('?')[0];
+  };
+  const canonicalUrl = buildCanonical();
 
   // High-quality logo and images for better search results
   const logoUrl = `${siteUrl}/logo.png`;

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Mail, MapPin, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MainNavigation from '@/components/MainNavigation';
+import SEO from '@/components/SEO';
 
 const Kontakt = () => {
   const [formData, setFormData] = useState({
@@ -47,6 +48,7 @@ const Kontakt = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <SEO title="Kontakt | Rasenpilot" description="Kontaktiere das Rasenpilot-Team. Wir helfen dir gerne bei Fragen zur Rasenpflege." canonical="/kontakt" />
       <MainNavigation />
       
       <div className="container mx-auto px-4 py-12">

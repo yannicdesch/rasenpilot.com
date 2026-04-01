@@ -193,7 +193,7 @@ Jeder Monat sollte 2-4 konkrete, umsetzbare Aufgaben enthalten die zum deutschen
   if (!isPremium) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-        <SEO title="Mein Pflegekalender | RasenPilot" description="Dein persönlicher monatlicher Rasenpflegeplan." />
+        <SEO title="Mein Pflegekalender | Rasenpilot" description="Dein persönlicher monatlicher Rasenpflegeplan." canonical="/care-calendar" noindex />
         <MainNavigation />
         <div className="container mx-auto px-4 py-12 max-w-lg">
           <Card className="border-yellow-200 bg-gradient-to-br from-yellow-50 to-white">
@@ -225,7 +225,7 @@ Jeder Monat sollte 2-4 konkrete, umsetzbare Aufgaben enthalten die zum deutschen
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <SEO title="Mein Pflegekalender | RasenPilot" description="Dein persönlicher monatlicher Rasenpflegeplan basierend auf deiner KI-Analyse." />
+      <SEO title="Mein Pflegekalender | Rasenpilot" description="Dein persönlicher monatlicher Rasenpflegeplan basierend auf deiner KI-Analyse." canonical="/care-calendar" noindex />
       <MainNavigation />
 
       <div className="container mx-auto px-4 py-6 max-w-4xl">
