@@ -5,6 +5,7 @@ import UserDataManagement from '@/components/UserDataManagement';
 import CookieSettings from '@/components/CookieSettings';
 import ConsentManagement from '@/components/ConsentManagement';
 import EmailPreferencesSettings from '@/components/EmailPreferencesSettings';
+import PendingCareTasksCard from '@/components/PendingCareTasksCard';
 import LawnProfileSettings from '@/components/LawnProfileSettings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Cookie, User, Mail, Leaf } from 'lucide-react';
