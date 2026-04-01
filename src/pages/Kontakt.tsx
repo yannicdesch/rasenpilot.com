@@ -85,7 +85,7 @@ const Kontakt = () => {
                       <p>Am Hocholzergraben 56</p>
                       <p>69190 Walldorf</p>
                       <p className="pt-2">
-                        E-Mail: <a href="mailto:info@rasenpilot.com" className="text-primary hover:text-primary/80 font-medium transition-colors">info@rasenpilot.com</a>
+                        E-Mail: <a href="mailto:rasenpilot@gmail.com" className="text-primary hover:text-primary/80 font-medium transition-colors">rasenpilot@gmail.com</a>
                       </p>
                     </div>
                   </div>

@@ -28,7 +28,7 @@ const Impressum = () => {
 
                 <p>
                   <strong>Kontakt:</strong><br />
-                  E-Mail: <a href="mailto:info@rasenpilot.com" className="text-green-600 hover:text-green-800">info@rasenpilot.com</a>
+                  E-Mail: <a href="mailto:rasenpilot@gmail.com" className="text-green-600 hover:text-green-800">rasenpilot@gmail.com</a>
                 </p>
 
                 <p>
