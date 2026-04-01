@@ -99,9 +99,9 @@ Mit diesen Bewässerungsstrategien übersteht dein Rasen auch den heißesten Som
   },
   {
     id: 4,
-    title: "Moos im Rasen bekämpfen: Natürliche und effektive Methoden",
+    title: "Moos im Rasen bekämpfen: Rasenanalyse zeigt die Ursachen",
     slug: "moos-im-rasen-bekaempfen-natuerliche-methoden",
-    content: `Moos im Rasen ist ein häufiges Problem, das auf ungünstige Wachstumsbedingungen für Gräser hinweist. Statt nur die Symptome zu behandeln, solltest du die Ursachen angehen, um langfristig einen moosfreien Rasen zu erhalten.
+    content: `Moos im Rasen ist ein häufiges Problem, das auf ungünstige Wachstumsbedingungen für Gräser hinweist. Eine professionelle Rasenanalyse hilft dir, die genauen Ursachen zu erkennen — mit der KI Rasenanalyse von Rasenpilot geht das sogar per Foto in 30 Sekunden.
 
 Die Hauptursachen für Moosbildung sind:
 - Verdichteter Boden mit schlechter Durchlüftung
@@ -129,15 +129,15 @@ Zur natürlichen Bekämpfung von Moos kannst du folgende Maßnahmen ergreifen:
 
 Natürliche Hausmittel wie eine Lösung aus Backpulver und Wasser (1:1) oder verdünnter Essig können in leichten Fällen helfen, sind jedoch bei starkem Befall nicht ausreichend.
 
-Denke daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimaler Bedingungen für das Rasenwachstum. Dann hat Moos langfristig keine Chance.`,
-    excerpt: "Entdecke wirksame und umweltfreundliche Methoden zur Bekämpfung von Moos in deinem Rasen. Erfahre, wie du nicht nur das Symptom, sondern die Ursachen angehen können.",
+Denke daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimaler Bedingungen für das Rasenwachstum. Nutze die Rasen Analyse App von Rasenpilot, um deinen Rasen analysieren zu lassen und einen individuellen Pflegeplan zu erhalten.`,
+    excerpt: "Moos im Rasen? Eine KI Rasenanalyse zeigt dir die Ursachen und gibt dir einen Pflegeplan. Entdecke natürliche Methoden zur Moosbekämpfung.",
     date: "01.05.2025",
     author: "Sarah Klein",
     category: "problems",
     readTime: 8,
-    keywords: ["Moosbekämpfung", "Moos im Rasen", "natürliche Rasenreinigung", "Vertikutieren", "Rasenpflege", "Rasenprobleme"],
-    metaTitle: "Moos im Rasen natürlich bekämpfen - Effektive Methoden | Rasenpilot",
-    metaDescription: "Erfahre, wie du Moos in deinem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung.",
+    keywords: ["Moosbekämpfung", "Moos im Rasen", "Rasenanalyse", "KI Rasenanalyse", "Rasen analysieren App", "Rasenpflege", "Rasenprobleme"],
+    metaTitle: "Moos im Rasen bekämpfen: KI-Rasenanalyse zeigt Ursachen | Rasenpilot",
+    metaDescription: "Moos im Rasen? Die KI Rasenanalyse von Rasenpilot erkennt Ursachen per Foto. Entdecke natürliche Methoden und erhalte einen persönlichen Pflegeplan.",
     image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&h=400&fit=crop"
   },
   {
@@ -340,9 +340,9 @@ Experten-Tipp: Investiere in ein System mit Wassersparfunktionen wie Regensensor
   },
   {
     id: 9,
-    title: "Rasenprobleme diagnostizieren: Häufige Krankheiten und ihre Behandlung",
+    title: "Rasenanalyse: Rasenprobleme per KI diagnostizieren und behandeln",
     slug: "rasenprobleme-diagnostizieren-krankheiten-behandlung",
-    content: `Ein gesunder Rasen kann verschiedenen Krankheiten und Schädlingen zum Opfer fallen. Die richtige Diagnose ist der erste Schritt zur erfolgreichen Behandlung. Hier erfahre, wie du häufige Rasenprobleme erkennen und bekämpfen können.
+    content: `Eine gründliche Rasenanalyse ist der erste Schritt zur erfolgreichen Behandlung von Rasenkrankheiten. Mit einer KI Rasenanalyse per App kannst du heute in Sekunden erkennen, was deinem Rasen fehlt — lade einfach ein Foto hoch und lass die Rasen Analyse App den Rest erledigen.
 
 Schneeschimmel (Microdochium nivale):
 Erkennungsmerkmal: Runde, hellbraune bis strohfarbene Flecken mit 5-30 cm Durchmesser, oft mit weißlich-rosa Pilzgeflecht am Rand.
@@ -395,30 +395,30 @@ Die beste Behandlung ist die Vorbeugung durch optimale Rasenpflege:
 - Verbesserung der Bodendurchlüftung durch regelmäßiges Aerifizieren
 - Verwendung resistenter Grassorten bei Nachsaat
 
-Bei allen Pflanzenschutzmaßnahmen gilt: Immer das mildeste wirksame Mittel wählen und die Umweltverträglichkeit beachten. Chemische Behandlungen sollten stets die letzte Option sein, wenn kulturelle Maßnahmen nicht ausreichen.`,
-    excerpt: "Braune Flecken, verfärbte Halme oder seltsame Muster im Rasen? Lerne, die häufigsten Rasenkrankheiten zu erkennen und wie du sie richtig behandeln können.",
+Tipp: Nutze die kostenlose Rasen Analyse App von Rasenpilot, um deinen Rasen analysieren zu lassen — die KI Rasenanalyse erkennt Krankheiten automatisch und gibt dir einen persönlichen Pflegeplan.`,
+    excerpt: "Rasenprobleme schnell erkennen: Mit der KI Rasenanalyse von Rasenpilot diagnostizierst du Rasenkrankheiten per Foto und erhältst sofort einen Pflegeplan.",
     date: "05.04.2025",
     author: "Thomas Müller",
     category: "problems",
     readTime: 8,
-    keywords: ["Rasenkrankheiten", "Schneeschimmel", "Dollarfleck", "Rotspitzigkeit", "Pilzbefall Rasen", "Rasenprobleme", "Rasenbehandlung"],
-    metaTitle: "Rasenprobleme diagnostizieren: Krankheiten und ihre Behandlung | Rasenpilot",
-    metaDescription: "Lerne, häufige Rasenkrankheiten zu erkennen und zu behandeln. Unsere Anleitung hilft dir bei der Diagnose von Schneeschimmel, Dollarfleck und anderen Rasenproblemen.",
+    keywords: ["Rasenanalyse", "KI Rasenanalyse", "Rasen Analyse App", "Rasenkrankheiten", "Schneeschimmel", "Rasenprobleme", "Rasen analysieren App"],
+    metaTitle: "Rasenanalyse per KI: Rasenprobleme diagnostizieren & behandeln | Rasenpilot",
+    metaDescription: "Rasenanalyse per KI — lade ein Foto hoch und erkenne Rasenkrankheiten sofort. Die Rasen Analyse App von Rasenpilot gibt dir einen persönlichen Pflegeplan.",
     image: "https://images.unsplash.com/photo-1595228034885-a7246e18b4b6?w=800&h=400&fit=crop"
   },
   {
     id: 10,
-    title: "Rasenrenovierung im Frühjahr: So wird dein Rasen wieder schön",
+    title: "Rasenrenovierung im Frühjahr: Mit Rasenanalyse zum perfekten Ergebnis",
     slug: "rasenrenovierung-fruehling-anleitung",
     
-    content: `Nach einem langen Winter präsentiert sich mancher Rasen in keinem guten Zustand. Kahle Stellen, Moosbildung oder Verdichtungen sind typische Probleme. Mit einer gründlichen Frühjahrsrenovierung kannst du deinem Rasen jedoch neues Leben einhauchen.
+    content: `Nach einem langen Winter präsentiert sich mancher Rasen in keinem guten Zustand. Bevor du loslegst, empfehlen wir eine kostenlose Rasenanalyse per App — mit der Rasen Analyse App von Rasenpilot kannst du deinen Rasen analysieren und erfährst in 30 Sekunden, welche Maßnahmen wirklich nötig sind.
 
 Der ideale Zeitpunkt für eine Rasenrenovierung ist das Frühjahr ab Mitte März bis Mai, wenn der Boden sich auf mindestens 8-10°C erwärmt hat und die Gräser in die aktive Wachstumsphase starten.
 
 Schritt-für-Schritt-Anleitung für die Rasenrenovierung:
 
 1. Bestandsaufnahme und Planung:
-Analysiere zunächst den Zustand deines Rasens. Ist er nur stellenweise beschädigt oder insgesamt in schlechtem Zustand? Führe idealerweise eine Bodenanalyse durch, um pH-Wert und Nährstoffversorgung zu ermitteln.
+Analysiere zunächst den Zustand deines Rasens. Ist er nur stellenweise beschädigt oder insgesamt in schlechtem Zustand? Führe idealerweise eine Bodenanalyse durch, um pH-Wert und Nährstoffversorgung zu ermitteln. Die KI Rasenanalyse kann dir dabei helfen, den Zustand objektiv zu bewerten.
 
 2. Vorbereitende Maßnahmen:
 - Mähe den Rasen auf etwa 2-3 cm Höhe
@@ -451,15 +451,15 @@ Wenn mehr als 50% der Fläche renovierungsbedürftig sind, kann eine komplette N
 Nachsorge:
 Schone den renovierten Rasen für mindestens 4-6 Wochen. Vermeide intensive Nutzung, bis sich die neuen Gräser etabliert haben und ein dichtes Wurzelwerk gebildet haben.
 
-Mit dieser gründlichen Frühjahrsrenovierung legst du den Grundstein für einen dichten, strapazierfähigen und attraktiven Rasen, der dem Sommer gut gewachsen ist.`,
-    excerpt: "Ist dein Rasen nach dem Winter in schlechtem Zustand? Unsere Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr zeigt, wie du kahle Stellen beseitigen und deinem Rasen zu neuer Pracht verhelfen.",
+Mit dieser gründlichen Frühjahrsrenovierung legst du den Grundstein für einen dichten, strapazierfähigen und attraktiven Rasen. Tipp: Nach 4 Wochen eine erneute Rasenanalyse machen, um den Fortschritt zu messen!`,
+    excerpt: "Rasen renovieren im Frühjahr — starte mit einer kostenlosen KI Rasenanalyse und erfahre, welche Maßnahmen dein Rasen wirklich braucht.",
     date: "01.04.2025",
     author: "Julia Schmidt",
     category: "seasonal",
     readTime: 7,
-    keywords: ["Rasenrenovierung", "Rasen ausbessern", "Nachsaat", "Frühjahrsrasen", "kahle Stellen", "Rasenpflege Frühling", "Rasen erneuern"],
-    metaTitle: "Rasenrenovierung im Frühjahr: Anleitung für neuen Rasen | Rasenpilot",
-    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahre, wie du kahle Stellen beseitigen und deinen Rasen wieder in einen prächtigen Zustand versetzen.",
+    keywords: ["Rasenrenovierung", "Rasenanalyse", "Rasen analysieren App", "Rasen Analyse App", "KI Rasenanalyse", "Rasenpflege Frühling", "Rasen erneuern"],
+    metaTitle: "Rasenrenovierung im Frühjahr: Mit KI-Rasenanalyse zum Erfolg | Rasenpilot",
+    metaDescription: "Rasen renovieren? Starte mit einer kostenlosen KI Rasenanalyse per App. Schritt-für-Schritt-Anleitung und persönlicher Pflegeplan für deinen Rasen.",
     image: "https://images.unsplash.com/photo-1501004318855-b43cf7c5d87a?w=800&h=400&fit=crop"
   }
 ];
