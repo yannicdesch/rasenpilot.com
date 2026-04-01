@@ -101,8 +101,8 @@ const Index = () => {
                 inkl. <strong className="text-foreground">Krankheitserkennung</strong> und Produktempfehlungen.
               </p>
               <div className="mt-6 pt-6 border-t border-green-200">
-                <div className="text-3xl font-bold text-primary">98,3%</div>
-                <div className="text-sm text-muted-foreground">Genauigkeit</div>
+                <div className="text-3xl font-bold text-primary">GPT-4o</div>
+                <div className="text-sm text-muted-foreground">Vision KI-Technologie</div>
               </div>
             </div>
             
