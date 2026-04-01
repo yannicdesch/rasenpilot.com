@@ -108,6 +108,12 @@ export default function Subscription() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+
+      // Auto-trigger checkout if user returned from auth with a plan param
+      const planParam = searchParams.get('plan');
+      if (user && planParam) {
+        handleSubscribe(planParam);
+      }
     };
     getUser();
     trackMetaViewContent('Subscription Page', 'subscription', 9.99, 'EUR');
