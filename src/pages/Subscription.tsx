@@ -268,17 +268,6 @@ export default function Subscription() {
           </div>
         </div>
 
-        {/* Social proof testimonial */}
-        <div className="container mx-auto px-4 max-w-3xl pb-8">
-          <div className="bg-white border border-gray-200 rounded-xl px-6 py-4 text-center shadow-sm">
-            <p className="text-gray-700 italic text-base md:text-lg">
-              „Mein Rasen sieht nach 4 Wochen komplett anders aus."
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              — Markus R., Stuttgart <span className="text-xs text-gray-400">(Beispiel-Erfahrung)</span>
-            </p>
-          </div>
-        </div>
 
         {/* Billing Toggle & Seasonal Banner */}
         <div id="pricing" className="container mx-auto px-4 max-w-6xl">
