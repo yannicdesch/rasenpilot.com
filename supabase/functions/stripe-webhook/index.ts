@@ -189,6 +189,19 @@ async function processStripeEvent(
         customerEmail,
         customerId,
       );
+
+      // Check if user has an account - if not, send registration prompt
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", customerEmail)
+        .maybeSingle();
+
+      const resendKey = Deno.env.get("RESEND_API_KEY");
+      if (!existingProfile && resendKey) {
+        console.log("[STRIPE-WEBHOOK] No account found for", customerEmail, "- sending registration prompt");
+        await sendRegistrationPromptEmail(customerEmail, resendKey);
+      }
       return;
     }
 
