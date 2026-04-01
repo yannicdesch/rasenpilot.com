@@ -15,7 +15,7 @@ const LawnScoreShareCard: React.FC<LawnScoreShareCardProps> = ({ score, analysis
   const cardRef = useRef<HTMLDivElement>(null);
 
   const shareUrl = 'https://rasenpilot.com';
-  const shareText = `Mein Rasen hat ${score}/100 Punkte! 🌱 Analysiere deinen auf rasenpilot.com`;
+  const shareText = `Mein Rasen hat ${score}/100 Punkte! 🌱 Kannst du mich schlagen? → rasenpilot.com`;
 
   const getScoreEmoji = () => {
     if (score >= 80) return '🏆';
