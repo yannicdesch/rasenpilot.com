@@ -32,14 +32,9 @@ const useTodayAnalysisCount = (): number => {
   const [count, setCount] = useState(0);
   useEffect(() => {
     const fetchCount = async () => {
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const { count: total, error } = await supabase
-        .from('analyses')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', todayStart.toISOString());
-      if (!error && total !== null) {
-        setCount(total);
+      const { data, error } = await supabase.rpc('get_today_analysis_count');
+      if (!error && data !== null) {
+        setCount(data as number);
       }
     };
     fetchCount();
