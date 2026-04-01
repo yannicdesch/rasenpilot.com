@@ -1,4 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
+import { Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -130,6 +131,9 @@ const App = () => {
             <Route path="/local/leipzig" element={<Leipzig />} />
             <Route path="/local/dortmund" element={<Dortmund />} />
             <Route path="/local/bonn" element={<Bonn />} />
+            
+            {/* Redirects */}
+            <Route path="/garden-pilot" element={<Navigate to="/lawn-analysis" replace />} />
             
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
