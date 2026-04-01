@@ -66,6 +66,11 @@ const FAQ: React.FC<FAQProps> = ({
   description = "Antworten auf die wichtigsten Fragen zur KI-Rasenanalyse",
   showTitle = true
 }) => {
+  const preOpenQuestions = [
+    "Ist die Rasenanalyse wirklich kostenlos?",
+    "Was passiert mit meinen Daten und Fotos?"
+  ];
+
   // Generate structured data for FAQ
   const structuredData = {
     "@context": "https://schema.org",
@@ -101,7 +106,7 @@ const FAQ: React.FC<FAQProps> = ({
         
         <CardContent className="space-y-4">
           {faqs.map((faq, index) => (
-            <Collapsible key={index} className="border rounded-lg">
+            <Collapsible key={index} defaultOpen={preOpenQuestions.includes(faq.question)} className="border rounded-lg">
               <CollapsibleTrigger className="w-full p-4 text-left hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900 pr-4">
