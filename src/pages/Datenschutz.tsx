@@ -196,11 +196,49 @@ const Datenschutz = () => {
                   Die von Ihnen im Kontaktformular eingegebenen Daten verbleiben bei uns, bis Sie uns zur Löschung auffordern, Ihre Einwilligung zur Speicherung widerrufen oder der Zweck für die Datenspeicherung entfällt (z. B. nach abgeschlossener Bearbeitung Ihrer Anfrage). Zwingende gesetzliche Bestimmungen – insbesondere Aufbewahrungsfristen – bleiben unberührt.
                 </p>
 
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600">
-                    Quelle: <a href="https://www.e-recht24.de" className="text-green-600 hover:text-green-800" target="_blank" rel="noopener noreferrer">https://www.e-recht24.de</a>
-                  </p>
-                </div>
+              <div>
+                <h2 className="text-xl font-semibold mb-3">4. Externe Dienste und Drittanbieter</h2>
+
+                <h3 className="text-lg font-semibold mb-2">Supabase (Datenbank & Authentifizierung)</h3>
+                <p>
+                  Wir nutzen Supabase (Supabase Inc., USA) für die Speicherung von Nutzerdaten und Authentifizierung. Die Datenverarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Weitere Informationen:{' '}
+                  <a href="https://supabase.com/privacy" className="text-green-600 hover:text-green-800" target="_blank" rel="noopener noreferrer">Supabase Datenschutz</a>.
+                </p>
+
+                <h3 className="text-lg font-semibold mb-2 mt-4">Stripe (Zahlungsabwicklung)</h3>
+                <p>
+                  Für die Abwicklung von Zahlungen nutzen wir Stripe (Stripe Inc., USA). Bei kostenpflichtigen Abonnements werden Zahlungsdaten direkt an Stripe übermittelt und dort verarbeitet. Wir haben keinen Zugang zu vollständigen Kreditkartendaten. Die Datenverarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO. Weitere Informationen:{' '}
+                  <a href="https://stripe.com/de/privacy" className="text-green-600 hover:text-green-800" target="_blank" rel="noopener noreferrer">Stripe Datenschutz</a>.
+                </p>
+
+                <h3 className="text-lg font-semibold mb-2 mt-4">OpenAI (KI-Analyse)</h3>
+                <p>
+                  Für die KI-gestützte Rasenanalyse nutzen wir die API von OpenAI (OpenAI Inc., USA). Hochgeladene Rasenfotos werden zur Analyse an OpenAI übermittelt. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) bzw. Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Fotos werden nicht dauerhaft bei OpenAI gespeichert. Weitere Informationen:{' '}
+                  <a href="https://openai.com/policies/privacy-policy" className="text-green-600 hover:text-green-800" target="_blank" rel="noopener noreferrer">OpenAI Datenschutz</a>.
+                </p>
+
+                <h3 className="text-lg font-semibold mb-2 mt-4">Amazon PartnerNet (Affiliate-Programm)</h3>
+                <p>
+                  Diese Website nimmt am Amazon PartnerNet (Amazon Associates / Amazon EU S.à r.l.) teil. Auf unseren Seiten werden Affiliate-Links zu Amazon.de eingebunden. Wenn Sie über diese Links Produkte kaufen, erhalten wir eine Provision. Amazon setzt dabei Cookies ein, um die Herkunft der Bestellungen nachvollziehen zu können. Dadurch kann Amazon erkennen, dass Sie den Partnerlink auf unserer Website geklickt haben.
+                </p>
+                <p>
+                  Die Speicherung von Amazon-Cookies erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse) bzw. Art. 6 Abs. 1 lit. a DSGVO (Einwilligung), sofern eine entsprechende Einwilligung abgefragt wurde. Weitere Informationen zur Datennutzung durch Amazon finden Sie in der{' '}
+                  <a href="https://www.amazon.de/gp/help/customer/display.html?nodeId=201909010" className="text-green-600 hover:text-green-800" target="_blank" rel="noopener noreferrer">Datenschutzerklärung von Amazon</a>.
+                </p>
+
+                <h3 className="text-lg font-semibold mb-2 mt-4">Meta Pixel (Facebook)</h3>
+                <p>
+                  Wir setzen das Meta Pixel (Meta Platforms Ireland Ltd.) ein, um die Wirksamkeit unserer Facebook-Werbeanzeigen zu messen und Zielgruppen zu erstellen. Das Meta Pixel wird nur bei Ihrer Einwilligung aktiviert (Art. 6 Abs. 1 lit. a DSGVO). Weitere Informationen:{' '}
+                  <a href="https://www.facebook.com/privacy/policy" className="text-green-600 hover:text-green-800" target="_blank" rel="noopener noreferrer">Meta Datenschutzrichtlinie</a>.
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <p className="text-sm text-muted-foreground">
+                  Stand: April 2026 · Quelle (Grundlage):{' '}
+                  <a href="https://www.e-recht24.de" className="text-green-600 hover:text-green-800" target="_blank" rel="noopener noreferrer">e-recht24.de</a>
+                </p>
+              </div>
               </div>
             </CardContent>
           </Card>
