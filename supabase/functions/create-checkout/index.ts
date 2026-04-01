@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log(`[CREATE-CHECKOUT-NEW] Function started, method: ${req.method}`);
+  console.log(`[CREATE-CHECKOUT] Function started, method: ${req.method}`);
   
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -16,7 +16,7 @@ serve(async (req) => {
 
   try {
     const { priceType, email } = await req.json();
-    console.log(`[CREATE-CHECKOUT-NEW] Request data:`, { priceType, email: email || 'not provided' });
+    console.log(`[CREATE-CHECKOUT] Request data:`, { priceType, email: email || 'not provided' });
     
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -24,11 +24,10 @@ serve(async (req) => {
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    console.log("[CREATE-CHECKOUT-NEW] Stripe client initialized");
 
     // Check if email already has an active subscription in Stripe
     if (email) {
-      console.log(`[CREATE-CHECKOUT-NEW] Checking for existing subscription for: ${email}`);
+      console.log(`[CREATE-CHECKOUT] Checking for existing subscription for: ${email}`);
       const customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 100 });
       
       if (customers.data.length > 0) {
@@ -40,7 +39,6 @@ serve(async (req) => {
           });
           
           if (subscriptions.data.length > 0) {
-            console.log(`[CREATE-CHECKOUT-NEW] Active subscription found for ${email}, blocking checkout`);
             return new Response(JSON.stringify({ 
               error: "already_subscribed",
               message: "Diese E-Mail-Adresse hat bereits ein aktives Abo. Bitte melde dich an, um dein Abo zu verwalten."
@@ -50,7 +48,6 @@ serve(async (req) => {
             });
           }
           
-          // Also check for trialing subscriptions
           const trialingSubscriptions = await stripe.subscriptions.list({
             customer: customer.id,
             status: "trialing",
@@ -58,7 +55,6 @@ serve(async (req) => {
           });
           
           if (trialingSubscriptions.data.length > 0) {
-            console.log(`[CREATE-CHECKOUT-NEW] Trialing subscription found for ${email}, blocking checkout`);
             return new Response(JSON.stringify({ 
               error: "already_subscribed",
               message: "Diese E-Mail-Adresse hat bereits ein aktives Probe-Abo. Bitte melde dich an, um dein Abo zu verwalten."
@@ -69,8 +65,12 @@ serve(async (req) => {
           }
         }
       }
-      console.log(`[CREATE-CHECKOUT-NEW] No existing subscription found for ${email}, proceeding`);
     }
+
+    // Map old price types to new ones for backwards compatibility
+    const mappedPriceType = priceType === 'monthly' ? 'premium_monthly' 
+                          : priceType === 'yearly' ? 'premium_yearly' 
+                          : priceType;
 
     // Initialize Supabase client to fetch stored price IDs
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -80,31 +80,39 @@ serve(async (req) => {
     // Fetch the stored Stripe price ID for this price type
     const { data: stripeProduct, error: fetchError } = await supabase
       .from("stripe_products")
-      .select("stripe_price_id, amount")
-      .eq("price_type", priceType)
+      .select("stripe_price_id, amount, price_type")
+      .eq("price_type", mappedPriceType)
       .eq("active", true)
       .single();
 
     if (fetchError || !stripeProduct?.stripe_price_id) {
-      console.error("[CREATE-CHECKOUT-NEW] No synced price found for type:", priceType);
-      console.error("[CREATE-CHECKOUT-NEW] Error:", fetchError);
-      throw new Error(
-        "Product not synced with Stripe. Please contact support or run product sync."
-      );
+      // Fallback: try the original priceType (for backwards compat with old 'monthly'/'yearly')
+      const { data: fallbackProduct } = await supabase
+        .from("stripe_products")
+        .select("stripe_price_id, amount, price_type")
+        .eq("price_type", priceType)
+        .eq("active", true)
+        .single();
+
+      if (!fallbackProduct?.stripe_price_id) {
+        console.error("[CREATE-CHECKOUT] No price found for:", priceType, "or", mappedPriceType);
+        throw new Error("Product not synced with Stripe. Please contact support or run product sync.");
+      }
+
+      // Use fallback
+      Object.assign(stripeProduct || {}, fallbackProduct);
     }
 
-    console.log(`[CREATE-CHECKOUT-NEW] Using Stripe price ID: ${stripeProduct.stripe_price_id}`);
-    console.log(`[CREATE-CHECKOUT-NEW] Creating session for ${priceType} subscription: €${stripeProduct.amount/100}`);
+    const finalProduct = stripeProduct || {};
+    console.log(`[CREATE-CHECKOUT] Using Stripe price ID: ${finalProduct.stripe_price_id}`);
 
-    // Use origin header or fallback to production URL
     const origin = req.headers.get("origin") || "https://www.rasenpilot.com";
-    console.log(`[CREATE-CHECKOUT-NEW] Using origin: ${origin}`);
 
     const session = await stripe.checkout.sessions.create({
       customer_email: email || undefined,
       line_items: [
         {
-          price: stripeProduct.stripe_price_id,
+          price: finalProduct.stripe_price_id,
           quantity: 1,
         },
       ],
@@ -115,19 +123,17 @@ serve(async (req) => {
       success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/subscription?ref=canceled`,
       metadata: {
-        price_type: priceType,
+        price_type: mappedPriceType,
         user_email: email || "",
       },
     });
-
-    console.log(`[CREATE-CHECKOUT-NEW] Session created successfully: ${session.id}`);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    console.error("[CREATE-CHECKOUT-NEW] Error:", error.message);
+    console.error("[CREATE-CHECKOUT] Error:", error.message);
     return new Response(JSON.stringify({ 
       error: error.message,
       details: "Stripe checkout error - check logs"
