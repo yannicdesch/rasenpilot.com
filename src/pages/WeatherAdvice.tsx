@@ -273,10 +273,10 @@ const WeatherAdvice = () => {
                 </CardContent>
               </Card>
               
-              <Link to="/care-plan">
+              <Link to="/care-calendar">
                 <Button className="w-full bg-green-600 hover:bg-green-700">
                   <Calendar className="mr-2 h-5 w-5" />
-                  Ihren Pflegeplan ansehen
+                  Deinen Pflegeplan ansehen
                 </Button>
               </Link>
             </div>

@@ -54,14 +54,14 @@ const Blog = () => {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/admin-panel')}
                 className="flex items-center gap-2"
               >
                 Zurück zum Dashboard
                 <ArrowRight className="h-4 w-4" />
               </Button>
               <Button
-                onClick={() => navigate('/blog/new')}
+                onClick={() => navigate('/admin-panel')}
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
               >
                 Neuer Blogbeitrag
