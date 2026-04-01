@@ -49,6 +49,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.rasenpilot.com/care-calendar</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.rasenpilot.com/ueber-uns</loc>
     <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
