@@ -172,7 +172,8 @@ Bei Befolgung dieses Herbstprogramms wird Ihr Rasen gestärkt in die kalte Jahre
     readTime: 6,
     keywords: ["Herbstrasenpflege", "Rasen Wintervorbereitung", "Herbstdüngung", "Rasen im Herbst", "Rasenpflege Jahreszeiten", "Herbstprogramm Rasen"],
     metaTitle: "Herbstrasen-Pflege: Optimale Vorbereitung für den Winter | Rasenpilot",
-    metaDescription: "Wie bereiten Sie Ihren Rasen richtig auf den Winter vor? Erfahren Sie die wichtigsten Herbstpflegemaßnahmen für einen gesunden Start im Frühjahr."
+    metaDescription: "Wie bereiten Sie Ihren Rasen richtig auf den Winter vor? Erfahren Sie die wichtigsten Herbstpflegemaßnahmen für einen gesunden Start im Frühjahr.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop"
   },
   {
     id: 6,
