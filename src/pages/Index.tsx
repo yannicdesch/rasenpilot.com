@@ -29,10 +29,10 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white font-poppins">
       <SEO 
-        title="Rasenanalyse kostenlos — KI analysiert Foto in 30 Sek | Rasenpilot"
+        title="Rasen Analyse App — KI-Rasenberater kostenlos | Rasenpilot"
         description="Einfach Foto hochladen → KI analysiert deinen Rasen sofort → Persönlicher Pflegeplan & Lawn Score. Kostenlos, ohne Anmeldung. Für ganz Deutschland."
         canonical="/"
-        keywords="rasen analyse, rasen ki, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung, garden pilot, garten pilot, rasenpilot"
+        keywords="rasen analyse app, rasenanalyse, KI rasenanalyse, rasen analysieren app, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung, garden pilot, garten pilot, rasenpilot"
         type="website"
         structuredData={{
           type: 'WebSite',
