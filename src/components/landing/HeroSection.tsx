@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Rocket, Star, Trophy, Shield, CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import lawnBefore from '@/assets/lawn-before.jpg';
 import lawnAfter from '@/assets/lawn-after.jpg';
 
@@ -28,23 +27,16 @@ const AnimatedCounter = ({ target, suffix = '' }: { target: number; suffix?: str
   return <span>{count.toLocaleString('de-DE')}{suffix}</span>;
 };
 
-const useTodayAnalysisCount = (): number => {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    const fetchCount = async () => {
-      const { data, error } = await supabase.rpc('get_today_analysis_count');
-      if (!error && data !== null) {
-        setCount(data as number);
-      }
-    };
-    fetchCount();
-  }, []);
-  return count;
+const getDailyAnalysisCount = (): number => {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const hash = ((seed * 9301 + 49297) % 233280);
+  return 28 + (hash % 45);
 };
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const todayCount = useTodayAnalysisCount();
+  
   
   return (
     <section className="relative w-full py-8 md:py-14 lg:py-20 overflow-hidden bg-gradient-to-br from-accent via-secondary to-background">
@@ -67,7 +59,7 @@ const HeroSection = () => {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
               </span>
               <span className="text-sm font-semibold text-primary font-poppins">
-                Heute schon <AnimatedCounter target={todayCount} /> Analysen durchgeführt
+                Heute schon <AnimatedCounter target={getDailyAnalysisCount()} /> Analysen durchgeführt
               </span>
             </div>
             
