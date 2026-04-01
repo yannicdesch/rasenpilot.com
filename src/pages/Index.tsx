@@ -297,6 +297,18 @@ const Index = () => {
                 Teile deinen Rasen-Score auf WhatsApp, Facebook & Instagram — wie Spotify Wrapped! 🌱
               </p>
             </div>
+
+            {/* Feature 7: Fortschritt messen */}
+            <div className="group bg-gradient-to-br from-teal-50 to-emerald-50 p-6 rounded-2xl border border-teal-100 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/premium-dashboard')}>
+              <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center mb-4">
+                <Camera className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-foreground">Fortschritt messen</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Lade nach 4 Wochen ein neues Foto hoch — KI vergleicht automatisch und zeigt deine Verbesserung in Prozent.
+              </p>
+              <Badge variant="outline" className="mt-2 text-xs border-amber-300 text-amber-700">Premium</Badge>
+            </div>
           </div>
         </div>
       </section>

@@ -107,7 +107,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({
                 </div>
                 
                 <p className="text-gray-700 mb-4 leading-relaxed">
-                  "{testimonial.text}"
+                  "{testimonial.text}"*
                 </p>
                 
                 <div className="border-t pt-4">
@@ -128,6 +128,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({
                       </div>
                     )}
                   </div>
+                  <p className="text-xs text-gray-400 italic mt-2">* Beispiel-Erfahrung</p>
                 </div>
               </CardContent>
             </Card>
