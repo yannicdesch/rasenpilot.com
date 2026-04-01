@@ -50,10 +50,10 @@ const SpecialFeaturesSection = () => {
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Trophy className="h-8 w-8 text-primary-foreground" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground font-poppins">Garantierte Erfolge</h3>
+              <h3 className="text-2xl font-bold mb-4 text-foreground font-poppins">Sichtbare Ergebnisse</h3>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                98,3% unserer Nutzer berichten von sichtbaren Verbesserungen innerhalb von 14 Tagen. 
-                Wissenschaftlich getestet und von Gartenexperten bestätigt.
+                Nutzer berichten von sichtbaren Verbesserungen innerhalb weniger Wochen. 
+                Basierend auf bewährten Gartenbau-Prinzipien.
               </p>
             </CardContent>
           </Card>
