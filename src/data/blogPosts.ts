@@ -12,6 +12,7 @@ export interface BlogPost {
   keywords: string[];
   metaTitle: string;
   metaDescription: string;
+  image?: string;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -37,7 +38,8 @@ Durch die Einhaltung eines optimalen Mährhythmus schaffen Sie die Grundlage fü
     readTime: 5,
     keywords: ["Rasenmähen", "Mährhythmus", "Rasenpflege", "Mähtipps", "Rasenschnitt", "Schnitthöhe"],
     metaTitle: "Der perfekte Mährhythmus für Ihren Rasen | Rasenpilot",
-    metaDescription: "Erfahren Sie, wie oft Sie Ihren Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen."
+    metaDescription: "Erfahren Sie, wie oft Sie Ihren Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen.",
+    image: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=800&h=400&fit=crop"
   },
   {
     id: 2,
@@ -63,7 +65,8 @@ Mit der richtigen Frühjahrsdüngung legen Sie den Grundstein für einen dichten
     readTime: 6,
     keywords: ["Rasendünger", "Frühjahrsdüngung", "Rasen düngen", "Rasenpflege Frühjahr", "NPK-Dünger", "Stickstoffdünger"],
     metaTitle: "Rasen düngen im Frühjahr: Optimaler Zeitpunkt und Technik | Rasenpilot",
-    metaDescription: "Wann und wie sollten Sie Ihren Rasen im Frühjahr düngen? Erfahren Sie den idealen Zeitpunkt und die richtige Technik für eine effektive Frühjahrsdüngung."
+    metaDescription: "Wann und wie sollten Sie Ihren Rasen im Frühjahr düngen? Erfahren Sie den idealen Zeitpunkt und die richtige Technik für eine effektive Frühjahrsdüngung.",
+    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop"
   },
   {
     id: 3,
@@ -91,7 +94,8 @@ Mit diesen Bewässerungsstrategien überstehen Sie und Ihr Rasen auch den heiße
     readTime: 7,
     keywords: ["Rasenbewässerung", "Rasen gießen", "Sommerhitze", "Trockenrasen", "Bewässerungstipps", "Rasenpflege Sommer"],
     metaTitle: "Richtig bewässern bei Hitze: Rasen im Hochsommer pflegen | Rasenpilot",
-    metaDescription: "Wie bewässert man seinen Rasen richtig bei anhaltender Hitze? Tipps und Strategien für eine effektive Bewässerung, die Ihren Rasen auch im Hochsommer gesund hält."
+    metaDescription: "Wie bewässert man seinen Rasen richtig bei anhaltender Hitze? Tipps und Strategien für eine effektive Bewässerung, die Ihren Rasen auch im Hochsommer gesund hält.",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=400&fit=crop"
   },
   {
     id: 4,
@@ -133,7 +137,8 @@ Denken Sie daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimal
     readTime: 8,
     keywords: ["Moosbekämpfung", "Moos im Rasen", "natürliche Rasenreinigung", "Vertikutieren", "Rasenpflege", "Rasenprobleme"],
     metaTitle: "Moos im Rasen natürlich bekämpfen - Effektive Methoden | Rasenpilot",
-    metaDescription: "Erfahren Sie, wie Sie Moos in Ihrem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung."
+    metaDescription: "Erfahren Sie, wie Sie Moos in Ihrem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung.",
+    image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&h=400&fit=crop"
   },
   {
     id: 5,
@@ -167,7 +172,8 @@ Bei Befolgung dieses Herbstprogramms wird Ihr Rasen gestärkt in die kalte Jahre
     readTime: 6,
     keywords: ["Herbstrasenpflege", "Rasen Wintervorbereitung", "Herbstdüngung", "Rasen im Herbst", "Rasenpflege Jahreszeiten", "Herbstprogramm Rasen"],
     metaTitle: "Herbstrasen-Pflege: Optimale Vorbereitung für den Winter | Rasenpilot",
-    metaDescription: "Wie bereiten Sie Ihren Rasen richtig auf den Winter vor? Erfahren Sie die wichtigsten Herbstpflegemaßnahmen für einen gesunden Start im Frühjahr."
+    metaDescription: "Wie bereiten Sie Ihren Rasen richtig auf den Winter vor? Erfahren Sie die wichtigsten Herbstpflegemaßnahmen für einen gesunden Start im Frühjahr.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop"
   },
   {
     id: 6,
@@ -211,7 +217,8 @@ Mit regelmäßigem Vertikutieren schaffen Sie die Grundlage für einen dichten, 
     readTime: 7,
     keywords: ["Rasen vertikutieren", "Vertikutieren Anleitung", "Rasenfilz entfernen", "Rasenpflege", "Vertikutierer", "Rasenverbesserung"],
     metaTitle: "Rasen vertikutieren: Kompletter Leitfaden für Hobbygärtner | Rasenpilot",
-    metaDescription: "Erfahren Sie, wie Sie Ihren Rasen richtig vertikutieren. Der vollständige Leitfaden mit Tipps zu Zeitpunkt, Technik und Nachbehandlung für einen perfekten Rasen."
+    metaDescription: "Erfahren Sie, wie Sie Ihren Rasen richtig vertikutieren. Der vollständige Leitfaden mit Tipps zu Zeitpunkt, Technik und Nachbehandlung für einen perfekten Rasen.",
+    image: "https://images.unsplash.com/photo-1600207438283-a5de6d9df13e?w=800&h=400&fit=crop"
   },
   {
     id: 7,
@@ -270,7 +277,8 @@ Die beste Düngerstrategie für die meisten Hobbygärtner: Starten Sie im Frühj
     readTime: 8,
     keywords: ["Rasendünger Test", "organischer Dünger", "mineralischer Dünger", "NPK-Werte", "Düngervergleich", "Rasenpflege", "Bodenverbesserung"],
     metaTitle: "Die besten Rasendünger im Test: Organisch vs. Mineralisch | Rasenpilot",
-    metaDescription: "Mineralisch oder organisch düngen? Unser umfassender Vergleichstest zeigt die besten Rasendünger und erklärt, welcher Typ für Ihren Garten am besten geeignet ist."
+    metaDescription: "Mineralisch oder organisch düngen? Unser umfassender Vergleichstest zeigt die besten Rasendünger und erklärt, welcher Typ für Ihren Garten am besten geeignet ist.",
+    image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=400&fit=crop"
   },
   {
     id: 8,
@@ -327,7 +335,8 @@ Experten-Tipp: Investieren Sie in ein System mit Wassersparfunktionen wie Regens
     readTime: 9,
     keywords: ["Bewässerungssystem", "automatische Bewässerung", "Rasensprenger", "Versenkregner", "Gartenbewässerung", "Rasenpflege", "Wassersparen"],
     metaTitle: "Automatische Bewässerungssysteme für den Rasen: Kaufberatung | Rasenpilot",
-    metaDescription: "Finden Sie das ideale automatische Bewässerungssystem für Ihren Rasen. Unsere Kaufberatung erklärt Systemtypen, Kosten und wichtige Auswahlkriterien."
+    metaDescription: "Finden Sie das ideale automatische Bewässerungssystem für Ihren Rasen. Unsere Kaufberatung erklärt Systemtypen, Kosten und wichtige Auswahlkriterien.",
+    image: "https://images.unsplash.com/photo-1563299796-17596ed6b017?w=800&h=400&fit=crop"
   },
   {
     id: 9,
@@ -394,7 +403,8 @@ Bei allen Pflanzenschutzmaßnahmen gilt: Immer das mildeste wirksame Mittel wäh
     readTime: 8,
     keywords: ["Rasenkrankheiten", "Schneeschimmel", "Dollarfleck", "Rotspitzigkeit", "Pilzbefall Rasen", "Rasenprobleme", "Rasenbehandlung"],
     metaTitle: "Rasenprobleme diagnostizieren: Krankheiten und ihre Behandlung | Rasenpilot",
-    metaDescription: "Lernen Sie, häufige Rasenkrankheiten zu erkennen und zu behandeln. Unsere Anleitung hilft Ihnen bei der Diagnose von Schneeschimmel, Dollarfleck und anderen Rasenproblemen."
+    metaDescription: "Lernen Sie, häufige Rasenkrankheiten zu erkennen und zu behandeln. Unsere Anleitung hilft Ihnen bei der Diagnose von Schneeschimmel, Dollarfleck und anderen Rasenproblemen.",
+    image: "https://images.unsplash.com/photo-1595228034885-a7246e18b4b6?w=800&h=400&fit=crop"
   },
   {
     id: 10,
@@ -449,7 +459,8 @@ Mit dieser gründlichen Frühjahrsrenovierung legen Sie den Grundstein für eine
     readTime: 7,
     keywords: ["Rasenrenovierung", "Rasen ausbessern", "Nachsaat", "Frühjahrsrasen", "kahle Stellen", "Rasenpflege Frühling", "Rasen erneuern"],
     metaTitle: "Rasenrenovierung im Frühjahr: Anleitung für neuen Rasen | Rasenpilot",
-    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahren Sie, wie Sie kahle Stellen beseitigen und Ihren Rasen wieder in einen prächtigen Zustand versetzen."
+    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahren Sie, wie Sie kahle Stellen beseitigen und Ihren Rasen wieder in einen prächtigen Zustand versetzen.",
+    image: "https://images.unsplash.com/photo-1501004318855-b43cf7c5d87a?w=800&h=400&fit=crop"
   }
 ];
 

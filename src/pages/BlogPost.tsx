@@ -23,6 +23,7 @@ interface BlogPostData {
   keywords: string[];
   metaTitle: string;
   metaDescription: string;
+  image?: string;
 }
 
 const BlogPost = () => {
@@ -378,6 +379,16 @@ const BlogPost = () => {
                   {post.excerpt}
                 </p>
               </div>
+              
+              {/* Hero Image */}
+              {post.image && (
+                <img 
+                  src={post.image} 
+                  alt={post.title} 
+                  className="w-full h-64 md:h-80 object-cover"
+                  loading="lazy"
+                />
+              )}
               
               {/* Article Content */}
               <div className="p-6 md:p-8 lg:p-10">
