@@ -150,13 +150,17 @@ const PremiumDashboard = () => {
           <div className="relative max-w-6xl mx-auto px-4 py-10">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
               <div className="flex-1 space-y-4">
-                {/* Premium badge */}
+                {/* Plan badge */}
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-400/20 rounded-xl">
-                    <Crown className="h-7 w-7 text-yellow-300" />
+                  <div className={`p-2 rounded-xl ${isPro ? 'bg-amber-400/20' : 'bg-yellow-400/20'}`}>
+                    <Crown className={`h-7 w-7 ${isPro ? 'text-amber-300' : 'text-yellow-300'}`} />
                   </div>
-                  <Badge className="bg-yellow-400/20 text-yellow-200 border-yellow-400/30 text-xs uppercase tracking-wider">
-                    {subscription.subscription_tier || 'Premium'} Mitglied
+                  <Badge className={`text-xs uppercase tracking-wider ${
+                    isPro 
+                      ? 'bg-amber-400/20 text-amber-200 border-amber-400/30'
+                      : 'bg-yellow-400/20 text-yellow-200 border-yellow-400/30'
+                  }`}>
+                    {isPro ? '⭐ Pro Mitglied' : 'Premium Mitglied'}
                   </Badge>
                 </div>
 
