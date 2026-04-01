@@ -469,7 +469,7 @@ const LawnAnalysis = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-amber-800">🎉 1 kostenlose Analyse verfügbar</p>
-                    <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: 9,99€/Monat — jetzt kostenlos starten!</p>
+                    <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: ab 9,99€/Monat — jetzt kostenlos starten!</p>
                   </div>
                 </div>
               </CardContent>
