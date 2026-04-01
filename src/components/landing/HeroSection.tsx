@@ -49,6 +49,7 @@ const useTodayAnalysisCount = (): number => {
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const todayCount = useTodayAnalysisCount();
   
   return (
     <section className="relative w-full py-8 md:py-14 lg:py-20 overflow-hidden bg-gradient-to-br from-accent via-secondary to-background">
@@ -71,7 +72,7 @@ const HeroSection = () => {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
               </span>
               <span className="text-sm font-semibold text-primary font-poppins">
-                Heute schon <AnimatedCounter target={getDailyAnalysisCount()} /> Analysen durchgeführt
+                Heute schon <AnimatedCounter target={todayCount} /> Analysen durchgeführt
               </span>
             </div>
             
