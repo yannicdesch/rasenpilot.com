@@ -38,7 +38,8 @@ Durch die Einhaltung eines optimalen Mährhythmus schaffen Sie die Grundlage fü
     readTime: 5,
     keywords: ["Rasenmähen", "Mährhythmus", "Rasenpflege", "Mähtipps", "Rasenschnitt", "Schnitthöhe"],
     metaTitle: "Der perfekte Mährhythmus für Ihren Rasen | Rasenpilot",
-    metaDescription: "Erfahren Sie, wie oft Sie Ihren Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen."
+    metaDescription: "Erfahren Sie, wie oft Sie Ihren Rasen mähen sollten, um optimale Ergebnisse zu erzielen. Ein durchdachter Mähplan ist entscheidend für einen gesunden und attraktiven Rasen.",
+    image: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=800&h=400&fit=crop"
   },
   {
     id: 2,
