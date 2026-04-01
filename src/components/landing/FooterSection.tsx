@@ -39,7 +39,7 @@ const FooterSection = () => {
               </div>
               <div>
                 <div className="text-sm font-semibold text-foreground font-poppins">KI-Experte</div>
-                <div className="text-xs text-muted-foreground">98,3% Erfolgsrate</div>
+                <div className="text-xs text-muted-foreground">GPT-4o Vision Technologie</div>
               </div>
             </div>
           </div>
