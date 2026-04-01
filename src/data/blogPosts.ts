@@ -335,7 +335,8 @@ Experten-Tipp: Investieren Sie in ein System mit Wassersparfunktionen wie Regens
     readTime: 9,
     keywords: ["Bewässerungssystem", "automatische Bewässerung", "Rasensprenger", "Versenkregner", "Gartenbewässerung", "Rasenpflege", "Wassersparen"],
     metaTitle: "Automatische Bewässerungssysteme für den Rasen: Kaufberatung | Rasenpilot",
-    metaDescription: "Finden Sie das ideale automatische Bewässerungssystem für Ihren Rasen. Unsere Kaufberatung erklärt Systemtypen, Kosten und wichtige Auswahlkriterien."
+    metaDescription: "Finden Sie das ideale automatische Bewässerungssystem für Ihren Rasen. Unsere Kaufberatung erklärt Systemtypen, Kosten und wichtige Auswahlkriterien.",
+    image: "https://images.unsplash.com/photo-1563299796-17596ed6b017?w=800&h=400&fit=crop"
   },
   {
     id: 9,
