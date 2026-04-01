@@ -68,6 +68,7 @@ const AccountSettings = () => {
             </TabsContent>
 
             <TabsContent value="email" className="space-y-6">
+              <PendingCareTasksCard />
               <ConsentManagement />
               <EmailPreferencesSettings />
             </TabsContent>
