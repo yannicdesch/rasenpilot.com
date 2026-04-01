@@ -108,28 +108,12 @@ export default function Subscription() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-
-      // Auto-trigger checkout if user returned from auth with a plan param
-      const planParam = searchParams.get('plan');
-      if (user && planParam) {
-        handleSubscribe(planParam);
-      }
     };
     getUser();
     trackMetaViewContent('Subscription Page', 'subscription', 9.99, 'EUR');
   }, []);
 
   const handleSubscribe = async (priceType: string) => {
-    // Require login before checkout
-    if (!user) {
-      toast({
-        title: "Registrierung erforderlich",
-        description: "Bitte erstelle zuerst ein kostenloses Konto, damit du dein Abo nutzen kannst.",
-      });
-      navigate(`/auth?redirect=/subscription&plan=${priceType}`);
-      return;
-    }
-
     setLoadingPlan(priceType);
     
     const valueMap: Record<string, number> = {
@@ -141,6 +125,7 @@ export default function Subscription() {
     trackMetaLead(priceType);
     
     try {
+      // Go directly to Stripe — no auth check needed!
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
         method: 'POST',
         headers: {
@@ -148,7 +133,11 @@ export default function Subscription() {
           'Content-Type': 'application/json',
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnYXh3Y3NsaG9wcGZscmJ1d3h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNDM5NjAsImV4cCI6MjA2MjYxOTk2MH0.KyogGsaBrpu4_3j3AJ9k7J7DlwLDtUbWb2wAhnVBbGQ'
         },
-        body: JSON.stringify({ priceType, email: user?.email, userId: user?.id })
+        body: JSON.stringify({ 
+          priceType, 
+          email: user?.email || undefined, 
+          userId: user?.id || undefined 
+        })
       });
 
       const result = await response.text();

@@ -40,6 +40,7 @@ const WeatherAdvice = lazy(() => import("./pages/WeatherAdvice"));
 const SeasonGuide = lazy(() => import("./pages/SeasonGuide"));
 const Subscription = lazy(() => import("./pages/Subscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/SubscriptionSuccess"));
+const Welcome = lazy(() => import("./pages/Welcome"));
 const SubscriptionManagement = lazy(() => import("./pages/SubscriptionManagement"));
 const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
 const CareCalendar = lazy(() => import("./pages/CareCalendar"));
@@ -150,6 +151,7 @@ const App = () => {
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+            <Route path="/welcome" element={<Welcome />} />
             <Route path="/subscription/manage" element={<SubscriptionManagement />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
             <Route path="/care-calendar" element={<CareCalendar />} />

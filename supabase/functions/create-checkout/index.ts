@@ -114,9 +114,7 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://www.rasenpilot.com";
 
-    const session = await stripe.checkout.sessions.create({
-      customer_email: email || undefined,
-      client_reference_id: userId || undefined,
+    const sessionConfig: any = {
       line_items: [
         {
           price: finalProduct.stripe_price_id,
@@ -127,7 +125,7 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: 7,
       },
-      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/welcome?session_id={CHECKOUT_SESSION_ID}&email={customer_email}`,
       cancel_url: `${origin}/subscription?ref=canceled`,
       metadata: {
         price_type: mappedPriceType,
@@ -135,7 +133,17 @@ serve(async (req) => {
         user_id: userId || "",
         supabase_user_id: userId || "",
       },
-    });
+    };
+
+    // Only set customer_email if provided (logged-in user)
+    if (email) {
+      sessionConfig.customer_email = email;
+    }
+    if (userId) {
+      sessionConfig.client_reference_id = userId;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
