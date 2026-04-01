@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AlertTriangle, CheckCircle, Link, RefreshCcw } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Link, RefreshCcw, Mail, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface OrphanedSub {
@@ -25,6 +25,7 @@ const OrphanedSubscriptions = () => {
   const [loading, setLoading] = useState(true);
   const [linkingId, setLinkingId] = useState<string | null>(null);
   const [linkEmail, setLinkEmail] = useState('');
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
 
   const fetchOrphaned = async () => {
     setLoading(true);
@@ -59,6 +60,25 @@ const OrphanedSubscriptions = () => {
     } else {
       toast.success('Als aufgelöst markiert');
       fetchOrphaned();
+    }
+  };
+
+  const handleSendEmail = async (sub: OrphanedSub) => {
+    if (!sub.customer_email) {
+      toast.error('Keine E-Mail-Adresse vorhanden');
+      return;
+    }
+    setSendingEmailId(sub.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-registration-email', {
+        body: { email: sub.customer_email }
+      });
+      if (error) throw error;
+      toast.success(`Registrierungs-E-Mail an ${sub.customer_email} gesendet!`);
+    } catch (err: any) {
+      toast.error('E-Mail konnte nicht gesendet werden: ' + (err.message || 'Unbekannter Fehler'));
+    } finally {
+      setSendingEmailId(null);
     }
   };
 
@@ -196,6 +216,10 @@ const OrphanedSubscriptions = () => {
                             <>
                               <Button size="sm" variant="outline" onClick={() => setLinkingId(sub.id)}>
                                 <Link className="h-3 w-3 mr-1" /> Verknüpfen
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => handleSendEmail(sub)} disabled={sendingEmailId === sub.id}>
+                                {sendingEmailId === sub.id ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Mail className="h-3 w-3 mr-1" />}
+                                E-Mail
                               </Button>
                               <Button size="sm" variant="ghost" onClick={() => handleResolve(sub.id)}>
                                 <CheckCircle className="h-3 w-3 mr-1" /> Auflösen
