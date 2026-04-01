@@ -31,7 +31,7 @@ const AdminPanel = () => {
             </div>
 
             <Tabs defaultValue="analytics" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="analytics" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="hidden sm:inline">Statistiken</span>
