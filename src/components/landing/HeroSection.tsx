@@ -3,6 +3,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star } from 'lucide-react';
+import lawnBefore from '@/assets/lawn-before.jpg';
+import lawnAfter from '@/assets/lawn-after.jpg';
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -29,8 +31,8 @@ const HeroSection = () => {
             <div className="flex-1 rounded-xl overflow-hidden border border-border shadow-md">
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1558635924-b60e7d0023be?auto=format&fit=crop&w=400&q=75"
-                  alt="Rasen vorher – ungepflegt"
+                  src={lawnBefore}
+                  alt="Rasen vorher – mit kahlen Stellen"
                   className="w-full h-28 sm:h-40 object-cover"
                   width={400}
                   height={160}
@@ -45,8 +47,8 @@ const HeroSection = () => {
             <div className="flex-1 rounded-xl overflow-hidden border border-border shadow-md">
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1592150621744-aca64f48394a?auto=format&fit=crop&w=400&q=75"
-                  alt="Rasen nachher – gepflegt und grün"
+                  src={lawnAfter}
+                  alt="Rasen nachher – sattgrün und dicht"
                   className="w-full h-28 sm:h-40 object-cover"
                   width={400}
                   height={160}
