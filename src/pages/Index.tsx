@@ -29,10 +29,10 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white font-poppins">
       <SEO 
-        title="Rasenanalyse kostenlos — KI analysiert Foto in 30 Sek | Rasenpilot"
+        title="Rasen Analyse App — KI-Rasenberater kostenlos | Rasenpilot"
         description="Einfach Foto hochladen → KI analysiert deinen Rasen sofort → Persönlicher Pflegeplan & Lawn Score. Kostenlos, ohne Anmeldung. Für ganz Deutschland."
         canonical="/"
-        keywords="rasen analyse, rasen ki, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung, garden pilot, garten pilot, rasenpilot"
+        keywords="rasen analyse app, rasenanalyse, KI rasenanalyse, rasen analysieren app, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung, garden pilot, garten pilot, rasenpilot"
         type="website"
         structuredData={{
           type: 'WebSite',
@@ -82,11 +82,11 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
-              Warum Gartenbesitzer auf <br className="hidden md:block" />
-              KI-Technologie setzen
+              Die kostenlose Rasen Analyse App <br className="hidden md:block" />
+              für Deutschland
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-              Modernste KI-Technologie trifft auf jahrzehntelange Rasenexpertise
+              Modernste KI-Technologie trifft auf jahrzehntelange Rasenexpertise — für jeden Garten in Deutschland, Österreich und der Schweiz.
             </p>
           </div>
           
