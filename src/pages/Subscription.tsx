@@ -250,20 +250,19 @@ export default function Subscription() {
           </div>
         </div>
 
-        {/* How it works */}
-        <div className="container mx-auto px-4 max-w-4xl pb-10">
-          <div className="grid grid-cols-3 gap-4 md:gap-8 text-center">
-            {[
-              { emoji: '📸', title: 'Foto hochladen', desc: 'Rasen fotografieren & hochladen' },
-              { emoji: '🤖', title: 'KI analysiert', desc: 'Sofortige Bewertung deines Rasens' },
-              { emoji: '🌱', title: 'Pflegeplan erhalten', desc: 'Persönliche Tipps & Kalender' },
-            ].map((step, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <span className="text-3xl md:text-4xl mb-2">{step.emoji}</span>
-                <h3 className="font-bold text-sm md:text-base text-gray-900">{step.title}</h3>
-                <p className="text-xs md:text-sm text-gray-500 mt-1 hidden md:block">{step.desc}</p>
-              </div>
-            ))}
+        {/* Testimonial */}
+        <div className="container mx-auto px-4 max-w-2xl pb-10">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">
+            <div className="flex justify-center gap-0.5 mb-3">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+              ))}
+            </div>
+            <blockquote className="text-gray-700 italic mb-3 text-sm md:text-base">
+              „Mein Rasen sieht nach 4 Wochen komplett anders aus. Hätte nie gedacht dass eine App so einen Unterschied macht."
+            </blockquote>
+            <p className="font-semibold text-gray-900 text-sm">Markus R., Stuttgart</p>
+            <p className="text-xs text-gray-400 mt-1">(Beispiel-Erfahrung)</p>
           </div>
         </div>
 
