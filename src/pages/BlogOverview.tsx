@@ -196,6 +196,10 @@ const BlogOverview = () => {
                       src={filteredPosts[0].image} 
                       alt={filteredPosts[0].title}
                       className="absolute inset-0 w-full h-full object-cover"
+                      width={800}
+                      height={400}
+                      loading="eager"
+                      fetchPriority="high"
                     />
                   ) : (
                     <div className="text-white/20 text-9xl font-bold">01</div>
@@ -247,6 +251,8 @@ const BlogOverview = () => {
                       src={post.image} 
                       alt={post.title}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      width={400}
+                      height={200}
                     />
                   ) : (
                     <>

@@ -402,10 +402,14 @@ const BlogPost = () => {
               {/* Hero Image */}
               {post.image && (
                 <img 
-                  src={post.image} 
+                  src={post.image.includes('unsplash.com') ? `${post.image.split('?')[0]}?auto=format&fit=crop&w=800&q=75` : post.image} 
                   alt={post.title} 
                   className="w-full h-64 md:h-80 object-cover"
-                  loading="lazy"
+                  width={800}
+                  height={400}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
                 />
               )}
               
