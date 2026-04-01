@@ -71,8 +71,8 @@ const SubscriptionManagement = () => {
                   {isPremium ? "Ihr aktuelles Premium-Abonnement" : "Upgraden Sie zu Premium für volle Funktionen"}
                 </CardDescription>
               </div>
-              <Badge variant={isPremium ? "default" : "secondary"} className="ml-2">
-                {isPremium ? (isTrial ? "Testphase" : "Aktiv") : "Kostenlos"}
+              <Badge variant={isPremium ? "default" : "secondary"} className={`ml-2 ${isPro ? 'bg-amber-500' : ''}`}>
+                {isPremium ? (isTrial ? "Testphase" : isPro ? "⭐ Pro" : "Aktiv") : "Kostenlos"}
               </Badge>
             </div>
           </CardHeader>
