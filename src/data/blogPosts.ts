@@ -340,9 +340,9 @@ Experten-Tipp: Investiere in ein System mit Wassersparfunktionen wie Regensensor
   },
   {
     id: 9,
-    title: "Rasenprobleme diagnostizieren: Häufige Krankheiten und ihre Behandlung",
+    title: "Rasenanalyse: Rasenprobleme per KI diagnostizieren und behandeln",
     slug: "rasenprobleme-diagnostizieren-krankheiten-behandlung",
-    content: `Ein gesunder Rasen kann verschiedenen Krankheiten und Schädlingen zum Opfer fallen. Die richtige Diagnose ist der erste Schritt zur erfolgreichen Behandlung. Hier erfahre, wie du häufige Rasenprobleme erkennen und bekämpfen können.
+    content: `Eine gründliche Rasenanalyse ist der erste Schritt zur erfolgreichen Behandlung von Rasenkrankheiten. Mit einer KI Rasenanalyse per App kannst du heute in Sekunden erkennen, was deinem Rasen fehlt — lade einfach ein Foto hoch und lass die Rasen Analyse App den Rest erledigen.
 
 Schneeschimmel (Microdochium nivale):
 Erkennungsmerkmal: Runde, hellbraune bis strohfarbene Flecken mit 5-30 cm Durchmesser, oft mit weißlich-rosa Pilzgeflecht am Rand.
@@ -395,15 +395,15 @@ Die beste Behandlung ist die Vorbeugung durch optimale Rasenpflege:
 - Verbesserung der Bodendurchlüftung durch regelmäßiges Aerifizieren
 - Verwendung resistenter Grassorten bei Nachsaat
 
-Bei allen Pflanzenschutzmaßnahmen gilt: Immer das mildeste wirksame Mittel wählen und die Umweltverträglichkeit beachten. Chemische Behandlungen sollten stets die letzte Option sein, wenn kulturelle Maßnahmen nicht ausreichen.`,
-    excerpt: "Braune Flecken, verfärbte Halme oder seltsame Muster im Rasen? Lerne, die häufigsten Rasenkrankheiten zu erkennen und wie du sie richtig behandeln können.",
+Tipp: Nutze die kostenlose Rasen Analyse App von Rasenpilot, um deinen Rasen analysieren zu lassen — die KI Rasenanalyse erkennt Krankheiten automatisch und gibt dir einen persönlichen Pflegeplan.`,
+    excerpt: "Rasenprobleme schnell erkennen: Mit der KI Rasenanalyse von Rasenpilot diagnostizierst du Rasenkrankheiten per Foto und erhältst sofort einen Pflegeplan.",
     date: "05.04.2025",
     author: "Thomas Müller",
     category: "problems",
     readTime: 8,
-    keywords: ["Rasenkrankheiten", "Schneeschimmel", "Dollarfleck", "Rotspitzigkeit", "Pilzbefall Rasen", "Rasenprobleme", "Rasenbehandlung"],
-    metaTitle: "Rasenprobleme diagnostizieren: Krankheiten und ihre Behandlung | Rasenpilot",
-    metaDescription: "Lerne, häufige Rasenkrankheiten zu erkennen und zu behandeln. Unsere Anleitung hilft dir bei der Diagnose von Schneeschimmel, Dollarfleck und anderen Rasenproblemen.",
+    keywords: ["Rasenanalyse", "KI Rasenanalyse", "Rasen Analyse App", "Rasenkrankheiten", "Schneeschimmel", "Rasenprobleme", "Rasen analysieren App"],
+    metaTitle: "Rasenanalyse per KI: Rasenprobleme diagnostizieren & behandeln | Rasenpilot",
+    metaDescription: "Rasenanalyse per KI — lade ein Foto hoch und erkenne Rasenkrankheiten sofort. Die Rasen Analyse App von Rasenpilot gibt dir einen persönlichen Pflegeplan.",
     image: "https://images.unsplash.com/photo-1595228034885-a7246e18b4b6?w=800&h=400&fit=crop"
   },
   {
