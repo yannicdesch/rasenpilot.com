@@ -408,17 +408,17 @@ Tipp: Nutze die kostenlose Rasen Analyse App von Rasenpilot, um deinen Rasen ana
   },
   {
     id: 10,
-    title: "Rasenrenovierung im Frühjahr: So wird dein Rasen wieder schön",
+    title: "Rasenrenovierung im Frühjahr: Mit Rasenanalyse zum perfekten Ergebnis",
     slug: "rasenrenovierung-fruehling-anleitung",
     
-    content: `Nach einem langen Winter präsentiert sich mancher Rasen in keinem guten Zustand. Kahle Stellen, Moosbildung oder Verdichtungen sind typische Probleme. Mit einer gründlichen Frühjahrsrenovierung kannst du deinem Rasen jedoch neues Leben einhauchen.
+    content: `Nach einem langen Winter präsentiert sich mancher Rasen in keinem guten Zustand. Bevor du loslegst, empfehlen wir eine kostenlose Rasenanalyse per App — mit der Rasen Analyse App von Rasenpilot kannst du deinen Rasen analysieren und erfährst in 30 Sekunden, welche Maßnahmen wirklich nötig sind.
 
 Der ideale Zeitpunkt für eine Rasenrenovierung ist das Frühjahr ab Mitte März bis Mai, wenn der Boden sich auf mindestens 8-10°C erwärmt hat und die Gräser in die aktive Wachstumsphase starten.
 
 Schritt-für-Schritt-Anleitung für die Rasenrenovierung:
 
 1. Bestandsaufnahme und Planung:
-Analysiere zunächst den Zustand deines Rasens. Ist er nur stellenweise beschädigt oder insgesamt in schlechtem Zustand? Führe idealerweise eine Bodenanalyse durch, um pH-Wert und Nährstoffversorgung zu ermitteln.
+Analysiere zunächst den Zustand deines Rasens. Ist er nur stellenweise beschädigt oder insgesamt in schlechtem Zustand? Führe idealerweise eine Bodenanalyse durch, um pH-Wert und Nährstoffversorgung zu ermitteln. Die KI Rasenanalyse kann dir dabei helfen, den Zustand objektiv zu bewerten.
 
 2. Vorbereitende Maßnahmen:
 - Mähe den Rasen auf etwa 2-3 cm Höhe
@@ -451,15 +451,15 @@ Wenn mehr als 50% der Fläche renovierungsbedürftig sind, kann eine komplette N
 Nachsorge:
 Schone den renovierten Rasen für mindestens 4-6 Wochen. Vermeide intensive Nutzung, bis sich die neuen Gräser etabliert haben und ein dichtes Wurzelwerk gebildet haben.
 
-Mit dieser gründlichen Frühjahrsrenovierung legst du den Grundstein für einen dichten, strapazierfähigen und attraktiven Rasen, der dem Sommer gut gewachsen ist.`,
-    excerpt: "Ist dein Rasen nach dem Winter in schlechtem Zustand? Unsere Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr zeigt, wie du kahle Stellen beseitigen und deinem Rasen zu neuer Pracht verhelfen.",
+Mit dieser gründlichen Frühjahrsrenovierung legst du den Grundstein für einen dichten, strapazierfähigen und attraktiven Rasen. Tipp: Nach 4 Wochen eine erneute Rasenanalyse machen, um den Fortschritt zu messen!`,
+    excerpt: "Rasen renovieren im Frühjahr — starte mit einer kostenlosen KI Rasenanalyse und erfahre, welche Maßnahmen dein Rasen wirklich braucht.",
     date: "01.04.2025",
     author: "Julia Schmidt",
     category: "seasonal",
     readTime: 7,
-    keywords: ["Rasenrenovierung", "Rasen ausbessern", "Nachsaat", "Frühjahrsrasen", "kahle Stellen", "Rasenpflege Frühling", "Rasen erneuern"],
-    metaTitle: "Rasenrenovierung im Frühjahr: Anleitung für neuen Rasen | Rasenpilot",
-    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahre, wie du kahle Stellen beseitigen und deinen Rasen wieder in einen prächtigen Zustand versetzen.",
+    keywords: ["Rasenrenovierung", "Rasenanalyse", "Rasen analysieren App", "Rasen Analyse App", "KI Rasenanalyse", "Rasenpflege Frühling", "Rasen erneuern"],
+    metaTitle: "Rasenrenovierung im Frühjahr: Mit KI-Rasenanalyse zum Erfolg | Rasenpilot",
+    metaDescription: "Rasen renovieren? Starte mit einer kostenlosen KI Rasenanalyse per App. Schritt-für-Schritt-Anleitung und persönlicher Pflegeplan für deinen Rasen.",
     image: "https://images.unsplash.com/photo-1501004318855-b43cf7c5d87a?w=800&h=400&fit=crop"
   }
 ];
