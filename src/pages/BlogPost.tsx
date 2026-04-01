@@ -140,6 +140,15 @@ const BlogPost = () => {
     }
   };
 
+  // Add internal links for key terms
+  const addInternalLinks = (text: string): string => {
+    return text
+      .replace(/(?<!\[)Rasenanalyse(?!\])/g, '[Rasenanalyse](/lawn-analysis)')
+      .replace(/(?<!\[)Lawn Score(?!\])/g, '[Lawn Score](/lawn-analysis)')
+      .replace(/(?<!\[)kostenlose Analyse(?!\])/g, '[kostenlose Analyse](/lawn-analysis)')
+      .replace(/(?<!\[)KI-Analyse(?!\])/g, '[KI-Analyse](/lawn-analysis)');
+  };
+
   // Transform the content to proper HTML with heading structure and markdown
   const renderContent = () => {
     if (!post.content) return null;
@@ -148,21 +157,23 @@ const BlogPost = () => {
     const paragraphs = post.content.split('\n\n');
     
     return paragraphs.map((paragraph, index) => {
+      const enriched = addInternalLinks(paragraph);
+      
       // Check if paragraph is a heading (starts with ###)
-      if (paragraph.startsWith('### ')) {
-        const heading = paragraph.replace('### ', '');
+      if (enriched.startsWith('### ')) {
+        const heading = enriched.replace('### ', '');
         return <h3 key={index} className="text-xl font-semibold text-green-700 mt-6 mb-3">{parseInlineMarkdown(heading)}</h3>;
       }
       
       // Check if paragraph is a heading (starts with ##)
-      if (paragraph.startsWith('## ')) {
-        const heading = paragraph.replace('## ', '');
+      if (enriched.startsWith('## ')) {
+        const heading = enriched.replace('## ', '');
         return <h2 key={index} className="text-2xl font-bold text-green-800 mt-8 mb-4">{parseInlineMarkdown(heading)}</h2>;
       }
       
       // Check if paragraph is a list item (starts with -)
-      if (paragraph.includes('\n- ') || paragraph.startsWith('- ')) {
-        const listItems = paragraph.split('\n- ').filter(item => item.trim());
+      if (enriched.includes('\n- ') || enriched.startsWith('- ')) {
+        const listItems = enriched.split('\n- ').filter(item => item.trim());
         return (
           <ul key={index} className="mb-4 list-disc list-inside space-y-1">
             {listItems.map((item, listIndex) => (
@@ -175,7 +186,7 @@ const BlogPost = () => {
       }
       
       // Regular paragraph
-      return <p key={index} className="mb-4 text-gray-700 leading-relaxed">{parseInlineMarkdown(paragraph)}</p>;
+      return <p key={index} className="mb-4 text-gray-700 leading-relaxed">{parseInlineMarkdown(enriched)}</p>;
     });
   };
 
@@ -299,8 +310,8 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50">
       <SEO 
-        title={post.metaTitle || post.title}
-        description={post.metaDescription || post.excerpt}
+        title={`${post.title} | Rasenpilot`}
+        description={post.metaDescription?.substring(0, 160) || post.excerpt?.substring(0, 160)}
         canonical={`https://www.rasenpilot.com/blog/${post.slug}`}
         keywords={post.keywords.join(',')}
         type="article"
@@ -310,8 +321,11 @@ const BlogPost = () => {
         structuredData={{
           type: 'Article',
           data: {
+            "@context": "https://schema.org",
+            "@type": "Article",
             headline: post.title,
-            description: post.excerpt,
+            description: post.metaDescription || post.excerpt,
+            image: post.image || "https://www.rasenpilot.com/og-image.png",
             author: {
               "@type": "Person",
               name: post.author
@@ -321,18 +335,19 @@ const BlogPost = () => {
               name: "Rasenpilot",
               logo: {
                 "@type": "ImageObject",
-                url: "https://rasenpilot.com/logo.png"
+                url: "https://www.rasenpilot.com/logo.png"
               }
             },
             datePublished: new Date(post.date).toISOString(),
             dateModified: new Date(post.date).toISOString(),
             mainEntityOfPage: {
               "@type": "WebPage",
-              "@id": `https://rasenpilot.com/blog/${post.slug}`
+              "@id": `https://www.rasenpilot.com/blog/${post.slug}`
             },
             keywords: post.keywords.join(', '),
             articleSection: getCategoryName(post.category),
-            inLanguage: "de-DE"
+            inLanguage: "de-DE",
+            wordCount: post.content?.split(/\s+/).length || 0
           }
         }}
       />
@@ -403,6 +418,27 @@ const BlogPost = () => {
                   prose-ul:space-y-2 prose-ol:space-y-2">
                   {renderContent()}
                 </div>
+
+                {/* CTA Section */}
+                <div className="mt-10 p-6 md:p-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                  <div className="text-center">
+                    <p className="text-2xl mb-2">🌱</p>
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      Tipp: Lass deine KI den Zustand deines Rasens analysieren!
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Foto hochladen → Sofort wissen was dein Rasen braucht.
+                    </p>
+                    <Button 
+                      onClick={() => navigate('/lawn-analysis')}
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    >
+                      Jetzt kostenlos analysieren
+                      <ArrowRight className="h-5 w-5 ml-2" />
+                    </Button>
+                  </div>
+                </div>
                 
                 {/* Keywords Section */}
                 <div className="border-t border-green-100 mt-10 pt-8">
@@ -450,7 +486,7 @@ const BlogPost = () => {
             <div className="bg-gradient-to-br from-green-600 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
               <h3 className="text-xl font-bold mb-3">🎯 Kostenlose Rasenanalyse</h3>
               <p className="text-green-100 mb-4 text-sm">
-                Lassen Sie Ihren Rasen von unserer KI analysieren und erhalten Sie einen personalisierten Pflegeplan.
+                Lass deinen Rasen von unserer KI analysieren und erhalte einen personalisierten Pflegeplan.
               </p>
               <Button 
                 onClick={() => navigate('/lawn-analysis')} 
@@ -493,7 +529,7 @@ const BlogPost = () => {
         {relatedPosts.length > 0 && (
           <section className="mt-16">
             <h2 className="text-3xl font-bold text-green-800 mb-8 text-center">
-              Das könnte Sie auch interessieren
+              Das könnte dich auch interessieren
             </h2>
             <RelatedPosts posts={relatedPosts} />
           </section>
