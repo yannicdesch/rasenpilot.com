@@ -7,7 +7,7 @@
   <!-- Hauptseiten -->
   <url>
     <loc>https://www.rasenpilot.com/</loc>
-    <lastmod>2025-01-30</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -18,7 +18,7 @@
   
   <url>
     <loc>https://www.rasenpilot.com/lawn-analysis</loc>
-    <lastmod>2025-01-30</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -67,7 +67,7 @@
   <!-- Feature-Seiten -->
   <url>
     <loc>https://www.rasenpilot.com/weather-advice</loc>
-    <lastmod>2025-01-30</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -88,7 +88,7 @@
   
   <url>
     <loc>https://www.rasenpilot.com/subscription</loc>
-    <lastmod>2025-01-30</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
