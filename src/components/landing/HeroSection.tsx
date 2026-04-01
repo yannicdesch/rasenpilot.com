@@ -57,7 +57,7 @@ const HeroSection = () => {
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle className="h-3.5 w-3.5 text-primary" />
-              100% kostenlos
+              GPT-4o Vision KI
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle className="h-3.5 w-3.5 text-primary" />
