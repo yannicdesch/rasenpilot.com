@@ -36,6 +36,11 @@ export default function Subscription() {
     
     // Track Meta Pixel ViewContent event
     trackMetaViewContent('Premium Subscription', 'subscription', 9.99, 'EUR');
+    // Direct fbq call as fallback
+    if (window.fbq) {
+      window.fbq('track', 'ViewContent', { content_name: 'Premium Subscription Page' });
+      console.log('[Meta Pixel] ViewContent fired directly');
+    }
   }, []);
 
   const handleSubscribe = async (priceType: 'monthly' | 'yearly') => {
@@ -50,6 +55,11 @@ export default function Subscription() {
     
     // Track Lead event for Meta Pixel
     trackMetaLead(`Premium ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
+    // Direct fbq call as fallback
+    if (window.fbq) {
+      window.fbq('track', 'Lead');
+      console.log('[Meta Pixel] Lead fired directly');
+    }
     
     try {
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {

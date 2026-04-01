@@ -29,6 +29,11 @@ const SubscriptionSuccess = () => {
         `Premium ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`,
         ['premium_subscription']
       );
+      // Direct fbq call as fallback
+      if (window.fbq) {
+        window.fbq('track', 'Purchase', { value: purchaseValue, currency: 'EUR' });
+        console.log('[Meta Pixel] Purchase fired directly:', purchaseValue);
+      }
       
       console.log('[SubscriptionSuccess] Meta Purchase event tracked:', purchaseValue);
     }
