@@ -312,6 +312,15 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Urgency Banner */}
+      <section className="py-5 bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 border-y border-green-200">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-green-800 font-medium text-lg">
+            🌱 April ist der ideale Zeitpunkt für deine erste Rasenanalyse — starte jetzt in die beste Rasensaison!
+          </p>
+        </div>
+      </section>
       
       {/* Premium Features Comparison */}
       <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white">
