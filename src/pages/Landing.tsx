@@ -103,6 +103,7 @@ const Landing = () => {
       
       <FooterSection />
       <StickyMobileCTA />
+      <ExitIntentPopup />
     </div>
   );
 };
