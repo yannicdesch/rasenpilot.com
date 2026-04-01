@@ -217,9 +217,11 @@ const AnalysisHistory: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO 
-        title="Mein Rasen-Verlauf | RasenPilot"
+        title="Mein Rasen-Verlauf | Rasenpilot"
         description="Verfolge deinen Rasen-Fortschritt mit detaillierter Analyse-Historie und Scores."
         keywords="Rasen Historie, Analyse Verlauf, Rasen Fortschritt"
+        canonical="/analysis-history"
+        noindex
       />
       
       <MainNavigation />
