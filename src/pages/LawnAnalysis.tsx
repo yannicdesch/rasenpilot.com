@@ -1,7 +1,7 @@
 
 import React, { useCallback, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, FlaskConical, MapPin, Crown } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, Shield, MapPin, Crown, Zap, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,6 +19,63 @@ import { useAuth } from '@/contexts/AuthContext';
 import { trackAnalysisStarted } from '@/lib/analytics/conversionTracking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { trackMetaViewContent } from '@/lib/analytics/metaPixel';
+
+const ExampleResultPreview = () => {
+  const [revealed, setRevealed] = useState(false);
+  
+  return (
+    <div className="mb-8">
+      <h2 className="text-lg font-semibold text-gray-800 text-center mb-3">So sieht deine Analyse aus:</h2>
+      <div className="relative bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
+        <div className={`p-5 space-y-4 transition-all duration-500 ${!revealed ? 'blur-sm select-none' : ''}`}>
+          {/* Fake result preview */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Lawn Score</span>
+            <span className="text-2xl font-bold text-green-600">72/100</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="bg-gradient-to-r from-yellow-400 to-green-500 h-3 rounded-full" style={{ width: '72%' }} />
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="bg-green-50 rounded-lg p-3">
+              <p className="font-medium text-green-800">✅ Dichte</p>
+              <p className="text-gray-600 text-xs">Guter Wuchs, leichte Lücken</p>
+            </div>
+            <div className="bg-yellow-50 rounded-lg p-3">
+              <p className="font-medium text-yellow-800">⚠️ Feuchtigkeit</p>
+              <p className="text-gray-600 text-xs">Leicht trocken</p>
+            </div>
+            <div className="bg-green-50 rounded-lg p-3">
+              <p className="font-medium text-green-800">✅ Bodenqualität</p>
+              <p className="text-gray-600 text-xs">Nährstoffreich</p>
+            </div>
+            <div className="bg-red-50 rounded-lg p-3">
+              <p className="font-medium text-red-800">🔴 Unkraut</p>
+              <p className="text-gray-600 text-xs">Klee erkannt</p>
+            </div>
+          </div>
+          <div className="bg-green-50 rounded-lg p-3">
+            <p className="font-semibold text-green-800 text-sm mb-1">Schritt 1: Düngen</p>
+            <p className="text-xs text-gray-600">Bringe einen stickstoffreichen Langzeitdünger aus, um die Lücken im Rasen zu schließen.</p>
+          </div>
+        </div>
+        
+        {!revealed && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/30">
+            <Button
+              onClick={() => setRevealed(true)}
+              variant="outline"
+              className="bg-white shadow-lg border-green-300 text-green-700 hover:bg-green-50"
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              Beispiel ansehen
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
@@ -314,7 +371,7 @@ const LawnAnalysis = () => {
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO 
         title="Kostenlose KI-Rasenanalyse - Perfekten Pflegeplan in 30 Sekunden"
-        description="Laden Sie ein Foto Ihres Rasens hoch und erhalten Sie in 30 Sekunden eine professionelle KI-Analyse mit personalisiertem Pflegeplan. Über 50.000 erfolgreiche Analysen."
+        description="Lade ein Foto deines Rasens hoch und erhalte in 30 Sekunden eine professionelle KI-Analyse mit personalisiertem Pflegeplan. Kostenlos und ohne Anmeldung."
         keywords="Rasenanalyse, KI Rasen, Rasenpflege, Rasen analysieren, kostenlos, Pflegeplan"
         canonical="https://www.rasenpilot.com/lawn-analysis"
       />
@@ -389,15 +446,15 @@ const LawnAnalysis = () => {
 
         {/* Free Analysis Available - for anonymous users */}
         {!user && !hasReachedLimit && !limitLoading && (
-          <Card className="mb-6 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card className="mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-lg">
             <CardContent className="py-4">
               <div className="flex items-center gap-3">
-                <div className="bg-green-100 rounded-full p-2">
-                  <Star className="h-5 w-5 text-green-600" />
+                <div className="bg-amber-100 rounded-full p-2">
+                  <Star className="h-5 w-5 text-amber-600" />
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-green-800">1 kostenlose Analyse verfügbar</p>
-                  <p className="text-xs text-green-600">Keine Anmeldung erforderlich</p>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-amber-800">🎉 1 kostenlose Analyse verfügbar</p>
+                  <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: 9,99€/Monat — jetzt kostenlos starten!</p>
                 </div>
               </div>
             </CardContent>
@@ -480,17 +537,35 @@ const LawnAnalysis = () => {
           </Card>
         )}
         
+        {/* 3-Step Process */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="flex flex-col items-center text-center">
+            <span className="text-2xl mb-1">📸</span>
+            <span className="text-xs font-medium text-gray-700">Foto hochladen</span>
+          </div>
+          <div className="text-gray-300 text-lg">→</div>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-2xl mb-1">🤖</span>
+            <span className="text-xs font-medium text-gray-700">KI analysiert</span>
+          </div>
+          <div className="text-gray-300 text-lg">→</div>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-2xl mb-1">🌱</span>
+            <span className="text-xs font-medium text-gray-700">Plan erhalten</span>
+          </div>
+        </div>
+
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-3">
-            Rasenfoto hochladen
+            Zeig uns deinen Rasen 📸
           </h1>
           <p className="text-lg text-slate-700">
-            In 30 Sekunden zu deinem perfekten Pflegeplan.
+            Wir analysieren ihn sofort mit KI
           </p>
           
           {/* Location Status */}
-          <div className="mt-4">
+          <div className="mt-4 space-y-2">
             {locationStatus === 'detecting' && (
               <div className="flex items-center justify-center gap-2 text-sm text-blue-600">
                 <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -504,36 +579,19 @@ const LawnAnalysis = () => {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Before/After Visual Teaser */}
-        <div className="mb-8">
-          <div className="bg-white rounded-2xl p-4 shadow-lg border border-green-100">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="relative">
-                <img 
-                  src={lawnBefore} 
-                  alt="Ungesunder Rasen vorher" 
-                  className="w-full h-24 object-cover rounded-lg"
-                />
-                <div className="absolute top-2 left-2 bg-green-800 text-white px-2 py-1 rounded text-xs font-medium">
-                  Vorher
-                </div>
-              </div>
-              <div className="relative">
-                <img 
-                  src={lawnAfter} 
-                  alt="Gesunder Rasen nachher" 
-                  className="w-full h-24 object-cover rounded-lg"
-                />
-                <div className="absolute top-2 left-2 bg-green-800 text-white px-2 py-1 rounded text-xs font-medium">
-                  Nachher
-                </div>
-              </div>
-            </div>
-            <p className="text-center text-sm text-gray-600 italic mt-3">
-              Dein Rasen könnte so aussehen …
-            </p>
+          {/* PLZ Input */}
+          <div className="mt-3 max-w-xs mx-auto">
+            <Label htmlFor="plz-input" className="text-xs text-gray-500">Deine PLZ (optional — für lokale Wettertipps)</Label>
+            <Input
+              id="plz-input"
+              type="text"
+              placeholder="z.B. 69190"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              className="mt-1 text-center text-sm h-9"
+              maxLength={5}
+            />
           </div>
         </div>
 
@@ -590,16 +648,23 @@ const LawnAnalysis = () => {
                   )}
                 </div>
                 
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  {limitLoading ? 'Lade Status...' : 'Foto hier ablegen'}
+                <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                  {limitLoading ? 'Lade Status...' : 'Zeig uns deinen Rasen 📸'}
                 </h3>
-                
-                <p className={`font-medium mb-3 ${limitLoading ? 'text-gray-500' : 'text-green-600 underline'}`}>
-                  {limitLoading ? 'Bitte warten...' : 'oder klicken zum Auswählen'}
+                <p className="text-sm text-gray-600 mb-3">
+                  {limitLoading ? 'Bitte warten...' : 'Wir analysieren ihn sofort mit KI'}
                 </p>
                 
-                <p className="text-sm text-gray-500">
+                <p className={`font-medium mb-3 ${limitLoading ? 'text-gray-500' : 'text-green-600 underline'}`}>
+                  {limitLoading ? '' : 'Klicken oder Foto hierher ziehen'}
+                </p>
+                
+                <p className="text-sm text-gray-500 mb-2">
                   JPG/PNG, max. 10 MB
+                </p>
+
+                <p className="text-xs text-gray-400 italic">
+                  💡 Tipp: Fotografiere bei Tageslicht von oben — für beste Ergebnisse
                 </p>
                 
                 {error && (
@@ -656,22 +721,25 @@ const LawnAnalysis = () => {
         </div>
 
         {/* Trust Line */}
-        <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
+        <div className="flex items-center justify-center space-x-6 text-xs text-gray-500 mb-8">
           <div className="flex items-center space-x-1">
-            <Star className="h-4 w-4 text-yellow-500" />
-            <span>50.000+ Analysen</span>
+            <Zap className="h-4 w-4 text-green-500" />
+            <span>Kostenlos & ohne Anmeldung</span>
           </div>
           
           <div className="flex items-center space-x-1">
             <Lock className="h-4 w-4" />
-            <span>Nur zur Auswertung</span>
+            <span>Ergebnis in 30 Sekunden</span>
           </div>
           
           <div className="flex items-center space-x-1">
-            <FlaskConical className="h-4 w-4" />
-            <span>Wissenschaftlich validiert</span>
+            <Shield className="h-4 w-4" />
+            <span>DSGVO-konform</span>
           </div>
         </div>
+
+        {/* Example Result Preview */}
+        <ExampleResultPreview />
 
         {/* Hidden file input */}
         <input
