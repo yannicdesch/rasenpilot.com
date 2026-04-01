@@ -62,6 +62,8 @@ const Nuremberg = lazy(() => import("./pages/local/Nuremberg"));
 const Leipzig = lazy(() => import("./pages/local/Leipzig"));
 const Dortmund = lazy(() => import("./pages/local/Dortmund"));
 const Bonn = lazy(() => import("./pages/local/Bonn"));
+const RasenpflegeOesterreich = lazy(() => import("./pages/RasenpflegeOesterreich"));
+const RasenpflegeSchweiz = lazy(() => import("./pages/RasenpflegeSchweiz"));
 
 const queryClient = new QueryClient();
 
