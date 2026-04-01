@@ -23,6 +23,7 @@ interface BlogPostData {
   keywords: string[];
   metaTitle: string;
   metaDescription: string;
+  image?: string;
 }
 
 const BlogPost = () => {
