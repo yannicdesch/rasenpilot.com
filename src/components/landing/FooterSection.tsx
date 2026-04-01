@@ -50,7 +50,8 @@ const FooterSection = () => {
               <li><Button variant="link" onClick={() => navigate('/lawn-analysis')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">KI-Analyse</Button></li>
               <li><Button variant="link" onClick={() => navigate('/blog-overview')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Ratgeber</Button></li>
               <li><Button variant="link" onClick={() => navigate('/weather-advice')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Wetter-Tipps</Button></li>
-              <li><Button variant="link" onClick={() => navigate('/')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">Startseite</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/rasenpflege-oesterreich')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">🇦🇹 Rasenpflege Österreich</Button></li>
+              <li><Button variant="link" onClick={() => navigate('/rasenpflege-schweiz')} className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors">🇨🇭 Rasenpflege Schweiz</Button></li>
             </ul>
           </div>
           
