@@ -314,7 +314,7 @@ const LawnAnalysis = () => {
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO 
         title="Kostenlose KI-Rasenanalyse - Perfekten Pflegeplan in 30 Sekunden"
-        description="Laden Sie ein Foto Ihres Rasens hoch und erhalten Sie in 30 Sekunden eine professionelle KI-Analyse mit personalisiertem Pflegeplan. Über 50.000 erfolgreiche Analysen."
+        description="Lade ein Foto deines Rasens hoch und erhalte in 30 Sekunden eine professionelle KI-Analyse mit personalisiertem Pflegeplan. Kostenlos und ohne Anmeldung."
         keywords="Rasenanalyse, KI Rasen, Rasenpflege, Rasen analysieren, kostenlos, Pflegeplan"
         canonical="https://www.rasenpilot.com/lawn-analysis"
       />
