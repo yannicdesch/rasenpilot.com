@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  RefreshCcw, ExternalLink, ArrowLeft, Star, RotateCcw, Shield, 
+  RefreshCcw, ExternalLink, ArrowLeft, Star, Shield, 
   Clock, CheckCircle, Sparkles, Zap, Award, Lock, CreditCard, Leaf,
-  TrendingUp, Calendar, MessageSquare, Camera, X, Crown, Headphones
+  TrendingUp, Calendar, MessageSquare, Camera, X, Crown, Headphones, ArrowRight
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +39,56 @@ const SeasonalBanner = () => {
       >
         <X className="h-4 w-4" />
       </button>
+    </div>
+  );
+};
+
+const SubscriptionExitIntent = () => {
+  const [show, setShow] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (window.innerWidth < 768) return;
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0 && !sessionStorage.getItem('subExitShown')) {
+        setShow(true);
+        sessionStorage.setItem('subExitShown', '1');
+      }
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => document.removeEventListener('mouseleave', handleMouseLeave);
+  }, []);
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="relative bg-white border rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+        <button
+          onClick={() => setShow(false)}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <p className="text-4xl mb-4">🌱</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">Warte!</h2>
+        <p className="text-gray-600 mb-6">
+          Deine 7 Tage kostenlose Testphase läuft noch.
+        </p>
+        <Button
+          onClick={() => {
+            setShow(false);
+            const el = document.getElementById('pricing');
+            el?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          size="lg"
+          className="w-full py-6 text-base font-bold bg-green-600 hover:bg-green-700 text-white rounded-xl"
+        >
+          Kostenlos starten <ArrowRight className="ml-2 h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };
@@ -153,47 +203,85 @@ export default function Subscription() {
         canonical="/subscription"
       />
       
+      <SubscriptionExitIntent />
+
       <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50/30">
         <MainNavigation />
 
-        {/* Hero */}
+        {/* Hero for cold traffic */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-green-600/5 via-transparent to-green-600/10" />
-          <div className="container mx-auto px-4 pt-8 pb-6 max-w-6xl relative">
+          <div className="container mx-auto px-4 pt-10 pb-8 max-w-4xl relative text-center">
             {ref === 'analysis' && (
               <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 -ml-2">
                 <ArrowLeft className="h-4 w-4 mr-2" /> Zurück zur Analyse
               </Button>
             )}
 
-            <div className="text-center mb-6">
-              <Badge className="mb-4 bg-green-100 text-green-700 border-green-200 px-4 py-1.5">
-                <Sparkles className="h-3.5 w-3.5 mr-1.5" /> 7 Tage kostenlos testen
-              </Badge>
-              
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-4 text-gray-900">
-                Wähle deinen <span className="text-green-600">Plan</span>
-              </h1>
-              
-              <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-6">
-                Starte kostenlos und upgrade, wenn du bereit bist für den perfekten Rasen.
-              </p>
+            {isSubscribed && (
+              <div className="mb-4 flex flex-col items-center gap-2">
+                <Badge className={`text-white text-base px-5 py-2 ${planTier === 'pro' ? 'bg-amber-500' : 'bg-green-600'}`}>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  {planTier === 'pro' ? '⭐ Pro Mitglied' : 'Premium Mitglied'}
+                </Badge>
+                <TrialBadge isTrial={isTrial} trialEnd={trialEnd} />
+              </div>
+            )}
 
-              {isSubscribed && (
-                <div className="mb-4 flex flex-col items-center gap-2">
-                  <Badge className={`text-white text-base px-5 py-2 ${planTier === 'pro' ? 'bg-amber-500' : 'bg-green-600'}`}>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    {planTier === 'pro' ? '⭐ Pro Mitglied' : 'Premium Mitglied'}
-                  </Badge>
-                  <TrialBadge isTrial={isTrial} trialEnd={trialEnd} />
-                </div>
-              )}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold mb-4 text-gray-900 leading-tight">
+              Der KI-Rasenberater der deinen<br className="hidden md:block" /> Rasen <span className="text-green-600">wirklich kennt</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-6">
+              Foto hochladen → KI analysiert → Persönlicher Pflegeplan in 30 Sekunden
+            </p>
+
+            {/* Trust badges */}
+            <div className="flex flex-wrap justify-center gap-3 md:gap-5 mb-2">
+              <span className="inline-flex items-center gap-1.5 text-sm md:text-base font-medium text-gray-700">
+                ✅ 7 Tage kostenlos
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-sm md:text-base font-medium text-gray-700">
+                🔒 Jederzeit kündbar
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-sm md:text-base font-medium text-gray-700">
+                ⚡ Sofort starten
+              </span>
             </div>
           </div>
         </div>
 
+        {/* How it works */}
+        <div className="container mx-auto px-4 max-w-4xl pb-10">
+          <div className="grid grid-cols-3 gap-4 md:gap-8 text-center">
+            {[
+              { emoji: '📸', title: 'Foto hochladen', desc: 'Rasen fotografieren & hochladen' },
+              { emoji: '🤖', title: 'KI analysiert', desc: 'Sofortige Bewertung deines Rasens' },
+              { emoji: '🌱', title: 'Pflegeplan erhalten', desc: 'Persönliche Tipps & Kalender' },
+            ].map((step, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <span className="text-3xl md:text-4xl mb-2">{step.emoji}</span>
+                <h3 className="font-bold text-sm md:text-base text-gray-900">{step.title}</h3>
+                <p className="text-xs md:text-sm text-gray-500 mt-1 hidden md:block">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Social proof testimonial */}
+        <div className="container mx-auto px-4 max-w-3xl pb-8">
+          <div className="bg-white border border-gray-200 rounded-xl px-6 py-4 text-center shadow-sm">
+            <p className="text-gray-700 italic text-base md:text-lg">
+              „Mein Rasen sieht nach 4 Wochen komplett anders aus."
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              — Markus R., Stuttgart <span className="text-xs text-gray-400">(Beispiel-Erfahrung)</span>
+            </p>
+          </div>
+        </div>
+
         {/* Billing Toggle & Seasonal Banner */}
-        <div className="container mx-auto px-4 max-w-6xl -mt-2">
+        <div id="pricing" className="container mx-auto px-4 max-w-6xl">
           <SeasonalBanner />
 
           <div className="flex justify-center mb-8">
@@ -323,7 +411,12 @@ export default function Subscription() {
                   disabled={!!loadingPlan || isCurrentPlan('premium')}
                 >
                   {loadingPlan?.startsWith('premium') && <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />}
-                  {isCurrentPlan('premium') ? '✓ Aktueller Plan' : '7 Tage kostenlos testen'}
+                  {isCurrentPlan('premium') 
+                    ? '✓ Aktueller Plan' 
+                    : billingInterval === 'monthly'
+                      ? '7 Tage kostenlos testen → danach 9,99€/Monat'
+                      : '7 Tage kostenlos testen → danach 79,99€/Jahr'
+                  }
                 </Button>
               </CardFooter>
             </Card>
@@ -388,7 +481,12 @@ export default function Subscription() {
                   disabled={!!loadingPlan || isCurrentPlan('pro')}
                 >
                   {loadingPlan?.startsWith('pro') && <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />}
-                  {isCurrentPlan('pro') ? '✓ Aktueller Plan' : '7 Tage kostenlos testen'}
+                  {isCurrentPlan('pro') 
+                    ? '✓ Aktueller Plan' 
+                    : billingInterval === 'monthly'
+                      ? '7 Tage kostenlos testen → danach 19,99€/Monat'
+                      : '7 Tage kostenlos testen → danach 159,99€/Jahr'
+                  }
                 </Button>
               </CardFooter>
             </Card>
@@ -424,31 +522,45 @@ export default function Subscription() {
           </div>
         )}
 
-        {/* FAQ */}
+        {/* FAQ for objection handling */}
         <div className="container mx-auto px-4 max-w-3xl mt-16 pb-16">
           <h2 className="text-2xl md:text-3xl font-display font-bold text-center mb-8 text-gray-900">
             Häufig gestellte Fragen
           </h2>
           
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="trial">
-              <AccordionTrigger className="text-left">Was passiert nach den 7 kostenlosen Tagen?</AccordionTrigger>
+            <AccordionItem value="credit-card">
+              <AccordionTrigger className="text-left">Muss ich eine Kreditkarte angeben?</AccordionTrigger>
               <AccordionContent className="text-gray-600">
-                Nach der Testphase wird dein gewählter Plan automatisch aktiviert. Du wirst 
-                <strong> 2 Tage vorher per E-Mail erinnert</strong>. Du kannst jederzeit mit einem 
-                Klick kündigen — es entstehen keine Kosten, wenn du vor Ende der Testphase kündigst.
+                Ja, aber du wirst <strong>erst nach 7 Tagen belastet</strong>. Du kannst vorher jederzeit kündigen — komplett kostenlos. 
+                Wir akzeptieren auch Apple Pay, Google Pay und SEPA-Lastschrift.
               </AccordionContent>
             </AccordionItem>
             
             <AccordionItem value="cancel">
-              <AccordionTrigger className="text-left">Kann ich wirklich jederzeit kündigen?</AccordionTrigger>
+              <AccordionTrigger className="text-left">Kann ich jederzeit kündigen?</AccordionTrigger>
               <AccordionContent className="text-gray-600">
-                Ja, absolut. Die Kündigung dauert nur 30 Sekunden über unser Kundenportal. 
-                <strong> Keine Anrufe, keine E-Mails, keine Kündigungsfristen</strong>. 
-                Du behältst Zugang bis zum Ende der bezahlten Periode.
+                Ja, <strong>ohne Angabe von Gründen</strong>. Die Kündigung dauert nur 30 Sekunden über unser Kundenportal. 
+                Keine Anrufe, keine E-Mails, keine Kündigungsfristen. Du behältst Zugang bis zum Ende der bezahlten Periode.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="after-trial">
+              <AccordionTrigger className="text-left">Was passiert nach der Testphase?</AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                Du wirst <strong>automatisch auf das gewählte Abo umgestellt</strong>. Wir erinnern dich 2 Tage vorher per E-Mail. 
+                Wenn du vor Ende der Testphase kündigst, entstehen dir keine Kosten.
               </AccordionContent>
             </AccordionItem>
             
+            <AccordionItem value="grass-type">
+              <AccordionTrigger className="text-left">Funktioniert das auch für meinen Rasentyp?</AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                Ja, unsere KI erkennt <strong>alle gängigen Grasarten in Deutschland</strong>, Österreich und der Schweiz — 
+                egal ob Schattenrasen, Sportrasen oder Zierrasen.
+              </AccordionContent>
+            </AccordionItem>
+
             <AccordionItem value="difference">
               <AccordionTrigger className="text-left">Was ist der Unterschied zwischen Premium und Pro?</AccordionTrigger>
               <AccordionContent className="text-gray-600">
@@ -461,14 +573,7 @@ export default function Subscription() {
               <AccordionTrigger className="text-left">Wie sicher ist die Zahlung?</AccordionTrigger>
               <AccordionContent className="text-gray-600">
                 Wir nutzen <strong>Stripe</strong>, den weltweit führenden Zahlungsanbieter. 
-                Akzeptierte Zahlungsmethoden: Kreditkarte, Apple Pay, Google Pay, SEPA-Lastschrift.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="upgrade">
-              <AccordionTrigger className="text-left">Kann ich von Premium auf Pro upgraden?</AccordionTrigger>
-              <AccordionContent className="text-gray-600">
-                Ja! Du kannst jederzeit über das Stripe-Portal upgraden. Der Preisunterschied wird anteilig berechnet.
+                Deine Daten sind durch PCI-DSS Level 1 geschützt — der höchste Sicherheitsstandard.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
