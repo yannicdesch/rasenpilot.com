@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,59 +8,70 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
 import JourneyTracker from "@/components/JourneyTracker";
 import ConversionTracker from "@/components/ConversionTracker";
-import Index from "./pages/Index";
-import LawnAnalysis from "./pages/LawnAnalysis";
-import AnalysisHistory from "./pages/AnalysisHistory";
-import Blog from "./pages/Blog";
-import BlogOverview from "./pages/BlogOverview";
-import BlogPost from "./pages/BlogPost";
-import AnalysisResult from "./pages/AnalysisResult";
-import Highscore from "./pages/Highscore";
-import Impressum from "./pages/Impressum";
-import Datenschutz from "./pages/Datenschutz";
-import CookiePolicy from "./pages/CookiePolicy";
-import AGB from "./pages/AGB";
-import TermsOfUse from "./pages/TermsOfUse";
-import UeberUns from "./pages/UeberUns";
-import Kontakt from "./pages/Kontakt";
-import AdminPanel from "./pages/AdminPanel";
-import AdminLogin from "./pages/AdminLogin";
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
+import CookieConsent from '@/components/CookieConsent';
 
-import WeatherAdvice from "./pages/WeatherAdvice";
-import SeasonGuide from "./pages/SeasonGuide";
-import Subscription from "./pages/Subscription";
-import SubscriptionSuccess from "./pages/SubscriptionSuccess";
-import SubscriptionManagement from "./pages/SubscriptionManagement";
-import PremiumDashboard from "./pages/PremiumDashboard";
-import CareCalendar from "./pages/CareCalendar";
+// Critical path — loaded eagerly
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+
+// Lazy-loaded pages
+const LawnAnalysis = lazy(() => import("./pages/LawnAnalysis"));
+const AnalysisHistory = lazy(() => import("./pages/AnalysisHistory"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogOverview = lazy(() => import("./pages/BlogOverview"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const AnalysisResult = lazy(() => import("./pages/AnalysisResult"));
+const Highscore = lazy(() => import("./pages/Highscore"));
+const Impressum = lazy(() => import("./pages/Impressum"));
+const Datenschutz = lazy(() => import("./pages/Datenschutz"));
+const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
+const AGB = lazy(() => import("./pages/AGB"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const UeberUns = lazy(() => import("./pages/UeberUns"));
+const Kontakt = lazy(() => import("./pages/Kontakt"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const WeatherAdvice = lazy(() => import("./pages/WeatherAdvice"));
+const SeasonGuide = lazy(() => import("./pages/SeasonGuide"));
+const Subscription = lazy(() => import("./pages/Subscription"));
+const SubscriptionSuccess = lazy(() => import("./pages/SubscriptionSuccess"));
+const SubscriptionManagement = lazy(() => import("./pages/SubscriptionManagement"));
+const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
+const CareCalendar = lazy(() => import("./pages/CareCalendar"));
+const AccountSettings = lazy(() => import("./pages/AccountSettings"));
+const Chat = lazy(() => import("./pages/Chat"));
 
 // Local SEO Pages
-import Munich from "./pages/local/Munich";
-import Berlin from "./pages/local/Berlin";
-import Hamburg from "./pages/local/Hamburg";
-import Cologne from "./pages/local/Cologne";
-import Frankfurt from "./pages/local/Frankfurt";
-import Stuttgart from "./pages/local/Stuttgart";
-import Dusseldorf from "./pages/local/Dusseldorf";
-import Essen from "./pages/local/Essen";
-import Dresden from "./pages/local/Dresden";
-import Hannover from "./pages/local/Hannover";
-import Bremen from "./pages/local/Bremen";
-import Nuremberg from "./pages/local/Nuremberg";
-import Leipzig from "./pages/local/Leipzig";
-import Dortmund from "./pages/local/Dortmund";
-import Bonn from "./pages/local/Bonn";
-import NotFound from "./pages/NotFound";
-import AccountSettings from "@/pages/AccountSettings";
-import Chat from "@/pages/Chat";
-import CookieConsent from '@/components/CookieConsent';
+const Munich = lazy(() => import("./pages/local/Munich"));
+const Berlin = lazy(() => import("./pages/local/Berlin"));
+const Hamburg = lazy(() => import("./pages/local/Hamburg"));
+const Cologne = lazy(() => import("./pages/local/Cologne"));
+const Frankfurt = lazy(() => import("./pages/local/Frankfurt"));
+const Stuttgart = lazy(() => import("./pages/local/Stuttgart"));
+const Dusseldorf = lazy(() => import("./pages/local/Dusseldorf"));
+const Essen = lazy(() => import("./pages/local/Essen"));
+const Dresden = lazy(() => import("./pages/local/Dresden"));
+const Hannover = lazy(() => import("./pages/local/Hannover"));
+const Bremen = lazy(() => import("./pages/local/Bremen"));
+const Nuremberg = lazy(() => import("./pages/local/Nuremberg"));
+const Leipzig = lazy(() => import("./pages/local/Leipzig"));
+const Dortmund = lazy(() => import("./pages/local/Dortmund"));
+const Bonn = lazy(() => import("./pages/local/Bonn"));
 
 const queryClient = new QueryClient();
 
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-3">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <p className="text-sm text-muted-foreground">Laden...</p>
+    </div>
+  </div>
+);
+
 const App = () => {
-  // Initialize HTTPS enforcement on app startup
   useEffect(() => {
     initHttpsEnforcement();
   }, []);
@@ -75,11 +86,12 @@ const App = () => {
           <JourneyTracker />
           <ConversionTracker />
           <CookieConsent />
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/lawn-analysis" element={<LawnAnalysis />} />
-          <Route path="/analysis-history" element={<AnalysisHistory />} />
-          <Route path="/analysis-result/:jobId" element={<AnalysisResult />} />
+            <Route path="/analysis-history" element={<AnalysisHistory />} />
+            <Route path="/analysis-result/:jobId" element={<AnalysisResult />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-overview" element={<BlogOverview />} />
             <Route path="/ratgeber" element={<BlogOverview />} />
@@ -117,9 +129,9 @@ const App = () => {
             
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-          <Route path="/subscription/manage" element={<SubscriptionManagement />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+            <Route path="/subscription/manage" element={<SubscriptionManagement />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
             <Route path="/care-calendar" element={<CareCalendar />} />
             <Route path="/auth" element={<Auth />} />
@@ -135,6 +147,7 @@ const App = () => {
             {/* Catch-all route for 404 errors */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
         </LawnProvider>
       </AuthProvider>
