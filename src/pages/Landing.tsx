@@ -53,7 +53,7 @@ const Landing = () => {
             aggregateRating: {
               "@type": "AggregateRating",
               ratingValue: "4.8",
-              reviewCount: "150",
+              reviewCount: "7",
               bestRating: "5",
               worstRating: "1"
             }
