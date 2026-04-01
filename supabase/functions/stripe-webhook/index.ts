@@ -171,7 +171,7 @@ async function processStripeEvent(
       const customerId = session.customer as string;
       const subscriptionId = session.subscription as string;
 
-      // Get user_id from metadata (preferred) or client_reference_id
+      // Get user_id from metadata (if user was logged in)
       const userId = session.metadata?.user_id || 
                      session.metadata?.supabase_user_id ||
                      session.client_reference_id;
@@ -187,11 +187,6 @@ async function processStripeEvent(
 
       const subscription =
         await stripe.subscriptions.retrieve(subscriptionId);
-      
-      // If we have a user_id, use it directly for the subscriber record
-      if (userId) {
-        console.log("[STRIPE-WEBHOOK] User ID from metadata:", userId);
-      }
 
       await upsertSubscriber(
         supabase,
@@ -201,36 +196,118 @@ async function processStripeEvent(
         customerId,
       );
 
-      // If user_id is present, ensure subscriber is linked
-      if (userId) {
-        await supabase
-          .from("subscribers")
-          .update({ user_id: userId, updated_at: new Date().toISOString() })
-          .eq("email", customerEmail);
-      }
-
-      // Check if user has an account - if not, log as orphaned and send registration prompt
+      // Check if user already has a profile
       const { data: existingProfile } = await supabase
         .from("profiles")
         .select("id")
         .eq("email", customerEmail)
         .maybeSingle();
 
-      if (!existingProfile) {
-        console.warn("[STRIPE-WEBHOOK] No profile found for", customerEmail, "- logging orphaned subscription");
+      if (existingProfile) {
+        // User exists — link subscriber
+        await supabase
+          .from("subscribers")
+          .update({ user_id: existingProfile.id, updated_at: new Date().toISOString() })
+          .eq("email", customerEmail);
+        console.log("[STRIPE-WEBHOOK] Linked subscription to existing user:", existingProfile.id);
+      } else if (userId) {
+        // User was logged in but profile wasn't found by email — link by userId
+        await supabase
+          .from("subscribers")
+          .update({ user_id: userId, updated_at: new Date().toISOString() })
+          .eq("email", customerEmail);
+      } else {
+        // No account exists — auto-create Supabase user
+        console.log("[STRIPE-WEBHOOK] No account for", customerEmail, "- auto-creating user");
         
-        // Log orphaned subscription
-        await supabase.from("orphaned_subscriptions").insert({
-          stripe_session_id: session.id,
-          stripe_customer_id: customerId,
-          customer_email: customerEmail,
-          price_type: session.metadata?.price_type || "unknown",
-        });
+        try {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+          const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+          const adminSupabase = createClient(supabaseUrl, serviceRoleKey);
+          
+          const { data: newUser, error: createError } = await adminSupabase.auth.admin.createUser({
+            email: customerEmail,
+            email_confirm: true,
+            user_metadata: {
+              stripe_customer_id: customerId,
+              subscription_tier: 'premium',
+              full_name: customerEmail.split('@')[0],
+            },
+          });
 
-        // Send registration prompt email
-        const resendKey = Deno.env.get("RESEND_API_KEY");
-        if (resendKey) {
-          await sendRegistrationPromptEmail(customerEmail, resendKey);
+          if (createError) {
+            console.error("[STRIPE-WEBHOOK] Failed to create user:", createError);
+            // Log as orphaned if user creation fails
+            await supabase.from("orphaned_subscriptions").insert({
+              stripe_session_id: session.id,
+              stripe_customer_id: customerId,
+              customer_email: customerEmail,
+              price_type: session.metadata?.price_type || "unknown",
+              notes: `Auto-create failed: ${createError.message}`,
+            });
+          } else if (newUser?.user) {
+            console.log("[STRIPE-WEBHOOK] Auto-created user:", newUser.user.id);
+            
+            // Link subscriber to new user
+            await supabase
+              .from("subscribers")
+              .update({ user_id: newUser.user.id, updated_at: new Date().toISOString() })
+              .eq("email", customerEmail);
+
+            // Send password setup email via Supabase recovery link
+            try {
+              const { error: linkError } = await adminSupabase.auth.admin.generateLink({
+                type: 'recovery',
+                email: customerEmail,
+                options: {
+                  redirectTo: 'https://www.rasenpilot.com/reset-password',
+                },
+              });
+              
+              if (linkError) {
+                console.error("[STRIPE-WEBHOOK] Failed to generate recovery link:", linkError);
+              } else {
+                console.log("[STRIPE-WEBHOOK] Password setup email sent to:", customerEmail);
+              }
+
+              // Also send welcome email via Resend
+              const resendKey = Deno.env.get("RESEND_API_KEY");
+              if (resendKey) {
+                const welcomeContent = `
+                  ${greeting('Premium-Mitglied')}
+                  ${paragraph('Dein Rasenpilot Premium Account ist bereit! 🎉')}
+                  ${paragraph('Klick auf den Button unten, um dein Passwort zu setzen und direkt loszulegen:')}
+                  ${ctaButton('Passwort setzen →', 'https://www.rasenpilot.com/auth')}
+                  ${infoCard('Wichtig', 'Bitte setze dein Passwort innerhalb von 24 Stunden. Danach kannst du dich jederzeit einloggen und alle Premium-Features nutzen.', '📌', '#eff6ff', '#bfdbfe')}
+                  ${heading('Was dich erwartet')}
+                  ${featureList([
+                    { icon: '📸', text: '<strong>Unbegrenzte KI-Rasenanalysen</strong>' },
+                    { icon: '📅', text: '<strong>Persönlicher Pflegekalender</strong>' },
+                    { icon: '💬', text: '<strong>KI-Experten-Chat</strong>' },
+                    { icon: '🌤️', text: '<strong>Wöchentliche Wetter-Tipps</strong>' },
+                  ])}
+                  ${signoff()}
+                `;
+                await sendEmail(
+                  customerEmail, 
+                  resendKey, 
+                  "🌱 Willkommen bei Rasenpilot — Passwort setzen", 
+                  emailLayout(welcomeContent, 'Dein Premium-Account ist bereit!')
+                );
+              }
+            } catch (emailErr) {
+              console.error("[STRIPE-WEBHOOK] Email sending failed:", err(emailErr));
+            }
+          }
+        } catch (autoCreateErr) {
+          console.error("[STRIPE-WEBHOOK] Auto-create error:", err(autoCreateErr));
+          await supabase.from("orphaned_subscriptions").insert({
+            stripe_session_id: session.id,
+            stripe_customer_id: customerId,
+            customer_email: customerEmail,
+            price_type: session.metadata?.price_type || "unknown",
+            notes: `Auto-create exception: ${err(autoCreateErr)}`,
+          });
         }
       }
       return;

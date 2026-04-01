@@ -151,6 +151,7 @@ const App = () => {
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+            <Route path="/welcome" element={<Welcome />} />
             <Route path="/subscription/manage" element={<SubscriptionManagement />} />
             <Route path="/premium-dashboard" element={<PremiumDashboard />} />
             <Route path="/care-calendar" element={<CareCalendar />} />
