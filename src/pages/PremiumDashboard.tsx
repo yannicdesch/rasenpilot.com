@@ -115,6 +115,12 @@ const PremiumDashboard = () => {
     { icon: Headphones, title: "Priority Support", description: "Bevorzugter Kundensupport und persönliche Beratung", action: "Support kontaktieren", link: "/kontakt", borderColor: "border-l-red-500" },
   ];
 
+  const proExtraFeatures = isPro ? [
+    { icon: Leaf, title: "3 Rasenflächen verwalten", description: "Verwalte bis zu 3 verschiedene Rasenflächen", action: "Flächen verwalten", link: "/account-settings", borderColor: "border-l-amber-500", badge: "Pro" },
+    { icon: Award, title: "Experten-Check buchen", description: "Persönlicher Experten-Check für deinen Rasen", action: "Check buchen", link: "/kontakt", borderColor: "border-l-amber-500", badge: "Pro" },
+    { icon: Headphones, title: "Prioritäts-Support (2h)", description: "Garantierte Antwort innerhalb von 2 Stunden", action: "Support kontaktieren", link: "/kontakt", borderColor: "border-l-amber-500", badge: "Pro" },
+  ] : [];
+
   const quickActions = [
     { title: "Neue Rasenanalyse", description: "Analysiere deinen Rasen mit KI", link: "/lawn-analysis", icon: Camera, primary: true },
     { title: "Wetter-Ratgeber", description: "Aktuelle Pflegetipps", link: "/weather-advice", icon: CloudRain, badgeText: "Aktuell: 18°C ☀️" },
