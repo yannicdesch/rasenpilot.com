@@ -19,7 +19,7 @@ import RankUpCelebration from '@/components/RankUpCelebration';
 import { getRank, getNextRank, getPointsToNextRank, getMotivation, getMilestone, getAchievementBadges, Rank } from '@/lib/rankSystem';
 
 const PremiumDashboard = () => {
-  const { subscription, isPremium, loading: subLoading, openCustomerPortal } = useSubscription();
+  const { subscription, isPremium, isPro, planTier, loading: subLoading, openCustomerPortal } = useSubscription();
   const { user } = useProfileData();
   const { latestAnalysis, lawnProfile, dashboardStats, loading: dataLoading } = useDashboardData();
   const navigate = useNavigate();
