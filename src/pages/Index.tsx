@@ -609,6 +609,13 @@ const Index = () => {
                 <li><Link to="/agb" className="text-gray-300 hover:text-green-400 transition-colors">AGB</Link></li>
               </ul>
               <div className="pt-4">
+                <h4 className="text-sm font-semibold mb-2">Rasenpflege international</h4>
+                <ul className="space-y-1 text-xs">
+                  <li><Link to="/rasenpflege-oesterreich" className="text-gray-400 hover:text-green-400 transition-colors">🇦🇹 Rasenpflege Österreich</Link></li>
+                  <li><Link to="/rasenpflege-schweiz" className="text-gray-400 hover:text-green-400 transition-colors">🇨🇭 Rasenpflege Schweiz</Link></li>
+                </ul>
+              </div>
+              <div className="pt-4">
                 <h4 className="text-sm font-semibold mb-2">Lokale Rasenpflege</h4>
                 <ul className="space-y-1 text-xs">
                   <li><Link to="/local/berlin" className="text-gray-400 hover:text-green-400 transition-colors">Berlin</Link></li>
