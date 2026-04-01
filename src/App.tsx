@@ -62,6 +62,8 @@ const Nuremberg = lazy(() => import("./pages/local/Nuremberg"));
 const Leipzig = lazy(() => import("./pages/local/Leipzig"));
 const Dortmund = lazy(() => import("./pages/local/Dortmund"));
 const Bonn = lazy(() => import("./pages/local/Bonn"));
+const RasenpflegeOesterreich = lazy(() => import("./pages/RasenpflegeOesterreich"));
+const RasenpflegeSchweiz = lazy(() => import("./pages/RasenpflegeSchweiz"));
 
 const queryClient = new QueryClient();
 
@@ -134,6 +136,10 @@ const App = () => {
             
             {/* Redirects */}
             <Route path="/garden-pilot" element={<Navigate to="/lawn-analysis" replace />} />
+            
+            {/* Country Landing Pages */}
+            <Route path="/rasenpflege-oesterreich" element={<RasenpflegeOesterreich />} />
+            <Route path="/rasenpflege-schweiz" element={<RasenpflegeSchweiz />} />
             
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
