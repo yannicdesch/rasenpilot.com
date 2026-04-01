@@ -172,8 +172,7 @@ export const useDashboardData = () => {
           const zipPrefix = profileData.zip_code.substring(0, 2);
           const { data: regionalHighscores } = await supabase
             .from('lawn_highscores_public')
-            .select('lawn_score, location')
-            .like('location', `${zipPrefix}%`)
+            .select('lawn_score')
             .order('lawn_score', { ascending: false });
 
           if (regionalHighscores) {
