@@ -71,7 +71,7 @@ export const useEmailReports = () => {
         updateData.email_reports = config;
         updateData.site_name = 'Rasenpilot';
         updateData.site_tagline = 'Ihr intelligenter Rasenberater';
-        updateData.site_email = 'info@rasenpilot.com';
+        updateData.site_email = 'rasenpilot@gmail.com';
         
         const { error } = await supabase
           .from('site_settings')

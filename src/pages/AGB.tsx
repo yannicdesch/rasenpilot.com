@@ -62,14 +62,14 @@ const AGB = () => {
               <div>
                 <h2 className="text-xl font-semibold mb-3">6. Kündigung</h2>
                 <p>
-                  Sie können Ihr Abonnement jederzeit ohne Angabe von Gründen kündigen. Die Kündigung wird zum Ende des aktuellen Abrechnungszeitraums wirksam. Bereits gezahlte Beträge für den laufenden Zeitraum werden nicht erstattet. Die Kündigung erfolgt über das Kundenportal (Stripe Customer Portal) oder per E-Mail an info@rasenpilot.com.
+                  Sie können Ihr Abonnement jederzeit ohne Angabe von Gründen kündigen. Die Kündigung wird zum Ende des aktuellen Abrechnungszeitraums wirksam. Bereits gezahlte Beträge für den laufenden Zeitraum werden nicht erstattet. Die Kündigung erfolgt über das Kundenportal (Stripe Customer Portal) oder per E-Mail an rasenpilot@gmail.com.
                 </p>
               </div>
 
               <div>
                 <h2 className="text-xl font-semibold mb-3">7. Widerrufsrecht</h2>
                 <p>
-                  Als Verbraucher haben Sie ein 14-tägiges Widerrufsrecht. Der Widerruf ist in Textform (z. B. per E-Mail) an info@rasenpilot.com zu richten. Nach Beginn der Ausführung digitaler Inhalte (z. B. Durchführung einer KI-Analyse) kann das Widerrufsrecht erlöschen, sofern Sie dem ausdrücklich zugestimmt haben.
+                  Als Verbraucher haben Sie ein 14-tägiges Widerrufsrecht. Der Widerruf ist in Textform (z. B. per E-Mail) an rasenpilot@gmail.com zu richten. Nach Beginn der Ausführung digitaler Inhalte (z. B. Durchführung einer KI-Analyse) kann das Widerrufsrecht erlöschen, sofern Sie dem ausdrücklich zugestimmt haben.
                 </p>
               </div>
 
