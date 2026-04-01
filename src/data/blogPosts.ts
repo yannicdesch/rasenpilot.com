@@ -57,7 +57,9 @@ Wichtig: Dünge nur auf trockenem Rasen, aber wähle einen Tag, an dem Regen vor
 
 Nach der ersten Frühjahrsdüngung sollte etwa 6-8 Wochen später eine zweite, leichtere Düngergabe erfolgen, um das Wachstum kontinuierlich zu unterstützen.
 
-Mit der richtigen Frühjahrsdüngung legst du den Grundstein für einen dichten, widerstandsfähigen und leuchtend grünen Rasen, der den Sommer gut übersteht.`,
+Mit der richtigen Frühjahrsdüngung legst du den Grundstein für einen dichten, widerstandsfähigen und leuchtend grünen Rasen, der den Sommer gut übersteht.
+
+Übrigens: Der optimale Düngezeitpunkt variiert je nach Region. Lies unsere speziellen Tipps für <a href="/rasenpflege-oesterreich">Rasenpflege in Österreich</a> und <a href="/rasenpflege-schweiz">Rasenpflege in der Schweiz</a>.`,
     excerpt: "Wann ist der richtige Zeitpunkt für die Frühjahrsdüngung? Lerne die optimale Technik und den besten Zeitpunkt für eine effektive Rasendüngung im Frühjahr.",
     date: "10.05.2025",
     author: "Julia Schmidt",
