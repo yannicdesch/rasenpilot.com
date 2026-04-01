@@ -460,16 +460,14 @@ export default function Subscription() {
               </CardContent>
               <CardFooter>
                 <Button 
-                  className="w-full py-6 text-base font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg text-white"
+                  className="w-full py-6 text-sm md:text-base font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg text-white whitespace-normal leading-tight h-auto min-h-[3rem]"
                   onClick={() => handleSubscribe(billingInterval === 'monthly' ? 'pro_monthly' : 'pro_yearly')}
                   disabled={!!loadingPlan || isCurrentPlan('pro')}
                 >
                   {loadingPlan?.startsWith('pro') && <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />}
                   {isCurrentPlan('pro') 
                     ? '✓ Aktueller Plan' 
-                    : billingInterval === 'monthly'
-                      ? '7 Tage kostenlos testen → danach 19,99€/Monat'
-                      : '7 Tage kostenlos testen → danach 159,99€/Jahr'
+                    : <>7 Tage kostenlos testen<br /><span className="text-xs font-normal opacity-90">danach {billingInterval === 'monthly' ? '19,99€/Monat' : '159,99€/Jahr'}</span></>
                   }
                 </Button>
               </CardFooter>
