@@ -6,9 +6,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
-import JourneyTracker from "@/components/JourneyTracker";
-import ConversionTracker from "@/components/ConversionTracker";
-import CookieConsent from '@/components/CookieConsent';
+
+// Lazy-load non-critical global components
+const JourneyTracker = lazy(() => import("@/components/JourneyTracker"));
+const ConversionTracker = lazy(() => import("@/components/ConversionTracker"));
+const CookieConsent = lazy(() => import('@/components/CookieConsent'));
 
 // Critical path — loaded eagerly
 import Index from "./pages/Index";
