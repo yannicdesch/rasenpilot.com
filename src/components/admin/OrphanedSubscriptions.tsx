@@ -63,6 +63,25 @@ const OrphanedSubscriptions = () => {
     }
   };
 
+  const handleSendEmail = async (sub: OrphanedSub) => {
+    if (!sub.customer_email) {
+      toast.error('Keine E-Mail-Adresse vorhanden');
+      return;
+    }
+    setSendingEmailId(sub.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-registration-email', {
+        body: { email: sub.customer_email }
+      });
+      if (error) throw error;
+      toast.success(`Registrierungs-E-Mail an ${sub.customer_email} gesendet!`);
+    } catch (err: any) {
+      toast.error('E-Mail konnte nicht gesendet werden: ' + (err.message || 'Unbekannter Fehler'));
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
   const handleLinkUser = async (orphanedSub: OrphanedSub) => {
     const email = linkEmail || orphanedSub.customer_email;
     if (!email) {
