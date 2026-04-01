@@ -384,7 +384,7 @@ const SimplifiedLanding = () => {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <p className="text-green-100 text-sm">
-              ✓ Keine Kreditkarte erforderlich ✓ 98,3% Genauigkeit ✓ Wissenschaftlich fundiert
+              ✓ Keine Kreditkarte erforderlich ✓ GPT-4o Vision KI ✓ Wissenschaftlich fundiert
             </p>
           </div>
         </section>
