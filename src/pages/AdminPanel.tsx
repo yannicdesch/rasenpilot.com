@@ -3,7 +3,7 @@ import React from 'react';
 import SecureAdminAuth from '@/components/admin/SecureAdminAuth';
 import MainNavigation from '@/components/MainNavigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Users, Settings, FileText, Globe, Database, BookOpen } from 'lucide-react';
+import { BarChart3, Users, Settings, FileText, Globe, Database, BookOpen, AlertTriangle } from 'lucide-react';
 import SiteAnalytics from '@/components/admin/SiteAnalytics';
 import UserManagement from '@/components/admin/UserManagement';
 import SiteSettings from '@/components/admin/SiteSettings';
