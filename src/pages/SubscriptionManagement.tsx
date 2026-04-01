@@ -14,7 +14,9 @@ const SubscriptionManagement = () => {
   const { 
     subscription, 
     loading, 
-    isPremium, 
+    isPremium,
+    isPro,
+    planTier,
     isTrial,
     trialEnd,
     subscriptionEnd,
@@ -63,14 +65,14 @@ const SubscriptionManagement = () => {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   {isPremium && <Crown className="h-5 w-5 text-primary" />}
-                  {isPremium ? "Premium Abonnement" : "Kostenloser Plan"}
+                  {isPremium ? (isPro ? "⭐ Pro Abonnement" : "Premium Abonnement") : "Kostenloser Plan"}
                 </CardTitle>
                 <CardDescription>
                   {isPremium ? "Ihr aktuelles Premium-Abonnement" : "Upgraden Sie zu Premium für volle Funktionen"}
                 </CardDescription>
               </div>
-              <Badge variant={isPremium ? "default" : "secondary"} className="ml-2">
-                {isPremium ? (isTrial ? "Testphase" : "Aktiv") : "Kostenlos"}
+              <Badge variant={isPremium ? "default" : "secondary"} className={`ml-2 ${isPro ? 'bg-amber-500' : ''}`}>
+                {isPremium ? (isTrial ? "Testphase" : isPro ? "⭐ Pro" : "Aktiv") : "Kostenlos"}
               </Badge>
             </div>
           </CardHeader>

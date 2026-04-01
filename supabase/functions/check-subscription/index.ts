@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -8,7 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper logging function for enhanced debugging
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
@@ -19,7 +17,6 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Use the service role key to perform writes (upsert) in Supabase
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -31,18 +28,15 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
-    logStep("Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
-    logStep("Authenticating user with token");
-    
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Check if user is admin — admins always get premium access
+    // Check if user is admin
     const { data: adminRole } = await supabaseClient
       .from("user_roles")
       .select("role")
@@ -51,10 +45,10 @@ serve(async (req) => {
       .maybeSingle();
 
     if (adminRole) {
-      logStep("User is admin, granting premium access");
+      logStep("User is admin, granting pro access");
       return new Response(JSON.stringify({
         subscribed: true,
-        subscription_tier: "Premium",
+        subscription_tier: "pro_monthly",
         subscription_end: null,
         is_trial: false,
         trial_start: null,
@@ -69,17 +63,13 @@ serve(async (req) => {
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     
-    // ALWAYS verify with Stripe if we have a key - don't trust local DB alone
     if (stripeKey) {
-      logStep("Stripe key found, verifying subscription with Stripe");
+      logStep("Verifying subscription with Stripe");
       const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-      // Get ALL customers with this email (user might have multiple Stripe customers)
       const customers = await stripe.customers.list({ email: user.email, limit: 100 });
       
       if (customers.data.length === 0) {
-        logStep("No Stripe customer found, user has no subscription");
-        
-        // Update database to reflect no subscription
+        logStep("No Stripe customer found");
         await supabaseClient.from("subscribers").upsert({
           email: user.email,
           user_id: user.id,
@@ -94,62 +84,33 @@ serve(async (req) => {
         }, { onConflict: 'email' });
         
         return new Response(JSON.stringify({ 
-          subscribed: false,
-          subscription_tier: null,
-          subscription_end: null,
-          is_trial: false,
-          trial_start: null,
-          trial_end: null,
-          verified_with_stripe: true
+          subscribed: false, subscription_tier: null, subscription_end: null,
+          is_trial: false, trial_start: null, trial_end: null, verified_with_stripe: true
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
         });
       }
 
-      logStep("Found Stripe customers", { count: customers.data.length, customerIds: customers.data.map(c => c.id) });
-
-      // Check ALL customers for active subscriptions (user might have multiple Stripe customers)
+      // Find active/trialing subscription
       let activeSubscription = null;
       let customerId = null;
       
       for (const customer of customers.data) {
-        const subscriptions = await stripe.subscriptions.list({
-          customer: customer.id,
-          status: "active",
-          limit: 1,
-        });
-        
-        if (subscriptions.data.length > 0) {
-          activeSubscription = subscriptions.data[0];
-          customerId = customer.id;
-          logStep("Found active subscription for customer", { customerId: customer.id, subscriptionId: activeSubscription.id });
-          break;
-        }
-      }
-      
-      // Also check for trialing subscriptions if no active found
-      if (!activeSubscription) {
-        for (const customer of customers.data) {
-          const subscriptions = await stripe.subscriptions.list({
-            customer: customer.id,
-            status: "trialing",
-            limit: 1,
+        for (const status of ["active", "trialing"] as const) {
+          const subs = await stripe.subscriptions.list({
+            customer: customer.id, status, limit: 1,
           });
-          
-          if (subscriptions.data.length > 0) {
-            activeSubscription = subscriptions.data[0];
+          if (subs.data.length > 0) {
+            activeSubscription = subs.data[0];
             customerId = customer.id;
-            logStep("Found trialing subscription for customer", { customerId: customer.id, subscriptionId: activeSubscription.id });
             break;
           }
         }
+        if (activeSubscription) break;
       }
 
-      // Fallback to first customer ID if none had active subscription
-      if (!customerId) {
-        customerId = customers.data[0].id;
-      }
+      if (!customerId) customerId = customers.data[0].id;
       
       const hasActiveSub = !!activeSubscription;
       let subscriptionTier = null;
@@ -159,40 +120,47 @@ serve(async (req) => {
       let trialEnd = null;
 
       if (hasActiveSub && activeSubscription) {
-        const subscription = activeSubscription;
-        subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-        logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
+        subscriptionEnd = new Date(activeSubscription.current_period_end * 1000).toISOString();
         
-        // Check for trial
-        if (subscription.trial_end) {
-          const trialEndDate = new Date(subscription.trial_end * 1000);
+        if (activeSubscription.trial_end) {
+          const trialEndDate = new Date(activeSubscription.trial_end * 1000);
           if (trialEndDate > new Date()) {
             isTrial = true;
             trialEnd = trialEndDate.toISOString();
-            if (subscription.trial_start) {
-              trialStart = new Date(subscription.trial_start * 1000).toISOString();
+            if (activeSubscription.trial_start) {
+              trialStart = new Date(activeSubscription.trial_start * 1000).toISOString();
             }
           }
         }
         
-        // Determine subscription tier from price
-        const priceId = subscription.items.data[0].price.id;
-        const price = await stripe.prices.retrieve(priceId);
-        const amount = price.unit_amount || 0;
-        
-        if (amount === 999) {
-          subscriptionTier = "Monthly";
-        } else if (amount === 9900) {
-          subscriptionTier = "Yearly";
+        // Determine tier from price — check stripe_products table first
+        const priceId = activeSubscription.items.data[0].price.id;
+        const { data: product } = await supabaseClient
+          .from("stripe_products")
+          .select("price_type, amount")
+          .eq("stripe_price_id", priceId)
+          .maybeSingle();
+
+        if (product?.price_type) {
+          subscriptionTier = product.price_type;
         } else {
-          subscriptionTier = "Premium";
+          // Fallback: determine by amount
+          const price = await stripe.prices.retrieve(priceId);
+          const amount = price.unit_amount || 0;
+          const interval = price.recurring?.interval;
+          
+          if (amount >= 1500) {
+            subscriptionTier = interval === "year" ? "pro_yearly" : "pro_monthly";
+          } else if (amount > 0) {
+            subscriptionTier = interval === "year" ? "premium_yearly" : "premium_monthly";
+          } else {
+            subscriptionTier = "premium_monthly";
+          }
         }
-        logStep("Determined subscription tier", { priceId, amount, subscriptionTier, isTrial });
-      } else {
-        logStep("No active subscription found in Stripe for any customer");
+        
+        logStep("Determined tier", { priceId, subscriptionTier, isTrial });
       }
 
-      // Update database with verified Stripe data
       await supabaseClient.from("subscribers").upsert({
         email: user.email,
         user_id: user.id,
@@ -206,7 +174,6 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
 
-      logStep("Updated database with verified Stripe info", { subscribed: hasActiveSub, subscriptionTier });
       return new Response(JSON.stringify({
         subscribed: hasActiveSub,
         subscription_tier: subscriptionTier,
@@ -221,23 +188,19 @@ serve(async (req) => {
       });
     }
 
-    // No Stripe key - fall back to local database (should not happen in production)
-    logStep("No Stripe key configured, falling back to local database");
-    const { data: localSubscriber, error: localError } = await supabaseClient
+    // No Stripe key fallback
+    const { data: localSubscriber } = await supabaseClient
       .from("subscribers")
       .select("*")
       .eq("email", user.email)
       .maybeSingle();
 
-    if (localSubscriber && !localError) {
-      // Update user_id if it's not set
+    if (localSubscriber) {
       if (!localSubscriber.user_id) {
         await supabaseClient.from("subscribers").update({
-          user_id: user.id,
-          updated_at: new Date().toISOString(),
+          user_id: user.id, updated_at: new Date().toISOString(),
         }).eq("email", user.email);
       }
-
       return new Response(JSON.stringify({
         subscribed: localSubscriber.subscribed,
         subscription_tier: localSubscriber.subscription_tier,
@@ -252,15 +215,9 @@ serve(async (req) => {
       });
     }
 
-    // No local record and no Stripe key
     return new Response(JSON.stringify({ 
-      subscribed: false,
-      subscription_tier: null,
-      subscription_end: null,
-      is_trial: false,
-      trial_start: null,
-      trial_end: null,
-      verified_with_stripe: false
+      subscribed: false, subscription_tier: null, subscription_end: null,
+      is_trial: false, trial_start: null, trial_end: null, verified_with_stripe: false
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
@@ -268,7 +225,7 @@ serve(async (req) => {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in check-subscription", { message: errorMessage });
+    logStep("ERROR", { message: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

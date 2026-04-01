@@ -458,7 +458,7 @@ const LawnAnalysis = () => {
           <>
             {/* Mobile: compact */}
             <div className="md:hidden mb-3 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2">
-              <p className="text-xs font-semibold text-amber-800">🎉 1 kostenlose Analyse · Danach: 9,99€/Monat</p>
+              <p className="text-xs font-semibold text-amber-800">🎉 1 kostenlose Analyse · Danach: ab 9,99€/Monat</p>
             </div>
             {/* Desktop: full */}
             <Card className="hidden md:block mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-lg">
@@ -469,7 +469,7 @@ const LawnAnalysis = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-amber-800">🎉 1 kostenlose Analyse verfügbar</p>
-                    <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: 9,99€/Monat — jetzt kostenlos starten!</p>
+                    <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: ab 9,99€/Monat — jetzt kostenlos starten!</p>
                   </div>
                 </div>
               </CardContent>

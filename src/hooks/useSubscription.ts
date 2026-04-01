@@ -12,6 +12,16 @@ interface SubscriptionData {
   trial_end?: string | null;
 }
 
+export type PlanTier = 'free' | 'premium' | 'pro';
+
+function getTierFromSubscription(tier: string | null): PlanTier {
+  if (!tier) return 'free';
+  const t = tier.toLowerCase();
+  if (t.startsWith('pro')) return 'pro';
+  if (t.startsWith('premium') || t === 'monthly' || t === 'yearly') return 'premium';
+  return 'free';
+}
+
 export const useSubscription = () => {
   const [subscription, setSubscription] = useState<SubscriptionData>({
     subscribed: false,
@@ -29,11 +39,9 @@ export const useSubscription = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔍 Starting subscription check...');
 
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        console.log('❌ No user found - free tier');
         setSubscription({
           subscribed: false,
           subscription_tier: 'free',
@@ -45,17 +53,10 @@ export const useSubscription = () => {
         return;
       }
 
-      console.log('👤 User found:', { id: user.user.id, email: user.user.email });
-
       const { data, error } = await supabase.functions.invoke('check-subscription');
-      console.log('📡 Subscription check response:', { data, error });
 
-      if (error) {
-        console.error('❌ Subscription check error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log('✅ Setting subscription data:', data);
       setSubscription(data || {
         subscribed: false,
         subscription_tier: 'free',
@@ -67,8 +68,6 @@ export const useSubscription = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to check subscription';
       setError(errorMessage);
-      console.error('💥 Error checking subscription:', err);
-      // Set to free tier on error
       setSubscription({
         subscribed: false,
         subscription_tier: 'free',
@@ -82,7 +81,7 @@ export const useSubscription = () => {
     }
   };
 
-  const createCheckout = async (priceType: 'monthly' | 'yearly' = 'monthly', guestEmail?: string) => {
+  const createCheckout = async (priceType: string, guestEmail?: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceType, email: guestEmail }
@@ -90,13 +89,12 @@ export const useSubscription = () => {
 
       if (error) throw error;
 
-      // Open Stripe checkout in a new tab
       window.open(data.url, '_blank');
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast({
-        title: "Error",
-        description: "Failed to start checkout process",
+        title: "Fehler",
+        description: "Checkout konnte nicht gestartet werden",
         variant: "destructive",
       });
     }
@@ -114,7 +112,6 @@ export const useSubscription = () => {
       if (error) throw error;
 
       if (data?.url) {
-        // Use location.href instead of window.open to avoid popup blockers
         window.location.href = data.url;
       } else {
         throw new Error('Keine Portal-URL erhalten');
@@ -132,7 +129,6 @@ export const useSubscription = () => {
   useEffect(() => {
     checkSubscription();
 
-    // Listen for auth changes
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         checkSubscription();
@@ -144,14 +140,9 @@ export const useSubscription = () => {
     };
   }, []);
 
-  const tier = subscription.subscription_tier?.toLowerCase();
-  const isPremium = subscription.subscribed && (tier === 'monthly' || tier === 'yearly' || tier === 'premium');
-  console.log('🎯 isPremium calculation:', { 
-    subscribed: subscription.subscribed, 
-    tier: subscription.subscription_tier, 
-    tierLower: tier,
-    isPremium 
-  });
+  const planTier = getTierFromSubscription(subscription.subscription_tier);
+  const isPremium = subscription.subscribed && (planTier === 'premium' || planTier === 'pro');
+  const isPro = subscription.subscribed && planTier === 'pro';
 
   return {
     subscription,
@@ -161,6 +152,8 @@ export const useSubscription = () => {
     createCheckout,
     openCustomerPortal,
     isPremium,
+    isPro,
+    planTier,
     isSubscribed: subscription.subscribed,
     subscriptionTier: subscription.subscription_tier,
     subscriptionEnd: subscription.subscription_end,

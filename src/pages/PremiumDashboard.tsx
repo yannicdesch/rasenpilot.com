@@ -19,7 +19,7 @@ import RankUpCelebration from '@/components/RankUpCelebration';
 import { getRank, getNextRank, getPointsToNextRank, getMotivation, getMilestone, getAchievementBadges, Rank } from '@/lib/rankSystem';
 
 const PremiumDashboard = () => {
-  const { subscription, isPremium, loading: subLoading, openCustomerPortal } = useSubscription();
+  const { subscription, isPremium, isPro, planTier, loading: subLoading, openCustomerPortal } = useSubscription();
   const { user } = useProfileData();
   const { latestAnalysis, lawnProfile, dashboardStats, loading: dataLoading } = useDashboardData();
   const navigate = useNavigate();
@@ -115,6 +115,12 @@ const PremiumDashboard = () => {
     { icon: Headphones, title: "Priority Support", description: "Bevorzugter Kundensupport und persönliche Beratung", action: "Support kontaktieren", link: "/kontakt", borderColor: "border-l-red-500" },
   ];
 
+  const proExtraFeatures = isPro ? [
+    { icon: Leaf, title: "3 Rasenflächen verwalten", description: "Verwalte bis zu 3 verschiedene Rasenflächen", action: "Flächen verwalten", link: "/account-settings", borderColor: "border-l-amber-500", badge: "Pro" },
+    { icon: Award, title: "Experten-Check buchen", description: "Persönlicher Experten-Check für deinen Rasen", action: "Check buchen", link: "/kontakt", borderColor: "border-l-amber-500", badge: "Pro" },
+    { icon: Headphones, title: "Prioritäts-Support (2h)", description: "Garantierte Antwort innerhalb von 2 Stunden", action: "Support kontaktieren", link: "/kontakt", borderColor: "border-l-amber-500", badge: "Pro" },
+  ] : [];
+
   const quickActions = [
     { title: "Neue Rasenanalyse", description: "Analysiere deinen Rasen mit KI", link: "/lawn-analysis", icon: Camera, primary: true },
     { title: "Wetter-Ratgeber", description: "Aktuelle Pflegetipps", link: "/weather-advice", icon: CloudRain, badgeText: "Aktuell: 18°C ☀️" },
@@ -144,13 +150,17 @@ const PremiumDashboard = () => {
           <div className="relative max-w-6xl mx-auto px-4 py-10">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
               <div className="flex-1 space-y-4">
-                {/* Premium badge */}
+                {/* Plan badge */}
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-400/20 rounded-xl">
-                    <Crown className="h-7 w-7 text-yellow-300" />
+                  <div className={`p-2 rounded-xl ${isPro ? 'bg-amber-400/20' : 'bg-yellow-400/20'}`}>
+                    <Crown className={`h-7 w-7 ${isPro ? 'text-amber-300' : 'text-yellow-300'}`} />
                   </div>
-                  <Badge className="bg-yellow-400/20 text-yellow-200 border-yellow-400/30 text-xs uppercase tracking-wider">
-                    {subscription.subscription_tier || 'Premium'} Mitglied
+                  <Badge className={`text-xs uppercase tracking-wider ${
+                    isPro 
+                      ? 'bg-amber-400/20 text-amber-200 border-amber-400/30'
+                      : 'bg-yellow-400/20 text-yellow-200 border-yellow-400/30'
+                  }`}>
+                    {isPro ? '⭐ Pro Mitglied' : 'Premium Mitglied'}
                   </Badge>
                 </div>
 
@@ -479,7 +489,7 @@ const PremiumDashboard = () => {
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4" style={{ fontFamily: "'DM Serif Display', serif" }}>Deine Werkzeuge</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {premiumFeatures.map((feature, index) => (
+              {[...premiumFeatures, ...proExtraFeatures].map((feature, index) => (
                 <Card key={index} className={`h-full border-0 shadow-sm hover:shadow-md transition-all border-l-4 ${feature.borderColor}`}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
@@ -487,7 +497,11 @@ const PremiumDashboard = () => {
                         <feature.icon className="h-5 w-5 text-gray-600" />
                         <CardTitle className="text-base">{feature.title}</CardTitle>
                       </div>
-                      {feature.badge && <Badge className="bg-green-100 text-green-700 border-0 text-xs">{feature.badge}</Badge>}
+                      {feature.badge && (
+                        <Badge className={`border-0 text-xs ${feature.badge === 'Pro' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                          {feature.badge}
+                        </Badge>
+                      )}
                     </div>
                     <CardDescription className="text-sm">{feature.description}</CardDescription>
                   </CardHeader>
