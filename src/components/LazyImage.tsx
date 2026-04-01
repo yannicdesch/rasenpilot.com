@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 
 interface LazyImageProps {
   src: string;
@@ -12,6 +12,24 @@ interface LazyImageProps {
   onError?: () => void;
   loading?: 'lazy' | 'eager';
 }
+
+// Deterministic color from string for consistent fallback gradients
+const hashString = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+};
+
+const GRADIENT_PAIRS = [
+  ['#22c55e', '#16a34a'], // green
+  ['#059669', '#047857'], // emerald
+  ['#10b981', '#0d9488'], // teal-green
+  ['#15803d', '#166534'], // dark green
+  ['#4ade80', '#22c55e'], // light green
+];
 
 const LazyImage: React.FC<LazyImageProps> = ({
   src,
@@ -59,21 +77,40 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   const shouldLoad = loading === 'eager' || isVisible;
 
+  // Fallback: nice gradient with lawn icon based on alt text
+  if (isError || !src || src === '/placeholder.svg') {
+    const hash = hashString(alt || 'lawn');
+    const pair = GRADIENT_PAIRS[hash % GRADIENT_PAIRS.length];
+    return (
+      <div
+        className={`relative flex items-center justify-center ${className}`}
+        style={{
+          width: width || '100%',
+          height: height || '200px',
+          background: `linear-gradient(135deg, ${pair[0]}, ${pair[1]})`,
+        }}
+      >
+        <div className="flex flex-col items-center gap-2 text-white/80">
+          <Leaf className="h-10 w-10" />
+          <span className="text-xs font-medium px-3 text-center line-clamp-2 max-w-[200px]">{alt}</span>
+        </div>
+        {/* Hidden img to trigger observer */}
+        <img ref={imgRef} className="hidden" alt={alt} />
+      </div>
+    );
+  }
+
   return (
     <div className={`relative ${className}`} style={{ width, height }}>
-      {/* Placeholder/Loading state */}
-      {!isLoaded && !isError && (
-        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center rounded">
-          <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
-        </div>
-      )}
-      
-      {/* Error state */}
-      {isError && (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center rounded border border-gray-300">
-          <div className="text-center text-gray-500">
-            <div className="text-sm">Bild konnte nicht geladen werden</div>
-          </div>
+      {/* Loading state */}
+      {!isLoaded && (
+        <div
+          className="absolute inset-0 flex items-center justify-center rounded"
+          style={{
+            background: `linear-gradient(135deg, ${GRADIENT_PAIRS[hashString(alt || '') % GRADIENT_PAIRS.length][0]}40, ${GRADIENT_PAIRS[hashString(alt || '') % GRADIENT_PAIRS.length][1]}40)`,
+          }}
+        >
+          <Leaf className="h-8 w-8 text-primary/40 animate-pulse" />
         </div>
       )}
       
