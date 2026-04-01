@@ -331,7 +331,7 @@ export default function Subscription() {
                   onClick={() => navigate('/lawn-analysis')}
                   disabled={isCurrentPlan('free')}
                 >
-                  {isCurrentPlan('free') ? '✓ Aktueller Plan' : 'Kostenlos starten'}
+                  {isCurrentPlan('free') ? '✓ Aktueller Plan' : 'Kostenlos starten →'}
                 </Button>
               </CardFooter>
             </Card>
