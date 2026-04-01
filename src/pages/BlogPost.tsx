@@ -284,15 +284,17 @@ const BlogPost = () => {
   // Generate proper URLs from link text
   const generateLinkFromText = (text: string): string => {
     const linkMap: { [key: string]: string } = {
-      'rasen richtig kalken': '/blog/rasen-kalken-wann-und-wie-anleitung-tipps-fuer-die-perfekte-rasenpflege',
-      'bodenverdichtung lösen': '/blog/bodenverdichtung-loesen-rasen-belueften',
-      'rasen düngen': '/blog/rasen-duengen-wann-wie-oft',
-      'moos im rasen entfernen': '/blog/moos-im-rasen-entfernen-praktische-tipps-fuer-eine-gesunde-rasenflaeche',
-      'rasenpflege frühjahr': '/blog/rasenpflege-im-fruehjahr-der-komplette-guide',
-      'vertikutieren anleitung': '/blog/rasen-vertikutieren-schritt-fuer-schritt',
-      'rasenmähen tipps': '/blog/rasen-maehen-tipps-profis',
-      'unkraut bekämpfen': '/blog/unkraut-im-rasen-bekaempfen-ohne-chemie',
-      'kostenlose rasenanalyse': '/lawn-analysis'
+      'rasen richtig kalken': '/blog/moos-im-rasen-bekaempfen-natuerliche-methoden',
+      'bodenverdichtung lösen': '/blog/rasen-vertikutieren-leitfaden-hobbygaertner',
+      'rasen düngen': '/blog/rasen-duengen-fruehling-zeitpunkt-technik',
+      'moos im rasen entfernen': '/blog/moos-im-rasen-bekaempfen-natuerliche-methoden',
+      'rasenpflege frühjahr': '/blog/rasenrenovierung-fruehling-anleitung',
+      'vertikutieren anleitung': '/blog/rasen-vertikutieren-leitfaden-hobbygaertner',
+      'rasenmähen tipps': '/blog/perfekter-maehrhythmus-rasen',
+      'unkraut bekämpfen': '/blog/rasenprobleme-diagnostizieren-krankheiten-behandlung',
+      'kostenlose rasenanalyse': '/lawn-analysis',
+      'bewässerung': '/blog/rasenbewaesserung-hochsommer-hitze',
+      'rasendünger': '/blog/beste-rasenduenger-test-organisch-mineralisch',
     };
 
     // Find matching link by text similarity
