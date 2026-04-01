@@ -85,6 +85,10 @@ const AdminPanel = () => {
               <TabsContent value="settings">
                 <SiteSettings />
               </TabsContent>
+
+              <TabsContent value="orphaned">
+                <OrphanedSubscriptions />
+              </TabsContent>
             </Tabs>
           </div>
         </div>
