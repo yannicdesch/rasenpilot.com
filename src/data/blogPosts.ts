@@ -57,7 +57,9 @@ Wichtig: Dünge nur auf trockenem Rasen, aber wähle einen Tag, an dem Regen vor
 
 Nach der ersten Frühjahrsdüngung sollte etwa 6-8 Wochen später eine zweite, leichtere Düngergabe erfolgen, um das Wachstum kontinuierlich zu unterstützen.
 
-Mit der richtigen Frühjahrsdüngung legst du den Grundstein für einen dichten, widerstandsfähigen und leuchtend grünen Rasen, der den Sommer gut übersteht.`,
+Mit der richtigen Frühjahrsdüngung legst du den Grundstein für einen dichten, widerstandsfähigen und leuchtend grünen Rasen, der den Sommer gut übersteht.
+
+Übrigens: Der optimale Düngezeitpunkt variiert je nach Region. Lies unsere speziellen Tipps für <a href="/rasenpflege-oesterreich">Rasenpflege in Österreich</a> und <a href="/rasenpflege-schweiz">Rasenpflege in der Schweiz</a>.`,
     excerpt: "Wann ist der richtige Zeitpunkt für die Frühjahrsdüngung? Lerne die optimale Technik und den besten Zeitpunkt für eine effektive Rasendüngung im Frühjahr.",
     date: "10.05.2025",
     author: "Julia Schmidt",
@@ -86,7 +88,9 @@ Bei extremer Hitze (über 30°C) kann eine leichte Bewässerung am Nachmittag zu
 
 Ein weiterer Tipp: Stelle den Rasenmäher während Hitzeperioden etwa 1-2 cm höher ein. Längere Halme beschatten den Boden besser und reduzieren die Verdunstung.
 
-Mit diesen Bewässerungsstrategien übersteht dein Rasen auch den heißesten Sommer ohne braune Stellen.`,
+Mit diesen Bewässerungsstrategien übersteht dein Rasen auch den heißesten Sommer ohne braune Stellen.
+
+Die Bewässerungsempfehlungen können je nach Region variieren — informiere dich auch über <a href="/rasenpflege-oesterreich">Rasenpflege in Österreich</a> oder <a href="/rasenpflege-schweiz">Rasenpflege in der Schweiz</a> für länderspezifische Tipps.`,
     excerpt: "Erfahre, wie du deinen Rasen auch bei extremer Hitze gesund halten können. Mit der richtigen Bewässerungsstrategie bleibt dein Grün auch im Hochsommer frisch.",
     date: "05.05.2025",
     author: "Michael Weber",
@@ -164,7 +168,9 @@ Das Herbstprogramm für deinen Rasen sollte folgende Schritte umfassen:
 
 Vermeide ab November jegliche Düngung, da die Gräser diese nicht mehr verwerten können und überschüssiger Stickstoff ins Grundwasser ausgewaschen werden könnte.
 
-Bei Befolgung dieses Herbstprogramms wird dein Rasen gestärkt in die kalte Jahreszeit gehen und im Frühjahr schneller wieder in sattem Grün erstrahlen.`,
+Bei Befolgung dieses Herbstprogramms wird dein Rasen gestärkt in die kalte Jahreszeit gehen und im Frühjahr schneller wieder in sattem Grün erstrahlen.
+
+Die Herbstpflege unterscheidet sich je nach Klimazone. Lies unsere regionalen Ratgeber für <a href="/rasenpflege-oesterreich">Rasenpflege in Österreich</a> und <a href="/rasenpflege-schweiz">Rasenpflege in der Schweiz</a>.`,
     excerpt: "Der Herbst ist die wichtigste Zeit für die Rasenvorbereitung auf den Winter. Erfahre, welche Maßnahmen jetzt für einen gesunden Rasen im nächsten Frühjahr entscheidend sind.",
     date: "25.04.2025",
     author: "Thomas Müller",
