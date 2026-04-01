@@ -2,4 +2,10 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /settings
-Sitemap: https://www.rasenpilot.com/sitemap.xml
+Disallow: /admin-panel
+Disallow: /admin-login
+Disallow: /account-settings
+Disallow: /debug-analysis
+Disallow: /connection-test
+
+Sitemap: https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/generate-sitemap
