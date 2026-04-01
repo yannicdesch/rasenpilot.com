@@ -88,7 +88,9 @@ Bei extremer Hitze (über 30°C) kann eine leichte Bewässerung am Nachmittag zu
 
 Ein weiterer Tipp: Stelle den Rasenmäher während Hitzeperioden etwa 1-2 cm höher ein. Längere Halme beschatten den Boden besser und reduzieren die Verdunstung.
 
-Mit diesen Bewässerungsstrategien übersteht dein Rasen auch den heißesten Sommer ohne braune Stellen.`,
+Mit diesen Bewässerungsstrategien übersteht dein Rasen auch den heißesten Sommer ohne braune Stellen.
+
+Die Bewässerungsempfehlungen können je nach Region variieren — informiere dich auch über <a href="/rasenpflege-oesterreich">Rasenpflege in Österreich</a> oder <a href="/rasenpflege-schweiz">Rasenpflege in der Schweiz</a> für länderspezifische Tipps.`,
     excerpt: "Erfahre, wie du deinen Rasen auch bei extremer Hitze gesund halten können. Mit der richtigen Bewässerungsstrategie bleibt dein Grün auch im Hochsommer frisch.",
     date: "05.05.2025",
     author: "Michael Weber",
