@@ -91,9 +91,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({
         {showTitle && (
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-green-800 mb-4">{title}</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Über 1.000 zufriedene Rasenbesitzer vertrauen bereits auf Rasenpilot
-            </p>
+            <p className="text-sm text-gray-500 italic">* Beispiel-Erfahrungen</p>
           </div>
         )}
         
