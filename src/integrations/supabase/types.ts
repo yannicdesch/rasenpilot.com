@@ -903,6 +903,7 @@ export type Database = {
         Returns: Json
       }
       get_current_user_id: { Args: never; Returns: string }
+      get_today_analysis_count: { Args: never; Returns: number }
       handle_analysis_completion: {
         Args: {
           p_density_note: string
