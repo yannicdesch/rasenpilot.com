@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, ArrowLeft, Calendar, User, Leaf } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar, User, Leaf, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import MainNavigation from '@/components/MainNavigation';
 import LazyImage from '@/components/LazyImage';
+import { Input } from '@/components/ui/input';
 
 interface BlogPost {
   id: number;
@@ -17,84 +18,83 @@ interface BlogPost {
   slug: string;
   read_time: number;
   image?: string;
+  category?: string;
 }
+
+const POSTS_PER_PAGE = 12;
 
 const BlogOverview = () => {
   const navigate = useNavigate();
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    const fetchBlogPosts = async () => {
-      try {
-        const { data, error } = await supabase
+  const fetchBlogPosts = useCallback(async (pageNum: number, append = false) => {
+    try {
+      if (append) setLoadingMore(true);
+
+      const from = pageNum * POSTS_PER_PAGE;
+      const to = from + POSTS_PER_PAGE - 1;
+
+      // Get total count on first load
+      if (pageNum === 0) {
+        const { count } = await supabase
           .from('blog_posts')
-          .select('*')
-          .eq('status', 'published')
-          .order('created_at', { ascending: false });
-
-        if (!isMounted) return;
-
-        if (error) {
-          console.error('Error fetching blog posts:', error);
-        } else {
-          setBlogPosts(data || []);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        if (isMounted) setLoading(false);
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'published');
+        setTotalCount(count || 0);
       }
-    };
 
-    fetchBlogPosts();
-    
-    return () => {
-      isMounted = false;
-    };
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, excerpt, author, date, slug, read_time, image, category')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (error) {
+        console.error('Error fetching blog posts:', error);
+        return;
+      }
+
+      if (append) {
+        setBlogPosts(prev => [...prev, ...(data || [])]);
+      } else {
+        setBlogPosts(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
   }, []);
 
-  const defaultPosts = [
-    {
-      id: 1,
-      title: "Rasen nachsäen: Die ultimative Anleitung für perfekte Ergebnisse",
-      excerpt: "Einen perfekten Rasen nachzusäen zu pflegen erfordert Wissen und Konsequenz. Diese professionellen Tipps helfen Ihnen dabei.",
-      author: "Yannic",
-      date: "2025-07-15",
-      slug: "rasen-nachsaen-ultimate-anleitung",
-      read_time: 6,
-      image: undefined
-    },
-    {
-      id: 2,
-      title: "Profi-Tipps für Rasenkrankheiten erkennen - So machst du es richtig",
-      excerpt: "Rasenkrankheiten erkennen ist ein wichtiger Bestandteil jedes schönen Gartens. Hier sind die besten Methoden, um optimale...",
-      author: "Lars",
-      date: "2025-07-15",
-      slug: "rasenkrankheiten-erkennen-profi-tipps",
-      read_time: 6,
-      image: undefined
-    },
-    {
-      id: 3,
-      title: "Profi Rasenpflege: Die ultimative Anleitung für perfekte Ergebnisse",
-      excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfährst du die wichtigsten...",
-      author: "Lars",
-      date: "2025-07-15",
-      slug: "profi-rasenpflege-ultimative-anleitung",
-      read_time: 6,
-      image: undefined
-    }
-  ];
+  useEffect(() => {
+    fetchBlogPosts(0);
+  }, [fetchBlogPosts]);
 
-  const posts = blogPosts.length > 0 ? blogPosts : defaultPosts;
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchBlogPosts(nextPage, true);
+  };
+
+  const hasMore = blogPosts.length < totalCount;
+
+  const filteredPosts = searchQuery.trim()
+    ? blogPosts.filter(p =>
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.excerpt && p.excerpt.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : blogPosts;
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Header */}
         <header className="border-b bg-card">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex items-center justify-between">
@@ -102,17 +102,13 @@ const BlogOverview = () => {
                 <Leaf className="h-8 w-8 text-primary" />
                 <span className="text-2xl font-bold text-foreground">Rasenpilot</span>
               </div>
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/')}
-              >
+              <Button variant="outline" onClick={() => navigate('/')}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Startseite
               </Button>
             </nav>
           </div>
         </header>
-        
         <div className="container mx-auto px-4 py-8 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -163,6 +159,9 @@ const BlogOverview = () => {
             <p className="text-xl md:text-2xl text-green-50 max-w-2xl mx-auto leading-relaxed font-light">
               Entdecke professionelle Tipps und bewährte Methoden für einen gesunden, grünen Traumrasen
             </p>
+            <p className="mt-4 text-green-100/80 text-sm">
+              {totalCount} Artikel verfügbar
+            </p>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
@@ -170,18 +169,32 @@ const BlogOverview = () => {
 
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
+          
+          {/* Search */}
+          <div className="mb-10 max-w-md mx-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Artikel durchsuchen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
           {/* Featured Post */}
-          {posts.length > 0 && (
+          {filteredPosts.length > 0 && (
             <article 
               className="group relative mb-16 overflow-hidden rounded-2xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer"
-              onClick={() => navigate(`/blog/${posts[0].slug}`)}
+              onClick={() => navigate(`/blog/${filteredPosts[0].slug}`)}
             >
               <div className="grid md:grid-cols-2 gap-0">
                 <div className="relative h-80 md:h-auto bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
-                {posts[0].image ? (
+                  {filteredPosts[0].image ? (
                     <LazyImage 
-                      src={posts[0].image} 
-                      alt={posts[0].title}
+                      src={filteredPosts[0].image} 
+                      alt={filteredPosts[0].title}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : (
@@ -197,25 +210,21 @@ const BlogOverview = () => {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-1">
                       <User className="h-4 w-4" />
-                      <span>{posts[0].author}</span>
+                      <span>{filteredPosts[0].author}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      <span>{new Date(posts[0].date).toLocaleDateString('de-DE')}</span>
+                      <span>{new Date(filteredPosts[0].date).toLocaleDateString('de-DE')}</span>
                     </div>
-                    <span>{posts[0].read_time} Min.</span>
+                    <span>{filteredPosts[0].read_time} Min.</span>
                   </div>
                   <h2 className="font-playfair text-3xl md:text-4xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">
-                    {posts[0].title}
+                    {filteredPosts[0].title}
                   </h2>
                   <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-                    {posts[0].excerpt}
+                    {filteredPosts[0].excerpt}
                   </p>
-                  <Button 
-                    variant="default" 
-                    size="lg"
-                    className="w-fit"
-                  >
+                  <Button variant="default" size="lg" className="w-fit">
                     Artikel lesen
                     <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -226,14 +235,14 @@ const BlogOverview = () => {
 
           {/* Blog Posts Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.slice(1).map((post, index) => (
+            {filteredPosts.slice(1).map((post, index) => (
               <article 
                 key={post.id} 
                 className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
                 onClick={() => navigate(`/blog/${post.slug}`)}
               >
                 <div className="relative h-48 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
-                {post.image ? (
+                  {post.image ? (
                     <LazyImage 
                       src={post.image} 
                       alt={post.title}
@@ -271,6 +280,30 @@ const BlogOverview = () => {
               </article>
             ))}
           </div>
+
+          {/* Load More */}
+          {hasMore && !searchQuery && (
+            <div className="text-center mt-12">
+              <p className="text-sm text-muted-foreground mb-4">
+                {blogPosts.length} von {totalCount} Artikeln angezeigt
+              </p>
+              <Button 
+                onClick={handleLoadMore} 
+                variant="outline" 
+                size="lg"
+                disabled={loadingMore}
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
+                    Laden...
+                  </>
+                ) : (
+                  <>Weitere Artikel laden</>
+                )}
+              </Button>
+            </div>
+          )}
 
           {/* CTA Section */}
           <div className="mt-20 relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 text-white p-12 md:p-16 shadow-2xl">
