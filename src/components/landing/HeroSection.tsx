@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Star, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle, Star, Sparkles, Leaf, Droplets, Sun } from 'lucide-react';
 
 const HeroSection = () => {
   const navigate = useNavigate();
