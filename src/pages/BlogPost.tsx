@@ -418,6 +418,27 @@ const BlogPost = () => {
                   prose-ul:space-y-2 prose-ol:space-y-2">
                   {renderContent()}
                 </div>
+
+                {/* CTA Section */}
+                <div className="mt-10 p-6 md:p-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                  <div className="text-center">
+                    <p className="text-2xl mb-2">🌱</p>
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      Tipp: Lass deine KI den Zustand deines Rasens analysieren!
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Foto hochladen → Sofort wissen was dein Rasen braucht.
+                    </p>
+                    <Button 
+                      onClick={() => navigate('/lawn-analysis')}
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    >
+                      Jetzt kostenlos analysieren
+                      <ArrowRight className="h-5 w-5 ml-2" />
+                    </Button>
+                  </div>
+                </div>
                 
                 {/* Keywords Section */}
                 <div className="border-t border-green-100 mt-10 pt-8">
