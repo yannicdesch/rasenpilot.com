@@ -80,7 +80,7 @@ const BlogOverview = () => {
     {
       id: 3,
       title: "Profi Rasenpflege: Die ultimative Anleitung für perfekte Ergebnisse",
-      excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfahren Sie die wichtigsten...",
+      excerpt: "Ein gesunder Profi Rasenpflege ist der Traum vieler Gartenbesitzer. In diesem Blogbeitrag erfährst du die wichtigsten...",
       author: "Lars",
       date: "2025-07-15",
       slug: "profi-rasenpflege-ultimative-anleitung",
