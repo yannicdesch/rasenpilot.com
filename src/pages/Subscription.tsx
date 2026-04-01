@@ -15,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import MainNavigation from '@/components/MainNavigation';
 import { TrialBadge } from '@/components/subscription/TrialBadge';
 import { useToast } from '@/hooks/use-toast';
-import { trackMetaViewContent, trackMetaInitiateCheckout, trackMetaStartTrial } from '@/lib/analytics/metaPixel';
+import { trackMetaViewContent, trackMetaInitiateCheckout, trackMetaStartTrial, trackMetaLead } from '@/lib/analytics/metaPixel';
 
 export default function Subscription() {
   const [user, setUser] = useState<any>(null);
@@ -47,6 +47,9 @@ export default function Subscription() {
     
     // Track StartTrial event (7-day free trial)
     trackMetaStartTrial(0, 'EUR', `Premium Trial ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
+    
+    // Track Lead event for Meta Pixel
+    trackMetaLead(`Premium ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
     
     try {
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
