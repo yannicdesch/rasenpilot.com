@@ -56,7 +56,16 @@ const Auth = () => {
       }
 
       toast.success('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail.');
-      navigate('/');
+      
+      // Redirect to intended destination (e.g. subscription with plan)
+      const redirect = searchParams.get('redirect');
+      const plan = searchParams.get('plan');
+      if (redirect) {
+        const url = plan ? `${redirect}?plan=${plan}` : redirect;
+        navigate(url);
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
     } finally {
