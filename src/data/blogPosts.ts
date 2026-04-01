@@ -459,7 +459,8 @@ Mit dieser gründlichen Frühjahrsrenovierung legen Sie den Grundstein für eine
     readTime: 7,
     keywords: ["Rasenrenovierung", "Rasen ausbessern", "Nachsaat", "Frühjahrsrasen", "kahle Stellen", "Rasenpflege Frühling", "Rasen erneuern"],
     metaTitle: "Rasenrenovierung im Frühjahr: Anleitung für neuen Rasen | Rasenpilot",
-    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahren Sie, wie Sie kahle Stellen beseitigen und Ihren Rasen wieder in einen prächtigen Zustand versetzen."
+    metaDescription: "Schritt-für-Schritt-Anleitung zur Rasenrenovierung im Frühjahr. Erfahren Sie, wie Sie kahle Stellen beseitigen und Ihren Rasen wieder in einen prächtigen Zustand versetzen.",
+    image: "https://images.unsplash.com/photo-1501004318855-b43cf7c5d87a?w=800&h=400&fit=crop"
   }
 ];
 
