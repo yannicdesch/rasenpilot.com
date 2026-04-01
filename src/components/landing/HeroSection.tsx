@@ -23,7 +23,7 @@ const HeroSection = () => {
           </h1>
 
           <p className="text-sm sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            Foto hochladen — KI sagt dir was fehlt
+            Foto hochladen — Die Rasen KI sagt dir was fehlt
           </p>
 
           {/* Before/After */}
