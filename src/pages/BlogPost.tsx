@@ -310,8 +310,8 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50">
       <SEO 
-        title={post.metaTitle || post.title}
-        description={post.metaDescription || post.excerpt}
+        title={`${post.title} | Rasenpilot`}
+        description={post.metaDescription?.substring(0, 160) || post.excerpt?.substring(0, 160)}
         canonical={`https://www.rasenpilot.com/blog/${post.slug}`}
         keywords={post.keywords.join(',')}
         type="article"
@@ -321,8 +321,11 @@ const BlogPost = () => {
         structuredData={{
           type: 'Article',
           data: {
+            "@context": "https://schema.org",
+            "@type": "Article",
             headline: post.title,
-            description: post.excerpt,
+            description: post.metaDescription || post.excerpt,
+            image: post.image || "https://www.rasenpilot.com/og-image.png",
             author: {
               "@type": "Person",
               name: post.author
@@ -332,18 +335,19 @@ const BlogPost = () => {
               name: "Rasenpilot",
               logo: {
                 "@type": "ImageObject",
-                url: "https://rasenpilot.com/logo.png"
+                url: "https://www.rasenpilot.com/logo.png"
               }
             },
             datePublished: new Date(post.date).toISOString(),
             dateModified: new Date(post.date).toISOString(),
             mainEntityOfPage: {
               "@type": "WebPage",
-              "@id": `https://rasenpilot.com/blog/${post.slug}`
+              "@id": `https://www.rasenpilot.com/blog/${post.slug}`
             },
             keywords: post.keywords.join(', '),
             articleSection: getCategoryName(post.category),
-            inLanguage: "de-DE"
+            inLanguage: "de-DE",
+            wordCount: post.content?.split(/\s+/).length || 0
           }
         }}
       />
