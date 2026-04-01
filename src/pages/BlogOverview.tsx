@@ -69,7 +69,7 @@ const BlogOverview = () => {
     },
     {
       id: 2,
-      title: "Profi-Tipps für Rasenkrankheiten erkennen - So machen Sie es richtig",
+      title: "Profi-Tipps für Rasenkrankheiten erkennen - So machst du es richtig",
       excerpt: "Rasenkrankheiten erkennen ist ein wichtiger Bestandteil jedes schönen Gartens. Hier sind die besten Methoden, um optimale...",
       author: "Lars",
       date: "2025-07-15",
