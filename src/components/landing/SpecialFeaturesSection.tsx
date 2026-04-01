@@ -26,8 +26,8 @@ const SpecialFeaturesSection = () => {
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground font-poppins">Bilderkennungs-KI</h3>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                Unsere proprietäre KI-Technologie erkennt über 200 Rasenprobleme, Krankheiten und Nährstoffmängel 
-                mit einer Genauigkeit von 94,7% - schneller und präziser als jeder Experte.
+                Unsere GPT-4o Vision KI-Technologie erkennt über 200 Rasenprobleme, Krankheiten und Nährstoffmängel 
+                — schneller und präziser als herkömmliche Methoden.
               </p>
             </CardContent>
           </Card>
