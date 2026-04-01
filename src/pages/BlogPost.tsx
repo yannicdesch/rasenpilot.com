@@ -486,7 +486,7 @@ const BlogPost = () => {
             <div className="bg-gradient-to-br from-green-600 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
               <h3 className="text-xl font-bold mb-3">🎯 Kostenlose Rasenanalyse</h3>
               <p className="text-green-100 mb-4 text-sm">
-                Lassen Sie Ihren Rasen von unserer KI analysieren und erhalten Sie einen personalisierten Pflegeplan.
+                Lass deinen Rasen von unserer KI analysieren und erhalte einen personalisierten Pflegeplan.
               </p>
               <Button 
                 onClick={() => navigate('/lawn-analysis')} 
