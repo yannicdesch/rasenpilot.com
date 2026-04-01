@@ -12,8 +12,8 @@ const JourneyTracker = lazy(() => import("@/components/JourneyTracker"));
 const ConversionTracker = lazy(() => import("@/components/ConversionTracker"));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
 
-// Critical path — loaded eagerly
-import Index from "./pages/Index";
+// All pages lazy-loaded for optimal code splitting
+const Index = lazy(() => import("./pages/Index"));
 import NotFound from "./pages/NotFound";
 
 // Lazy-loaded pages

@@ -11,15 +11,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=DM+Serif+Display&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"></noscript>
-    <!-- Facebook Pixel Code -->
+    <!-- Facebook Pixel Code — deferred to not block FCP/LCP -->
     <script>
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-    (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init','9151671744940732');
-    fbq('track','PageView');
+    window.fbq||(window.fbq=function(){(window.fbq.q=window.fbq.q||[]).push(arguments)});
+    window.fbq.q=window.fbq.q||[];window._fbq=window.fbq;
+    window.addEventListener('load',function(){
+      var t=document.createElement('script');t.async=true;t.defer=true;
+      t.src='https://connect.facebook.net/en_US/fbevents.js';
+      document.head.appendChild(t);
+      t.onload=function(){fbq('init','9151671744940732');fbq('track','PageView');}
+    });
     </script>
     <!-- End Facebook Pixel Code -->
     <title>Rasenpilot</title>
