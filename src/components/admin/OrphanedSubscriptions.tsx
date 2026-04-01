@@ -25,6 +25,7 @@ const OrphanedSubscriptions = () => {
   const [loading, setLoading] = useState(true);
   const [linkingId, setLinkingId] = useState<string | null>(null);
   const [linkEmail, setLinkEmail] = useState('');
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
 
   const fetchOrphaned = async () => {
     setLoading(true);
