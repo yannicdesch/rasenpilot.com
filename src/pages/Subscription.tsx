@@ -36,6 +36,11 @@ export default function Subscription() {
     
     // Track Meta Pixel ViewContent event
     trackMetaViewContent('Premium Subscription', 'subscription', 9.99, 'EUR');
+    // Direct fbq call as fallback
+    if (window.fbq) {
+      window.fbq('track', 'ViewContent', { content_name: 'Premium Subscription Page' });
+      console.log('[Meta Pixel] ViewContent fired directly');
+    }
   }, []);
 
   const handleSubscribe = async (priceType: 'monthly' | 'yearly') => {
