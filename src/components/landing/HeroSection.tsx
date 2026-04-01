@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Rocket, Star, Trophy, Shield, CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import lawnBefore from '@/assets/lawn-before.jpg';
 import lawnAfter from '@/assets/lawn-after.jpg';
 
@@ -27,11 +28,23 @@ const AnimatedCounter = ({ target, suffix = '' }: { target: number; suffix?: str
   return <span>{count.toLocaleString('de-DE')}{suffix}</span>;
 };
 
-const getDailyAnalysisCount = (): number => {
-  const today = new Date();
-  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const hash = ((seed * 9301 + 49297) % 233280);
-  return 28 + (hash % 45); // Range: 28–72, different each day
+const useTodayAnalysisCount = (): number => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const fetchCount = async () => {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count: total, error } = await supabase
+        .from('analyses')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', todayStart.toISOString());
+      if (!error && total !== null) {
+        setCount(total);
+      }
+    };
+    fetchCount();
+  }, []);
+  return count;
 };
 
 const HeroSection = () => {
