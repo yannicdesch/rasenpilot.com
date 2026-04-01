@@ -56,6 +56,10 @@ const AdminPanel = () => {
                   <Settings className="h-4 w-4" />
                   <span className="hidden sm:inline">Einstellungen</span>
                 </TabsTrigger>
+                <TabsTrigger value="orphaned" className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="hidden sm:inline">Verwaist</span>
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="analytics">
