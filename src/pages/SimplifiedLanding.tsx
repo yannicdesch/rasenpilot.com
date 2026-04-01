@@ -316,8 +316,10 @@ const SimplifiedLanding = () => {
         {/* Social Proof */}
         <section className="py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-12">
-              Zufriedene Kunden vertrauen auf Rasenpilot
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Das sagen unsere Nutzer
+            </h2>
+            <p className="text-sm text-gray-500 italic mb-8">* Beispiel-Erfahrungen</p>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-lg">
