@@ -83,8 +83,22 @@ function fixContent(content: string): string {
     [/\bHalten Sie\b/gi, "Halte"],
     [/\bÜberprüfen Sie\b/gi, "Überprüfe"],
     [/\bInformieren Sie sich\b/gi, "Informiere dich"],
-    // Remaining standalone Sie (only mid-sentence, lowercase context likely formal)
-    [/\b([a-zäöü]) Sie\b/g, "$1 du"],
+    // Remaining standalone Sie patterns  
+    [/([a-zäöüß,]) Sie ([a-zäöü])/g, "$1 du $2"],
+    [/([a-zäöüß,]) Sie\b/g, "$1 du"],
+    [/ Sie sich /g, " dich "],
+    [/ Sie den /g, " du den "],
+    [/ Sie die /g, " du die "],
+    [/ Sie das /g, " du das "],
+    [/ Sie eine /g, " du eine "],
+    [/ Sie einen /g, " du einen "],
+    [/ Sie einem /g, " du einem "],
+    // Heading patterns: "So [verb]en Sie" → "So [verb]st du"
+    [/(\w+)en Sie\b/g, (match: string, verb: string) => {
+      // Common verb transformations
+      const stem = verb.toLowerCase();
+      return `${verb}st du`;
+    }],
   ];
 
   for (const [pattern, replacement] of replacements) {
