@@ -114,6 +114,16 @@ export default function Subscription() {
   }, []);
 
   const handleSubscribe = async (priceType: string) => {
+    // Require login before checkout
+    if (!user) {
+      toast({
+        title: "Registrierung erforderlich",
+        description: "Bitte erstelle zuerst ein kostenloses Konto, damit du dein Abo nutzen kannst.",
+      });
+      navigate(`/auth?redirect=/subscription&plan=${priceType}`);
+      return;
+    }
+
     setLoadingPlan(priceType);
     
     const valueMap: Record<string, number> = {
