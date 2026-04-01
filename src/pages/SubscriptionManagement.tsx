@@ -65,7 +65,7 @@ const SubscriptionManagement = () => {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   {isPremium && <Crown className="h-5 w-5 text-primary" />}
-                  {isPremium ? "Premium Abonnement" : "Kostenloser Plan"}
+                  {isPremium ? (isPro ? "⭐ Pro Abonnement" : "Premium Abonnement") : "Kostenloser Plan"}
                 </CardTitle>
                 <CardDescription>
                   {isPremium ? "Ihr aktuelles Premium-Abonnement" : "Upgraden Sie zu Premium für volle Funktionen"}
