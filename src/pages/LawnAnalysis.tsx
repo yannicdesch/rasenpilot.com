@@ -1,7 +1,7 @@
 
 import React, { useCallback, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, FlaskConical, MapPin, Crown } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, Camera, Star, Lock, Shield, MapPin, Crown, Zap, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
