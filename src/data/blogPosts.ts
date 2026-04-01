@@ -403,7 +403,8 @@ Bei allen Pflanzenschutzmaßnahmen gilt: Immer das mildeste wirksame Mittel wäh
     readTime: 8,
     keywords: ["Rasenkrankheiten", "Schneeschimmel", "Dollarfleck", "Rotspitzigkeit", "Pilzbefall Rasen", "Rasenprobleme", "Rasenbehandlung"],
     metaTitle: "Rasenprobleme diagnostizieren: Krankheiten und ihre Behandlung | Rasenpilot",
-    metaDescription: "Lernen Sie, häufige Rasenkrankheiten zu erkennen und zu behandeln. Unsere Anleitung hilft Ihnen bei der Diagnose von Schneeschimmel, Dollarfleck und anderen Rasenproblemen."
+    metaDescription: "Lernen Sie, häufige Rasenkrankheiten zu erkennen und zu behandeln. Unsere Anleitung hilft Ihnen bei der Diagnose von Schneeschimmel, Dollarfleck und anderen Rasenproblemen.",
+    image: "https://images.unsplash.com/photo-1595228034885-a7246e18b4b6?w=800&h=400&fit=crop"
   },
   {
     id: 10,
