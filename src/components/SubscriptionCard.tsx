@@ -35,8 +35,9 @@ export function SubscriptionCard({
   const handleSubscribe = async () => {
     setLoading(true);
     try {
-      console.log('Starting checkout with:', { priceType, email: userEmail });
+      console.log('Starting checkout with:', { priceType });
       
+      // Go directly to Stripe — no auth required
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
         method: 'POST',
         headers: {
@@ -46,7 +47,7 @@ export function SubscriptionCard({
         },
         body: JSON.stringify({
           priceType,
-          email: userEmail
+          email: userEmail || undefined
         })
       });
 
