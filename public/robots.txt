@@ -2,16 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /settings
-Disallow: /admin-panel
-Disallow: /admin-login
-Disallow: /account-settings
-Disallow: /auth
-Disallow: /reset-password
-Disallow: /blog/new
-Disallow: /blog/edit/
-Disallow: /chat
-Disallow: /premium-dashboard
-Disallow: /care-calendar
-Disallow: /analysis-history
-
 Sitemap: https://www.rasenpilot.com/sitemap.xml
