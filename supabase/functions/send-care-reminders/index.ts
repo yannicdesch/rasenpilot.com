@@ -33,7 +33,12 @@ serve(async (req) => {
     const usersWithReminders = (profiles || []).filter((p: any) => {
       try {
         const prefs = typeof p.email_preferences === 'string' ? JSON.parse(p.email_preferences) : p.email_preferences;
-        return prefs?.reminders === true;
+        if (!prefs?.reminders) return false;
+        
+        // Respect frequency setting: weekly = only on Mondays
+        if (prefs.frequency === 'weekly' && today.getDay() !== 1) return false;
+        
+        return true;
       } catch { return false; }
     });
 
