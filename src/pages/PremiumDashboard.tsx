@@ -489,7 +489,7 @@ const PremiumDashboard = () => {
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4" style={{ fontFamily: "'DM Serif Display', serif" }}>Deine Werkzeuge</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {premiumFeatures.map((feature, index) => (
+              {[...premiumFeatures, ...proExtraFeatures].map((feature, index) => (
                 <Card key={index} className={`h-full border-0 shadow-sm hover:shadow-md transition-all border-l-4 ${feature.borderColor}`}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
@@ -497,7 +497,11 @@ const PremiumDashboard = () => {
                         <feature.icon className="h-5 w-5 text-gray-600" />
                         <CardTitle className="text-base">{feature.title}</CardTitle>
                       </div>
-                      {feature.badge && <Badge className="bg-green-100 text-green-700 border-0 text-xs">{feature.badge}</Badge>}
+                      {feature.badge && (
+                        <Badge className={`border-0 text-xs ${feature.badge === 'Pro' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                          {feature.badge}
+                        </Badge>
+                      )}
                     </div>
                     <CardDescription className="text-sm">{feature.description}</CardDescription>
                   </CardHeader>
