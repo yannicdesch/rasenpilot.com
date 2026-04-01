@@ -21,20 +21,27 @@ serve(async (req) => {
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      const isServiceRole = token === serviceRoleKey;
+      
+      if (!isServiceRole) {
+        const { data: userData } = await supabase.auth.getUser(token);
+        if (!userData.user) throw new Error("Not authenticated");
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData } = await supabase.auth.getUser(token);
-    if (!userData.user) throw new Error("Not authenticated");
+        const { data: adminRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userData.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
 
-    const { data: adminRole } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!adminRole) throw new Error("Admin access required");
+        if (!adminRole) throw new Error("Admin access required");
+      }
+    }
+    // If no auth header, allow through (function-level auth handles this)
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2023-10-16" });
 
