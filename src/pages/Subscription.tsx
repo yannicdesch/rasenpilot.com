@@ -55,6 +55,11 @@ export default function Subscription() {
     
     // Track Lead event for Meta Pixel
     trackMetaLead(`Premium ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
+    // Direct fbq call as fallback
+    if (window.fbq) {
+      window.fbq('track', 'Lead');
+      console.log('[Meta Pixel] Lead fired directly');
+    }
     
     try {
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
