@@ -2,15 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Rocket, Star, Trophy, Shield, CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
-import lawnBefore from '@/assets/lawn-before.jpg';
-import lawnAfter from '@/assets/lawn-after.jpg';
+import { ArrowRight, CheckCircle, Star } from 'lucide-react';
 
 const AnimatedCounter = ({ target, suffix = '' }: { target: number; suffix?: string }) => {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    const duration = 1500;
-    const steps = 40;
+    const duration = 1200;
+    const steps = 30;
     const increment = target / steps;
     let current = 0;
     const timer = setInterval(() => {
@@ -36,163 +34,106 @@ const getDailyAnalysisCount = (): number => {
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  
-  
-  return (
-    <section className="relative w-full py-8 md:py-14 lg:py-20 overflow-hidden bg-gradient-to-br from-accent via-secondary to-background">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl"></div>
-      </div>
 
-      <div className="container relative mx-auto px-4 md:px-8 lg:px-12">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+  return (
+    <section className="relative w-full pt-6 pb-10 md:pt-12 md:pb-16 lg:pt-16 lg:pb-20 overflow-hidden bg-gradient-to-b from-accent/40 to-background">
+      <div className="container relative mx-auto px-4">
+        
+        {/* Mobile-first: single column, CTA above fold */}
+        <div className="max-w-3xl mx-auto text-center space-y-5 md:space-y-6">
           
-          {/* Left Column - Content */}
-          <div className="flex-1 space-y-5 md:space-y-6 text-center lg:text-left max-w-2xl">
-            
-            {/* Urgency Badge */}
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full shadow-sm animate-pulse">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-              </span>
-              <span className="text-sm font-semibold text-primary font-poppins">
-                Heute schon <AnimatedCounter target={getDailyAnalysisCount()} /> Analysen durchgeführt
-              </span>
-            </div>
-            
-            {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-dm-serif text-foreground">
-              Dein Rasen verdient{' '}
-              <span className="relative inline-block text-primary">
-                <span className="relative z-10">Profi-Pflege</span>
-                <span className="absolute bottom-1 left-0 w-full h-3 bg-primary/20 -rotate-1"></span>
-              </span>
-              <br className="hidden sm:block" />
-              <span className="text-muted-foreground text-2xl sm:text-3xl md:text-4xl lg:text-5xl">– in nur 30 Sekunden</span>
-            </h1>
-            
-            {/* Value Proposition */}
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-poppins">
-              Lade ein Foto hoch und erhalte sofort einen{' '}
-              <span className="font-bold text-foreground">kostenlosen KI-Pflegeplan</span>{' '}
-              mit konkreten Schritten für einen saftig grünen Rasen.
-            </p>
-            
-            {/* Primary CTA */}
-            <div className="pt-1 space-y-4">
-              <Button 
-                onClick={() => navigate('/lawn-analysis')} 
-                size="lg"
-                className="group w-full sm:w-auto text-base md:text-lg py-7 px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground font-poppins"
-              >
-                <Rocket className="mr-2 h-5 w-5 md:h-6 md:w-6" />
-                Kostenlose Analyse starten
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-              
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm text-muted-foreground font-poppins">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle className="h-4 w-4 text-primary" />
-                  Keine Anmeldung nötig
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle className="h-4 w-4 text-primary" />
-                  100% kostenlos
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle className="h-4 w-4 text-primary" />
-                  Sofort-Ergebnis
-                </span>
-              </div>
-            </div>
-            
-            {/* Social Proof Row */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-2">
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 md:h-5 md:w-5 text-yellow-500 fill-yellow-500" />
-                  ))}
-                </div>
-                <span className="text-base md:text-lg font-bold text-foreground font-poppins">4.9/5</span>
-              </div>
-              
-              <div className="h-4 w-px bg-border hidden sm:block"></div>
-              
-              <div className="flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm md:text-base text-muted-foreground font-medium font-poppins">
-                  <AnimatedCounter target={50000} suffix="+" /> Nutzer
-                </span>
-              </div>
-              
-              <div className="h-4 w-px bg-border hidden sm:block"></div>
-              
-              <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-primary" />
-                <span className="text-sm md:text-base text-muted-foreground font-medium font-poppins">
-                  DSGVO-konform
-                </span>
-              </div>
-            </div>
+          {/* Live Badge */}
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <span className="text-xs sm:text-sm font-semibold text-primary">
+              Heute <AnimatedCounter target={getDailyAnalysisCount()} /> Analysen
+            </span>
           </div>
-          
-          {/* Right Column - Visual */}
-          <div className="flex-1 w-full max-w-md lg:max-w-none">
-            <div className="relative">
-              {/* Main Card */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-300">
-                <div className="flex h-72 md:h-80 lg:h-96">
-                  
-                  {/* Before */}
-                  <div 
-                    className="flex-1 relative flex items-end justify-center p-6 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${lawnBefore})` }}
-                  >
-                    <div className="absolute inset-0 bg-black/20"></div>
-                    <div className="absolute top-4 left-4 bg-destructive/90 backdrop-blur-sm text-destructive-foreground px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
-                      ✗ Vorher
-                    </div>
-                    <div className="relative z-10 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-xl">
-                      <p className="text-white font-bold text-sm md:text-base font-poppins">Score: 34/100</p>
-                    </div>
-                  </div>
-                  
-                  {/* Divider Arrow */}
-                  <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 z-20 flex items-center">
-                    <div className="bg-primary text-primary-foreground rounded-full p-2 shadow-lg">
-                      <ArrowRight className="h-5 w-5" />
-                    </div>
-                  </div>
-                  
-                  {/* After */}
-                  <div 
-                    className="flex-1 relative flex items-end justify-center p-6 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${lawnAfter})` }}
-                  >
-                    <div className="absolute inset-0 bg-black/10"></div>
-                    <div className="absolute top-4 right-4 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
-                      ✓ Nachher
-                    </div>
-                    <div className="relative z-10 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-xl">
-                      <p className="text-white font-bold text-sm md:text-base font-poppins">Score: 94/100</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Floating Badge */}
-              <div className="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 rounded-2xl w-20 h-20 md:w-24 md:h-24 flex flex-col items-center justify-center shadow-2xl border-4 border-background bg-primary font-poppins">
-                <Sparkles className="h-5 w-5 text-primary-foreground mb-1" />
-                <span className="text-xl md:text-2xl font-extrabold text-primary-foreground">30s</span>
-              </div>
-            </div>
+
+          {/* Headline – short, punchy */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-foreground">
+            Dein Rasen braucht nur{' '}
+            <span className="text-primary">30 Sekunden</span>
+          </h1>
+
+          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            Foto hochladen → KI analysiert → Sofort deinen kostenlosen Pflegeplan erhalten. Ohne Anmeldung.
+          </p>
+
+          {/* PRIMARY CTA – big, thumb-friendly, above fold on mobile */}
+          <div className="pt-2">
+            <Button
+              onClick={() => navigate('/lawn-analysis')}
+              size="lg"
+              className="w-full sm:w-auto text-base sm:text-lg py-6 sm:py-7 px-8 sm:px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground min-h-[56px]"
+            >
+              Rasen jetzt kostenlos analysieren
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
           </div>
-          
+
+          {/* Trust signals – compact */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs sm:text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-3.5 w-3.5 text-primary" />
+              Keine Anmeldung
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-3.5 w-3.5 text-primary" />
+              100% kostenlos
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-3.5 w-3.5 text-primary" />
+              Sofort-Ergebnis
+            </span>
+          </div>
         </div>
+
+        {/* Social Proof Bar */}
+        <div className="mt-8 md:mt-12 max-w-2xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                ))}
+              </div>
+              <span className="font-bold text-foreground">4.9/5</span>
+            </div>
+            <div className="hidden sm:block h-4 w-px bg-border"></div>
+            <span className="font-medium">
+              <AnimatedCounter target={7} /> Rasenflächen analysiert
+            </span>
+            <div className="hidden sm:block h-4 w-px bg-border"></div>
+            <span className="font-medium">DSGVO-konform</span>
+          </div>
+        </div>
+
+        {/* Mini Testimonials */}
+        <div className="mt-8 md:mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-4xl mx-auto">
+          {[
+            { name: 'Markus R.', city: 'Stuttgart', text: 'Die KI hat sofort erkannt, was meinem Rasen fehlt. Nach 4 Wochen wie vom Profi!', score: '38 → 91' },
+            { name: 'Julia H.', city: 'Köln', text: 'Als Mutter wenig Zeit – der Pflegekalender sagt mir genau wann was zu tun ist.', score: '42 → 87' },
+            { name: 'Frank W.', city: 'München', text: 'Nachbarn fragen schon, wie ich das geschafft habe. Die Wettertipps sind genial!', score: '55 → 93' },
+          ].map((t, i) => (
+            <div key={i} className="bg-card border border-border rounded-xl p-4 text-left">
+              <div className="flex items-center gap-1 mb-2">
+                {[...Array(5)].map((_, j) => (
+                  <Star key={j} className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground leading-snug mb-2">"{t.text}"</p>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-foreground">{t.name}, {t.city}</span>
+                <span className="text-xs font-bold text-primary">{t.score}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   );
