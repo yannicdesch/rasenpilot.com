@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { priceType, email } = await req.json();
+    const { priceType, email, userId } = await req.json();
     console.log(`[CREATE-CHECKOUT] Request data:`, { priceType, email: email || 'not provided' });
     
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
