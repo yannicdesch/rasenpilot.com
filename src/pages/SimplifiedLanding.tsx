@@ -114,7 +114,7 @@ const SimplifiedLanding = () => {
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-1">
                   <BarChart3 className="h-5 w-5 text-purple-600" />
                 </div>
-                <span className="text-xs font-medium text-gray-700">98,3%</span>
+                <span className="text-xs font-medium text-gray-700">GPT-4o</span>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-1">
