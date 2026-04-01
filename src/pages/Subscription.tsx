@@ -408,7 +408,7 @@ export default function Subscription() {
             <Card className="relative bg-gradient-to-br from-amber-50 to-white border-2 border-amber-400 shadow-lg">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-5 py-1.5 text-sm font-bold shadow-lg">
-                  ⭐ FÜR PERFEKTIONISTEN
+                  ⭐ MAXIMALE KONTROLLE
                 </Badge>
               </div>
 
