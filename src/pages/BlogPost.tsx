@@ -529,7 +529,7 @@ const BlogPost = () => {
         {relatedPosts.length > 0 && (
           <section className="mt-16">
             <h2 className="text-3xl font-bold text-green-800 mb-8 text-center">
-              Das könnte Sie auch interessieren
+              Das könnte dich auch interessieren
             </h2>
             <RelatedPosts posts={relatedPosts} />
           </section>
