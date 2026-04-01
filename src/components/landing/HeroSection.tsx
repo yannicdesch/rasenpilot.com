@@ -66,6 +66,43 @@ const HeroSection = () => {
           </div>
         </div>
 
+        {/* Demo Analysis Result Mockup */}
+        <div className="mt-8 md:mt-10 max-w-md mx-auto">
+          <p className="text-xs text-muted-foreground text-center mb-2 italic">So sieht dein Ergebnis aus — Beispiel</p>
+          <div className="bg-card border border-border rounded-2xl p-5 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs text-muted-foreground">Dein Rasen-Score</p>
+                <p className="text-4xl font-bold text-primary">72</p>
+              </div>
+              <div className="bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full">
+                <span className="text-xs font-semibold text-primary">🌿 Rasen-Profi</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="text-center bg-accent/30 rounded-lg p-2">
+                <Leaf className="h-4 w-4 text-primary mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Dichte</p>
+                <p className="text-xs font-semibold text-foreground">Gut</p>
+              </div>
+              <div className="text-center bg-accent/30 rounded-lg p-2">
+                <Droplets className="h-4 w-4 text-blue-500 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Feuchtigkeit</p>
+                <p className="text-xs font-semibold text-foreground">Mittel</p>
+              </div>
+              <div className="text-center bg-accent/30 rounded-lg p-2">
+                <Sun className="h-4 w-4 text-yellow-500 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Licht</p>
+                <p className="text-xs font-semibold text-foreground">Optimal</p>
+              </div>
+            </div>
+            <div className="bg-primary/5 rounded-lg p-3">
+              <p className="text-xs font-semibold text-foreground mb-1">📋 Empfehlung:</p>
+              <p className="text-xs text-muted-foreground">Düngen mit Langzeitdünger + Bewässerung morgens optimieren</p>
+            </div>
+          </div>
+        </div>
+
         {/* Trust Bar */}
         <div className="mt-8 md:mt-12 max-w-2xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-muted-foreground">
