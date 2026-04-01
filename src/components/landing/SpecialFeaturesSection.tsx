@@ -26,8 +26,8 @@ const SpecialFeaturesSection = () => {
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground font-poppins">Bilderkennungs-KI</h3>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                Unsere proprietäre KI-Technologie erkennt über 200 Rasenprobleme, Krankheiten und Nährstoffmängel 
-                mit einer Genauigkeit von 94,7% - schneller und präziser als jeder Experte.
+                Unsere GPT-4o Vision KI-Technologie erkennt über 200 Rasenprobleme, Krankheiten und Nährstoffmängel 
+                — schneller und präziser als herkömmliche Methoden.
               </p>
             </CardContent>
           </Card>
@@ -50,10 +50,10 @@ const SpecialFeaturesSection = () => {
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Trophy className="h-8 w-8 text-primary-foreground" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground font-poppins">Garantierte Erfolge</h3>
+              <h3 className="text-2xl font-bold mb-4 text-foreground font-poppins">Sichtbare Ergebnisse</h3>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                98,3% unserer Nutzer berichten von sichtbaren Verbesserungen innerhalb von 14 Tagen. 
-                Wissenschaftlich getestet und von Gartenexperten bestätigt.
+                Nutzer berichten von sichtbaren Verbesserungen innerhalb weniger Wochen. 
+                Basierend auf bewährten Gartenbau-Prinzipien.
               </p>
             </CardContent>
           </Card>
@@ -68,12 +68,12 @@ const SpecialFeaturesSection = () => {
               <div className="text-muted-foreground font-medium">Parameter analysiert</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-primary mb-2 font-poppins">94,7%</div>
-              <div className="text-muted-foreground font-medium">KI-Genauigkeit</div>
+              <div className="text-5xl font-bold text-primary mb-2 font-poppins">GPT-4o</div>
+              <div className="text-muted-foreground font-medium">Vision KI</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-primary mb-2 font-poppins">98,3%</div>
-              <div className="text-muted-foreground font-medium">Erfolgsrate</div>
+              <div className="text-5xl font-bold text-primary mb-2 font-poppins">30s</div>
+              <div className="text-muted-foreground font-medium">Analyse-Zeit</div>
             </div>
             <div className="text-center">
               <div className="text-5xl font-bold text-primary mb-2 font-poppins">24/7</div>

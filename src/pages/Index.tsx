@@ -431,11 +431,12 @@ const Index = () => {
               Niemand will den schlechtesten Rasen in der Nachbarschaft — oder? 😄
             </p>
 
-            {/* Mock Leaderboard Preview */}
+            {/* Demo Leaderboard Preview */}
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-lg mx-auto mb-8">
+              <div className="text-xs text-muted-foreground mb-1 text-center italic">So sieht dein Ranking aus — Beispiel</div>
               <div className="text-sm font-semibold text-muted-foreground mb-4 flex items-center justify-center gap-2">
                 <MapPin className="h-4 w-4" />
-                Beispiel: PLZ 69190
+                Demo: PLZ 69190
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-200">
@@ -573,9 +574,9 @@ const Index = () => {
                 Deutschlands intelligentester KI-Rasenberater mit Krankheitserkennung, Pflegekalender und Gamification.
               </p>
               <div className="flex items-center gap-4 text-sm text-gray-400">
-                <span>⭐ 4.9/5 Sterne</span>
+                <span>🇩🇪 Made in Germany</span>
                 <span>•</span>
-                <span>50.000+ Nutzer</span>
+                <span>DSGVO-konform</span>
               </div>
             </div>
 

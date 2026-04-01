@@ -17,7 +17,7 @@ const SimplifiedLanding = () => {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": "KI-Rasenpflegeplan von Rasenpilot",
-    "description": "Professionelle KI-gestützte Rasenanalyse mit wissenschaftlich fundierter Bewertung. Kostenlose Analyse mit 98,3% Genauigkeit.",
+    "description": "Professionelle KI-gestützte Rasenanalyse mit GPT-4o Vision Technologie. Kostenlose Analyse in 30 Sekunden.",
     "brand": {
       "@type": "Brand",
       "name": "Rasenpilot"
@@ -41,7 +41,7 @@ const SimplifiedLanding = () => {
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.8",
-      "reviewCount": "1247",
+      "reviewCount": "7",
       "bestRating": "5",
       "worstRating": "1"
     }
@@ -51,10 +51,10 @@ const SimplifiedLanding = () => {
     <>
       <Helmet>
         <title>Rasenpilot - KI-Rasenanalyse | Professioneller Pflegeplan in 60 Sekunden</title>
-        <meta name="description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. Laden Sie ein Foto hoch und erhalten Sie sofort eine professionelle Rasendiagnose mit personalisierten Pflegeplänen. Präzise AI-Analyse mit 98,3% Genauigkeit." />
+        <meta name="description" content="KI-Rasenanalyse mit GPT-4o Vision Technologie. Laden Sie ein Foto hoch und erhalten Sie sofort eine professionelle Rasendiagnose mit personalisierten Pflegeplänen." />
         <meta name="keywords" content="KI Rasenanalyse Deutschland, Rasen Gesundheitscheck, Rasenpflege Plan, Rasen Krankheiten erkennen, Rasen Dünger Empfehlung, Rasenpilot, Rasen AI Analyse, Garten Beratung, Rasen Probleme lösen" />
         <meta property="og:title" content="Rasenpilot - KI-Rasenanalyse | Professioneller Pflegeplan in 60 Sekunden" />
-        <meta property="og:description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. 98,3% Genauigkeit." />
+        <meta property="og:description" content="KI-Rasenanalyse mit GPT-4o Vision Technologie. Kostenlos in 30 Sekunden." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://rasenpilot.com" />
         <meta property="og:image" content="https://rasenpilot.com/og-image.jpg" />
@@ -94,7 +94,7 @@ const SimplifiedLanding = () => {
             
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
               KI analysiert über <strong>200 Rasenparameter</strong> in Sekunden. 
-              <strong>98,3% Genauigkeit</strong> - wissenschaftlich validiert.
+              Powered by <strong>GPT-4o Vision</strong> Technologie.
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
@@ -114,7 +114,7 @@ const SimplifiedLanding = () => {
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-1">
                   <BarChart3 className="h-5 w-5 text-purple-600" />
                 </div>
-                <span className="text-xs font-medium text-gray-700">98,3%</span>
+                <span className="text-xs font-medium text-gray-700">GPT-4o</span>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-1">
@@ -164,7 +164,7 @@ const SimplifiedLanding = () => {
                   <h3 className="text-xl font-semibold mb-3">Wissenschaftlich validiert</h3>
                   <p className="text-gray-600 leading-relaxed">
                     Entwickelt in Zusammenarbeit mit Agrarwissenschaftlern und Rasenexperten. 
-                    <strong>98,3% Diagnosesicherheit</strong> in unabhängigen Tests bestätigt.
+                    Powered by <strong>GPT-4o Vision</strong> Technologie.
                   </p>
                 </CardContent>
               </Card>
@@ -276,7 +276,7 @@ const SimplifiedLanding = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-green-800 mb-2">Wissenschaftlich fundiert</h3>
-                  <p className="text-gray-600">Entwickelt mit Agrarwissenschaftlern - 98,3% Genauigkeit in unabhängigen Tests</p>
+                  <p className="text-gray-600">Entwickelt mit Agrarwissenschaftlern — GPT-4o Vision KI-Technologie</p>
                 </div>
               </div>
               
@@ -316,9 +316,10 @@ const SimplifiedLanding = () => {
         {/* Social Proof */}
         <section className="py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-12">
-              Zufriedene Kunden vertrauen auf Rasenpilot
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Das sagen unsere Nutzer
             </h2>
+            <p className="text-sm text-gray-500 italic mb-8">* Beispiel-Erfahrungen</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-lg">
                 <div className="flex justify-center mb-4">
@@ -382,7 +383,7 @@ const SimplifiedLanding = () => {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <p className="text-green-100 text-sm">
-              ✓ Keine Kreditkarte erforderlich ✓ 98,3% Genauigkeit ✓ Wissenschaftlich fundiert
+              ✓ Keine Kreditkarte erforderlich ✓ GPT-4o Vision KI ✓ Wissenschaftlich fundiert
             </p>
           </div>
         </section>

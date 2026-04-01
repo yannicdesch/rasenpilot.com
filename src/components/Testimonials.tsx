@@ -26,7 +26,6 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     text: "Endlich verstehe ich, warum mein Rasen immer braun wurde! Der KI-Plan hat mir geholfen, meinen Rasen in nur 6 Wochen zu retten. Die täglichen Aufgaben sind super einfach zu befolgen.",
     lawnType: "Zierrasen",
-    improvement: "Von 45 auf 89 Punkte"
   },
   {
     id: 2,
@@ -35,7 +34,6 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     text: "Als Anfängerin war ich völlig überfordert. Rasenpilot hat mir Schritt für Schritt erklärt, was zu tun ist. Mein Rasen sieht jetzt aus wie im Katalog!",
     lawnType: "Spielrasen",
-    improvement: "Von 32 auf 84 Punkte"
   },
   {
     id: 3,
@@ -44,7 +42,6 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     text: "Die Wetteranpassung ist genial! Ich bekomme immer genau die richtigen Tipps zur richtigen Zeit. Meine Nachbarn fragen schon, wie ich das gemacht habe.",
     lawnType: "Gebrauchsrasen",
-    improvement: "Von 67 auf 92 Punkte"
   },
   {
     id: 4,
@@ -53,7 +50,6 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     text: "Kostenlos und so professionell! Ich hätte nie gedacht, dass eine App mir so gut bei der Rasenpflege helfen kann. Absolute Empfehlung!",
     lawnType: "Zierrasen",
-    improvement: "Von 38 auf 86 Punkte"
   },
   {
     id: 5,
@@ -62,7 +58,6 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     text: "Der KI-Chat ist fantastisch. Egal welche Frage ich habe, ich bekomme sofort eine hilfreiche Antwort. Das spart mir viel Zeit und Geld für Beratung.",
     lawnType: "Gebrauchsrasen",
-    improvement: "Von 51 auf 88 Punkte"
   },
   {
     id: 6,
@@ -71,13 +66,12 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     text: "Die Foto-Analyse hat sofort erkannt, dass mein Rasen einen Pilzbefall hatte. Dank der schnellen Diagnose konnte ich rechtzeitig handeln. Vielen Dank!",
     lawnType: "Spielrasen",
-    improvement: "Von 29 auf 81 Punkte"
   }
 ];
 
 const Testimonials: React.FC<TestimonialsProps> = ({ 
   testimonials = defaultTestimonials,
-  title = "Das sagen unsere zufriedenen Nutzer",
+  title = "Das sagen unsere Nutzer",
   showTitle = true
 }) => {
   const renderStars = (rating: number) => {
@@ -97,9 +91,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({
         {showTitle && (
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-green-800 mb-4">{title}</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Über 1.000 zufriedene Rasenbesitzer vertrauen bereits auf Rasenpilot
-            </p>
+            <p className="text-sm text-gray-500 italic">* Beispiel-Erfahrungen</p>
           </div>
         )}
         
@@ -142,16 +134,8 @@ const Testimonials: React.FC<TestimonialsProps> = ({
           ))}
         </div>
         
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center space-x-4 bg-white rounded-full px-6 py-3 shadow-md">
-            <div className="flex items-center space-x-1">
-              {renderStars(5)}
-            </div>
-            <span className="text-gray-600">•</span>
-            <span className="font-semibold text-gray-900">4.9/5</span>
-            <span className="text-gray-600">•</span>
-            <span className="text-gray-600">1.000+ Bewertungen</span>
-          </div>
+        <div className="text-center mt-8">
+          <p className="text-xs text-gray-400 italic">* Beispiel-Erfahrungen — keine verifizierten Bewertungen</p>
         </div>
       </div>
     </section>

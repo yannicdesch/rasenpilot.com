@@ -10,6 +10,7 @@ import FreeVsPremiumSection from '@/components/landing/FreeVsPremiumSection';
 import CallToActionSection from '@/components/landing/CallToActionSection';
 import FooterSection from '@/components/landing/FooterSection';
 import StickyMobileCTA from '@/components/landing/StickyMobileCTA';
+import ExitIntentPopup from '@/components/ExitIntentPopup';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -52,7 +53,7 @@ const Landing = () => {
             aggregateRating: {
               "@type": "AggregateRating",
               ratingValue: "4.8",
-              reviewCount: "150",
+              reviewCount: "7",
               bestRating: "5",
               worstRating: "1"
             }
@@ -102,6 +103,7 @@ const Landing = () => {
       
       <FooterSection />
       <StickyMobileCTA />
+      <ExitIntentPopup />
     </div>
   );
 };

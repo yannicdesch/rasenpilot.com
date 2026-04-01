@@ -39,7 +39,7 @@ const FooterSection = () => {
               </div>
               <div>
                 <div className="text-sm font-semibold text-foreground font-poppins">KI-Experte</div>
-                <div className="text-xs text-muted-foreground">98,3% Erfolgsrate</div>
+                <div className="text-xs text-muted-foreground">GPT-4o Vision Technologie</div>
               </div>
             </div>
           </div>
@@ -81,9 +81,9 @@ const FooterSection = () => {
             <div className="flex items-center space-x-4 text-sm text-muted-foreground font-poppins">
               <span>🇩🇪 Made in Germany</span>
               <span>•</span>
-              <span>🏆 #1 Rasenpflege-App</span>
+              <span>🌱 KI-Rasenpflege</span>
               <span>•</span>
-              <span>⭐ 4.9/5 Bewertung</span>
+              <span>🔒 DSGVO-konform</span>
             </div>
           </div>
         </div>

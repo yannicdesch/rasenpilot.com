@@ -22,7 +22,7 @@ const FeaturesSection = () => {
               <Camera className="h-8 w-8 text-green-600 mr-4" />
               <div>
                 <h3 className="text-xl font-bold text-gray-900">KI-Bildanalyse der Zukunft</h3>
-                <p className="text-green-700 font-medium">94,7% Genauigkeit bei Problemerkennung</p>
+                <p className="text-green-700 font-medium">GPT-4o Vision KI-Technologie</p>
               </div>
             </div>
             <CardContent className="p-6">
@@ -51,7 +51,7 @@ const FeaturesSection = () => {
               <MessageSquare className="h-8 w-8 text-blue-600 mr-4" />
               <div>
                 <h3 className="text-xl font-bold text-gray-900">KI-Rasenexperte 24/7</h3>
-                <p className="text-blue-700 font-medium">Über 10.000 Expertenfragen beantwortet</p>
+                <p className="text-blue-700 font-medium">Sofortige Antworten rund um die Uhr</p>
               </div>
             </div>
             <CardContent className="p-6">
