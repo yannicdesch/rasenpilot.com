@@ -50,6 +50,7 @@ export {
   trackMetaPageView,
   trackMetaViewContent,
   trackMetaInitiateCheckout,
+  trackMetaStartTrial,
   trackMetaPurchase,
   trackMetaLead,
   trackMetaCompleteRegistration
