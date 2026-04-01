@@ -277,7 +277,8 @@ Die beste Düngerstrategie für die meisten Hobbygärtner: Starten Sie im Frühj
     readTime: 8,
     keywords: ["Rasendünger Test", "organischer Dünger", "mineralischer Dünger", "NPK-Werte", "Düngervergleich", "Rasenpflege", "Bodenverbesserung"],
     metaTitle: "Die besten Rasendünger im Test: Organisch vs. Mineralisch | Rasenpilot",
-    metaDescription: "Mineralisch oder organisch düngen? Unser umfassender Vergleichstest zeigt die besten Rasendünger und erklärt, welcher Typ für Ihren Garten am besten geeignet ist."
+    metaDescription: "Mineralisch oder organisch düngen? Unser umfassender Vergleichstest zeigt die besten Rasendünger und erklärt, welcher Typ für Ihren Garten am besten geeignet ist.",
+    image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=400&fit=crop"
   },
   {
     id: 8,
