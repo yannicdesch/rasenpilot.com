@@ -141,17 +141,9 @@ const SEO: React.FC<SEOProps> = ({
         <meta name="article:section" content="Garten & Rasenpflege" />
         <meta name="article:tag" content="Rasenpflege, KI-Beratung, Garten" />
         
-        {/* Preconnect to external domains for performance */}
-        <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="preconnect" href="https://analytics.ahrefs.com" />
+        {/* Preconnect to essential domains only */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* DNS prefetch for better performance */}
-        <link rel="dns-prefetch" href="//www.google-analytics.com" />
-        <link rel="dns-prefetch" href="//analytics.ahrefs.com" />
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
         
         {/* Analytics tracking scripts */}
         <script src="https://analytics.ahrefs.com/analytics.js" data-key="n1R8LVq5HUhTbJndxalVHQ" async></script>
