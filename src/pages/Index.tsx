@@ -329,7 +329,7 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Free Plan */}
             <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-3xl border-2 border-gray-200">
               <div className="mb-6">
@@ -418,6 +418,58 @@ const Index = () => {
               </Button>
               
               <p className="text-center text-white/80 text-sm mt-4">
+                ✓ Jederzeit kündbar • ✓ 30 Tage Geld-zurück-Garantie
+              </p>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="relative bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-3xl border-2 border-amber-300 shadow-lg">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-2 text-base shadow-lg">
+                  ⭐ Für Perfektionisten
+                </Badge>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-2 text-amber-900">Pro</h3>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-4xl font-bold text-amber-800">€19,99</span>
+                  <span className="text-lg text-amber-700">/Monat</span>
+                </div>
+                <div className="text-amber-700">7 Tage kostenlos testen</div>
+              </div>
+              
+              <ul className="space-y-4 mb-8 text-amber-900">
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Alles aus Premium</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">3 Rasenflächen verwalten</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Monatlicher Experten-Check</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Prioritäts-Support (2h)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <span className="font-medium">Early Access zu neuen Features</span>
+                </li>
+              </ul>
+              
+              <Button 
+                onClick={() => navigate('/subscription')}
+                className="w-full py-6 text-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold"
+              >
+                7 Tage kostenlos testen
+              </Button>
+              
+              <p className="text-center text-amber-700 text-sm mt-4">
                 ✓ Jederzeit kündbar • ✓ 30 Tage Geld-zurück-Garantie
               </p>
             </div>
