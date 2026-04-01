@@ -551,6 +551,32 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Country Links Section */}
+      <section className="py-12 bg-gradient-to-br from-gray-50 to-white">
+        <div className="container mx-auto px-4 max-w-4xl text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 font-dm-serif text-primary">
+            Rasenpflege in deinem Land
+          </h2>
+          <p className="text-muted-foreground mb-8">
+            Unsere KI-Rasenanalyse ist angepasst an regionale Klima- und Bodenverhältnisse.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            <Link to="/local/berlin" className="flex items-center justify-center gap-2 bg-white border border-border rounded-xl p-4 hover:shadow-lg hover:border-primary/30 transition-all">
+              <span className="text-lg">🇩🇪</span>
+              <span className="font-semibold text-foreground">Deutschland</span>
+            </Link>
+            <Link to="/rasenpflege-oesterreich" className="flex items-center justify-center gap-2 bg-white border border-border rounded-xl p-4 hover:shadow-lg hover:border-primary/30 transition-all">
+              <span className="text-lg">🇦🇹</span>
+              <span className="font-semibold text-foreground">Österreich</span>
+            </Link>
+            <Link to="/rasenpflege-schweiz" className="flex items-center justify-center gap-2 bg-white border border-border rounded-xl p-4 hover:shadow-lg hover:border-primary/30 transition-all">
+              <span className="text-lg">🇨🇭</span>
+              <span className="font-semibold text-foreground">Schweiz</span>
+            </Link>
+          </div>
+        </div>
+      </section>
       
       {/* Hidden SEO content for search engines */}
       {seoContent && (
