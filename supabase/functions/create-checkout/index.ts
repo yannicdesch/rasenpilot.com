@@ -67,10 +67,16 @@ serve(async (req) => {
       }
     }
 
-    // Map old price types to new ones for backwards compatibility
-    const mappedPriceType = priceType === 'monthly' ? 'premium_monthly' 
-                          : priceType === 'yearly' ? 'premium_yearly' 
-                          : priceType;
+    // Map between old and new price type names for backwards compatibility
+    const priceTypeMap: Record<string, string> = {
+      'monthly': 'premium_monthly',
+      'yearly': 'premium_yearly',
+      'premium_monthly': 'monthly',
+      'premium_yearly': 'yearly',
+      'pro_monthly': 'pro_monthly',
+      'pro_yearly': 'pro_yearly',
+    };
+    const mappedPriceType = priceTypeMap[priceType] || priceType;
 
     // Initialize Supabase client to fetch stored price IDs
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
