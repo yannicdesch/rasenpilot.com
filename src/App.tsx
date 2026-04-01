@@ -132,6 +132,9 @@ const App = () => {
             <Route path="/local/dortmund" element={<Dortmund />} />
             <Route path="/local/bonn" element={<Bonn />} />
             
+            {/* Redirects */}
+            <Route path="/garden-pilot" element={<Navigate to="/lawn-analysis" replace />} />
+            
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />

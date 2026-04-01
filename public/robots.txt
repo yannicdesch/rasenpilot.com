@@ -1,3 +1,4 @@
+# Rasenpilot (Garden Pilot) - KI-Rasenanalyse
 User-agent: *
 Allow: /
 Disallow: /dashboard

@@ -32,7 +32,7 @@ const Index = () => {
         title="Rasenpilot — KI-Rasenanalyse kostenlos | Lawn Score in 30 Sekunden"
         description="Lade ein Foto deines Rasens hoch und erhalte sofort deine persönliche KI-Diagnose mit Lawn Score, Pflegekalender und Produktempfehlungen. Kostenlos & ohne Anmeldung."
         canonical="/"
-        keywords="rasen analyse, rasen ki, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung"
+        keywords="rasen analyse, rasen ki, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung, garden pilot, garten pilot, rasenpilot"
         type="website"
         structuredData={{
           type: 'WebSite',
