@@ -161,7 +161,7 @@ const BlogOverview = () => {
               Rasenpflege<br />Ratgeber
             </h1>
             <p className="text-xl md:text-2xl text-green-50 max-w-2xl mx-auto leading-relaxed font-light">
-              Entdecken Sie professionelle Tipps und bewährte Methoden für einen gesunden, grünen Traumrasen
+              Entdecke professionelle Tipps und bewährte Methoden für einen gesunden, grünen Traumrasen
             </p>
           </div>
         </div>
