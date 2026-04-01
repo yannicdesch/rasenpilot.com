@@ -363,6 +363,18 @@ const PremiumDashboard = () => {
             </Card>
           </div>
 
+          {/* Fortschritt messen — Lawn Comparison */}
+          {latestAnalysis?.image_url && (
+            <div className="mb-8">
+              <LawnComparison
+                oldImageUrl={latestAnalysis.image_url}
+                oldScore={score}
+                oldDate={latestAnalysis.created_at}
+                grassType={lawnProfile?.grass_type}
+              />
+            </div>
+          )}
+
           {/* "So wirst du besser" Card */}
           {nextRank && (
             <Card className="mb-8 border-0 shadow-md bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border-l-4 border-l-blue-500">
