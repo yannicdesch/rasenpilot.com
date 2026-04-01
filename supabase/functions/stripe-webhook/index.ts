@@ -115,6 +115,25 @@ async function sendTrialWelcomeEmail(email: string, resendKey: string) {
   await sendEmail(email, resendKey, "Willkommen bei Rasenpilot Premium! 🌱", emailLayout(content, 'Deine 7-tägige Testphase hat begonnen'));
 }
 
+async function sendRegistrationPromptEmail(email: string, resendKey: string) {
+  const content = `
+    ${greeting('Rasenfreund')}
+    ${paragraph('Vielen Dank für dein Rasenpilot-Abo! 🎉 Deine <strong>7-tägige kostenlose Testphase</strong> ist aktiv.')}
+    ${paragraph('Damit du alle Premium-Funktionen nutzen kannst, erstelle jetzt dein kostenloses Konto:')}
+    ${featureList([
+      { icon: '📸', text: '<strong>KI-Rasenanalyse</strong> – Unbegrenzte Analysen mit detaillierten Ergebnissen' },
+      { icon: '📅', text: '<strong>Persönlicher Pflegekalender</strong> – Tägliche Aufgaben basierend auf deinem Rasen' },
+      { icon: '🌤️', text: '<strong>Wöchentliche Wetter-Tipps</strong> – Personalisiert für deine Region' },
+      { icon: '💬', text: '<strong>KI-Experten-Chat</strong> – Sofort Antworten auf alle Rasenfragen' },
+    ])}
+    ${infoCard('Wichtig', 'Bitte registriere dich mit der gleichen E-Mail-Adresse (<strong>' + email + '</strong>), damit dein Abo automatisch verknüpft wird.', '📌', '#fef3c7', '#fde68a')}
+    ${ctaButton('Jetzt Konto erstellen →', 'https://www.rasenpilot.com/auth?tab=register')}
+    ${paragraph('Die Registrierung dauert nur 30 Sekunden. Danach kannst du sofort loslegen! 🚀')}
+    ${signoff()}
+  `;
+  await sendEmail(email, resendKey, "🌱 Erstelle dein Konto und starte mit Rasenpilot Premium!", emailLayout(content, 'Dein Premium-Abo ist aktiv – erstelle jetzt dein Konto'));
+}
+
 async function sendTrialEndingEmail(email: string, resendKey: string) {
   const content = `
     ${greeting('Rasenfreund')}
@@ -170,6 +189,19 @@ async function processStripeEvent(
         customerEmail,
         customerId,
       );
+
+      // Check if user has an account - if not, send registration prompt
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", customerEmail)
+        .maybeSingle();
+
+      const resendKey = Deno.env.get("RESEND_API_KEY");
+      if (!existingProfile && resendKey) {
+        console.log("[STRIPE-WEBHOOK] No account found for", customerEmail, "- sending registration prompt");
+        await sendRegistrationPromptEmail(customerEmail, resendKey);
+      }
       return;
     }
 
