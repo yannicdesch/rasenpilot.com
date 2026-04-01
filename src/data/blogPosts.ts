@@ -12,6 +12,7 @@ export interface BlogPost {
   keywords: string[];
   metaTitle: string;
   metaDescription: string;
+  image?: string;
 }
 
 export const blogPosts: BlogPost[] = [
