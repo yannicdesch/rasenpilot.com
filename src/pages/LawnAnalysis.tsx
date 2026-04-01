@@ -368,7 +368,7 @@ const LawnAnalysis = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-[100dvh] md:min-h-screen bg-gradient-to-b from-green-50 to-white flex flex-col">
       <SEO 
         title="Kostenlose KI-Rasenanalyse - Perfekten Pflegeplan in 30 Sekunden"
         description="Lade ein Foto deines Rasens hoch und erhalte in 30 Sekunden eine professionelle KI-Analyse mit personalisiertem Pflegeplan. Kostenlos und ohne Anmeldung."
@@ -378,147 +378,59 @@ const LawnAnalysis = () => {
       
       <MainNavigation />
       
-      <div className="container mx-auto px-4 py-6 max-w-md">
+      <div className="flex-1 flex flex-col container mx-auto px-4 py-3 md:py-6 max-w-md">
 
-        {/* Limit Reached Warning - for anonymous users who used their free analysis */}
+        {/* Compact limit banner — mobile: 1-2 lines, desktop: full card */}
         {!user && hasReachedLimit && !limitLoading && (
-          <Card className="mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold flex items-center gap-2 text-amber-800">
-                <Crown className="h-5 w-5 text-amber-600" />
-                Kostenlose Analyse aufgebraucht
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-4">
-              <p className="text-sm text-amber-700">
-                Sie haben Ihre kostenlose Analyse bereits verwendet. Melden Sie sich an oder starten Sie mit Premium:
-              </p>
-              
-              {/* Premium Benefits */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <span className="text-xs text-gray-700">Unbegrenzte Analysen</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <span className="text-xs text-gray-700">Persönlicher Pflegeplan</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <span className="text-xs text-gray-700">Wetter-Empfehlungen</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  <span className="text-xs text-gray-700">KI-Chat Support</span>
-                </div>
-              </div>
-
-              {/* Price Teaser */}
-              <div className="text-center py-2">
-                <span className="text-xs text-gray-500">Ab nur </span>
-                <span className="text-lg font-bold text-green-700">9,99€</span>
-                <span className="text-xs text-gray-500">/Monat</span>
-                <span className="block text-xs text-green-600 font-medium">7 Tage kostenlos testen</span>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Button 
-                  onClick={() => navigate('/subscription?ref=analysis-limit')}
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-md"
-                >
-                  <Crown className="mr-2 h-5 w-5" />
-                  Jetzt Premium starten
-                </Button>
-                <Button 
-                  onClick={() => navigate('/auth?redirect=/lawn-analysis')}
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                >
-                  Bereits registriert? Anmelden
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Free Analysis Available - for anonymous users */}
-        {!user && !hasReachedLimit && !limitLoading && (
-          <Card className="mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-lg">
-            <CardContent className="py-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-amber-100 rounded-full p-2">
-                  <Star className="h-5 w-5 text-amber-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-amber-800">🎉 1 kostenlose Analyse verfügbar</p>
-                  <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: 9,99€/Monat — jetzt kostenlos starten!</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Free Tier Limit Warning - for logged in users */}
-        {user && !isPremium && (
-          <Card className={`mb-6 ${hasReachedLimit ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg' : 'border-yellow-300 bg-yellow-50'}`}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                {limitLoading ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-yellow-700">Lade Status...</span>
-                  </>
-                ) : hasReachedLimit ? (
-                  <>
-                    <Crown className="h-5 w-5 text-amber-600" />
-                    <span className="text-amber-800 text-base">Jetzt Premium freischalten</span>
-                  </>
-                ) : (
-                  <>
-                    <Star className="h-4 w-4 text-yellow-600" />
-                    <span className="text-yellow-700">Kostenlose Analyse: {remainingAnalyses} von 1 verfügbar</span>
-                  </>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              {hasReachedLimit ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-amber-800">
-                    Sie haben Ihre kostenlose Analyse verwendet. Mit Premium erhalten Sie:
-                  </p>
-                  
-                  {/* Premium Benefits Grid */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      <span className="text-xs text-gray-700">Unbegrenzte Analysen</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      <span className="text-xs text-gray-700">Persönlicher Pflegeplan</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      <span className="text-xs text-gray-700">Wetter-Empfehlungen</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      <span className="text-xs text-gray-700">KI-Chat Support</span>
-                    </div>
+          <>
+            {/* Mobile: compact single-line */}
+            <div className="md:hidden mb-3 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 flex items-center justify-between">
+              <span className="text-xs text-amber-800 font-medium">Kostenlose Analyse aufgebraucht</span>
+              <Button 
+                onClick={() => navigate('/subscription?ref=analysis-limit')}
+                size="sm"
+                className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white px-3"
+              >
+                Premium testen
+              </Button>
+            </div>
+            {/* Desktop: full card */}
+            <Card className="hidden md:block mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold flex items-center gap-2 text-amber-800">
+                  <Crown className="h-5 w-5 text-amber-600" />
+                  Kostenlose Analyse aufgebraucht
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-4">
+                <p className="text-sm text-amber-700">
+                  Du hast deine kostenlose Analyse bereits verwendet. Melde dich an oder starte mit Premium:
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span className="text-xs text-gray-700">Unbegrenzte Analysen</span>
                   </div>
-
-                  {/* Price Teaser */}
-                  <div className="text-center py-2">
-                    <span className="text-xs text-gray-500">Ab nur </span>
-                    <span className="text-lg font-bold text-green-700">9,99€</span>
-                    <span className="text-xs text-gray-500">/Monat</span>
-                    <span className="block text-xs text-green-600 font-medium">7 Tage kostenlos testen</span>
+                  <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span className="text-xs text-gray-700">Persönlicher Pflegeplan</span>
                   </div>
-
+                  <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span className="text-xs text-gray-700">Wetter-Empfehlungen</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span className="text-xs text-gray-700">KI-Chat Support</span>
+                  </div>
+                </div>
+                <div className="text-center py-2">
+                  <span className="text-xs text-gray-500">Ab nur </span>
+                  <span className="text-lg font-bold text-green-700">9,99€</span>
+                  <span className="text-xs text-gray-500">/Monat</span>
+                  <span className="block text-xs text-green-600 font-medium">7 Tage kostenlos testen</span>
+                </div>
+                <div className="flex flex-col gap-2">
                   <Button 
                     onClick={() => navigate('/subscription?ref=analysis-limit')}
                     size="lg"
@@ -527,18 +439,139 @@ const LawnAnalysis = () => {
                     <Crown className="mr-2 h-5 w-5" />
                     Jetzt Premium starten
                   </Button>
+                  <Button 
+                    onClick={() => navigate('/auth?redirect=/lawn-analysis')}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    Bereits registriert? Anmelden
+                  </Button>
                 </div>
-              ) : !limitLoading && (
-                <p className="text-sm text-yellow-700">
-                  Dies ist Ihre kostenlose Analyse. Für unbegrenzte Analysen upgraden Sie auf Premium.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* Free analysis available banner */}
+        {!user && !hasReachedLimit && !limitLoading && (
+          <>
+            {/* Mobile: compact */}
+            <div className="md:hidden mb-3 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2">
+              <p className="text-xs font-semibold text-amber-800">🎉 1 kostenlose Analyse · Danach: 9,99€/Monat</p>
+            </div>
+            {/* Desktop: full */}
+            <Card className="hidden md:block mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-lg">
+              <CardContent className="py-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-amber-100 rounded-full p-2">
+                    <Star className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-amber-800">🎉 1 kostenlose Analyse verfügbar</p>
+                    <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: 9,99€/Monat — jetzt kostenlos starten!</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* Logged-in user limit banners */}
+        {user && !isPremium && (
+          <>
+            {/* Mobile: compact */}
+            <div className="md:hidden mb-3">
+              {hasReachedLimit ? (
+                <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 flex items-center justify-between">
+                  <span className="text-xs text-amber-800 font-medium">Analyse aufgebraucht</span>
+                  <Button 
+                    onClick={() => navigate('/subscription?ref=analysis-limit')}
+                    size="sm"
+                    className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white px-3"
+                  >
+                    Premium testen
+                  </Button>
+                </div>
+              ) : !limitLoading ? (
+                <div className="bg-yellow-50 border border-yellow-300 rounded-lg px-3 py-2">
+                  <p className="text-xs text-yellow-700 font-medium">⭐ 1 kostenlose Analyse verfügbar</p>
+                </div>
+              ) : null}
+            </div>
+            {/* Desktop: full card */}
+            <Card className={`hidden md:block mb-6 ${hasReachedLimit ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg' : 'border-yellow-300 bg-yellow-50'}`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  {limitLoading ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-yellow-700">Lade Status...</span>
+                    </>
+                  ) : hasReachedLimit ? (
+                    <>
+                      <Crown className="h-5 w-5 text-amber-600" />
+                      <span className="text-amber-800 text-base">Jetzt Premium freischalten</span>
+                    </>
+                  ) : (
+                    <>
+                      <Star className="h-4 w-4 text-yellow-600" />
+                      <span className="text-yellow-700">Kostenlose Analyse: {remainingAnalyses} von 1 verfügbar</span>
+                    </>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {hasReachedLimit ? (
+                  <div className="space-y-4">
+                    <p className="text-sm text-amber-800">
+                      Du hast deine kostenlose Analyse verwendet. Mit Premium erhältst du:
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <span className="text-xs text-gray-700">Unbegrenzte Analysen</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <span className="text-xs text-gray-700">Persönlicher Pflegeplan</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <span className="text-xs text-gray-700">Wetter-Empfehlungen</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/60 rounded-lg p-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <span className="text-xs text-gray-700">KI-Chat Support</span>
+                      </div>
+                    </div>
+                    <div className="text-center py-2">
+                      <span className="text-xs text-gray-500">Ab nur </span>
+                      <span className="text-lg font-bold text-green-700">9,99€</span>
+                      <span className="text-xs text-gray-500">/Monat</span>
+                      <span className="block text-xs text-green-600 font-medium">7 Tage kostenlos testen</span>
+                    </div>
+                    <Button 
+                      onClick={() => navigate('/subscription?ref=analysis-limit')}
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-md"
+                    >
+                      <Crown className="mr-2 h-5 w-5" />
+                      Jetzt Premium starten
+                    </Button>
+                  </div>
+                ) : !limitLoading && (
+                  <p className="text-sm text-yellow-700">
+                    Dies ist deine kostenlose Analyse. Für unbegrenzte Analysen upgrade auf Premium.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </>
         )}
         
-        {/* 3-Step Process */}
-        <div className="flex items-center justify-center gap-2 mb-6">
+        {/* 3-Step Process — desktop only */}
+        <div className="hidden md:flex items-center justify-center gap-2 mb-6">
           <div className="flex flex-col items-center text-center">
             <span className="text-2xl mb-1">📸</span>
             <span className="text-xs font-medium text-gray-700">Foto hochladen</span>
@@ -556,16 +589,16 @@ const LawnAnalysis = () => {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-3">
-            Zeig uns deinen Rasen 📸
+        <div className="text-center mb-3 md:mb-6">
+          <h1 className="text-2xl md:text-4xl font-bold text-green-800 mb-1 md:mb-3">
+            Zeig uns deinen Rasen
           </h1>
-          <p className="text-lg text-slate-700">
-            Wir analysieren ihn sofort mit KI
+          <p className="text-sm md:text-lg text-slate-700">
+            KI-Analyse in 30 Sekunden
           </p>
           
-          {/* Location Status */}
-          <div className="mt-4 space-y-2">
+          {/* Location Status — desktop only */}
+          <div className="hidden md:block mt-4 space-y-2">
             {locationStatus === 'detecting' && (
               <div className="flex items-center justify-center gap-2 text-sm text-blue-600">
                 <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -580,11 +613,11 @@ const LawnAnalysis = () => {
             )}
           </div>
 
-          {/* PLZ Input */}
-          <div className="mt-3 max-w-xs mx-auto">
-            <Label htmlFor="plz-input" className="text-xs text-gray-500">Deine PLZ (optional — für lokale Wettertipps)</Label>
+          {/* PLZ Input — desktop only (on mobile it's inside the upload box) */}
+          <div className="hidden md:block mt-3 max-w-xs mx-auto">
+            <Label htmlFor="plz-input-desktop" className="text-xs text-gray-500">Deine PLZ (optional — für lokale Wettertipps)</Label>
             <Input
-              id="plz-input"
+              id="plz-input-desktop"
               type="text"
               placeholder="z.B. 69190"
               value={zipCode}
@@ -595,31 +628,31 @@ const LawnAnalysis = () => {
           </div>
         </div>
 
-        {/* Upload Dropzone */}
-        <div className="mb-6">
+        {/* Upload Dropzone — flex-1 on mobile to fill remaining space */}
+        <div className="flex-1 md:flex-none mb-3 md:mb-6 flex flex-col">
           {/* Block upload when limit reached */}
           {user && !isPremium && hasReachedLimit && !limitLoading ? (
-            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center opacity-60 cursor-not-allowed">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gray-400 rounded-full flex items-center justify-center">
-                <Lock className="h-8 w-8 text-white" />
+            <div className="flex-1 md:flex-none bg-gray-100 border-2 border-dashed border-gray-300 rounded-2xl p-6 md:p-8 text-center opacity-60 cursor-not-allowed flex flex-col items-center justify-center">
+              <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 bg-gray-400 rounded-full flex items-center justify-center">
+                <Lock className="h-7 w-7 md:h-8 md:w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              <h3 className="text-lg md:text-xl font-semibold text-gray-600 mb-2">
                 Upload gesperrt
               </h3>
-              <p className="text-gray-500 mb-4">
-                Sie haben Ihre kostenlose Analyse bereits verwendet.
+              <p className="text-gray-500 text-sm mb-3">
+                Kostenlose Analyse aufgebraucht.
               </p>
               <Button 
                 onClick={() => navigate('/subscription?ref=analysis-limit')}
                 className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
               >
                 <Crown className="mr-2 h-4 w-4" />
-                Jetzt Premium upgraden
+                Premium upgraden
               </Button>
             </div>
           ) : (
           <div
-            className={`bg-green-50 border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${
+            className={`flex-1 md:flex-none bg-green-50 border-2 border-dashed rounded-2xl p-5 md:p-8 text-center transition-all duration-200 flex flex-col items-center justify-center min-h-[200px] ${
               limitLoading
                 ? 'cursor-wait opacity-70 border-gray-300'
                 : isDragOver 
@@ -638,80 +671,90 @@ const LawnAnalysis = () => {
           >
             {!isUploading && !preview ? (
               <>
-                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${limitLoading ? 'bg-gray-400' : 'bg-green-600'}`}>
+                <div className={`w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 rounded-full flex items-center justify-center ${limitLoading ? 'bg-gray-400' : 'bg-green-600'}`}>
                   {limitLoading ? (
-                    <div className="h-8 w-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="h-7 w-7 border-4 border-white border-t-transparent rounded-full animate-spin" />
                   ) : error ? (
-                    <AlertCircle className="h-8 w-8 text-white" />
+                    <AlertCircle className="h-7 w-7 text-white" />
                   ) : (
-                    <Upload className="h-8 w-8 text-white" />
+                    <Camera className="h-7 w-7 text-white" />
                   )}
                 </div>
                 
-                <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                  {limitLoading ? 'Lade Status...' : 'Zeig uns deinen Rasen 📸'}
+                <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-1">
+                  {limitLoading ? 'Lade Status...' : '📸 Foto hochladen'}
                 </h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  {limitLoading ? 'Bitte warten...' : 'Wir analysieren ihn sofort mit KI'}
+                
+                <p className={`text-sm font-medium mb-2 ${limitLoading ? 'text-gray-500' : 'text-green-600 underline'}`}>
+                  {limitLoading ? '' : 'Tippen zum Auswählen'}
                 </p>
                 
-                <p className={`font-medium mb-3 ${limitLoading ? 'text-gray-500' : 'text-green-600 underline'}`}>
-                  {limitLoading ? '' : 'Klicken oder Foto hierher ziehen'}
-                </p>
-                
-                <p className="text-sm text-gray-500 mb-2">
-                  JPG/PNG, max. 10 MB
+                <p className="text-xs text-gray-400 mb-3">
+                  JPG/PNG · max. 10 MB
                 </p>
 
-                <p className="text-xs text-gray-400 italic">
+                {/* PLZ inside upload box — mobile only */}
+                <div className="md:hidden w-full max-w-[180px] mx-auto" onClick={(e) => e.stopPropagation()}>
+                  <Input
+                    id="plz-input-mobile"
+                    type="text"
+                    placeholder="PLZ (optional)"
+                    value={zipCode === '10115' ? '' : zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    className="text-center text-xs h-8 bg-white/80"
+                    maxLength={5}
+                  />
+                </div>
+
+                <p className="hidden md:block text-xs text-gray-400 italic mt-2">
                   💡 Tipp: Fotografiere bei Tageslicht von oben — für beste Ergebnisse
                 </p>
                 
                 {error && (
-                  <div className="mt-4 p-3 bg-red-100 border border-red-200 rounded-lg">
-                    <p className="text-red-700 text-sm font-medium">{error}</p>
+                  <div className="mt-3 p-2 bg-red-100 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-xs font-medium">{error}</p>
                   </div>
                 )}
               </>
             ) : isUploading ? (
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6 w-full">
                 {preview && (
-                  <div className="w-20 h-20 mx-auto rounded-lg overflow-hidden">
+                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-lg overflow-hidden">
                     <img src={preview} alt="Uploaded lawn" className="w-full h-full object-cover" />
                   </div>
                 )}
                 
-                <div className="w-12 h-12 mx-auto bg-green-600 rounded-full flex items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-10 h-10 md:w-12 md:h-12 mx-auto bg-green-600 rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 md:w-6 md:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-2">
                     Analysiere … ca. 30 s
                   </h3>
                   
-                  <Progress value={uploadProgress} className="mb-4" />
+                  <Progress value={uploadProgress} className="mb-3" />
                   
-                  <div className="bg-green-100 rounded-lg p-3 min-h-12 flex items-center justify-center">
-                    <p className="text-sm text-green-800 font-medium text-center">
+                  <div className="bg-green-100 rounded-lg p-2 md:p-3 min-h-10 flex items-center justify-center">
+                    <p className="text-xs md:text-sm text-green-800 font-medium text-center">
                       {lawnTips[analysisStep]}
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {preview && (
-                  <div className="w-20 h-20 mx-auto rounded-lg overflow-hidden">
+                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-lg overflow-hidden">
                     <img src={preview} alt="Uploaded lawn" className="w-full h-full object-cover" />
                   </div>
                 )}
                 
-                <div className="w-12 h-12 mx-auto bg-green-600 rounded-full flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 md:w-12 md:h-12 mx-auto bg-green-600 rounded-full flex items-center justify-center">
+                  <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
                 
-                <h3 className="text-lg font-semibold text-green-800">
+                <h3 className="text-base md:text-lg font-semibold text-green-800">
                   Upload erfolgreich!
                 </h3>
               </div>
@@ -720,26 +763,29 @@ const LawnAnalysis = () => {
           )}
         </div>
 
-        {/* Trust Line */}
-        <div className="flex items-center justify-center space-x-6 text-xs text-gray-500 mb-8">
-          <div className="flex items-center space-x-1">
-            <Zap className="h-4 w-4 text-green-500" />
-            <span>Kostenlos & ohne Anmeldung</span>
-          </div>
-          
-          <div className="flex items-center space-x-1">
-            <Lock className="h-4 w-4" />
-            <span>Ergebnis in 30 Sekunden</span>
-          </div>
-          
-          <div className="flex items-center space-x-1">
-            <Shield className="h-4 w-4" />
-            <span>DSGVO-konform</span>
+        {/* Trust Line — compact on mobile */}
+        <div className="text-center text-xs text-gray-400 mb-3 md:mb-8">
+          <span className="md:hidden">✅ Kostenlos · 🔒 DSGVO · ⚡ 30 Sek</span>
+          <div className="hidden md:flex items-center justify-center space-x-6 text-gray-500">
+            <div className="flex items-center space-x-1">
+              <Zap className="h-4 w-4 text-green-500" />
+              <span>Kostenlos & ohne Anmeldung</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Lock className="h-4 w-4" />
+              <span>Ergebnis in 30 Sekunden</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Shield className="h-4 w-4" />
+              <span>DSGVO-konform</span>
+            </div>
           </div>
         </div>
 
-        {/* Example Result Preview */}
-        <ExampleResultPreview />
+        {/* Example Result Preview — desktop only (on mobile: shown after analysis) */}
+        <div className="hidden md:block">
+          <ExampleResultPreview />
+        </div>
 
         {/* Hidden file input */}
         <input
