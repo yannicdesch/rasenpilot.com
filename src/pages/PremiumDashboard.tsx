@@ -16,6 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import MainNavigation from '@/components/MainNavigation';
 import RankUpCelebration from '@/components/RankUpCelebration';
+import LawnComparison from '@/components/LawnComparison';
 import { getRank, getNextRank, getPointsToNextRank, getMotivation, getMilestone, getAchievementBadges, Rank } from '@/lib/rankSystem';
 
 const PremiumDashboard = () => {
