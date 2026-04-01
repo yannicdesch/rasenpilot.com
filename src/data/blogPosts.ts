@@ -65,7 +65,8 @@ Mit der richtigen Frühjahrsdüngung legen Sie den Grundstein für einen dichten
     readTime: 6,
     keywords: ["Rasendünger", "Frühjahrsdüngung", "Rasen düngen", "Rasenpflege Frühjahr", "NPK-Dünger", "Stickstoffdünger"],
     metaTitle: "Rasen düngen im Frühjahr: Optimaler Zeitpunkt und Technik | Rasenpilot",
-    metaDescription: "Wann und wie sollten Sie Ihren Rasen im Frühjahr düngen? Erfahren Sie den idealen Zeitpunkt und die richtige Technik für eine effektive Frühjahrsdüngung."
+    metaDescription: "Wann und wie sollten Sie Ihren Rasen im Frühjahr düngen? Erfahren Sie den idealen Zeitpunkt und die richtige Technik für eine effektive Frühjahrsdüngung.",
+    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop"
   },
   {
     id: 3,
