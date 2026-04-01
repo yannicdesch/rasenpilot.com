@@ -71,7 +71,7 @@ const defaultTestimonials: Testimonial[] = [
 
 const Testimonials: React.FC<TestimonialsProps> = ({ 
   testimonials = defaultTestimonials,
-  title = "Das sagen unsere zufriedenen Nutzer",
+  title = "Das sagen unsere Nutzer",
   showTitle = true
 }) => {
   const renderStars = (rating: number) => {
