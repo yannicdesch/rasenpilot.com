@@ -104,17 +104,26 @@ export const useSubscription = () => {
 
   const openCustomerPortal = async () => {
     try {
+      toast({
+        title: "Wird geladen...",
+        description: "Stripe-Portal wird geöffnet...",
+      });
+
       const { data, error } = await supabase.functions.invoke('customer-portal');
 
       if (error) throw error;
 
-      // Open customer portal in a new tab
-      window.open(data.url, '_blank');
+      if (data?.url) {
+        // Use location.href instead of window.open to avoid popup blockers
+        window.location.href = data.url;
+      } else {
+        throw new Error('Keine Portal-URL erhalten');
+      }
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: "Error",
-        description: "Failed to open customer portal",
+        title: "Fehler",
+        description: "Stripe-Portal konnte nicht geöffnet werden. Bitte versuche es erneut.",
         variant: "destructive",
       });
     }
