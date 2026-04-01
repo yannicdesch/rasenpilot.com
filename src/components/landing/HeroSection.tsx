@@ -2,120 +2,80 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Star, Sparkles, Leaf, Droplets, Sun } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
 
 const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="relative w-full pt-6 pb-10 md:pt-12 md:pb-16 lg:pt-16 lg:pb-20 overflow-hidden bg-gradient-to-b from-accent/40 to-background">
+    <section className="relative w-full pt-6 pb-6 md:pt-12 md:pb-16 overflow-hidden bg-gradient-to-b from-accent/40 to-background">
       <div className="container relative mx-auto px-4">
         
-        {/* Mobile-first: single column, CTA above fold */}
-        <div className="max-w-3xl mx-auto text-center space-y-5 md:space-y-6">
+        <div className="max-w-3xl mx-auto text-center space-y-4 md:space-y-6">
           
-          {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs sm:text-sm font-semibold text-primary">
-              KI-Analyse in 30 Sekunden
-            </span>
-          </div>
-
           {/* Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-foreground">
-            Dein Rasen braucht nur{' '}
-            <span className="text-primary">30 Sekunden</span>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold leading-tight text-foreground">
+            Dein Rasen in{' '}
+            <span className="text-primary">30 Sekunden</span>{' '}
+            analysiert
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Foto hochladen → KI analysiert → Sofort deinen kostenlosen Pflegeplan erhalten. Ohne Anmeldung.
+          <p className="text-sm sm:text-lg text-muted-foreground max-w-xl mx-auto">
+            Foto hochladen — KI sagt dir was fehlt
           </p>
 
-          {/* PRIMARY CTA – larger on mobile */}
-          <div className="pt-2">
-            <Button
-              onClick={() => navigate('/lawn-analysis')}
-              size="lg"
-              className="w-full sm:w-auto text-base sm:text-lg py-7 sm:py-7 px-8 sm:px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground min-h-[60px]"
-            >
-              Rasen jetzt kostenlos analysieren
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+          {/* Before/After */}
+          <div className="flex items-center justify-center gap-3 max-w-md mx-auto">
+            <div className="flex-1 rounded-xl overflow-hidden border border-border shadow-md">
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1558635924-b60e7d0023be?auto=format&fit=crop&w=400&q=75"
+                  alt="Rasen vorher – ungepflegt"
+                  className="w-full h-28 sm:h-40 object-cover"
+                  width={400}
+                  height={160}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+                <span className="absolute bottom-1 left-1 bg-red-500/90 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">Vorher</span>
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 text-primary flex-shrink-0" />
+            <div className="flex-1 rounded-xl overflow-hidden border border-border shadow-md">
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1592150621744-aca64f48394a?auto=format&fit=crop&w=400&q=75"
+                  alt="Rasen nachher – gepflegt und grün"
+                  className="w-full h-28 sm:h-40 object-cover"
+                  width={400}
+                  height={160}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+                <span className="absolute bottom-1 left-1 bg-primary/90 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full">Nachher</span>
+              </div>
+            </div>
           </div>
 
-          {/* Urgency line */}
-          <p className="text-sm sm:text-base font-medium text-primary">
-            🌱 Frühjahrsaktion: Jetzt analysieren und die beste Rasensaison starten
+          {/* CTA */}
+          <Button
+            onClick={() => navigate('/lawn-analysis')}
+            size="lg"
+            className="w-full sm:w-auto text-base sm:text-lg py-7 px-8 sm:px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground min-h-[60px]"
+          >
+            Rasen kostenlos analysieren →
+          </Button>
+
+          {/* Trust badges – single line */}
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            ✅ Kostenlos · 🔒 DSGVO · ⚡ 30 Sek
           </p>
-
-          {/* Trust signals */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs sm:text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5 text-primary" />
-              Kostenlos & ohne Anmeldung
-            </span>
-            <span className="flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5 text-primary" />
-              GPT-4o Vision KI
-            </span>
-            <span className="flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5 text-primary" />
-              Sofort-Ergebnis
-            </span>
-          </div>
         </div>
 
-        {/* Demo Analysis Result Mockup */}
-        <div className="mt-8 md:mt-10 max-w-md mx-auto">
-          <p className="text-xs text-muted-foreground text-center mb-2 italic">So sieht dein Ergebnis aus — Beispiel</p>
-          <div className="bg-card border border-border rounded-2xl p-5 shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Dein Rasen-Score</p>
-                <p className="text-4xl font-bold text-primary">72</p>
-              </div>
-              <div className="bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full">
-                <span className="text-xs font-semibold text-primary">🌿 Rasen-Profi</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <div className="text-center bg-accent/30 rounded-lg p-2">
-                <Leaf className="h-4 w-4 text-primary mx-auto mb-1" />
-                <p className="text-[10px] text-muted-foreground">Dichte</p>
-                <p className="text-xs font-semibold text-foreground">Gut</p>
-              </div>
-              <div className="text-center bg-accent/30 rounded-lg p-2">
-                <Droplets className="h-4 w-4 text-blue-500 mx-auto mb-1" />
-                <p className="text-[10px] text-muted-foreground">Feuchtigkeit</p>
-                <p className="text-xs font-semibold text-foreground">Mittel</p>
-              </div>
-              <div className="text-center bg-accent/30 rounded-lg p-2">
-                <Sun className="h-4 w-4 text-yellow-500 mx-auto mb-1" />
-                <p className="text-[10px] text-muted-foreground">Licht</p>
-                <p className="text-xs font-semibold text-foreground">Optimal</p>
-              </div>
-            </div>
-            <div className="bg-primary/5 rounded-lg p-3">
-              <p className="text-xs font-semibold text-foreground mb-1">📋 Empfehlung:</p>
-              <p className="text-xs text-muted-foreground">Düngen mit Langzeitdünger + Bewässerung morgens optimieren</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Trust Bar */}
-        <div className="mt-8 md:mt-12 max-w-2xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-muted-foreground">
-            <span className="font-medium">🇩🇪 Made in Germany</span>
-            <div className="hidden sm:block h-4 w-px bg-border"></div>
-            <span className="font-medium">Täglich neue Analysen</span>
-            <div className="hidden sm:block h-4 w-px bg-border"></div>
-            <span className="font-medium">DSGVO-konform</span>
-          </div>
-        </div>
-
-        {/* Mini Testimonials – marked as examples */}
-        <div className="mt-8 md:mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-4xl mx-auto">
+        {/* Desktop: Testimonials below fold */}
+        <div className="hidden md:grid mt-12 grid-cols-3 gap-3 max-w-4xl mx-auto">
           <p className="col-span-full text-xs text-muted-foreground text-center mb-1 italic">Beispiel-Erfahrungen unserer Nutzer</p>
           {[
             { name: 'Markus R.', city: 'Stuttgart', text: 'Die KI hat sofort erkannt, was meinem Rasen fehlt. Nach 4 Wochen sichtbare Verbesserung!' },
