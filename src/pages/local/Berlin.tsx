@@ -46,9 +46,9 @@ const Berlin = () => {
   return (
     <>
       <SEO
-        title="Rasenpflege Berlin - KI-Rasenanalyse für Berlin | Rasenpilot"
-        description="Professionelle Rasenpflege in Berlin mit KI-Analyse. Angepasst an sandige Böden und Stadtklima. Kostenlose Analyse mit lokalem Expertenwissen für Berlin."
-        keywords="Rasenpflege Berlin, Rasen Berlin, Gartenpflege Berlin, KI Rasenanalyse Berlin, Rasen düngen Berlin, Rasenpilot Berlin"
+        title="Rasenanalyse Berlin — KI-Pflegeplan für Berliner Gärten | Rasenpilot"
+        description="Lass deinen Berliner Rasen kostenlos von KI analysieren. Angepasst an Berliner Klima & Böden. Ergebnis in 30 Sekunden — ohne Anmeldung."
+        keywords="Rasenanalyse Berlin, Rasenpflege Berlin, Gartenpflege Berlin, KI Rasenanalyse Berlin, Rasen düngen Berlin, Rasenpilot Berlin"
         canonical="https://www.rasenpilot.com/local/berlin"
         structuredData={structuredData}
         ogImage="https://www.rasenpilot.com/og-image.jpg"
@@ -61,12 +61,12 @@ const Berlin = () => {
             <div className="flex items-center justify-center gap-2 mb-4">
               <MapPin className="h-6 w-6 text-blue-600" />
               <h1 className="text-3xl md:text-4xl font-bold text-green-800">
-                Rasenpflege Berlin
+                Rasenanalyse für Berlin — kostenlos &amp; sofort
               </h1>
             </div>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              KI-gestützte Rasenanalyse für Berlin. Optimiert für sandige Böden 
-              und das spezielle Stadtklima der Hauptstadt.
+              Berlins sandige Böden und kontinentales Klima stellen besondere Anforderungen an deinen Rasen.
+              Unsere KI analysiert dein Foto und erstellt einen Pflegeplan, der genau auf Berliner Verhältnisse abgestimmt ist — in 30 Sekunden, ohne Anmeldung.
             </p>
           </div>
 
