@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useEmailPreferences } from '@/hooks/useEmailPreferences';
 import { Mail, Clock, CheckCircle, Send } from 'lucide-react';
+import PendingCareTasksCard from './PendingCareTasksCard';
 
 export const EmailPreferencesSettings = () => {
   console.log('EmailPreferencesSettings component rendering...');
