@@ -36,7 +36,7 @@ const getDailyAnalysisCount = (): number => {
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const todayCount = useTodayAnalysisCount();
+  
   
   return (
     <section className="relative w-full py-8 md:py-14 lg:py-20 overflow-hidden bg-gradient-to-br from-accent via-secondary to-background">
