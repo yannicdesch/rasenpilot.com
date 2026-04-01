@@ -29,8 +29,8 @@ const HeroSection = () => {
             <div className="flex-1 rounded-xl overflow-hidden border border-border shadow-md">
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?auto=format&fit=crop&w=400&q=75"
-                  alt="Rasen vorher – ungepflegt"
+                  src="https://images.unsplash.com/photo-1588847132813-5b5a9e591505?auto=format&fit=crop&w=400&q=75"
+                  alt="Rasen vorher – mit kahlen Stellen"
                   className="w-full h-28 sm:h-40 object-cover"
                   width={400}
                   height={160}
