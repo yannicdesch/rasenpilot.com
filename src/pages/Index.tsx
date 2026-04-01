@@ -546,7 +546,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-2">
               <Check className="h-5 w-5" />
-              <span className="font-medium">98,3% Erfolgsrate</span>
+              <span className="font-medium">GPT-4o Vision KI</span>
             </div>
           </div>
         </div>

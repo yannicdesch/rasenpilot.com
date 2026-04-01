@@ -85,9 +85,11 @@ const App = () => {
         <LawnProvider>
         <Toaster />
         <BrowserRouter>
-          <JourneyTracker />
-          <ConversionTracker />
-          <CookieConsent />
+          <Suspense fallback={null}>
+            <JourneyTracker />
+            <ConversionTracker />
+            <CookieConsent />
+          </Suspense>
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />

@@ -30,6 +30,8 @@ export default defineConfig(({ mode }) => {
     },
     publicDir: "public",
     build: {
+      target: "es2020",
+      cssCodeSplit: true,
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, "index.html"),
@@ -46,6 +48,8 @@ export default defineConfig(({ mode }) => {
               "@radix-ui/react-popover",
             ],
             "vendor-charts": ["recharts"],
+            "vendor-supabase": ["@supabase/supabase-js"],
+            "vendor-helmet": ["react-helmet-async"],
           },
         },
       },
