@@ -31,7 +31,8 @@ Disallow: /seo-management
 Disallow: /admin
 Disallow: /auth
 Disallow: /db-test
-Disallow: /subscription
+# Allow subscription page for SEO
+Allow: /subscription
 
 # Explicitly allow high-value SEO pages
 Allow: /free-plan

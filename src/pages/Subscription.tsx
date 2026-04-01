@@ -116,8 +116,9 @@ export default function Subscription() {
   return (
     <>
       <SEO 
-        title="Premium Abo - Der perfekte Rasen wartet | Rasenpilot"
-        description="7 Tage kostenlos testen. Unbegrenzte KI-Analysen, personalisierte Pflegepläne und Experten-Support. Ab €9,99/Monat. Jederzeit kündbar."
+        title="Rasenpilot Premium — 9,99€/Monat | 7 Tage kostenlos testen"
+        description="Unbegrenzte KI-Rasenanalysen, persönlicher Pflegekalender, Krankheitserkennung und Wetter-Tipps. 7 Tage kostenlos testen, dann 9,99€/Monat."
+        canonical="/subscription"
       />
       
       <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50/30">

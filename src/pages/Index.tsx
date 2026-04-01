@@ -29,10 +29,10 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white font-poppins">
       <SEO 
-        title={seoContent?.title || "Rasenpilot - KI-Rasenberater | Kostenloser Pflegeplan in 30 Sekunden"}
-        description={seoContent?.description || "✅ Kostenloser KI-Rasenpflegeplan in 30 Sek. ✅ 98,3% Genauigkeit ✅ Ohne Anmeldung ✅ Sofortige Ergebnisse → Jetzt starten!"}
-        canonical="https://www.rasenpilot.com/"
-        keywords={seoContent?.keywords || "Rasenpflege Deutschland,KI-Rasenberater,kostenloser Rasenpflegeplan,Rasen düngen,Rasen mähen,Rasenpilot,Rasenberatung,Rasen-Analyse kostenlos,Rasen-Probleme,intelligenter Rasen-Assistent"}
+        title="Rasenpilot — KI-Rasenanalyse kostenlos | Lawn Score in 30 Sekunden"
+        description="Lade ein Foto deines Rasens hoch und erhalte sofort deine persönliche KI-Diagnose mit Lawn Score, Pflegekalender und Produktempfehlungen. Kostenlos & ohne Anmeldung."
+        canonical="/"
+        keywords="rasen analyse, rasen ki, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung"
         type="website"
         structuredData={{
           type: 'WebSite',
