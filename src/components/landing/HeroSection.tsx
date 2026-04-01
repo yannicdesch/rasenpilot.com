@@ -31,7 +31,7 @@ const HeroSection = () => {
             <div className="flex-1 rounded-xl overflow-hidden border border-border shadow-md">
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1588847132813-5b5a9e591505?auto=format&fit=crop&w=400&q=75"
+                  src={lawnBefore}
                   alt="Rasen vorher – mit kahlen Stellen"
                   className="w-full h-28 sm:h-40 object-cover"
                   width={400}
