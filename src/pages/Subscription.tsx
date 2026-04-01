@@ -15,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import MainNavigation from '@/components/MainNavigation';
 import { TrialBadge } from '@/components/subscription/TrialBadge';
 import { useToast } from '@/hooks/use-toast';
-import { trackMetaViewContent, trackMetaInitiateCheckout } from '@/lib/analytics/metaPixel';
+import { trackMetaViewContent, trackMetaInitiateCheckout, trackMetaStartTrial } from '@/lib/analytics/metaPixel';
 
 export default function Subscription() {
   const [user, setUser] = useState<any>(null);
