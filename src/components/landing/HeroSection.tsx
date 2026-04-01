@@ -3,6 +3,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star } from 'lucide-react';
+import lawnBefore from '@/assets/lawn-before.jpg';
+import lawnAfter from '@/assets/lawn-after.jpg';
 
 const HeroSection = () => {
   const navigate = useNavigate();
