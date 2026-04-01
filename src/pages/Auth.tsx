@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import PasswordResetLink from '@/components/PasswordResetLink';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
@@ -55,7 +56,16 @@ const Auth = () => {
       }
 
       toast.success('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail.');
-      navigate('/');
+      
+      // Redirect to intended destination (e.g. subscription with plan)
+      const redirect = searchParams.get('redirect');
+      const plan = searchParams.get('plan');
+      if (redirect) {
+        const url = plan ? `${redirect}?plan=${plan}` : redirect;
+        navigate(url);
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
     } finally {
@@ -83,7 +93,16 @@ const Auth = () => {
       }
 
       toast.success('Erfolgreich angemeldet!');
-      navigate('/premium-dashboard');
+      
+      // Redirect to intended destination (e.g. subscription with plan)
+      const redirect = searchParams.get('redirect');
+      const plan = searchParams.get('plan');
+      if (redirect) {
+        const url = plan ? `${redirect}?plan=${plan}` : redirect;
+        navigate(url);
+      } else {
+        navigate('/premium-dashboard');
+      }
     } catch (error) {
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
     } finally {

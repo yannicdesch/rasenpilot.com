@@ -171,6 +171,11 @@ async function processStripeEvent(
       const customerId = session.customer as string;
       const subscriptionId = session.subscription as string;
 
+      // Get user_id from metadata (preferred) or client_reference_id
+      const userId = session.metadata?.user_id || 
+                     session.metadata?.supabase_user_id ||
+                     session.client_reference_id;
+
       if (!customerEmail) {
         console.warn("[STRIPE-WEBHOOK] Missing email in checkout", session.id);
         return;
@@ -182,6 +187,12 @@ async function processStripeEvent(
 
       const subscription =
         await stripe.subscriptions.retrieve(subscriptionId);
+      
+      // If we have a user_id, use it directly for the subscriber record
+      if (userId) {
+        console.log("[STRIPE-WEBHOOK] User ID from metadata:", userId);
+      }
+
       await upsertSubscriber(
         supabase,
         stripe,
@@ -190,17 +201,37 @@ async function processStripeEvent(
         customerId,
       );
 
-      // Check if user has an account - if not, send registration prompt
+      // If user_id is present, ensure subscriber is linked
+      if (userId) {
+        await supabase
+          .from("subscribers")
+          .update({ user_id: userId, updated_at: new Date().toISOString() })
+          .eq("email", customerEmail);
+      }
+
+      // Check if user has an account - if not, log as orphaned and send registration prompt
       const { data: existingProfile } = await supabase
         .from("profiles")
         .select("id")
         .eq("email", customerEmail)
         .maybeSingle();
 
-      const resendKey = Deno.env.get("RESEND_API_KEY");
-      if (!existingProfile && resendKey) {
-        console.log("[STRIPE-WEBHOOK] No account found for", customerEmail, "- sending registration prompt");
-        await sendRegistrationPromptEmail(customerEmail, resendKey);
+      if (!existingProfile) {
+        console.warn("[STRIPE-WEBHOOK] No profile found for", customerEmail, "- logging orphaned subscription");
+        
+        // Log orphaned subscription
+        await supabase.from("orphaned_subscriptions").insert({
+          stripe_session_id: session.id,
+          stripe_customer_id: customerId,
+          customer_email: customerEmail,
+          price_type: session.metadata?.price_type || "unknown",
+        });
+
+        // Send registration prompt email
+        const resendKey = Deno.env.get("RESEND_API_KEY");
+        if (resendKey) {
+          await sendRegistrationPromptEmail(customerEmail, resendKey);
+        }
       }
       return;
     }

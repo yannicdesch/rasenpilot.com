@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { priceType, email } = await req.json();
+    const { priceType, email, userId } = await req.json();
     console.log(`[CREATE-CHECKOUT] Request data:`, { priceType, email: email || 'not provided' });
     
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -116,6 +116,7 @@ serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create({
       customer_email: email || undefined,
+      client_reference_id: userId || undefined,
       line_items: [
         {
           price: finalProduct.stripe_price_id,
@@ -131,6 +132,8 @@ serve(async (req) => {
       metadata: {
         price_type: mappedPriceType,
         user_email: email || "",
+        user_id: userId || "",
+        supabase_user_id: userId || "",
       },
     });
 
