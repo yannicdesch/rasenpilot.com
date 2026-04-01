@@ -51,7 +51,7 @@ const SimplifiedLanding = () => {
     <>
       <Helmet>
         <title>Rasenpilot - KI-Rasenanalyse | Professioneller Pflegeplan in 60 Sekunden</title>
-        <meta name="description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. Laden Sie ein Foto hoch und erhalten Sie sofort eine professionelle Rasendiagnose mit personalisierten Pflegeplänen. Präzise AI-Analyse mit 98,3% Genauigkeit." />
+        <meta name="description" content="KI-Rasenanalyse mit GPT-4o Vision Technologie. Laden Sie ein Foto hoch und erhalten Sie sofort eine professionelle Rasendiagnose mit personalisierten Pflegeplänen." />
         <meta name="keywords" content="KI Rasenanalyse Deutschland, Rasen Gesundheitscheck, Rasenpflege Plan, Rasen Krankheiten erkennen, Rasen Dünger Empfehlung, Rasenpilot, Rasen AI Analyse, Garten Beratung, Rasen Probleme lösen" />
         <meta property="og:title" content="Rasenpilot - KI-Rasenanalyse | Professioneller Pflegeplan in 60 Sekunden" />
         <meta property="og:description" content="Deutschlands führende KI-Rasenanalyse mit wissenschaftlich fundierter Bewertung. 98,3% Genauigkeit." />
