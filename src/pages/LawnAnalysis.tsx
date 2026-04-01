@@ -389,15 +389,15 @@ const LawnAnalysis = () => {
 
         {/* Free Analysis Available - for anonymous users */}
         {!user && !hasReachedLimit && !limitLoading && (
-          <Card className="mb-6 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card className="mb-6 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-lg">
             <CardContent className="py-4">
               <div className="flex items-center gap-3">
-                <div className="bg-green-100 rounded-full p-2">
-                  <Star className="h-5 w-5 text-green-600" />
+                <div className="bg-amber-100 rounded-full p-2">
+                  <Star className="h-5 w-5 text-amber-600" />
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-green-800">1 kostenlose Analyse verfügbar</p>
-                  <p className="text-xs text-green-600">Keine Anmeldung erforderlich</p>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-amber-800">🎉 1 kostenlose Analyse verfügbar</p>
+                  <p className="text-xs text-amber-600">Keine Anmeldung nötig · Danach: 9,99€/Monat — jetzt kostenlos starten!</p>
                 </div>
               </div>
             </CardContent>
