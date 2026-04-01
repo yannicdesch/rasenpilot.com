@@ -82,6 +82,7 @@ const App = () => {
           <Route path="/analysis-result/:jobId" element={<AnalysisResult />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-overview" element={<BlogOverview />} />
+            <Route path="/ratgeber" element={<BlogOverview />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/highscore" element={<Highscore />} />
             
