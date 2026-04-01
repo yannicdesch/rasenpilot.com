@@ -164,7 +164,7 @@ const SimplifiedLanding = () => {
                   <h3 className="text-xl font-semibold mb-3">Wissenschaftlich validiert</h3>
                   <p className="text-gray-600 leading-relaxed">
                     Entwickelt in Zusammenarbeit mit Agrarwissenschaftlern und Rasenexperten. 
-                    <strong>98,3% Diagnosesicherheit</strong> in unabhängigen Tests bestätigt.
+                    Powered by <strong>GPT-4o Vision</strong> Technologie.
                   </p>
                 </CardContent>
               </Card>
