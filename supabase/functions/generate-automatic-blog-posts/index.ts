@@ -277,17 +277,19 @@ Antworte nur mit folgendem JSON-Format:
         },
         {
           role: 'user',
-          content: `Erstellen Sie einen SEO-optimierten Blogbeitrag zum Thema: "${topic}". 
+          content: `Erstelle einen SEO-optimierten Blogbeitrag zum Thema: "${topic}". 
           
-Verwenden Sie diese Keywords: ${keywords.join(', ')}
+Verwende diese Keywords: ${keywords.join(', ')}
 
-Berücksichtigen Sie:
+WICHTIG: Durchgehend Du-Form, KEIN Markdown (keine **, keine [text](#)), nur HTML-Tags.
+Beende den Artikel mit einem CTA-Link zu /lawn-analysis.
+
+Berücksichtige:
 - Deutsche Klimabedingungen und Jahreszeiten
 - Typische Rasenprobleme in Deutschland
 - Praktische Umsetzbarkeit für Hobbygärtner
-- Aktuelle Rasenpflege-Trends und -Methoden
 
-Der Artikel soll Hobbygärtnern dabei helfen, ihre Rasenfläche zu verbessern und dabei auf unser kostenloses Rasenanalyse-Tool hinweisen.`
+Der Artikel soll Hobbygärtnern dabei helfen, ihre Rasenfläche zu verbessern.`
         }
       ],
       max_tokens: 3000,
