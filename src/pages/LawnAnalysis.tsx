@@ -48,9 +48,10 @@ const LawnAnalysis = () => {
     "Tipp: Mulchmähen spart 30% der Düngungskosten."
   ];
 
-  // Auto-detect location on component mount
+  // Auto-detect location and track ViewContent on mount
   React.useEffect(() => {
     detectUserLocation();
+    trackMetaViewContent('Lawn Analysis', 'analysis');
   }, []);
 
   const detectUserLocation = async () => {
