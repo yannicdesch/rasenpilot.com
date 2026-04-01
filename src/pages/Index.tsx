@@ -497,7 +497,7 @@ const Index = () => {
 
             {/* Demo Leaderboard Preview */}
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-lg mx-auto mb-8">
-              <div className="text-xs text-muted-foreground mb-1 text-center italic">So sieht dein Ranking aus — Beispiel</div>
+              <div className="text-xs text-muted-foreground mb-1 text-center italic">Demo-Ansicht — so sieht dein persönliches Ranking aus</div>
               <div className="text-sm font-semibold text-muted-foreground mb-4 flex items-center justify-center gap-2">
                 <MapPin className="h-4 w-4" />
                 Demo: PLZ 69190
