@@ -232,9 +232,6 @@ export default function Subscription() {
               Der KI-Rasenberater der deinen<br className="hidden md:block" /> Rasen <span className="text-green-600">wirklich kennt</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-6">
-              Foto hochladen → KI analysiert → Persönlicher Pflegeplan in 30 Sekunden
-            </p>
 
             {/* Trust badges */}
             <div className="flex flex-wrap justify-center gap-3 md:gap-5 mb-2">
