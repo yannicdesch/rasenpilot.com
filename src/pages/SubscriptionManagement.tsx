@@ -14,7 +14,9 @@ const SubscriptionManagement = () => {
   const { 
     subscription, 
     loading, 
-    isPremium, 
+    isPremium,
+    isPro,
+    planTier,
     isTrial,
     trialEnd,
     subscriptionEnd,
