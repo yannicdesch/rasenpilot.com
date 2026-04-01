@@ -134,8 +134,13 @@ const App = () => {
             <Route path="/local/dortmund" element={<Dortmund />} />
             <Route path="/local/bonn" element={<Bonn />} />
             
-            {/* Redirects */}
+{/* Redirects */}
             <Route path="/garden-pilot" element={<Navigate to="/lawn-analysis" replace />} />
+            <Route path="/rasen-analyse" element={<Navigate to="/lawn-analysis" replace />} />
+            <Route path="/rasenanalyse" element={<Navigate to="/lawn-analysis" replace />} />
+            <Route path="/lawn-care" element={<Navigate to="/lawn-analysis" replace />} />
+            <Route path="/rasen-analysis" element={<Navigate to="/lawn-analysis" replace />} />
+            <Route path="/analyse" element={<Navigate to="/lawn-analysis" replace />} />
             
             {/* Country Landing Pages */}
             <Route path="/rasenpflege-oesterreich" element={<RasenpflegeOesterreich />} />
