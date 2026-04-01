@@ -1,7 +1,7 @@
 // Meta Pixel Implementation with Cookie Consent
 import { hasConsentFor } from '@/utils/cookieUtils';
 
-const META_PIXEL_ID = '1306816914688676';
+const META_PIXEL_ID = '9151671744940732';
 
 declare global {
   interface Window {
