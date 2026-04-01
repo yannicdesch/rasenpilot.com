@@ -593,10 +593,10 @@ const Index = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
         <div className="container mx-auto px-4 text-center relative">
           <h2 className="text-4xl md:text-5xl font-bold font-dm-serif text-primary-foreground mb-6">
-            Bereit für deinen Traumrasen?
+            Was ist dein Rasen-Score?
           </h2>
           <p className="text-xl text-primary-foreground/90 mb-10 max-w-3xl mx-auto leading-relaxed font-poppins">
-            Kostenlose KI-Analyse, Krankheitserkennung, Produktempfehlungen und Pflegekalender — alles in einer App.
+            Finde es in 30 Sekunden heraus — die meisten Gartenbesitzer in Deutschland haben unter 65 Punkte.
           </p>
           
           <Button 
@@ -604,8 +604,7 @@ const Index = () => {
             size="lg"
             className="bg-background text-primary hover:bg-background/90 text-xl py-7 px-12 shadow-2xl font-poppins font-semibold transition-all duration-300 transform hover:-translate-y-1"
           >
-            Kostenlose KI-Analyse starten
-            <ArrowRight className="ml-2 h-5 w-5" />
+            Jetzt Score ermitteln →
           </Button>
           
           <div className="flex flex-wrap justify-center gap-8 mt-8 text-primary-foreground/90 font-poppins">
@@ -619,7 +618,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-2">
               <Check className="h-5 w-5" />
-              <span className="font-medium">GPT-4o Vision KI</span>
+              <span className="font-medium">DSGVO-konform</span>
             </div>
           </div>
         </div>
