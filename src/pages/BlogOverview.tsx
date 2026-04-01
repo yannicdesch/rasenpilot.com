@@ -280,7 +280,7 @@ const BlogOverview = () => {
                 Bereit für deinen Traumrasen?
               </h2>
               <p className="text-green-50 mb-8 text-lg md:text-xl leading-relaxed">
-                Starten Sie noch heute mit einer kostenlosen KI-gestützten Rasenanalyse und erhalten Sie einen personalisierten Pflegeplan
+                Starte noch heute mit einer kostenlosen KI-gestützten Rasenanalyse und erhalte einen personalisierten Pflegeplan
               </p>
               <Button 
                 onClick={() => navigate('/lawn-analysis')}
