@@ -221,30 +221,31 @@ serve(async (req) => {
 });
 
 async function generateBlogPostWithAI(topic: string, keywords: string[], openAIApiKey: string) {
-  const systemPrompt = `Sie sind ein SEO-Experte und Fachautor für Rasenpflege. Erstellen Sie einen detaillierten, SEO-optimierten deutschen Blogbeitrag mit folgender Struktur:
+    const systemPrompt = `Du bist ein SEO-Experte und Fachautor für Rasenpflege. Erstelle einen detaillierten, SEO-optimierten deutschen Blogbeitrag.
+
+WICHTIGE REGELN:
+- Durchgehend informelle Du-Ansprache (NIEMALS Sie/Ihnen/Ihr)
+- Kein Markdown: Keine ** für Fettdruck, keine [Text](#) Links, keine --- Linien
+- Schreibe reinen Fließtext mit HTML-Tags: <h2>, <h3>, <strong>, <em>, <ul>, <li>, <a href="...">, <hr>
+- Autor ist immer "Rasenpilot Team"
+- Am Ende jedes Artikels diesen CTA einfügen:
+  <p>Mach jetzt den ersten Schritt zu einem perfekten Rasen:</p>
+  <a href="/lawn-analysis">Kostenlose Rasenanalyse starten →</a>
 
 INHALTLICHE ANFORDERUNGEN:
-- Ton: Freundlich, hilfsreich, fachkundig
+- Ton: Freundlich, hilfsreich, fachkundig, Du-Form
 - Zielgruppe: Hobbygärtner, Hausbesitzer, Rasenliebhaber
 - Länge: 800-1.500 Wörter
 - Sprache: Klar, strukturiert, Deutsch
 
 SEO-OPTIMIERTE STRUKTUR:
-1. Einleitender Hook (Problem/Nutzen des Lesers ansprechen)
-2. Hauptinhalt mit H2/H3 Überschriften (Keywords natürlich einbauen)
-3. Interne Verlinkungen zu verwandten Themen erwähnen
-4. Praktische Tipps und Schritt-für-Schritt Anleitungen
-5. FAQ-Bereich mit häufigen Fragen
-6. Fazit mit Call-to-Action
+1. Einleitender Hook (Problem/Nutzen ansprechen)
+2. Hauptinhalt mit <h2>/<h3> Überschriften
+3. Praktische Tipps und Schritt-für-Schritt Anleitungen
+4. FAQ-Bereich mit häufigen Fragen
+5. Fazit mit Call-to-Action (Link zu /lawn-analysis)
 
-WICHTIGE ELEMENTE:
-- Verwenden Sie Keywords natürlich im Text
-- Strukturieren Sie mit aussagekräftigen Zwischenüberschriften
-- Bauen Sie Listen und Aufzählungen ein
-- Erwähnen Sie praktische Anwendungsbeispiele
-- Schließen Sie mit einem klaren Call-to-Action ab
-
-Antworten Sie nur mit folgendem JSON-Format:
+Antworte nur mit folgendem JSON-Format:
 {
   "title": "SEO-optimierter Titel mit Hauptkeyword",
   "meta_title": "SEO Meta-Titel (max 60 Zeichen)",
