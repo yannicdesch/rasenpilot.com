@@ -111,6 +111,23 @@ export const trackMetaPurchase = (value: number, currency: string = 'EUR', conte
   console.log('[Meta Pixel] Purchase tracked:', params);
 };
 
+// Track StartTrial event (free trial button click)
+export const trackMetaStartTrial = (value: number = 0, currency: string = 'EUR', contentName?: string): void => {
+  if (!hasConsentFor('marketing') || !window.fbq) {
+    return;
+  }
+  
+  const params: Record<string, any> = {
+    value,
+    currency,
+  };
+  
+  if (contentName) params.content_name = contentName;
+  
+  window.fbq('track', 'StartTrial', params);
+  console.log('[Meta Pixel] StartTrial tracked:', params);
+};
+
 // Track Lead event (e.g., email signup)
 export const trackMetaLead = (contentName?: string): void => {
   if (!hasConsentFor('marketing') || !window.fbq) {
