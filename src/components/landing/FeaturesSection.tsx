@@ -22,7 +22,7 @@ const FeaturesSection = () => {
               <Camera className="h-8 w-8 text-green-600 mr-4" />
               <div>
                 <h3 className="text-xl font-bold text-gray-900">KI-Bildanalyse der Zukunft</h3>
-                <p className="text-green-700 font-medium">94,7% Genauigkeit bei Problemerkennung</p>
+                <p className="text-green-700 font-medium">GPT-4o Vision KI-Technologie</p>
               </div>
             </div>
             <CardContent className="p-6">
