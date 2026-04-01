@@ -231,6 +231,7 @@ const SubscriptionManagement = () => {
         </Card>
       </div>
     </div>
+    </div>
   );
 };
 
