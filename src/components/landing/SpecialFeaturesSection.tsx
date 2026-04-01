@@ -68,12 +68,12 @@ const SpecialFeaturesSection = () => {
               <div className="text-muted-foreground font-medium">Parameter analysiert</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-primary mb-2 font-poppins">94,7%</div>
-              <div className="text-muted-foreground font-medium">KI-Genauigkeit</div>
+              <div className="text-5xl font-bold text-primary mb-2 font-poppins">GPT-4o</div>
+              <div className="text-muted-foreground font-medium">Vision KI</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-primary mb-2 font-poppins">98,3%</div>
-              <div className="text-muted-foreground font-medium">Erfolgsrate</div>
+              <div className="text-5xl font-bold text-primary mb-2 font-poppins">30s</div>
+              <div className="text-muted-foreground font-medium">Analyse-Zeit</div>
             </div>
             <div className="text-center">
               <div className="text-5xl font-bold text-primary mb-2 font-poppins">24/7</div>

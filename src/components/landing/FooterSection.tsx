@@ -81,9 +81,9 @@ const FooterSection = () => {
             <div className="flex items-center space-x-4 text-sm text-muted-foreground font-poppins">
               <span>🇩🇪 Made in Germany</span>
               <span>•</span>
-              <span>🏆 #1 Rasenpflege-App</span>
+              <span>🌱 KI-Rasenpflege</span>
               <span>•</span>
-              <span>⭐ 4.9/5 Bewertung</span>
+              <span>🔒 DSGVO-konform</span>
             </div>
           </div>
         </div>

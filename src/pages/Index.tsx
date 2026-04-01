@@ -574,9 +574,9 @@ const Index = () => {
                 Deutschlands intelligentester KI-Rasenberater mit Krankheitserkennung, Pflegekalender und Gamification.
               </p>
               <div className="flex items-center gap-4 text-sm text-gray-400">
-                <span>⭐ 4.9/5 Sterne</span>
+                <span>🇩🇪 Made in Germany</span>
                 <span>•</span>
-                <span>50.000+ Nutzer</span>
+                <span>DSGVO-konform</span>
               </div>
             </div>
 

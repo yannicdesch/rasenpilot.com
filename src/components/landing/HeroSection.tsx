@@ -66,19 +66,12 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Social Proof Bar */}
+        {/* Trust Bar */}
         <div className="mt-8 md:mt-12 max-w-2xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                ))}
-              </div>
-              <span className="font-bold text-foreground">4.9/5</span>
-            </div>
+            <span className="font-medium">🇩🇪 Made in Germany</span>
             <div className="hidden sm:block h-4 w-px bg-border"></div>
-            <span className="font-medium">Kostenlos & ohne Anmeldung</span>
+            <span className="font-medium">Täglich neue Analysen</span>
             <div className="hidden sm:block h-4 w-px bg-border"></div>
             <span className="font-medium">DSGVO-konform</span>
           </div>

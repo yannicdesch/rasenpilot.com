@@ -134,16 +134,8 @@ const Testimonials: React.FC<TestimonialsProps> = ({
           ))}
         </div>
         
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center space-x-4 bg-white rounded-full px-6 py-3 shadow-md">
-            <div className="flex items-center space-x-1">
-              {renderStars(5)}
-            </div>
-            <span className="text-gray-600">•</span>
-            <span className="font-semibold text-gray-900">4.9/5</span>
-            <span className="text-gray-600">•</span>
-            <span className="text-gray-600">1.000+ Bewertungen</span>
-          </div>
+        <div className="text-center mt-8">
+          <p className="text-xs text-gray-400 italic">* Beispiel-Erfahrungen — keine verifizierten Bewertungen</p>
         </div>
       </div>
     </section>

@@ -342,8 +342,8 @@ export default function Subscription() {
                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 flex items-center justify-center">
                   <Users className="h-6 w-6 text-green-600" />
                 </div>
-                <div className="font-bold text-2xl text-gray-900">23.847</div>
-                <div className="text-sm text-gray-500">Zufriedene Nutzer</div>
+                <div className="font-bold text-2xl text-gray-900">Täglich</div>
+                <div className="text-sm text-gray-500">Neue Analysen</div>
               </div>
               
               <div className="text-center">
