@@ -48,6 +48,9 @@ export default function Subscription() {
     // Track StartTrial event (7-day free trial)
     trackMetaStartTrial(0, 'EUR', `Premium Trial ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
     
+    // Track Lead event for Meta Pixel
+    trackMetaLead(`Premium ${priceType === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
+    
     try {
       const response = await fetch(`https://ugaxwcslhoppflrbuwxv.supabase.co/functions/v1/create-checkout`, {
         method: 'POST',
