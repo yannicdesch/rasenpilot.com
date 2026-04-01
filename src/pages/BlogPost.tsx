@@ -29,15 +29,30 @@ interface BlogPostData {
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [post, setPost] = useState<BlogPostData | null>(null);
-  const [relatedPosts, setRelatedPosts] = useState<BlogPostData[]>([]);
+  
+  // Initialize synchronously from static data so content is in DOM immediately for SEO crawlers
+  const getInitialPost = (): BlogPostData | null => {
+    if (!slug) return null;
+    return blogPosts.find(p => p.slug === slug) || null;
+  };
+  
+  const getInitialRelated = (currentPost: BlogPostData | null): BlogPostData[] => {
+    if (!currentPost) return [];
+    return blogPosts
+      .filter(p => p.category === currentPost.category && p.id !== currentPost.id)
+      .slice(0, 3);
+  };
+  
+  const initialPost = getInitialPost();
+  const [post, setPost] = useState<BlogPostData | null>(initialPost);
+  const [relatedPosts, setRelatedPosts] = useState<BlogPostData[]>(getInitialRelated(initialPost));
   
   useEffect(() => {
     const fetchPost = async () => {
       if (!slug) return;
       
       try {
-        // First try to fetch from Supabase
+        // Try to fetch from Supabase for latest version
         const { data: supabasePost, error } = await supabase
           .from('blog_posts')
           .select('*')
@@ -46,7 +61,6 @@ const BlogPost = () => {
           .single();
 
         if (supabasePost && !error) {
-          // Convert Supabase format to BlogPostData format
           const seoData = supabasePost.seo as any;
           const convertedPost: BlogPostData = {
             id: supabasePost.id,
@@ -65,7 +79,6 @@ const BlogPost = () => {
           
           setPost(convertedPost);
           
-          // Get related posts from Supabase
           const { data: relatedData } = await supabase
             .from('blog_posts')
             .select('*')
@@ -94,26 +107,15 @@ const BlogPost = () => {
             });
             setRelatedPosts(convertedRelated);
           }
-        } else {
-          // Fallback to static data if not found in Supabase
-          const foundPost = blogPosts.find(p => p.slug === slug);
-          
-          if (foundPost) {
-            setPost(foundPost);
-            
-            // Get related posts (same category, excluding current post)
-            const related = blogPosts
-              .filter(p => p.category === foundPost.category && p.id !== foundPost.id)
-              .slice(0, 3);
-            
-            setRelatedPosts(related);
-          } else {
-            navigate('/blog-overview');
-          }
+        } else if (!post) {
+          // No static data and no Supabase data — redirect
+          navigate('/blog-overview');
         }
       } catch (error) {
         console.error('Error fetching blog post:', error);
-        navigate('/blog-overview');
+        if (!post) {
+          navigate('/blog-overview');
+        }
       }
     };
 
