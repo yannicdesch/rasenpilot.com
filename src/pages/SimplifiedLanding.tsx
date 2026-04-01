@@ -276,7 +276,7 @@ const SimplifiedLanding = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-green-800 mb-2">Wissenschaftlich fundiert</h3>
-                  <p className="text-gray-600">Entwickelt mit Agrarwissenschaftlern - 98,3% Genauigkeit in unabhängigen Tests</p>
+                  <p className="text-gray-600">Entwickelt mit Agrarwissenschaftlern — GPT-4o Vision KI-Technologie</p>
                 </div>
               </div>
               
