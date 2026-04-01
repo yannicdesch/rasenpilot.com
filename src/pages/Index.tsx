@@ -82,8 +82,8 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
-              Warum 50.000+ Gartenbesitzer <br className="hidden md:block" />
-              uns vertrauen
+              Warum Gartenbesitzer auf <br className="hidden md:block" />
+              KI-Technologie setzen
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Modernste KI-Technologie trifft auf jahrzehntelange Rasenexpertise
@@ -101,8 +101,8 @@ const Index = () => {
                 inkl. <strong className="text-foreground">Krankheitserkennung</strong> und Produktempfehlungen.
               </p>
               <div className="mt-6 pt-6 border-t border-green-200">
-                <div className="text-3xl font-bold text-primary">98,3%</div>
-                <div className="text-sm text-muted-foreground">Genauigkeit</div>
+                <div className="text-3xl font-bold text-primary">GPT-4o</div>
+                <div className="text-sm text-muted-foreground">Vision KI-Technologie</div>
               </div>
             </div>
             
@@ -546,7 +546,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-2">
               <Check className="h-5 w-5" />
-              <span className="font-medium">98,3% Erfolgsrate</span>
+              <span className="font-medium">GPT-4o Vision KI</span>
             </div>
           </div>
         </div>
