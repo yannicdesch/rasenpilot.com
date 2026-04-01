@@ -228,10 +228,12 @@ export default function Subscription() {
               </div>
             )}
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold mb-4 text-gray-900 leading-tight">
-              Der KI-Rasenberater der deinen<br className="hidden md:block" /> Rasen <span className="text-green-600">wirklich kennt</span>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold mb-3 text-gray-900 leading-tight">
+              Der grünste Rasen in<br className="hidden md:block" /> deiner <span className="text-green-600">Straße</span>
             </h1>
-            
+            <p className="text-base md:text-lg text-gray-600 mb-4">
+              Starte kostenlos — upgrade jederzeit
+            </p>
 
             {/* Trust badges */}
             <div className="flex flex-wrap justify-center gap-3 md:gap-5 mb-2">
