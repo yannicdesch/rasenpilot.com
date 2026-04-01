@@ -17,7 +17,7 @@ const SimplifiedLanding = () => {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": "KI-Rasenpflegeplan von Rasenpilot",
-    "description": "Professionelle KI-gestützte Rasenanalyse mit wissenschaftlich fundierter Bewertung. Kostenlose Analyse mit 98,3% Genauigkeit.",
+    "description": "Professionelle KI-gestützte Rasenanalyse mit GPT-4o Vision Technologie. Kostenlose Analyse in 30 Sekunden.",
     "brand": {
       "@type": "Brand",
       "name": "Rasenpilot"
