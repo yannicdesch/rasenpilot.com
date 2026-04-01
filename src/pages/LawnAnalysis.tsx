@@ -664,22 +664,25 @@ const LawnAnalysis = () => {
         </div>
 
         {/* Trust Line */}
-        <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
+        <div className="flex items-center justify-center space-x-6 text-xs text-gray-500 mb-8">
           <div className="flex items-center space-x-1">
-            <Star className="h-4 w-4 text-yellow-500" />
-            <span>50.000+ Analysen</span>
+            <Zap className="h-4 w-4 text-green-500" />
+            <span>Kostenlos & ohne Anmeldung</span>
           </div>
           
           <div className="flex items-center space-x-1">
             <Lock className="h-4 w-4" />
-            <span>Nur zur Auswertung</span>
+            <span>Ergebnis in 30 Sekunden</span>
           </div>
           
           <div className="flex items-center space-x-1">
-            <FlaskConical className="h-4 w-4" />
-            <span>Wissenschaftlich validiert</span>
+            <Shield className="h-4 w-4" />
+            <span>DSGVO-konform</span>
           </div>
         </div>
+
+        {/* Example Result Preview */}
+        <ExampleResultPreview />
 
         {/* Hidden file input */}
         <input
