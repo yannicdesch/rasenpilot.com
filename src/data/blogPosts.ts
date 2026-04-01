@@ -94,7 +94,8 @@ Mit diesen Bewässerungsstrategien überstehen Sie und Ihr Rasen auch den heiße
     readTime: 7,
     keywords: ["Rasenbewässerung", "Rasen gießen", "Sommerhitze", "Trockenrasen", "Bewässerungstipps", "Rasenpflege Sommer"],
     metaTitle: "Richtig bewässern bei Hitze: Rasen im Hochsommer pflegen | Rasenpilot",
-    metaDescription: "Wie bewässert man seinen Rasen richtig bei anhaltender Hitze? Tipps und Strategien für eine effektive Bewässerung, die Ihren Rasen auch im Hochsommer gesund hält."
+    metaDescription: "Wie bewässert man seinen Rasen richtig bei anhaltender Hitze? Tipps und Strategien für eine effektive Bewässerung, die Ihren Rasen auch im Hochsommer gesund hält.",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=400&fit=crop"
   },
   {
     id: 4,
