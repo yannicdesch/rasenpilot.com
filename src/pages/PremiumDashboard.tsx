@@ -16,6 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import MainNavigation from '@/components/MainNavigation';
 import RankUpCelebration from '@/components/RankUpCelebration';
+import LawnComparison from '@/components/LawnComparison';
 import { getRank, getNextRank, getPointsToNextRank, getMotivation, getMilestone, getAchievementBadges, Rank } from '@/lib/rankSystem';
 
 const PremiumDashboard = () => {
@@ -361,6 +362,18 @@ const PremiumDashboard = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Fortschritt messen — Lawn Comparison */}
+          {latestAnalysis?.image_url && (
+            <div className="mb-8">
+              <LawnComparison
+                oldImageUrl={latestAnalysis.image_url}
+                oldScore={score}
+                oldDate={latestAnalysis.created_at}
+                grassType={lawnProfile?.grass_type}
+              />
+            </div>
+          )}
 
           {/* "So wirst du besser" Card */}
           {nextRank && (
