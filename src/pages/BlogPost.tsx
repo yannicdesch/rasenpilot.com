@@ -140,6 +140,15 @@ const BlogPost = () => {
     }
   };
 
+  // Add internal links for key terms
+  const addInternalLinks = (text: string): string => {
+    return text
+      .replace(/(?<!\[)Rasenanalyse(?!\])/g, '[Rasenanalyse](/lawn-analysis)')
+      .replace(/(?<!\[)Lawn Score(?!\])/g, '[Lawn Score](/lawn-analysis)')
+      .replace(/(?<!\[)kostenlose Analyse(?!\])/g, '[kostenlose Analyse](/lawn-analysis)')
+      .replace(/(?<!\[)KI-Analyse(?!\])/g, '[KI-Analyse](/lawn-analysis)');
+  };
+
   // Transform the content to proper HTML with heading structure and markdown
   const renderContent = () => {
     if (!post.content) return null;
@@ -148,21 +157,23 @@ const BlogPost = () => {
     const paragraphs = post.content.split('\n\n');
     
     return paragraphs.map((paragraph, index) => {
+      const enriched = addInternalLinks(paragraph);
+      
       // Check if paragraph is a heading (starts with ###)
-      if (paragraph.startsWith('### ')) {
-        const heading = paragraph.replace('### ', '');
+      if (enriched.startsWith('### ')) {
+        const heading = enriched.replace('### ', '');
         return <h3 key={index} className="text-xl font-semibold text-green-700 mt-6 mb-3">{parseInlineMarkdown(heading)}</h3>;
       }
       
       // Check if paragraph is a heading (starts with ##)
-      if (paragraph.startsWith('## ')) {
-        const heading = paragraph.replace('## ', '');
+      if (enriched.startsWith('## ')) {
+        const heading = enriched.replace('## ', '');
         return <h2 key={index} className="text-2xl font-bold text-green-800 mt-8 mb-4">{parseInlineMarkdown(heading)}</h2>;
       }
       
       // Check if paragraph is a list item (starts with -)
-      if (paragraph.includes('\n- ') || paragraph.startsWith('- ')) {
-        const listItems = paragraph.split('\n- ').filter(item => item.trim());
+      if (enriched.includes('\n- ') || enriched.startsWith('- ')) {
+        const listItems = enriched.split('\n- ').filter(item => item.trim());
         return (
           <ul key={index} className="mb-4 list-disc list-inside space-y-1">
             {listItems.map((item, listIndex) => (
@@ -175,7 +186,7 @@ const BlogPost = () => {
       }
       
       // Regular paragraph
-      return <p key={index} className="mb-4 text-gray-700 leading-relaxed">{parseInlineMarkdown(paragraph)}</p>;
+      return <p key={index} className="mb-4 text-gray-700 leading-relaxed">{parseInlineMarkdown(enriched)}</p>;
     });
   };
 
