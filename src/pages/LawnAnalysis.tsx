@@ -20,6 +20,63 @@ import { trackAnalysisStarted } from '@/lib/analytics/conversionTracking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { trackMetaViewContent } from '@/lib/analytics/metaPixel';
 
+const ExampleResultPreview = () => {
+  const [revealed, setRevealed] = useState(false);
+  
+  return (
+    <div className="mb-8">
+      <h2 className="text-lg font-semibold text-gray-800 text-center mb-3">So sieht deine Analyse aus:</h2>
+      <div className="relative bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
+        <div className={`p-5 space-y-4 transition-all duration-500 ${!revealed ? 'blur-sm select-none' : ''}`}>
+          {/* Fake result preview */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Lawn Score</span>
+            <span className="text-2xl font-bold text-green-600">72/100</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="bg-gradient-to-r from-yellow-400 to-green-500 h-3 rounded-full" style={{ width: '72%' }} />
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="bg-green-50 rounded-lg p-3">
+              <p className="font-medium text-green-800">✅ Dichte</p>
+              <p className="text-gray-600 text-xs">Guter Wuchs, leichte Lücken</p>
+            </div>
+            <div className="bg-yellow-50 rounded-lg p-3">
+              <p className="font-medium text-yellow-800">⚠️ Feuchtigkeit</p>
+              <p className="text-gray-600 text-xs">Leicht trocken</p>
+            </div>
+            <div className="bg-green-50 rounded-lg p-3">
+              <p className="font-medium text-green-800">✅ Bodenqualität</p>
+              <p className="text-gray-600 text-xs">Nährstoffreich</p>
+            </div>
+            <div className="bg-red-50 rounded-lg p-3">
+              <p className="font-medium text-red-800">🔴 Unkraut</p>
+              <p className="text-gray-600 text-xs">Klee erkannt</p>
+            </div>
+          </div>
+          <div className="bg-green-50 rounded-lg p-3">
+            <p className="font-semibold text-green-800 text-sm mb-1">Schritt 1: Düngen</p>
+            <p className="text-xs text-gray-600">Bringe einen stickstoffreichen Langzeitdünger aus, um die Lücken im Rasen zu schließen.</p>
+          </div>
+        </div>
+        
+        {!revealed && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/30">
+            <Button
+              onClick={() => setRevealed(true)}
+              variant="outline"
+              className="bg-white shadow-lg border-green-300 text-green-700 hover:bg-green-50"
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              Beispiel ansehen
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const LawnAnalysis = () => {
   const navigate = useNavigate();
   const { profile } = useLawn();
