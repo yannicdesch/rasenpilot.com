@@ -83,7 +83,7 @@ const Datenschutz = () => {
                   Am Hocholzergraben 56<br />
                   69190 Walldorf<br />
                   Telefon: +49 (0) 123 44 55 66<br />
-                  E-Mail: <a href="mailto:rasenpilot@gmail.com" className="text-green-600 hover:text-green-800">rasenpilot@gmail.com</a>
+                  E-Mail: <a href="mailto:info@rasenpilot.com" className="text-green-600 hover:text-green-800">info@rasenpilot.com</a>
                 </p>
                 <p>
                   Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten (z. B. Namen, E-Mail-Adressen o. Ä.) entscheidet.
