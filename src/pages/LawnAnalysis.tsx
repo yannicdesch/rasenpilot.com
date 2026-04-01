@@ -591,16 +591,23 @@ const LawnAnalysis = () => {
                   )}
                 </div>
                 
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  {limitLoading ? 'Lade Status...' : 'Foto hier ablegen'}
+                <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                  {limitLoading ? 'Lade Status...' : 'Zeig uns deinen Rasen 📸'}
                 </h3>
-                
-                <p className={`font-medium mb-3 ${limitLoading ? 'text-gray-500' : 'text-green-600 underline'}`}>
-                  {limitLoading ? 'Bitte warten...' : 'oder klicken zum Auswählen'}
+                <p className="text-sm text-gray-600 mb-3">
+                  {limitLoading ? 'Bitte warten...' : 'Wir analysieren ihn sofort mit KI'}
                 </p>
                 
-                <p className="text-sm text-gray-500">
+                <p className={`font-medium mb-3 ${limitLoading ? 'text-gray-500' : 'text-green-600 underline'}`}>
+                  {limitLoading ? '' : 'Klicken oder Foto hierher ziehen'}
+                </p>
+                
+                <p className="text-sm text-gray-500 mb-2">
                   JPG/PNG, max. 10 MB
+                </p>
+
+                <p className="text-xs text-gray-400 italic">
+                  💡 Tipp: Fotografiere bei Tageslicht von oben — für beste Ergebnisse
                 </p>
                 
                 {error && (
