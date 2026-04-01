@@ -31,6 +31,8 @@ const STATIC_PAGES = [
   { path: "/datenschutz", priority: "0.3", changefreq: "yearly" },
   { path: "/agb", priority: "0.3", changefreq: "yearly" },
   { path: "/cookie-policy", priority: "0.3", changefreq: "yearly" },
+  { path: "/rasenpflege-oesterreich", priority: "0.8", changefreq: "monthly" },
+  { path: "/rasenpflege-schweiz", priority: "0.8", changefreq: "monthly" },
 ] as const;
 
 const LOCAL_PAGES = [
