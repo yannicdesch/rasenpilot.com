@@ -108,12 +108,28 @@ export default function Subscription() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+
+      // Auto-trigger checkout if user returned from auth with a plan param
+      const planParam = searchParams.get('plan');
+      if (user && planParam) {
+        handleSubscribe(planParam);
+      }
     };
     getUser();
     trackMetaViewContent('Subscription Page', 'subscription', 9.99, 'EUR');
   }, []);
 
   const handleSubscribe = async (priceType: string) => {
+    // Require login before checkout
+    if (!user) {
+      toast({
+        title: "Registrierung erforderlich",
+        description: "Bitte erstelle zuerst ein kostenloses Konto, damit du dein Abo nutzen kannst.",
+      });
+      navigate(`/auth?redirect=/subscription&plan=${priceType}`);
+      return;
+    }
+
     setLoadingPlan(priceType);
     
     const valueMap: Record<string, number> = {
