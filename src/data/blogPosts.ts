@@ -396,7 +396,7 @@ Die beste Behandlung ist die Vorbeugung durch optimale Rasenpflege:
 - Verwendung resistenter Grassorten bei Nachsaat
 
 Bei allen Pflanzenschutzmaßnahmen gilt: Immer das mildeste wirksame Mittel wählen und die Umweltverträglichkeit beachten. Chemische Behandlungen sollten stets die letzte Option sein, wenn kulturelle Maßnahmen nicht ausreichen.`,
-    excerpt: "Braune Flecken, verfärbte Halme oder seltsame Muster im Rasen? Lerne, die häufigsten Rasenkrankheiten zu erkennen und wie Sie sie richtig behandeln können.",
+    excerpt: "Braune Flecken, verfärbte Halme oder seltsame Muster im Rasen? Lerne, die häufigsten Rasenkrankheiten zu erkennen und wie du sie richtig behandeln können.",
     date: "05.04.2025",
     author: "Thomas Müller",
     category: "problems",
