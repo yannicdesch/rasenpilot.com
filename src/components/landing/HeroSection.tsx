@@ -59,7 +59,7 @@ const HeroSection = () => {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
               </span>
               <span className="text-sm font-semibold text-primary font-poppins">
-                Heute schon <AnimatedCounter target={todayCount} /> Analysen durchgeführt
+                Heute schon <AnimatedCounter target={getDailyAnalysisCount()} /> Analysen durchgeführt
               </span>
             </div>
             
