@@ -11,6 +11,7 @@ import ContentManagement from '@/components/admin/ContentManagement';
 
 import { DatabaseSetup } from '@/components/admin/DatabaseSetup';
 import BlogManagement from '@/components/admin/BlogManagement';
+import OrphanedSubscriptions from '@/components/admin/OrphanedSubscriptions';
 
 const AdminPanel = () => {
   return (
