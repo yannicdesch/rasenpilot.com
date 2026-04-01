@@ -217,7 +217,8 @@ Mit regelmäßigem Vertikutieren schaffen Sie die Grundlage für einen dichten, 
     readTime: 7,
     keywords: ["Rasen vertikutieren", "Vertikutieren Anleitung", "Rasenfilz entfernen", "Rasenpflege", "Vertikutierer", "Rasenverbesserung"],
     metaTitle: "Rasen vertikutieren: Kompletter Leitfaden für Hobbygärtner | Rasenpilot",
-    metaDescription: "Erfahren Sie, wie Sie Ihren Rasen richtig vertikutieren. Der vollständige Leitfaden mit Tipps zu Zeitpunkt, Technik und Nachbehandlung für einen perfekten Rasen."
+    metaDescription: "Erfahren Sie, wie Sie Ihren Rasen richtig vertikutieren. Der vollständige Leitfaden mit Tipps zu Zeitpunkt, Technik und Nachbehandlung für einen perfekten Rasen.",
+    image: "https://images.unsplash.com/photo-1600207438283-a5de6d9df13e?w=800&h=400&fit=crop"
   },
   {
     id: 7,
