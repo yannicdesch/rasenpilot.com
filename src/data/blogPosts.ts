@@ -99,9 +99,9 @@ Mit diesen Bewässerungsstrategien übersteht dein Rasen auch den heißesten Som
   },
   {
     id: 4,
-    title: "Moos im Rasen bekämpfen: Natürliche und effektive Methoden",
+    title: "Moos im Rasen bekämpfen: Rasenanalyse zeigt die Ursachen",
     slug: "moos-im-rasen-bekaempfen-natuerliche-methoden",
-    content: `Moos im Rasen ist ein häufiges Problem, das auf ungünstige Wachstumsbedingungen für Gräser hinweist. Statt nur die Symptome zu behandeln, solltest du die Ursachen angehen, um langfristig einen moosfreien Rasen zu erhalten.
+    content: `Moos im Rasen ist ein häufiges Problem, das auf ungünstige Wachstumsbedingungen für Gräser hinweist. Eine professionelle Rasenanalyse hilft dir, die genauen Ursachen zu erkennen — mit der KI Rasenanalyse von Rasenpilot geht das sogar per Foto in 30 Sekunden.
 
 Die Hauptursachen für Moosbildung sind:
 - Verdichteter Boden mit schlechter Durchlüftung
@@ -129,15 +129,15 @@ Zur natürlichen Bekämpfung von Moos kannst du folgende Maßnahmen ergreifen:
 
 Natürliche Hausmittel wie eine Lösung aus Backpulver und Wasser (1:1) oder verdünnter Essig können in leichten Fällen helfen, sind jedoch bei starkem Befall nicht ausreichend.
 
-Denke daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimaler Bedingungen für das Rasenwachstum. Dann hat Moos langfristig keine Chance.`,
-    excerpt: "Entdecke wirksame und umweltfreundliche Methoden zur Bekämpfung von Moos in deinem Rasen. Erfahre, wie du nicht nur das Symptom, sondern die Ursachen angehen können.",
+Denke daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimaler Bedingungen für das Rasenwachstum. Nutze die Rasen Analyse App von Rasenpilot, um deinen Rasen analysieren zu lassen und einen individuellen Pflegeplan zu erhalten.`,
+    excerpt: "Moos im Rasen? Eine KI Rasenanalyse zeigt dir die Ursachen und gibt dir einen Pflegeplan. Entdecke natürliche Methoden zur Moosbekämpfung.",
     date: "01.05.2025",
     author: "Sarah Klein",
     category: "problems",
     readTime: 8,
-    keywords: ["Moosbekämpfung", "Moos im Rasen", "natürliche Rasenreinigung", "Vertikutieren", "Rasenpflege", "Rasenprobleme"],
-    metaTitle: "Moos im Rasen natürlich bekämpfen - Effektive Methoden | Rasenpilot",
-    metaDescription: "Erfahre, wie du Moos in deinem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung.",
+    keywords: ["Moosbekämpfung", "Moos im Rasen", "Rasenanalyse", "KI Rasenanalyse", "Rasen analysieren App", "Rasenpflege", "Rasenprobleme"],
+    metaTitle: "Moos im Rasen bekämpfen: KI-Rasenanalyse zeigt Ursachen | Rasenpilot",
+    metaDescription: "Moos im Rasen? Die KI Rasenanalyse von Rasenpilot erkennt Ursachen per Foto. Entdecke natürliche Methoden und erhalte einen persönlichen Pflegeplan.",
     image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&h=400&fit=crop"
   },
   {
