@@ -48,8 +48,7 @@ export const validateAdminRole = async (): Promise<boolean> => {
       await auditLogger.security('admin_validation_success', { userId: user.id });
     } else {
       await auditLogger.security('admin_validation_insufficient_role', { 
-        userId: user.id, 
-        actualRole: profile?.role 
+        userId: user.id
       });
     }
 
