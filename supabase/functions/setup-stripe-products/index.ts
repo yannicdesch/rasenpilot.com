@@ -41,7 +41,6 @@ serve(async (req) => {
         if (!adminRole) throw new Error("Admin access required");
       }
     }
-    // If no auth header, allow through (function-level auth handles this)
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2023-10-16" });
 
@@ -49,7 +48,17 @@ serve(async (req) => {
       {
         product_id: "premium_monthly",
         name: "Rasenpilot Premium",
-        description: "Unbegrenzte KI-Analysen, Pflegekalender, Wetter-Integration",
+        description: "Unbegrenzter Zugang zu allen Premium-Features",
+        features: [
+          "Unbegrenzte KI-Rasenanalysen mit GPT-4o Vision",
+          "Erkennung von 50+ Rasenproblemen (Moos, Pilze, Nährstoffmängel)",
+          "Personalisierter Pflegekalender mit Erinnerungen",
+          "Wetter-basierte Pflegetipps für deine Region",
+          "Rasen-Fortschritt messen mit Vorher/Nachher-Vergleich",
+          "PLZ-basiertes Rasen-Ranking in deiner Nachbarschaft",
+          "KI-Chat für individuelle Rasenberatung",
+          "Score-Verlauf & Analyse-Historie",
+        ],
         price_type: "premium_monthly",
         amount: 999,
         interval: "month" as const,
@@ -57,7 +66,14 @@ serve(async (req) => {
       {
         product_id: "premium_yearly",
         name: "Rasenpilot Premium Jährlich",
-        description: "Spare 2 Monate — 79,99€/Jahr",
+        description: "Spare 2 Monate — alle Premium-Features zum Jahrespreis",
+        features: [
+          "Alle Premium-Features inklusive",
+          "2 Monate gratis (79,99€ statt 119,88€/Jahr)",
+          "Unbegrenzte KI-Analysen & Pflegekalender",
+          "Wetter-Integration & regionale Tipps",
+          "Fortschritts-Tracking & Nachbarschafts-Ranking",
+        ],
         price_type: "premium_yearly",
         amount: 7999,
         interval: "year" as const,
@@ -65,7 +81,15 @@ serve(async (req) => {
       {
         product_id: "pro_monthly",
         name: "Rasenpilot Pro",
-        description: "Für Perfektionisten — 3 Rasenflächen, Experten-Check",
+        description: "Maximale Kontrolle für Rasen-Perfektionisten",
+        features: [
+          "Alles aus Premium inklusive",
+          "Bis zu 3 Rasenflächen gleichzeitig verwalten",
+          "Experten-Check: Detaillierte Profi-Analyse",
+          "Prioritäts-Support (Antwort innerhalb 2 Stunden)",
+          "Early Access zu neuen Features",
+          "Erweiterte Analyse-Berichte mit PDF-Export",
+        ],
         price_type: "pro_monthly",
         amount: 1999,
         interval: "month" as const,
@@ -73,7 +97,13 @@ serve(async (req) => {
       {
         product_id: "pro_yearly",
         name: "Rasenpilot Pro Jährlich",
-        description: "Spare 2 Monate — 159,99€/Jahr",
+        description: "Maximale Kontrolle zum besten Preis — 2 Monate gratis",
+        features: [
+          "Alle Pro-Features inklusive",
+          "2 Monate gratis (159,99€ statt 239,88€/Jahr)",
+          "3 Rasenflächen, Experten-Check, Prioritäts-Support",
+          "Early Access & erweiterte Berichte",
+        ],
         price_type: "pro_yearly",
         amount: 15999,
         interval: "year" as const,
@@ -90,16 +120,24 @@ serve(async (req) => {
         .eq("product_id", p.product_id)
         .maybeSingle();
 
-      if (existing?.stripe_price_id) {
-        console.log(`Product ${p.product_id} already exists, skipping`);
-        results.push({ product_id: p.product_id, status: "exists", price_id: existing.stripe_price_id });
+      if (existing?.stripe_price_id && existing?.stripe_product_id) {
+        // Update existing product description and features in Stripe
+        console.log(`Updating description for existing product ${p.product_id}`);
+        await stripe.products.update(existing.stripe_product_id, {
+          name: p.name,
+          description: p.description,
+          features: p.features.map(f => ({ name: f })),
+          metadata: { product_id: p.product_id, price_type: p.price_type },
+        });
+        results.push({ product_id: p.product_id, status: "updated", price_id: existing.stripe_price_id });
         continue;
       }
 
-      // Create Stripe product
+      // Create Stripe product with features
       const stripeProduct = await stripe.products.create({
         name: p.name,
         description: p.description,
+        features: p.features.map(f => ({ name: f })),
         metadata: { product_id: p.product_id, price_type: p.price_type },
       });
 
