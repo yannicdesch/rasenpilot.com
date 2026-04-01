@@ -18,6 +18,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { trackAnalysisStarted } from '@/lib/analytics/conversionTracking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { trackMetaViewContent } from '@/lib/analytics/metaPixel';
 
 const LawnAnalysis = () => {
   const navigate = useNavigate();
@@ -47,9 +48,10 @@ const LawnAnalysis = () => {
     "Tipp: Mulchmähen spart 30% der Düngungskosten."
   ];
 
-  // Auto-detect location on component mount
+  // Auto-detect location and track ViewContent on mount
   React.useEffect(() => {
     detectUserLocation();
+    trackMetaViewContent('Lawn Analysis', 'analysis');
   }, []);
 
   const detectUserLocation = async () => {
