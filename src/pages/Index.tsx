@@ -82,8 +82,8 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 font-dm-serif text-primary">
-              Warum 50.000+ Gartenbesitzer <br className="hidden md:block" />
-              uns vertrauen
+              Warum Gartenbesitzer auf <br className="hidden md:block" />
+              KI-Technologie setzen
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Modernste KI-Technologie trifft auf jahrzehntelange Rasenexpertise
