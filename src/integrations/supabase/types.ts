@@ -471,6 +471,45 @@ export type Database = {
         }
         Relationships: []
       }
+      orphaned_subscriptions: {
+        Row: {
+          created_at: string | null
+          customer_email: string | null
+          id: string
+          notes: string | null
+          price_type: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          stripe_customer_id: string | null
+          stripe_session_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email?: string | null
+          id?: string
+          notes?: string | null
+          price_type?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string | null
+          id?: string
+          notes?: string | null
+          price_type?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           id: string
