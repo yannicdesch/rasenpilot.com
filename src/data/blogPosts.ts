@@ -137,7 +137,8 @@ Denken Sie daran: Die nachhaltigste Methode gegen Moos ist die Schaffung optimal
     readTime: 8,
     keywords: ["Moosbekämpfung", "Moos im Rasen", "natürliche Rasenreinigung", "Vertikutieren", "Rasenpflege", "Rasenprobleme"],
     metaTitle: "Moos im Rasen natürlich bekämpfen - Effektive Methoden | Rasenpilot",
-    metaDescription: "Erfahren Sie, wie Sie Moos in Ihrem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung."
+    metaDescription: "Erfahren Sie, wie Sie Moos in Ihrem Rasen nachhaltig und umweltfreundlich bekämpfen können. Natürliche Methoden und Tipps zur Vorbeugung von Moosbildung.",
+    image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&h=400&fit=crop"
   },
   {
     id: 5,
