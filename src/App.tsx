@@ -137,6 +137,10 @@ const App = () => {
             {/* Redirects */}
             <Route path="/garden-pilot" element={<Navigate to="/lawn-analysis" replace />} />
             
+            {/* Country Landing Pages */}
+            <Route path="/rasenpflege-oesterreich" element={<RasenpflegeOesterreich />} />
+            <Route path="/rasenpflege-schweiz" element={<RasenpflegeSchweiz />} />
+            
             <Route path="/weather-advice" element={<WeatherAdvice />} />
             <Route path="/season-guide" element={<SeasonGuide />} />
             <Route path="/subscription" element={<Subscription />} />
