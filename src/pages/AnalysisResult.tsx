@@ -277,6 +277,19 @@ const AnalysisResult = () => {
   const diseases = result?.diseases || [];
   const weatherRecs = result?.weather_recommendations || [];
 
+  const shareData = {
+    score: healthScore,
+    rankName: rank.name,
+    rankEmoji: rank.emoji,
+    problems: result?.problems || [],
+    scoreDiff,
+    zipRank: null as number | null,
+    zipTotal: null as number | null,
+    zip: profile?.zip_code || undefined,
+    nextScoreGoal,
+    stepsCount: [result?.step_1, result?.step_2, result?.step_3].filter(Boolean).length,
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO
