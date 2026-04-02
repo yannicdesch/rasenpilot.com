@@ -537,32 +537,10 @@ const AnalysisResult = () => {
         )}
 
         {/* ═══════════════════════════════════════════════
-            BLOCK 6 — SCORE TEILEN
+            BLOCK 6 — SCORE TEILEN (Wrapped-style)
         ═══════════════════════════════════════════════ */}
-        <div className="mb-8">
-          <Card className="border-border">
-            <CardContent className="p-5">
-              <p className="text-sm font-semibold text-foreground mb-1 flex items-center gap-2">
-                <Share2 className="h-4 w-4" /> Kannst du mich schlagen? 💪
-              </p>
-              <p className="text-xs text-muted-foreground mb-3">Teile deinen Score — fordere Freunde heraus!</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#20bd5a] text-white h-10 text-sm">
-                  <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
-                </Button>
-                <Button onClick={handleFacebook} className="bg-[#1877F2] hover:bg-[#1565d8] text-white h-10 text-sm">
-                  <Facebook className="h-4 w-4 mr-2" /> Facebook
-                </Button>
-                <Button onClick={handleInstagram} className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white h-10 text-sm">
-                  <Instagram className="h-4 w-4 mr-2" /> Instagram
-                </Button>
-                <Button onClick={handleCopyLink} variant="outline" className="h-10 text-sm border-border">
-                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                  {copied ? 'Kopiert!' : 'Link kopieren'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <div id="share-section" className="mb-8">
+          <LawnScoreShareCard data={shareData} />
         </div>
 
       </div>
