@@ -1,7 +1,28 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.4.0';
 import { corsHeaders } from '../_shared/cors.ts';
-import { emailLayout, greeting, paragraph, heading, taskCard, infoCard, ctaButton, signoff } from '../_shared/email-template.ts';
+import { emailLayout, paragraph, ctaButton, infoCard } from '../_shared/email-template.ts';
+
+const AFFILIATE_TAG = 'rasenpilot21-21';
+
+const problemProductMap: Record<string, { asin: string; name: string; reason: string }> = {
+  'stickstoff': { asin: 'B0CHN4LSWQ', name: 'Turbogrün Extra-Power Rasendünger 10kg', reason: 'Behebt Stickstoffmangel und fördert sattes Grün' },
+  'moos': { asin: 'B00UT2LM2O', name: 'COMPO Rasendünger gegen Moos', reason: '3 Monate Langzeitwirkung gegen Moos' },
+  'kahl': { asin: 'B00IUPTZVC', name: 'Rasensamen Nachsaat schnellkeimend', reason: 'Füllt kahle Stellen schnell auf' },
+  'verdicht': { asin: 'B0001E3W7S', name: 'Gardena Rasenlüfter', reason: 'Lockert verdichteten Boden für besseres Wachstum' },
+  'trocken': { asin: 'B0749P42HT', name: 'Gardena Bewässerungscomputer', reason: 'Automatische Bewässerung zur optimalen Zeit' },
+  'pilz': { asin: 'B00FDFI4Z2', name: 'COMPO FLORANID Rasendünger', reason: 'Stärkt den Rasen gegen Pilzbefall' },
+  'unkraut': { asin: 'B00UT2LM2O', name: 'COMPO Rasendünger gegen Moos', reason: 'Bekämpft Unkraut und stärkt den Rasen' },
+  'düng': { asin: 'B0CHN4LSWQ', name: 'Turbogrün Extra-Power Rasendünger 10kg', reason: 'Optimale Nährstoffversorgung für deinen Rasen' },
+};
+
+function findProduct(text: string): { asin: string; name: string; reason: string } | null {
+  const lower = text.toLowerCase();
+  for (const [keyword, product] of Object.entries(problemProductMap)) {
+    if (lower.includes(keyword)) return product;
+  }
+  return null;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -9,41 +30,43 @@ serve(async (req) => {
   }
 
   try {
-    const { scheduledRun = false, testUser = false } = await req.json();
+    await req.json().catch(() => ({}));
 
-    const supabaseClient = createClient(
+    const supabase = createClient(
       Deno.env.get('SUPABASE_URL') || '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
     );
 
-    console.log('Starting care reminder job...');
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
 
-    const { data: profiles, error: profilesError } = await supabaseClient
+    const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select('id, email, full_name, email_preferences')
+      .select('id, email, full_name, first_name, email_preferences')
       .not('email_preferences', 'is', null);
 
-    if (profilesError) {
-      console.error('Error fetching profiles:', profilesError);
-      throw profilesError;
-    }
+    if (profilesError) throw profilesError;
 
     const usersWithReminders = (profiles || []).filter((p: any) => {
       try {
         const prefs = typeof p.email_preferences === 'string' ? JSON.parse(p.email_preferences) : p.email_preferences;
         if (!prefs?.reminders) return false;
-        
-        // Respect frequency setting: weekly = only on Mondays
         if (prefs.frequency === 'weekly' && today.getDay() !== 1) return false;
-        
         return true;
       } catch { return false; }
     });
 
     if (usersWithReminders.length === 0) {
-      return new Response(JSON.stringify({ success: true, message: 'No users to send reminders to' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ success: true, message: 'No users to send reminders to' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const apiKey = Deno.env.get('RESEND_API_KEY');
+    if (!apiKey) {
+      return new Response(JSON.stringify({ success: true, message: 'RESEND_API_KEY not set' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
     let remindersSent = 0;
@@ -51,40 +74,98 @@ serve(async (req) => {
 
     for (const user of usersWithReminders) {
       try {
-        const { data: lawnProfiles } = await supabaseClient
-          .from('lawn_profiles')
-          .select('id, user_id, name, grass_type, lawn_size, last_mowed, last_fertilized, soil_type')
-          .eq('user_id', user.id)
-          .limit(1);
-
-        const lawnProfile = lawnProfiles?.[0];
-        if (!lawnProfile) continue;
-
-        const tasksForToday = getTasksForToday(lawnProfile, today);
-        if (tasksForToday.length === 0) continue;
-
-        const { data: existingLogs } = await supabaseClient
+        // Check duplicate
+        const { data: existingLogs } = await supabase
           .from('reminder_logs')
           .select('task_type')
           .eq('user_id', user.id)
-          .eq('task_date', todayStr);
+          .eq('task_date', todayStr)
+          .eq('task_type', 'care_reminder');
 
-        const alreadySentTypes = existingLogs?.map((log: any) => log.task_type) || [];
-        const newTasks = tasksForToday.filter(task => !alreadySentTypes.includes(task.type));
-        if (newTasks.length === 0) continue;
+        if (existingLogs && existingLogs.length > 0) continue;
 
-        const emailSent = await sendReminderEmail(user, lawnProfile, newTasks);
+        // Get last analysis
+        const { data: analysis } = await supabase
+          .from('analyses')
+          .select('score, step_1, step_2, step_3, summary_short, density_note, moisture_note, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-        if (emailSent) {
-          for (const task of newTasks) {
-            await supabaseClient.from('reminder_logs').insert({ user_id: user.id, task_type: task.type, task_date: todayStr, email_sent: true });
-          }
+        if (!analysis) continue; // Only send to users with analyses
+
+        const userName = user.first_name || user.full_name?.split(' ')[0] || 'Rasenfreund';
+        const score = analysis.score;
+        const step1 = analysis.step_1 || 'Regelmäßig bewässern';
+        const nextGoal = Math.min(100, score + 8);
+        const analysisDate = new Date(analysis.created_at).toLocaleDateString('de-DE', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+
+        // Find matching product from analysis text
+        const searchText = [analysis.step_1, analysis.step_2, analysis.step_3, analysis.summary_short, analysis.density_note, analysis.moisture_note].filter(Boolean).join(' ');
+        const product = findProduct(searchText);
+
+        let productSection = '';
+        if (product) {
+          const amazonUrl = `https://www.amazon.de/dp/${product.asin}?tag=${AFFILIATE_TAG}`;
+          productSection = `
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:20px;margin:20px 0;">
+              <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:600;color:#92400e;margin:0 0 6px;">🛒 Dein Produkt-Tipp</p>
+              <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:15px;color:#1f2937;margin:0 0 4px;"><strong>${product.name}</strong></p>
+              <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:13px;color:#6b7280;margin:0 0 12px;">${product.reason}</p>
+              <a href="${amazonUrl}" style="display:inline-block;font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:13px;font-weight:600;color:#92400e;text-decoration:underline;">Auf Amazon ansehen →</a>
+              <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:10px;color:#9ca3af;margin:8px 0 0;">* Affiliate-Link – wir erhalten eine kleine Provision</p>
+            </div>
+          `;
+        }
+
+        const content = `
+          <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:16px;color:#1f2937;line-height:1.6;margin:0 0 16px;">
+            Hey <strong>${userName}</strong>!
+          </p>
+          ${paragraph(`Basierend auf deiner Analyse vom <strong>${analysisDate}</strong>:`)}
+          ${infoCard('Diese Woche empfohlen', `→ ${step1}`, '📋', '#f0fdf4', '#bbf7d0')}
+          ${productSection}
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
+            <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:13px;color:#6b7280;margin:0 0 4px;">Dein aktueller Score</p>
+            <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:32px;font-weight:700;color:#16a34a;margin:0;">${score}<span style="font-size:16px;color:#9ca3af;">/100</span></p>
+            <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:13px;color:#6b7280;margin:8px 0 0;">🎯 Nächstes Ziel: ${nextGoal}/100</p>
+          </div>
+          ${ctaButton('Neue Analyse starten →', 'https://www.rasenpilot.com/lawn-analysis')}
+          <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:14px;color:#6b7280;margin:24px 0 0;line-height:1.6;">
+            — Das Rasenpilot Team
+          </p>
+        `;
+
+        const subject = `🌱 ${userName}, dein Rasen braucht diese Woche: ${step1.substring(0, 40)}${step1.length > 40 ? '...' : ''}`;
+
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            from: 'Rasenpilot <noreply@rasenpilot.com>',
+            reply_to: 'info@rasenpilot.com',
+            to: [user.email],
+            subject,
+            html: emailLayout(content, `${step1} — Score: ${score}/100`),
+          })
+        });
+
+        if (response.ok) {
+          await supabase.from('reminder_logs').insert({
+            user_id: user.id, task_type: 'care_reminder', task_date: todayStr, email_sent: true
+          });
           remindersSent++;
+          console.log(`[CARE] Sent to ${user.email}, score: ${score}, product: ${product?.name || 'none'}`);
         } else {
-          errors.push(`Failed to send reminder to ${user.email}`);
+          const errText = await response.text();
+          console.error(`[CARE] Failed for ${user.email}: ${errText}`);
+          errors.push(`Failed: ${user.email}`);
         }
       } catch (error) {
-        errors.push(`Error processing ${user.email}: ${error.message}`);
+        errors.push(`Error: ${user.email}: ${error.message}`);
       }
     }
 
@@ -93,78 +174,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error in send-care-reminders function:', error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    console.error('[CARE] Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 });
-
-interface CareTask { type: string; title: string; description: string; icon: string; }
-
-function getTasksForToday(profile: any, today: Date): CareTask[] {
-  const tasks: CareTask[] = [];
-  const month = today.getMonth();
-  const isGrowingSeason = month >= 3 && month <= 9;
-  const mowingFreq = isGrowingSeason ? 7 : 14;
-  const fertilizingFreq = (month >= 2 && month <= 4) || (month >= 8 && month <= 10) ? 45 : 120;
-
-  if (profile.last_mowed) {
-    const daysSince = Math.floor((today.getTime() - new Date(profile.last_mowed).getTime()) / 86400000);
-    if (daysSince >= mowingFreq) {
-      tasks.push({ type: 'mowing', title: 'Zeit zum Mähen', description: `Dein Rasen wurde zuletzt am ${new Date(profile.last_mowed).toLocaleDateString('de-DE')} gemäht – ${daysSince} Tage her.`, icon: '🌿' });
-    }
-  } else {
-    tasks.push({ type: 'mowing', title: 'Rasen mähen', description: 'Du hast noch kein Mähdatum eingetragen. Trage es ein, um bessere Empfehlungen zu erhalten.', icon: '🌿' });
-  }
-
-  if (profile.last_fertilized) {
-    const daysSince = Math.floor((today.getTime() - new Date(profile.last_fertilized).getTime()) / 86400000);
-    if (daysSince >= fertilizingFreq) {
-      tasks.push({ type: 'fertilizing', title: 'Düngen empfohlen', description: `Letzte Düngung: ${new Date(profile.last_fertilized).toLocaleDateString('de-DE')} – ${daysSince} Tage her.`, icon: '🧪' });
-    }
-  }
-
-  return tasks;
-}
-
-async function sendReminderEmail(user: any, lawnProfile: any, tasks: CareTask[]): Promise<boolean> {
-  const apiKey = Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) {
-    console.log('RESEND_API_KEY not configured - skipping email to:', user.email);
-    return true;
-  }
-
-  const taskCards = tasks.map(t => taskCard(t.title, t.description, t.icon)).join('');
-
-  const content = `
-    ${greeting(user.full_name || 'Rasenfreund')}
-    ${paragraph(`Hier ist dein täglicher Pflegeplan für <strong>${lawnProfile.name || 'deinen Rasen'}</strong>.`)}
-    ${heading(`📋 Heute zu erledigen (${tasks.length})`)}
-    ${taskCards}
-    ${infoCard('Profi-Tipp', 'Mähe bei bedecktem Himmel oder am späten Nachmittag – so vermeidest du Stress für deinen Rasen.', '💡')}
-    ${ctaButton('Zur Rasen-Analyse →', 'https://www.rasenpilot.com/lawn-analysis')}
-    ${signoff()}
-  `;
-
-  const emailHtml = emailLayout(content, `${tasks.length} Rasenpflege-Aufgabe${tasks.length > 1 ? 'n' : ''} für heute`);
-
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        from: 'Rasenpilot <noreply@rasenpilot.com>',
-        to: [user.email],
-        subject: `🌿 ${tasks.length} Aufgabe${tasks.length > 1 ? 'n' : ''} für deinen Rasen heute`,
-        html: emailHtml
-      })
-    });
-    if (!response.ok) {
-      console.error('Email API error:', await response.text());
-      return false;
-    }
-    return true;
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return false;
-  }
-}
