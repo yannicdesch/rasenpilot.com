@@ -578,6 +578,7 @@ export type Database = {
           highscore: number | null
           id: string
           is_active: boolean | null
+          last_overtaken_notification: string | null
           last_sign_in_at: string | null
           role: string | null
           updated_at: string | null
@@ -592,6 +593,7 @@ export type Database = {
           highscore?: number | null
           id: string
           is_active?: boolean | null
+          last_overtaken_notification?: string | null
           last_sign_in_at?: string | null
           role?: string | null
           updated_at?: string | null
@@ -606,6 +608,7 @@ export type Database = {
           highscore?: number | null
           id?: string
           is_active?: boolean | null
+          last_overtaken_notification?: string | null
           last_sign_in_at?: string | null
           role?: string | null
           updated_at?: string | null
