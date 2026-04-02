@@ -1,26 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Download, Share, Star, Leaf, Target, Calendar, AlertTriangle, Droplets, Zap, Sun, Thermometer, Bug, MapPin, TrendingUp, BookOpen, Lightbulb, Crown, Bell, ChevronRight } from 'lucide-react';
-import DiseaseDetection from '@/components/DiseaseDetection';
-import ProductRecommendations from '@/components/ProductRecommendations';
+import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp, MessageCircle, Facebook, Instagram, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import WeatherEnhancedResults from '@/components/WeatherEnhancedResults';
 import MainNavigation from '@/components/MainNavigation';
-import RetentionSignUpForm from '@/components/RetentionSignUpForm';
-import LawnJourneyTracker from '@/components/LawnJourneyTracker';
-import PostAnalysisConversion from '@/components/conversion/PostAnalysisConversion';
-import FreeAnalysisGate from '@/components/conversion/FreeAnalysisGate';
-import PremiumPreview from '@/components/conversion/PremiumPreview';
 import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import { useLawn } from '@/context/LawnContext';
 import { useRetentionTracking } from '@/hooks/useRetentionTracking';
 import { useSubscription } from '@/hooks/useSubscription';
-import LawnScoreShareCard from '@/components/LawnScoreShareCard';
+import { amazonProducts, getAmazonUrl, getAmazonImageUrl } from '@/lib/amazonProducts';
 
 interface AnalysisJobResult {
   id: string;
@@ -35,932 +27,549 @@ const AnalysisResult = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const { profile } = useLawn();
-  const { isPremium, planTier, createCheckout } = useSubscription();
+  const { isPremium, planTier } = useSubscription();
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'journey' | 'details'>('overview');
-  const [showEmailCapture, setShowEmailCapture] = useState(false);
-  const [showWelcomeBar, setShowWelcomeBar] = useState(false);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [previousScore, setPreviousScore] = useState<number | null>(null);
-  const [scoreHistory, setScoreHistory] = useState<{month: string; score: number | null}[]>([]);
-  
+  const [copied, setCopied] = useState(false);
+  const stepsRef = useRef<HTMLDivElement>(null);
+
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
-  const { retentionData, isLoading: retentionLoading, handleSignUpComplete, trackAnalysisFromReminder } = useRetentionTracking(healthScore, jobId);
+  const { retentionData } = useRetentionTracking(healthScore, jobId);
+  const result = analysisData?.result;
 
-  // Show premium welcome bar on first visit
-  useEffect(() => {
-    if (isPremium) {
-      const key = `rasenpilot_premium_welcome_${jobId}`;
-      if (!sessionStorage.getItem(key)) {
-        setShowWelcomeBar(true);
-        sessionStorage.setItem(key, '1');
-        setTimeout(() => setShowWelcomeBar(false), 3000);
-      }
-    }
-  }, [isPremium, jobId]);
+  // Check for error in analysis result
+  const analysisError = result?.error;
 
-  // Fetch previous score for comparison
+  // Fetch previous score
   useEffect(() => {
-    if (!isPremium || !analysisData) return;
-    const fetchPreviousScore = async () => {
+    if (!analysisData) return;
+    const fetchPrev = async () => {
       try {
         const { data } = await supabase
           .from('analyses')
           .select('score, created_at')
           .order('created_at', { ascending: false })
-          .limit(10);
-        
+          .limit(5);
         if (data && data.length > 0) {
-          // Build score history for the tracker
-          const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-          const historyMap: Record<string, number> = {};
-          data.forEach(a => {
-            const d = new Date(a.created_at);
-            const key = months[d.getMonth()];
-            if (!historyMap[key] || a.score > historyMap[key]) {
-              historyMap[key] = a.score;
-            }
-          });
-          
-          const now = new Date();
-          const currentMonthIdx = now.getMonth();
-          const history: {month: string; score: number | null}[] = [];
-          for (let i = 5; i >= 0; i--) {
-            const idx = (currentMonthIdx - i + 12) % 12;
-            const m = months[idx];
-            history.push({ month: m, score: historyMap[m] || null });
-          }
-          setScoreHistory(history);
-
-          // Find previous score (not from current analysis)
-          const currentDate = analysisData.created_at;
-          const prev = data.find(a => a.created_at < currentDate);
-          if (prev) {
-            setPreviousScore(prev.score);
-          }
+          const prev = data.find(a => a.created_at < analysisData.created_at);
+          if (prev) setPreviousScore(prev.score);
         }
-      } catch (e) {
-        console.error('Error fetching previous score:', e);
-      }
+      } catch {}
     };
-    fetchPreviousScore();
-  }, [isPremium, analysisData]);
+    fetchPrev();
+  }, [analysisData]);
 
+  // Polling for analysis result
   useEffect(() => {
     let pollTimer: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
 
-    const fetchAnalysisResult = async () => {
-      if (!jobId) {
-        setError('Keine Analyse-ID gefunden');
-        setIsLoading(false);
-        return;
-      }
-
+    const fetchResult = async () => {
+      if (!jobId) { setError('Keine Analyse-ID gefunden'); setIsLoading(false); return; }
       try {
-        const { data, error } = await supabase
-          .rpc('get_analysis_job', { p_job_id: jobId });
-
-        if (error) throw error;
-
+        const { data, error: err } = await supabase.rpc('get_analysis_job', { p_job_id: jobId });
+        if (err) throw err;
         if (data && typeof data === 'object' && !Array.isArray(data)) {
-          const jobData = data as unknown as AnalysisJobResult;
-          
-          // If still processing, poll every 2 seconds
-          if (jobData.status === 'processing' || jobData.status === 'pending') {
-            if (!cancelled) {
-              pollTimer = setTimeout(fetchAnalysisResult, 2000);
-            }
+          const job = data as unknown as AnalysisJobResult;
+          if (job.status === 'processing' || job.status === 'pending') {
+            if (!cancelled) pollTimer = setTimeout(fetchResult, 2000);
             return;
           }
-          
-          if (jobData.status === 'failed') {
-            setError('Die Analyse ist fehlgeschlagen. Bitte versuche es erneut.');
+          if (job.status === 'failed') {
+            setError('Die Analyse konnte nicht durchgeführt werden. Bitte versuche es erneut.');
             setIsLoading(false);
             return;
           }
-
-          setAnalysisData(jobData);
-          await trackAnalysisFromReminder();
+          setAnalysisData(job);
         } else {
           setError('Analyse-Ergebnis nicht gefunden');
         }
-      } catch (error) {
-        console.error('Error fetching analysis result:', error);
-        setError('Fehler beim Laden des Ergebnisses');
+      } catch {
+        setError('Die Analyse konnte nicht durchgeführt werden. Bitte versuche es erneut.');
       } finally {
-        if (!cancelled && !pollTimer) {
-          setIsLoading(false);
-        }
+        if (!cancelled && !pollTimer) setIsLoading(false);
       }
     };
-
-    fetchAnalysisResult();
-    
-    return () => {
-      cancelled = true;
-      if (pollTimer) clearTimeout(pollTimer);
-    };
+    fetchResult();
+    return () => { cancelled = true; if (pollTimer) clearTimeout(pollTimer); };
   }, [jobId]);
 
-  const getHealthScore = () => {
-    if (!analysisData?.result) return 65;
-    return analysisData.result.score || analysisData.result.overall_health || 65;
+  // Helpers
+  const getScoreColor = (s: number) => s >= 80 ? 'text-green-600' : s >= 60 ? 'text-yellow-600' : 'text-red-600';
+  const getScoreRingColor = (s: number) => s >= 80 ? '#16a34a' : s >= 60 ? '#ca8a04' : '#dc2626';
+  const getRangBadge = (s: number) => {
+    if (s >= 90) return { label: '🏆 Traumrasen', bg: 'bg-green-100 text-green-800' };
+    if (s >= 80) return { label: '🌟 Sehr gut', bg: 'bg-green-50 text-green-700' };
+    if (s >= 70) return { label: '🌿 Gut', bg: 'bg-yellow-50 text-yellow-700' };
+    if (s >= 60) return { label: '🌱 Verbesserungsfähig', bg: 'bg-yellow-100 text-yellow-800' };
+    if (s >= 40) return { label: '⚠️ Mangelhaft', bg: 'bg-orange-100 text-orange-800' };
+    return { label: '🔴 Kritisch', bg: 'bg-red-100 text-red-800' };
   };
 
-  const getAnalysisResult = () => {
-    if (!analysisData?.result) return null;
-    return analysisData.result;
-  };
-
-  const getProblems = () => {
-    const result = getAnalysisResult();
-    if (!result) return [];
-    return result.issues || result.identified_problems || [
-      { type: 'Nährstoffmangel', severity: 'hoch', description: 'Stickstoffmangel führt zu gelblichen Verfärbungen' },
-      { type: 'Unkraut', severity: 'mittel', description: 'Löwenzahn und Klee breiten sich aus' },
-      { type: 'Bodenverdichtung', severity: 'mittel', description: 'Schlechte Belüftung des Bodens' }
-    ];
-  };
-
-  const getRecommendations = () => {
-    const result = getAnalysisResult();
-    if (!result) return { immediate: [], seasonal: [], weather: [] };
-    
-    const weatherRecs = result.weather_recommendations || [];
-    
-    if (result.recommendations && Array.isArray(result.recommendations)) {
-      return {
-        immediate: result.recommendations.slice(0, 3).map((rec, index) => ({
-          action: rec,
-          priority: index < 2 ? 'hoch' : 'mittel',
-          details: 'Detaillierte Anweisungen folgen in Ihrem persönlichen Pflegeplan.',
-          cost: '€€',
-          timing: 'Nächste 2 Wochen'
-        })),
-        seasonal: result.recommendations.slice(3).map(rec => ({
-          month: 'Aktuelle Saison',
-          tasks: rec,
-          details: 'Langfristige Rasenpflege'
-        })),
-        weather: weatherRecs
-      };
-    }
-
-    return result.recommendations || {
-      immediate: [
-        { action: 'Düngen', priority: 'hoch', details: 'Rasen gleichmäßig düngen; Dosierung nach Herstellerhinweis', timing: 'Sofort' },
-        { action: 'Vertikutieren', priority: 'hoch', details: 'Moos und Rasenfilz flach entfernen', timing: 'Nächste 2 Wochen' },
-        { action: 'Nachsäen', priority: 'mittel', details: 'Kahle Stellen mit passender Saatmischung schließen', timing: 'Nach Vertikutieren' }
-      ],
-      seasonal: [
-        { month: 'März-April', tasks: 'Frühjahrsputz, erste Düngung', details: 'Rasen von Laub befreien, Startdüngung' },
-        { month: 'Mai-Juni', tasks: 'Regelmäßig mähen und wässern', details: '1x wöchentlich mähen, bei Trockenheit täglich wässern' },
-        { month: 'Juli-August', tasks: 'Sommerpflege, Bewässerung', details: 'Früh morgens wässern, höher mähen' }
-      ]
-    };
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Ausgezeichnet';
-    if (score >= 60) return 'Verbesserungsfähig';
-    return 'Behandlung nötig';
-  };
-
-  const handleStartAgain = () => {
-    navigate('/lawn-analysis');
-  };
-
-  const handleDownloadPlan = () => {
-    if (!analysisData?.result) return;
-    
-    const result = analysisData.result;
-    const score = getHealthScore();
-    
-    const pdfContent = `
-RASENANALYSE-BERICHT
-====================
-
-BEWERTUNG: ${score}/100 - ${getScoreLabel(score)}
-Datum: ${new Date(analysisData.created_at).toLocaleDateString('de-DE')}
-
-RASEN-ZUSTAND:
-${result.grass_condition || 'Keine detaillierte Beschreibung verfügbar'}
-
-IDENTIFIZIERTE PROBLEME:
-${getProblems().map((p, i) => `${i + 1}. ${p.type}: ${p.description}`).join('\n')}
-
-RASENPILOT EMPFIEHLT (0–4 WOCHEN):
-${getRecommendations().immediate?.map((r, i) => 
-  `${i + 1}. ${r.action} (Priorität: ${r.priority})
-     Details: ${r.details}
-     Timing: ${r.timing}`
-).join('\n\n') || 'Keine spezifischen Sofortmaßnahmen verfügbar'}
- 
-TIMELINE:
-${result.timeline || 'Keine Timeline verfügbar'}
- 
-PFLEGEPLAN:
-- Woche 1-2: Sofortmaßnahmen durchführen
-- Woche 3-6: Etablierungsphase mit regelmäßiger Pflege  
-- Woche 7-12: Perfektionierung und Optimierung
- 
-Erstellt von: RasenPilot Analyse
-Website: www.rasenpilot.com
-    `.trim();
-
-    const blob = new Blob([pdfContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `rasenanalyse-${score}-punkte-${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast.success("Pflegeplan heruntergeladen", {
-      description: "Ihr personalisierter Rasenplan wurde als Textdatei gespeichert.",
-    });
-  };
-
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: 'Meine Rasenanalyse-Ergebnisse',
-        text: `Ich habe meinen Rasen analysiert und einen Score von ${getHealthScore()}/100 erreicht!`,
-        url: window.location.href
-      });
-    } catch (error) {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Link kopiert", {
-        description: "Der Link zu Ihrer Analyse wurde in die Zwischenablage kopiert.",
-      });
-    }
-  };
-
-  // Helper: get next month name
   const getNextAnalysisDate = () => {
+    const weeks = result?.next_analysis_weeks || 4;
     const next = new Date();
-    next.setMonth(next.getMonth() + 1);
-    next.setDate(1);
+    next.setDate(next.getDate() + weeks * 7);
     return next.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  // Helper: get current month care plan
-  const getCurrentMonthCarePlan = () => {
-    const month = new Date().getMonth();
-    const monthName = new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-    
-    const result = getAnalysisResult();
-    const recs = result?.recommendations;
-    
-    // Try to build from analysis recommendations
-    if (recs && Array.isArray(recs) && recs.length >= 3) {
-      return {
-        title: monthName,
-        weeks: [
-          { week: 'Woche 1', task: recs[0] || 'Vertikutieren + Kalken' },
-          { week: 'Woche 2', task: recs[1] || 'Düngen (Langzeitdünger)' },
-          { week: 'Woche 3', task: recs[2] || 'Nachsäen kahle Stellen' },
-          { week: 'Woche 4', task: 'Bewässerung optimieren' },
-        ]
-      };
+  const shareText = `Mein Rasen hat ${healthScore}/100 Punkte! 🌱 Kannst du mich schlagen? → rasenpilot.com`;
+  const shareUrl = 'https://rasenpilot.com';
+
+  const handleWhatsApp = () => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+  const handleFacebook = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+  const handleInstagram = () => { navigator.clipboard.writeText(shareText); toast.success('Text kopiert! Füge ihn in deine Instagram Story ein 📸'); };
+  const handleCopyLink = () => { navigator.clipboard.writeText(shareText); setCopied(true); toast.success('In die Zwischenablage kopiert!'); setTimeout(() => setCopied(false), 2000); };
+
+  const handleDownloadPlan = () => {
+    if (!result) return;
+    const txt = `RASENANALYSE-BERICHT\n====================\n\nBEWERTUNG: ${healthScore}/100\nDatum: ${new Date(analysisData!.created_at).toLocaleDateString('de-DE')}\n\nZUSAMMENFASSUNG:\n${result.summary_short || result.grass_condition || ''}\n\nPROBLEME:\n${(result.problems || []).map((p: string, i: number) => `${i + 1}. ${p}`).join('\n')}\n\nSOFORTMASSNAHMEN:\n1. ${result.step_1 || '-'}\n2. ${result.step_2 || '-'}\n3. ${result.step_3 || '-'}\n\nErstellt von: RasenPilot\nWebsite: www.rasenpilot.com`;
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rasenanalyse-${healthScore}-punkte.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Pflegeplan heruntergeladen!');
+  };
+
+  // Get products from analysis result (ASIN-based)
+  const getProducts = () => {
+    const products: { asin: string; name: string; reason: string }[] = [];
+    if (result?.product_1_asin && amazonProducts[result.product_1_asin]) {
+      products.push({ asin: result.product_1_asin, name: result.product_1_name || amazonProducts[result.product_1_asin].name, reason: result.product_1_reason || '' });
     }
-
-    // Seasonal defaults
-    const plans: Record<number, string[]> = {
-      0: ['Rasen schonen', 'Bei Frost nicht betreten', 'Laub entfernen', 'Geräte warten'],
-      1: ['Rasen schonen', 'Bei Frost nicht betreten', 'Mäher-Check', 'Dünger bestellen'],
-      2: ['Vertikutieren', 'Erste Düngung', 'Nachsäen', 'Bewässerung starten'],
-      3: ['Vertikutieren + Kalken', 'Düngen (Langzeitdünger)', 'Nachsäen kahle Stellen', 'Bewässerung optimieren'],
-      4: ['Regelmäßig mähen', 'Unkraut entfernen', 'Bewässerung anpassen', 'Rasenkanten schneiden'],
-      5: ['Wöchentlich mähen', 'Sommerdüngung', 'Morgens wässern', 'Mähhöhe erhöhen'],
-      6: ['Höher mähen (5cm)', 'Morgens wässern', 'Weniger düngen', 'Mulchen'],
-      7: ['Höher mähen', 'Regelmäßig wässern', 'Nachsaat vorbereiten', 'Herbstdünger kaufen'],
-      8: ['Herbstdüngung', 'Nachsäen', 'Vertikutieren', 'Laub entfernen'],
-      9: ['Laub entfernen', 'Letzte Mahd', 'Herbstdünger', 'Bewässerung reduzieren'],
-      10: ['Laub entfernen', 'Nicht mehr düngen', 'Rasen schonen', 'Mäher einwintern'],
-      11: ['Rasen ruhen lassen', 'Bei Frost nicht betreten', 'Geräte warten', 'Frühling planen'],
-    };
-
-    const tasks = plans[month] || plans[3];
-    return {
-      title: monthName,
-      weeks: tasks.map((task, i) => ({ week: `Woche ${i + 1}`, task }))
-    };
+    if (result?.product_2_asin && amazonProducts[result.product_2_asin]) {
+      products.push({ asin: result.product_2_asin, name: result.product_2_name || amazonProducts[result.product_2_asin].name, reason: result.product_2_reason || '' });
+    }
+    // Fallback: match from text if no ASINs
+    if (products.length === 0 && result) {
+      const text = [result.summary_short, result.grass_condition, ...(result.problems || []), result.step_1, result.step_2, result.step_3].filter(Boolean).join(' ').toLowerCase();
+      const entries = Object.entries(amazonProducts);
+      if (text.includes('stickstoff') || text.includes('düng') || text.includes('gelb') || text.includes('blass')) {
+        products.push({ asin: 'B0CHN4LSWQ', name: amazonProducts['B0CHN4LSWQ'].name, reason: 'Behebt Stickstoffmangel' });
+      }
+      if (text.includes('moos') || text.includes('unkraut') || text.includes('klee')) {
+        products.push({ asin: 'B00UT2LM2O', name: amazonProducts['B00UT2LM2O'].name, reason: 'Bekämpft Moos & Unkraut' });
+      }
+      if (text.includes('kahl') || text.includes('lücke') || text.includes('nachsa')) {
+        products.push({ asin: 'B00IUPTZVC', name: amazonProducts['B00IUPTZVC'].name, reason: 'Für kahle Stellen' });
+      }
+      if (text.includes('verdicht') || text.includes('lüft')) {
+        products.push({ asin: 'B0001E3W7S', name: amazonProducts['B0001E3W7S'].name, reason: 'Gegen Bodenverdichtung' });
+      }
+      if (text.includes('trocken') || text.includes('bewässer') || text.includes('dürre')) {
+        products.push({ asin: 'B0749P42HT', name: amazonProducts['B0749P42HT'].name, reason: 'Automatische Bewässerung' });
+      }
+      if (text.includes('pilz')) {
+        products.push({ asin: 'B00FDFI4Z2', name: amazonProducts['B00FDFI4Z2'].name, reason: 'Gegen Pilzbefall' });
+      }
+    }
+    return products.slice(0, 2);
   };
 
-  const getSeasonalHint = () => {
-    const month = new Date().getMonth() + 1;
-    if (month >= 3 && month <= 5) return "Jetzt ist der perfekte Zeitpunkt für die erste Düngung.";
-    if (month >= 6 && month <= 8) return "Achte auf gleichmäßiges Gießen in den heißen Wochen.";
-    if (month >= 9 && month <= 11) return "Nachsaat hilft, den Rasen für das nächste Frühjahr zu stärken.";
-    return "Schonend behandeln – bitte wenig betreten.";
-  };
-
-  const getBriefAssessment = (score: number) => {
-    if (score >= 80) return "Dein Rasen ist in ausgezeichnetem Zustand – weiter so!";
-    if (score >= 60) return "Dein Rasen ist in Ordnung, aber es gibt noch Luft nach oben – mit der richtigen Pflege kannst du ihn deutlich verbessern.";
-    return "Dein Rasen braucht dringend Aufmerksamkeit, aber mit dem richtigen Plan wird er wieder gesund.";
-  };
-
+  // Sub-scores for premium detail section
   const getSubScores = () => {
-    const result = getAnalysisResult();
     if (result?.detailed_scoring) {
       return {
         density: Math.round((result.detailed_scoring.grass_density / 20) * 100),
-        sunlight: Math.round((result.detailed_scoring.health_status / 20) * 100),
         moisture: Math.round((result.detailed_scoring.color_quality / 20) * 100),
-        soil: Math.round((result.detailed_scoring.soil_condition / 20) * 100)
+        sunlight: Math.round((result.detailed_scoring.health_status / 20) * 100),
+        soil: Math.round((result.detailed_scoring.soil_condition / 20) * 100),
       };
     }
+    const base = healthScore;
     return {
-      density: Math.max(30, healthScore - 20 + Math.random() * 20),
-      sunlight: Math.max(40, healthScore - 10 + Math.random() * 30),
-      moisture: Math.max(20, healthScore - 30 + Math.random() * 40),
-      soil: Math.max(35, healthScore - 15 + Math.random() * 25)
+      density: Math.max(30, base - 10 + Math.round(Math.random() * 15)),
+      moisture: Math.max(25, base - 15 + Math.round(Math.random() * 20)),
+      sunlight: Math.max(35, base - 5 + Math.round(Math.random() * 15)),
+      soil: Math.max(30, base - 10 + Math.round(Math.random() * 15)),
     };
   };
 
-  const subScores = getSubScores();
+  // SVG Score Ring
+  const ScoreRing = ({ score, size = 160 }: { score: number; size?: number }) => {
+    const strokeWidth = 12;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (score / 100) * circumference;
+    return (
+      <svg width={size} height={size} className="mx-auto">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#e5e7eb" strokeWidth={strokeWidth} />
+        <circle
+          cx={size / 2} cy={size / 2} r={radius} fill="none"
+          stroke={getScoreRingColor(score)} strokeWidth={strokeWidth}
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          className="transition-all duration-1000 ease-out"
+        />
+        <text x={size / 2} y={size / 2 - 8} textAnchor="middle" className="fill-current text-foreground" fontSize="42" fontWeight="800">{score}</text>
+        <text x={size / 2} y={size / 2 + 18} textAnchor="middle" className="fill-muted-foreground" fontSize="14" fontWeight="500">/100 Punkte</text>
+      </svg>
+    );
+  };
 
+  // LOADING
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
         <MainNavigation />
-        <div className="container mx-auto px-4 py-12 max-w-md">
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-6 bg-green-600 rounded-full flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <h2 className="text-xl font-semibold text-gray-800">Lade Analyse-Ergebnis...</h2>
+        <div className="container mx-auto px-4 py-16 max-w-md text-center">
+          <div className="w-16 h-16 mx-auto mb-6 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
           </div>
+          <h2 className="text-xl font-semibold text-foreground">Dein Rasen wird analysiert...</h2>
+          <p className="text-muted-foreground text-sm mt-2">Das dauert ca. 10-15 Sekunden</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  // ERROR — API failure
+  if (error && !analysisError) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
         <MainNavigation />
-        <div className="container mx-auto px-4 py-12 max-w-md">
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-              <span className="text-2xl">⚠️</span>
+        <div className="container mx-auto px-4 py-16 max-w-md text-center">
+          <div className="w-20 h-20 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
+            <span className="text-4xl">📷</span>
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">Die Analyse konnte nicht durchgeführt werden</h2>
+          <p className="text-muted-foreground mb-6">Bitte versuche es erneut.</p>
+          <Button onClick={() => navigate('/lawn-analysis')} className="bg-green-600 hover:bg-green-700 h-12 px-8">
+            <RefreshCw className="h-4 w-4 mr-2" /> Erneut versuchen →
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ERROR — JSON error from GPT (no lawn detected)
+  if (analysisError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+        <MainNavigation />
+        <div className="container mx-auto px-4 py-16 max-w-md text-center">
+          <div className="w-20 h-20 mx-auto mb-6 bg-amber-50 rounded-full flex items-center justify-center">
+            <span className="text-4xl">📷</span>
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">Foto konnte nicht analysiert werden</h2>
+          <p className="text-muted-foreground mb-6">
+            Bitte lade ein klares Foto deines Rasens hoch — bei Tageslicht und von oben fotografiert.
+          </p>
+          <Button onClick={() => navigate('/lawn-analysis')} className="bg-green-600 hover:bg-green-700 h-12 px-8">
+            <Camera className="h-4 w-4 mr-2" /> Neues Foto hochladen →
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const rang = getRangBadge(healthScore);
+  const products = getProducts();
+  const subScores = getSubScores();
+  const scoreDiff = previousScore !== null ? healthScore - previousScore : null;
+  const diseases = result?.diseases || [];
+  const weatherRecs = result?.weather_recommendations || [];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <SEO
+        title={`Dein Rasen-Score: ${healthScore}/100 🌱 | RasenPilot`}
+        description={result?.summary_short || 'Dein personalisiertes Rasen-Analyseergebnis'}
+        keywords="Rasenanalyse Ergebnis, Rasen Score, Rasenpflege"
+        canonical={`https://www.rasenpilot.com/analysis-result/${jobId}`}
+      />
+      <MainNavigation />
+
+      <div className="container mx-auto px-4 py-6 max-w-lg">
+
+        {/* ═══════════════════════════════════════════════
+            BLOCK 1 — HERO (above fold)
+        ═══════════════════════════════════════════════ */}
+        <div className="text-center mb-8">
+          {retentionData.isNewHighscore && (
+            <div className="inline-block bg-yellow-500 text-white px-4 py-1.5 rounded-full font-bold text-sm mb-4 animate-bounce">
+              🎉 Neuer Highscore!
             </div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">{error}</h2>
-            <Button onClick={handleStartAgain} className="bg-green-600 hover:bg-green-700">
-              Neue Analyse starten
+          )}
+
+          <ScoreRing score={healthScore} />
+
+          {/* Score comparison */}
+          {scoreDiff !== null && (
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold mt-2 ${
+              scoreDiff > 0 ? 'bg-green-100 text-green-700' : scoreDiff < 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+            }`}>
+              <TrendingUp className="h-3.5 w-3.5" />
+              {scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff} Punkte seit letzter Analyse
+            </div>
+          )}
+
+          {/* Rang Badge */}
+          <div className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold mt-3 ${rang.bg}`}>
+            {rang.label}
+          </div>
+
+          {/* Summary */}
+          <p className="text-muted-foreground text-sm leading-relaxed mt-4 max-w-sm mx-auto">
+            {result?.summary_short || result?.grass_condition || 'Dein Rasen wurde analysiert.'}
+          </p>
+
+          {/* Two buttons */}
+          <div className="flex gap-3 mt-6">
+            <Button
+              variant="outline"
+              className="flex-1 border-green-200 text-green-700 hover:bg-green-50"
+              onClick={handleCopyLink}
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Score teilen
+            </Button>
+            <Button
+              className="flex-1 bg-green-600 hover:bg-green-700"
+              onClick={() => stepsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Mein Aktionsplan →
+            </Button>
+          </div>
+
+          {/* Share row */}
+          <div className="flex justify-center gap-2 mt-4">
+            <Button size="sm" onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#20bd5a] text-white h-9 px-3">
+              <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
+            </Button>
+            <Button size="sm" onClick={handleFacebook} className="bg-[#1877F2] hover:bg-[#1565d8] text-white h-9 px-3">
+              <Facebook className="h-4 w-4 mr-1" /> Facebook
+            </Button>
+            <Button size="sm" onClick={handleInstagram} className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white h-9 px-3">
+              <Instagram className="h-4 w-4 mr-1" /> Instagram
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleCopyLink} className="h-9 px-3 border-border">
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
         </div>
-      </div>
-    );
-  }
 
-  // ============================================
-  // PREMIUM USER LAYOUT — linear, no tabs
-  // ============================================
-  if (isPremium) {
-    const carePlan = getCurrentMonthCarePlan();
-    const scoreDiff = previousScore !== null ? healthScore - previousScore : null;
-    const isPro = planTier === 'pro';
+        {/* ═══════════════════════════════════════════════
+            BLOCK 2 — TOP 3 SOFORTMASSNAHMEN
+        ═══════════════════════════════════════════════ */}
+        <div ref={stepsRef} className="mb-8">
+          <h2 className="text-lg font-bold text-foreground mb-4">Deine 3 nächsten Schritte</h2>
+          <div className="space-y-3">
+            {[result?.step_1, result?.step_2, result?.step_3].filter(Boolean).map((step, i) => (
+              <Card key={i} className="border-green-100 shadow-sm">
+                <CardContent className="p-4 flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl font-bold text-green-600">{i + 1}</span>
+                  </div>
+                  <p className="text-sm text-foreground leading-relaxed pt-2">{step}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
 
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-        <SEO 
-          title={`Dein Rasen-Score: ${healthScore}/100 🌱 | RasenPilot`}
-          description={getBriefAssessment(healthScore)}
-          keywords="Rasenanalyse Ergebnis, Rasen Score, Rasenpflege, Pflegeplan"
-          canonical={`https://www.rasenpilot.com/analysis-result/${jobId}`}
-        />
-        <MainNavigation />
-
-        {/* 1. Premium Welcome Bar */}
-        {showWelcomeBar && (
-          <div className="bg-gradient-to-r from-green-600 to-green-700 text-white text-center py-2.5 px-4 text-sm font-medium animate-in slide-in-from-top duration-300">
-            👑 Premium Analyse — alle Details freigeschaltet
+        {/* ═══════════════════════════════════════════════
+            BLOCK 3 — PRODUKTEMPFEHLUNGEN
+        ═══════════════════════════════════════════════ */}
+        {products.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-foreground mb-4">Empfohlene Produkte</h2>
+            <div className="space-y-3">
+              {products.map((p, i) => {
+                const productData = amazonProducts[p.asin];
+                return (
+                  <Card key={i} className="border-border shadow-sm overflow-hidden">
+                    <CardContent className="p-4 flex items-start gap-4">
+                      <div className="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <img
+                          src={getAmazonImageUrl(p.asin)}
+                          alt={p.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-foreground text-sm">{p.name}</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">{productData?.description}</p>
+                        <p className="text-xs text-green-600 font-medium mt-1">{p.reason}</p>
+                      </div>
+                      <Button asChild size="sm" variant="outline" className="flex-shrink-0 border-green-200 text-green-700 hover:bg-green-50 mt-1">
+                        <a href={getAmazonUrl(p.asin)} target="_blank" rel="noopener noreferrer nofollow">
+                          Ansehen →
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              * Affiliate-Link — wir erhalten eine kleine Provision, für dich entstehen keine Mehrkosten.
+            </p>
           </div>
         )}
 
-        <div className="container mx-auto px-4 py-6 max-w-md">
+        {/* ═══════════════════════════════════════════════
+            BLOCK 4 — COLLAPSED DETAILS
+        ═══════════════════════════════════════════════ */}
+        <div className="mb-8">
+          <Button
+            variant="outline"
+            className="w-full border-border hover:bg-accent/50 h-12 justify-between"
+            onClick={() => setDetailsExpanded(!detailsExpanded)}
+          >
+            <span className="font-medium">Vollständige Analyse anzeigen</span>
+            {detailsExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </Button>
 
-          {/* 2. Score Card with comparison */}
-          <div className="mb-6">
-            <Card className="bg-white shadow-lg border border-green-100">
-              <CardHeader className="text-center pb-4">
-                <h1 className="text-2xl font-bold text-green-800 mb-3">
-                  👉 Dein Rasen-Score: {healthScore}/100 🌱
-                </h1>
-                
-                {retentionData.isNewHighscore && (
-                  <div className="bg-yellow-500 text-white px-4 py-2 rounded-full font-bold mb-3 inline-block text-sm">
-                    🎉 Neuer Highscore!
+          {detailsExpanded && (
+            <div className="mt-4 space-y-6 animate-in slide-in-from-top-2 duration-300">
+
+              {/* a) Detail-Scores */}
+              <Card className="border-border">
+                <CardContent className="p-5">
+                  <h3 className="font-bold text-foreground mb-4">Detail-Scores</h3>
+                  <div className="space-y-4">
+                    {[
+                      { label: '🌱 Dichte', value: subScores.density, note: result?.density_note },
+                      { label: '💧 Feuchtigkeit', value: subScores.moisture, note: result?.moisture_note },
+                      { label: '🌞 Sonneneinstrahlung', value: subScores.sunlight, note: result?.sunlight_note },
+                      { label: '🪱 Bodenqualität', value: subScores.soil, note: result?.soil_note },
+                    ].map((item, i) => (
+                      <div key={i}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="font-medium">{item.label}</span>
+                          <span className={`font-bold ${getScoreColor(item.value)}`}>{item.value}/100</span>
+                        </div>
+                        <Progress value={item.value} className="h-2.5" />
+                        {item.note && <p className="text-xs text-muted-foreground mt-1">{item.note}</p>}
+                      </div>
+                    ))}
                   </div>
-                )}
-                
-                <div className="w-24 h-24 mx-auto mb-4 relative">
-                  <div className="w-full h-full rounded-full border-8 border-gray-200 relative">
-                    <div 
-                      className={`absolute inset-0 rounded-full border-8 ${
-                        healthScore >= 80 ? 'border-green-500' : 
-                        healthScore >= 60 ? 'border-yellow-500' : 
-                        'border-red-500'
-                      } border-t-transparent`}
-                      style={{
-                        transform: `rotate(${(healthScore / 100) * 360}deg)`,
-                        transition: 'transform 1s ease-out'
-                      }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={`text-2xl font-bold ${getScoreColor(healthScore)}`}>
-                        {healthScore}
-                      </span>
+                </CardContent>
+              </Card>
+
+              {/* b) Krankheiten & Schädlinge */}
+              {diseases.length > 0 && (
+                <Card className="border-border">
+                  <CardContent className="p-5">
+                    <h3 className="font-bold text-foreground mb-4">Krankheiten & Schädlinge</h3>
+                    <div className="space-y-3">
+                      {diseases.map((d: any, i: number) => (
+                        <div key={i} className="p-3 bg-accent/30 rounded-lg">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-sm">{d.name}</span>
+                            <Badge variant={d.severity === 'Hoch' ? 'destructive' : d.severity === 'Mittel' ? 'default' : 'secondary'} className="text-xs">
+                              {d.severity}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{d.description}</p>
+                          {d.treatment && <p className="text-xs text-green-700 font-medium mt-1">Behandlung: {d.treatment}</p>}
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
+              )}
 
-                {/* Score comparison */}
-                {scoreDiff !== null && (
-                  <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold mb-2 ${
-                    scoreDiff > 0 ? 'bg-green-100 text-green-700' : 
-                    scoreDiff < 0 ? 'bg-red-100 text-red-700' : 
-                    'bg-gray-100 text-gray-600'
-                  }`}>
-                    <TrendingUp className="h-4 w-4" />
-                    {scoreDiff > 0 ? `+${scoreDiff} Punkte seit letzter Analyse` :
-                     scoreDiff < 0 ? `${scoreDiff} Punkte seit letzter Analyse` :
-                     'Gleicher Score wie letzte Analyse'}
-                  </div>
-                )}
-                
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  {getBriefAssessment(healthScore)}
+              {/* c) Wetterbasierte Tipps */}
+              {weatherRecs.length > 0 && (
+                <Card className="border-border">
+                  <CardContent className="p-5">
+                    <h3 className="font-bold text-foreground mb-4">☀️ Wetterbasierte Tipps</h3>
+                    <div className="space-y-2">
+                      {weatherRecs.map((tip: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                          <span className="text-muted-foreground">{tip}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* d) Pflegeplan Download */}
+              <Button onClick={handleDownloadPlan} variant="outline" className="w-full border-green-200 text-green-700 hover:bg-green-50 h-11">
+                <Download className="h-4 w-4 mr-2" /> Pflegeplan herunterladen
+              </Button>
+
+              {/* e) Re-analyze CTA */}
+              <Button
+                variant="outline"
+                className="w-full border-border hover:bg-accent/50 h-11"
+                onClick={() => navigate('/lawn-analysis')}
+              >
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Rasen in 4 Wochen neu analysieren → {getNextAnalysisDate()}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* ═══════════════════════════════════════════════
+            BLOCK 5 — UPSELL (FREE only)
+        ═══════════════════════════════════════════════ */}
+        {!isPremium && (
+          <div className="mb-8">
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="text-lg font-bold text-foreground mb-2">🌱 Willst du noch mehr?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Premium zeigt dir deinen vollständigen Pflegekalender, wetterbasierte Tipps und unbegrenzte Analysen.
                 </p>
-              </CardHeader>
-            </Card>
-          </div>
-
-          {/* 3. Share Card — emotional peak */}
-          <div className="mb-6">
-            <LawnScoreShareCard 
-              score={healthScore} 
-              analysisDate={analysisData?.created_at}
-              jobId={jobId}
-            />
-          </div>
-
-          {/* 4. Aktionsplan — Monthly Care Calendar */}
-          <div className="mb-6">
-            <Card className="bg-white shadow-lg border border-green-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-green-600" />
-                  📅 Dein Pflegeplan für {carePlan.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {carePlan.weeks.map((w, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
-                        {i + 1}
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-green-700 uppercase">{w.week}</span>
-                        <p className="text-sm font-medium text-gray-800">{w.task}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-4 border-green-200 text-green-700 hover:bg-green-50"
-                  onClick={() => navigate('/care-calendar')}
+                {result?.upgrade_teaser && (
+                  <p className="text-xs text-green-700 font-medium mb-4 bg-green-100 rounded-lg p-2">{result.upgrade_teaser}</p>
+                )}
+                <Button
+                  className="bg-green-600 hover:bg-green-700 h-12 w-full font-bold"
+                  onClick={() => navigate('/subscription?ref=analysis-upsell')}
                 >
-                  Vollständigen Kalender öffnen <ChevronRight className="h-4 w-4 ml-1" />
+                  7 Tage kostenlos testen →
                 </Button>
               </CardContent>
             </Card>
           </div>
+        )}
 
-          {/* 5. Krankheiten & Schädlinge */}
-          <div className="mb-6">
-            <DiseaseDetection analysisResult={getAnalysisResult()} />
-          </div>
-
-          {/* 6. Detail-Scores */}
-          <div className="mb-6">
-            <Card className="bg-white shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Crown className="h-5 w-5 text-yellow-600" />
-                  Detail-Scores
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <span>🌱</span>
-                    <span className="font-medium">Dichte:</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold">{Math.round(subScores.density)}/100</span>
-                    <p className="text-xs text-gray-600">
-                      {subScores.density < 60 ? "Der Rasen ist etwas lückig. Eine Nachsaat schließt die Lücken." :
-                       subScores.density < 80 ? "Gute Dichte, kann aber noch verdichtet werden." :
-                       "Ausgezeichnete Rasendichte!"}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <span>🌞</span>
-                    <span className="font-medium">Sonneneinstrahlung:</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold">{Math.round(subScores.sunlight)}/100</span>
-                    <p className="text-xs text-gray-600">
-                      {subScores.sunlight < 60 ? "Zu wenig Licht für optimales Wachstum." :
-                       "Dein Rasen bekommt ausreichend Licht."}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <span>💧</span>
-                    <span className="font-medium">Feuchtigkeit:</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold">{Math.round(subScores.moisture)}/100</span>
-                    <p className="text-xs text-gray-600">
-                      {subScores.moisture < 50 ? "Der Boden wirkt trocken. Morgens oder abends gießen." :
-                       subScores.moisture < 80 ? "Feuchtigkeitsgehalt ist okay, kann optimiert werden." :
-                       "Perfekte Feuchtigkeit!"}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <span>🪱</span>
-                    <span className="font-medium">Bodenqualität:</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold">{Math.round(subScores.soil)}/100</span>
-                    <p className="text-xs text-gray-600">
-                      {subScores.soil < 60 ? "Die Nährstoffversorgung ist mittelmäßig. Düngung steigert die Vitalität." :
-                       subScores.soil < 80 ? "Gute Bodenqualität, kleine Verbesserungen möglich." :
-                       "Ausgezeichnete Bodenqualität!"}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* 7. Empfohlene Produkte */}
-          <div className="mb-6">
-            <ProductRecommendations analysisResult={getAnalysisResult()} />
-          </div>
-
-          {/* 8. Fortschritts-Tracker */}
-          <div className="mb-6">
-            <Card className="bg-white shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  📊 Dein Rasen-Verlauf
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-end justify-between gap-1 mb-4 h-20">
-                  {scoreHistory.map((item, i) => (
-                    <div key={i} className="flex flex-col items-center flex-1">
-                      {item.score !== null ? (
-                        <div 
-                          className="w-full bg-green-500 rounded-t-sm min-h-[4px] transition-all"
-                          style={{ height: `${(item.score / 100) * 64}px` }}
-                        />
-                      ) : (
-                        <div className="w-full bg-gray-100 rounded-t-sm h-4" />
-                      )}
-                      <span className="text-[10px] text-gray-500 mt-1">{item.month}</span>
-                      <span className="text-[10px] font-semibold text-gray-700">
-                        {item.score !== null ? item.score : '--'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="border-t border-gray-100 pt-3 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Nächste Analyse empfohlen:</p>
-                    <p className="text-sm font-semibold text-gray-800">{getNextAnalysisDate()}</p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="border-green-200 text-green-700 hover:bg-green-50"
-                    onClick={() => toast.success('Erinnerung gesetzt! Wir melden uns.')}
-                  >
-                    <Bell className="h-4 w-4 mr-1" /> Erinnerung
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* 9. Pflegeplan Download */}
-          <div className="mb-6">
-            <Button 
-              onClick={handleDownloadPlan}
-              className="w-full bg-green-600 hover:bg-green-700 h-12"
-            >
-              <Download className="h-5 w-5 mr-2" />
-              Pflegeplan herunterladen
-            </Button>
-          </div>
-
-          {/* 10. Pro Upsell — only for Premium users (not Pro) */}
-          {!isPro && (
-            <div className="mb-6">
-              <Card className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-300">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xl">⭐</span>
-                    <h3 className="font-bold text-gray-900">Noch mehr mit Rasenpilot Pro</h3>
-                  </div>
-                  <ul className="space-y-2 mb-4">
-                    <li className="flex items-center gap-2 text-sm text-gray-700">
-                      <CheckCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                      3 Rasenflächen verwalten
-                    </li>
-                    <li className="flex items-center gap-2 text-sm text-gray-700">
-                      <CheckCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                      Monatlicher Experten-Check
-                    </li>
-                    <li className="flex items-center gap-2 text-sm text-gray-700">
-                      <CheckCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                      Prioritäts-Support
-                    </li>
-                  </ul>
-                  <Button 
-                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold"
-                    onClick={() => navigate('/subscription?ref=analysis-pro-upsell')}
-                  >
-                    Pro 7 Tage testen → <span className="text-xs font-normal ml-1 opacity-90">19,99€/Monat</span>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Next Analysis CTA */}
-          <div className="text-center mb-8">
-            <Button 
-              onClick={handleStartAgain}
-              variant="outline" 
-              className="w-full h-12 border-green-200 hover:bg-green-50"
-            >
-              <ArrowRight className="h-4 w-4 mr-2" />
-              Nächste Analyse: {getNextAnalysisDate()} →
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ============================================
-  // FREE USER LAYOUT — tabs, upsell
-  // ============================================
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <SEO 
-        title={`Dein Rasen-Score: ${healthScore}/100 🌱 | RasenPilot`}
-        description={getBriefAssessment(healthScore)}
-        keywords="Rasenanalyse Ergebnis, Rasen Score, Rasenpflege, Pflegeplan"
-        canonical={`https://www.rasenpilot.com/analysis-result/${jobId}`}
-      />
-      
-      <MainNavigation />
-      
-      <div className="container mx-auto px-4 py-6 max-w-md">
-        
-        {/* 1. Gesamtscore */}
+        {/* ═══════════════════════════════════════════════
+            BLOCK 6 — SCORE TEILEN
+        ═══════════════════════════════════════════════ */}
         <div className="mb-8">
-          <Card className="bg-white shadow-lg border border-green-100">
-            <CardHeader className="text-center pb-4">
-              <h1 className="text-2xl font-bold text-green-800 mb-3">
-                👉 Dein Rasen-Score: {healthScore}/100 🌱
-              </h1>
-              
-              {retentionData.isNewHighscore && (
-                <div className="bg-yellow-500 text-white px-4 py-2 rounded-full font-bold mb-4 inline-block">
-                  🎉 Glückwunsch – das ist dein bisher bester Score!
-                </div>
-              )}
-              
-              <div className="w-24 h-24 mx-auto mb-4 relative">
-                <div className="w-full h-full rounded-full border-8 border-gray-200 relative">
-                  <div 
-                    className={`absolute inset-0 rounded-full border-8 ${
-                      healthScore >= 80 ? 'border-green-500' : 
-                      healthScore >= 60 ? 'border-yellow-500' : 
-                      'border-red-500'
-                    } border-t-transparent`}
-                    style={{
-                      transform: `rotate(${(healthScore / 100) * 360}deg)`,
-                      transition: 'transform 1s ease-out'
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className={`text-2xl font-bold ${getScoreColor(healthScore)}`}>
-                      {healthScore}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <p className="text-gray-700 text-sm leading-relaxed">
-                {getBriefAssessment(healthScore)}
+          <Card className="border-border">
+            <CardContent className="p-5">
+              <p className="text-sm font-semibold text-foreground mb-1 flex items-center gap-2">
+                <Share2 className="h-4 w-4" /> Kannst du mich schlagen? 💪
               </p>
-            </CardHeader>
+              <p className="text-xs text-muted-foreground mb-3">Teile deinen Score — fordere Freunde heraus!</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#20bd5a] text-white h-10 text-sm">
+                  <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
+                </Button>
+                <Button onClick={handleFacebook} className="bg-[#1877F2] hover:bg-[#1565d8] text-white h-10 text-sm">
+                  <Facebook className="h-4 w-4 mr-2" /> Facebook
+                </Button>
+                <Button onClick={handleInstagram} className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white h-10 text-sm">
+                  <Instagram className="h-4 w-4 mr-2" /> Instagram
+                </Button>
+                <Button onClick={handleCopyLink} variant="outline" className="h-10 text-sm border-border">
+                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                  {copied ? 'Kopiert!' : 'Link kopieren'}
+                </Button>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
-        {/* Share Card */}
-        <div className="mb-8">
-          <LawnScoreShareCard 
-            score={healthScore} 
-            analysisDate={analysisData?.created_at}
-            jobId={jobId}
-          />
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="mb-6">
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'overview' 
-                  ? 'bg-white text-green-700 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              <Star className="h-4 w-4 mx-auto mb-1" />
-              Übersicht
-            </button>
-            <button
-              onClick={() => setActiveTab('journey')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'journey' 
-                  ? 'bg-white text-green-700 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              <Target className="h-4 w-4 mx-auto mb-1" />
-              Aktionsplan
-            </button>
-            <button
-              onClick={() => setActiveTab('details')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'details' 
-                  ? 'bg-white text-green-700 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              <BookOpen className="h-4 w-4 mx-auto mb-1" />
-              Details
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div>
-            {/* Basic Info */}
-            <div className="mb-8">
-              <Card className="bg-green-50 border-green-200">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Target className="h-5 w-5 text-green-600" />
-                    Basis-Empfehlungen
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
-                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">1</div>
-                      <div>
-                        <h4 className="font-semibold text-gray-800">Jetzt bewässern</h4>
-                        <p className="text-sm text-gray-600">besonders morgens oder abends.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
-                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">2</div>
-                      <div>
-                        <h4 className="font-semibold text-gray-800">In 2–3 Wochen nachsäen</h4>
-                        <p className="text-sm text-gray-600">um die Grasnarbe zu verdichten.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
-                      <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">3</div>
-                      <div>
-                        <h4 className="font-semibold text-gray-800">Regelmäßig lüften</h4>
-                        <p className="text-sm text-gray-600">für bessere Sauerstoffversorgung des Bodens.</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Premium Preview */}
-            <div className="mb-8">
-              {!showEmailCapture ? (
-                <PremiumPreview 
-                  score={healthScore}
-                  sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-                  onUpgrade={() => navigate('/subscription?ref=analysis-result')}
-                />
-              ) : (
-                <PostAnalysisConversion 
-                  score={healthScore}
-                  userId={profile?.id}
-                  onEmailCaptured={(email) => console.log('Email captured:', email)}
-                  onRegistrationComplete={() => handleSignUpComplete()}
-                />
-              )}
-            </div>
-
-            {/* CTA */}
-            <div className="text-center mt-8">
-              <Button 
-                onClick={() => navigate('/subscription?ref=analysis-result')}
-                variant="outline" 
-                className="w-full h-12 border-green-200 hover:bg-green-50"
-              >
-                <ArrowRight className="h-4 w-4 mr-2" />
-                Premium für weitere Analysen
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Journey Tab */}
-        {activeTab === 'journey' && (
-          <div className="mb-8">
-            <PremiumPreview 
-              score={healthScore}
-              sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-              onUpgrade={() => navigate('/subscription?ref=analysis-journey')}
-            />
-          </div>
-        )}
-
-        {/* Details Tab */}
-        {activeTab === 'details' && (
-          <div className="mb-8">
-            <PremiumPreview 
-              score={healthScore}
-              sampleProblems={getProblems().slice(0, 2).map(p => typeof p === 'string' ? p : p.type || p.description || 'Rasen-Problem erkannt')}
-              onUpgrade={() => navigate('/subscription?ref=analysis-details')}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Sticky Upsell Banner */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-green-700 to-green-600 text-white shadow-2xl border-t-2 border-green-400/30">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="text-xl flex-shrink-0">🌿</span>
-            <p className="text-sm md:text-base font-medium truncate">
-              <span className="hidden sm:inline">Premium: Pflegekalender, Krankheitserkennung & Verlauf</span>
-              <span className="sm:hidden">Premium: Pflegekalender & mehr</span>
-            </p>
-          </div>
-          <Button
-            onClick={() => navigate('/subscription?ref=analysis-upsell-banner')}
-            size="sm"
-            className="flex-shrink-0 bg-white text-green-700 hover:bg-green-50 font-bold shadow-lg"
-          >
-            Jetzt upgraden →
-          </Button>
-        </div>
       </div>
     </div>
   );
