@@ -285,7 +285,7 @@ const AnalysisResult = () => {
     scoreDiff,
     zipRank: null as number | null,
     zipTotal: null as number | null,
-    zip: profile?.zip_code || undefined,
+    zip: profile?.zipCode || undefined,
     nextScoreGoal,
     stepsCount: [result?.step_1, result?.step_2, result?.step_3].filter(Boolean).length,
   };
