@@ -117,13 +117,10 @@ const AnalysisResult = () => {
     return next.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  const shareText = `Mein Rasen hat ${healthScore}/100 Punkte! 🌱 Kannst du mich schlagen? → rasenpilot.com`;
-  const shareUrl = 'https://rasenpilot.com';
-
-  const handleWhatsApp = () => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-  const handleFacebook = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
-  const handleInstagram = () => { navigator.clipboard.writeText(shareText); toast.success('Text kopiert! Füge ihn in deine Instagram Story ein 📸'); };
-  const handleCopyLink = () => { navigator.clipboard.writeText(shareText); setCopied(true); toast.success('In die Zwischenablage kopiert!'); setTimeout(() => setCopied(false), 2000); };
+  // Share data for Wrapped-style card
+  const rank = getRank(healthScore);
+  const nextRank = getNextRank(healthScore);
+  const nextScoreGoal = nextRank ? nextRank.minScore : 100;
 
   const handleDownloadPlan = () => {
     if (!result) return;
