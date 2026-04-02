@@ -13,6 +13,8 @@ import { useLawn } from '@/context/LawnContext';
 import { useRetentionTracking } from '@/hooks/useRetentionTracking';
 import { useSubscription } from '@/hooks/useSubscription';
 import { amazonProducts, getAmazonUrl, getAmazonImageUrl } from '@/lib/amazonProducts';
+import { getRank, getNextRank } from '@/lib/rankSystem';
+import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 
 interface AnalysisJobResult {
   id: string;
