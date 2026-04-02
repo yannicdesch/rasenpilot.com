@@ -6,6 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const getSeason = (): string => {
+  const month = new Date().getMonth();
+  if (month >= 2 && month <= 4) return 'Frühling — Wachstumsphase, erste Düngung empfohlen, Vertikutieren möglich';
+  if (month >= 5 && month <= 7) return 'Sommer — Bewässerung kritisch, Hitzestress möglich, nicht düngen bei über 25°C';
+  if (month >= 8 && month <= 10) return 'Herbst — Wintervorbereitung, letzte Düngung mit Kalium, Nachsaat noch möglich';
+  return 'Winter — Rasen schonen, nicht betreten bei Frost, keine Düngung';
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -17,117 +25,206 @@ serve(async (req) => {
     const { jobId } = await req.json();
     console.log('Processing job:', jobId);
     
-    if (!jobId) {
-      throw new Error('Job ID is required');
-    }
+    if (!jobId) throw new Error('Job ID is required');
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get job details
-    console.log('Fetching job details...');
     const { data: job, error: jobError } = await supabase
       .from('analysis_jobs')
       .select('*')
       .eq('id', jobId)
       .single();
 
-    if (jobError || !job) {
-      console.error('Job not found:', jobError);
-      throw new Error('Job not found');
-    }
+    if (jobError || !job) throw new Error('Job not found');
 
-    console.log('Job details:', job);
-
-    // Get OpenAI API key
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
-      console.error('OpenAI API key not configured');
-      await supabase
-        .from('analysis_jobs')
-        .update({ 
-          status: 'failed',
-          error_message: 'OpenAI API key not configured',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', jobId);
+      await supabase.from('analysis_jobs').update({ status: 'failed', error_message: 'OpenAI API key not configured', updated_at: new Date().toISOString() }).eq('id', jobId);
       throw new Error('OpenAI API key not configured');
     }
 
     // Get signed URL for image
-    console.log('Getting signed URL for image:', job.image_path);
     const { data: signedUrlData, error: urlError } = await supabase.storage
       .from('lawn-images')
-      .createSignedUrl(job.image_path, 3600); // 1 hour expiry
+      .createSignedUrl(job.image_path, 3600);
 
     if (urlError || !signedUrlData?.signedUrl) {
-      console.error('Failed to get signed URL:', urlError);
-      await supabase
-        .from('analysis_jobs')
-        .update({ 
-          status: 'failed',
-          error_message: 'Failed to access image',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', jobId);
+      await supabase.from('analysis_jobs').update({ status: 'failed', error_message: 'Failed to access image', updated_at: new Date().toISOString() }).eq('id', jobId);
       throw new Error('Failed to access image');
     }
 
-    console.log('Image URL obtained, calling OpenAI...');
-
-    // Extract zipCode from job metadata
+    // Extract metadata
     let zipCode = null;
     let weatherContext = '';
+    let isPremiumUser = false;
     try {
       const metadata = typeof job.metadata === 'string' ? JSON.parse(job.metadata) : job.metadata;
       zipCode = metadata?.zipCode;
-      console.log('Extracted zipCode from metadata:', zipCode);
-      
-      // Fetch weather data if zipCode is available
-      if (zipCode) {
-        console.log('Fetching weather data for enhanced analysis...');
+      isPremiumUser = metadata?.isPremium === true;
+    } catch {}
+
+    // Check subscription tier from DB if user_id exists
+    if (job.user_id && !isPremiumUser) {
+      try {
+        const { data: sub } = await supabase
+          .from('subscribers')
+          .select('subscription_tier, subscribed')
+          .eq('user_id', job.user_id)
+          .eq('subscribed', true)
+          .single();
+        if (sub && (sub.subscription_tier === 'premium' || sub.subscription_tier === 'pro')) {
+          isPremiumUser = true;
+        }
+      } catch {}
+    }
+
+    // Fetch weather data
+    if (zipCode) {
+      try {
         const { data: weatherResult, error: weatherError } = await supabase.functions.invoke('get-weather-data', {
           body: { zipCode, countryCode: 'DE' }
         });
-        
         if (!weatherError && weatherResult?.success) {
-          const weather = weatherResult.data;
+          const w = weatherResult.data;
           weatherContext = `
 
-=== UMFASSENDE WETTER- & BODENANALYSE FÜR RASENPFLEGE ===
-
 AKTUELLE BEDINGUNGEN:
-• Lufttemperatur: ${weather.current.temp}°C
-• Geschätzte Bodentemperatur: ${weather.current.soilTemp}°C  
-• Wetter: ${weather.current.condition}
-• Luftfeuchtigkeit: ${weather.current.humidity}%
-• Taupunkt: ${weather.current.dewPoint}°C
-• Windgeschwindigkeit: ${weather.current.windSpeed} km/h
-• Luftdruck: ${weather.current.pressure} hPa
-• UV-Index: ${weather.current.uvIndex}/11
-• Verdunstungsrate: ${weather.current.evapotranspiration} mm/Tag
+• Lufttemperatur: ${w.current.temp}°C
+• Geschätzte Bodentemperatur: ${w.current.soilTemp}°C
+• Wetter: ${w.current.condition}
+• Luftfeuchtigkeit: ${w.current.humidity}%
+• UV-Index: ${w.current.uvIndex}/11
+• Verdunstungsrate: ${w.current.evapotranspiration} mm/Tag
 
 OPTIMALE PFLEGEZEITPUNKTE:
-• Mähen: ${weather.current.lawnCareConditions.mowing ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (Luftfeuchtigkeit < 70%, wenig Wind)
-• Düngen: ${weather.current.lawnCareConditions.fertilizing ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (50-85% Luftfeuchtigkeit ideal)  
-• Bewässerung: ${weather.current.lawnCareConditions.watering ? '🚨 NOTWENDIG' : '✅ AUSREICHEND'} (Verdunstungsrate: ${weather.current.evapotranspiration} mm/Tag)
-• Nachsaat: ${weather.current.lawnCareConditions.seeding ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (8-25°C ideal für Keimung)
+• Mähen: ${w.current.lawnCareConditions?.mowing ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (Luftfeuchtigkeit < 70%, wenig Wind)
+• Düngen: ${w.current.lawnCareConditions?.fertilizing ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (50-85% Luftfeuchtigkeit ideal)
+• Bewässerung: ${w.current.lawnCareConditions?.watering ? '🚨 NOTWENDIG' : '✅ AUSREICHEND'}
+• Nachsaat: ${w.current.lawnCareConditions?.seeding ? '✅ OPTIMAL' : '❌ UNGÜNSTIG'} (8-25°C ideal)
 
 5-TAGE DETAILPROGNOSE:
-${weather.forecast.map(f => `• ${f.day}: ${f.high}°C/${f.low}°C (Boden: ~${f.soilTemp}°C), ${f.condition}, ${f.chanceOfRain}% Regen, Verdunstung: ${f.evapotranspiration}mm`).join('\n')}
-
-WICHTIGER HINWEIS: Berücksichtigen Sie diese präzisen Wetterdaten für alle Pflegeempfehlungen. Geben Sie spezifische Zeitpunkte und Bedingungen für Bewässerung, Düngung und Rasenpflege basierend auf den aktuellen und prognostizierten Werten an.`;
-        } else {
-          console.log('Could not fetch weather data:', weatherError);
+${w.forecast?.map((f: any) => `• ${f.day}: ${f.high}°C/${f.low}°C, ${f.condition}, ${f.chanceOfRain}% Regen`).join('\n') || 'Nicht verfügbar'}`;
         }
-      }
-    } catch (e) {
-      console.log('Could not fetch weather data:', e);
+      } catch {}
     }
 
-    // Call OpenAI Vision API
+    const season = getSeason();
+
+    // Build prompt based on tier
+    const basePrompt = `Du bist ein professioneller Rasen- und Gartenexperte mit 20+ Jahren Erfahrung in Deutschland, Österreich und der Schweiz. Analysiere das Rasenbild wissenschaftlich präzise.
+
+WICHTIGE REGELN:
+- Antworte immer auf Deutsch mit du (nicht Sie)
+- Sei kritisch: Ein durchschnittlicher Rasen bekommt 55-65 Punkte, nicht 80+
+- Falls kein Rasen erkennbar oder Bildqualität zu schlecht: Antworte nur mit {"error": "Kein Rasen erkennbar — bitte ein besseres Foto hochladen"}
+
+AKTUELLE BEDINGUNGEN:
+Jahreszeit: ${season}
+PLZ: ${zipCode || 'unbekannt'}
+Rasentyp: ${job.grass_type || 'unbekannt'}
+Ziel: ${job.lawn_goal || 'Allgemeine Verbesserung'}
+${weatherContext}
+
+SCORING-SYSTEM (0-100 Punkte):
+90-100: Perfekte Dichte, kräftiges Grün, keine Probleme
+80-89: Gute Dichte, gesundes Grün, minimale Probleme
+70-79: Mäßige Dichte, einige sichtbare Probleme
+60-69: Schwache Dichte, blasses Grün, mehrere Probleme
+40-59: Sehr schwache Dichte, braune Bereiche
+0-39: Rasen größtenteils tot, Kompletterneuerung nötig
+
+BEWERTUNGSKRITERIEN (je 0-20 Punkte):
+1. Grasdichte: Lücken, Kahlstellen, Gleichmäßigkeit
+2. Farbqualität: Grünton, Vitalität, Verfärbungen
+3. Gesundheit: Krankheiten, Schädlinge, Pilzbefall
+4. Unkrautfreiheit: Moos, Klee, Löwenzahn
+5. Bodenzustand: Verdichtung, Drainage, Nährstoffe
+
+BEVORZUGTE PRODUKTE (verwende diese bei Empfehlungen):
+- Stickstoffmangel → Turbogrün Rasendünger (ASIN: B0CHN4LSWQ)
+- Moos oder Unkraut → COMPO gegen Moos (ASIN: B00UT2LM2O)
+- Kahle Stellen → Rasensamen Nachsaat (ASIN: B00IUPTZVC)
+- Bodenverdichtung → Gardena Rasenlüfter (ASIN: B0001E3W7S)
+- Trockenstress → Gardena Bewässerungscomputer (ASIN: B0749P42HT)
+- Pilzbefall → COMPO FLORANID (ASIN: B00FDFI4Z2)
+
+BESCHREIBE KONKRET was du auf dem Foto siehst.
+ERKLÄRE WARUM jedes Problem besteht.
+NENNE SPEZIFISCHE Mengenangaben (g/m²) bei Produktempfehlungen.`;
+
+    let jsonInstruction: string;
+    let maxTokens: number;
+
+    if (isPremiumUser) {
+      maxTokens = 2500;
+      jsonInstruction = `
+
+Antworte NUR mit einem validen JSON-Objekt (kein Markdown, kein Text davor/danach):
+{
+  "score": 62,
+  "summary_short": "2-3 Sätze Zusammenfassung",
+  "grass_condition": "Ausführliche Beschreibung (mind. 3-4 Sätze)",
+  "problems": ["Problem 1 mit Ursache", "Problem 2", "Problem 3"],
+  "recommendations": ["Empfehlung 1 mit Produkt und Menge", "Empfehlung 2"],
+  "step_1": "Maßnahme diese Woche mit konkretem Produkt",
+  "step_2": "Maßnahme in 2 Wochen",
+  "step_3": "Maßnahme in 4 Wochen",
+  "timeline": "Realistischer Zeitrahmen für Verbesserung",
+  "detailed_scoring": {
+    "grass_density": 12,
+    "color_quality": 14,
+    "health_status": 13,
+    "weed_freedom": 11,
+    "soil_condition": 12
+  },
+  "density_note": "Bewertung der Grasdichte",
+  "moisture_note": "Bewertung der Feuchtigkeit",
+  "soil_note": "Bewertung des Bodens",
+  "sunlight_note": "Bewertung der Lichtverhältnisse",
+  "diseases": [
+    {
+      "name": "Moosbefall",
+      "severity": "Mittel",
+      "description": "Beschreibung und Ursache",
+      "treatment": "Behandlung",
+      "product_asin": "B00UT2LM2O"
+    }
+  ],
+  "product_1_asin": "B0CHN4LSWQ",
+  "product_1_name": "Turbogrün Rasendünger",
+  "product_1_reason": "Warum dieses Produkt",
+  "product_2_asin": "B00UT2LM2O",
+  "product_2_name": "COMPO gegen Moos",
+  "product_2_reason": "Warum dieses Produkt",
+  "weather_recommendations": ["Wetterbasierte Empfehlung mit Wochentag und Uhrzeit"],
+  "next_analysis_weeks": 4
+}`;
+    } else {
+      maxTokens = 800;
+      jsonInstruction = `
+
+Antworte NUR mit einem validen JSON-Objekt (kein Markdown, kein Text davor/danach):
+{
+  "score": 62,
+  "summary_short": "Dein Rasen hat leichten Stickstoffmangel und erste Anzeichen von Moos. Mit gezielter Pflege kannst du deinen Score in 4-6 Wochen auf 75+ bringen.",
+  "problems": ["Problem 1 mit Ursache", "Problem 2"],
+  "step_1": "Wichtigste Maßnahme diese Woche mit konkretem Produkt",
+  "step_2": "Zweite Maßnahme in 2 Wochen",
+  "step_3": "Dritte Maßnahme in 4 Wochen",
+  "product_1_asin": "B0CHN4LSWQ",
+  "product_1_name": "Turbogrün Rasendünger",
+  "product_1_reason": "Behebt deinen Stickstoffmangel",
+  "upgrade_teaser": "Premium zeigt dir den vollständigen 5-Tage Wetterplan und detaillierte Bodenanalyse"
+}`;
+    }
+
+    const systemPrompt = basePrompt + jsonInstruction;
+
+    // Call OpenAI
+    console.log(`Calling OpenAI (${isPremiumUser ? 'PREMIUM' : 'FREE'} tier, max_tokens: ${maxTokens})...`);
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -137,58 +234,7 @@ WICHTIGER HINWEIS: Berücksichtigen Sie diese präzisen Wetterdaten für alle Pf
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
-          {
-            role: 'system',
-            content: `Sie sind ein professioneller Rasen- und Gartenexperte mit 20+ Jahren Erfahrung. Analysieren Sie das Rasenbild wissenschaftlich präzise und differenzieren Sie die Bewertung stark basierend auf den tatsächlichen Gegebenheiten.${weatherContext}
-
-SCORING-SYSTEM (0-100 Punkte):
-🟢 EXZELLENT (90-100): Perfekte Dichte, kräftiges Grün, keine sichtbaren Probleme, gleichmäßiger Wuchs
-🟡 SEHR GUT (80-89): Gute Dichte, gesundes Grün, minimale Probleme, meist gleichmäßig
-🟠 GUT (70-79): Mäßige Dichte, akzeptables Grün, einige sichtbare Probleme, ungleichmäßige Bereiche
-🔴 BEFRIEDIGEND (60-69): Schwache Dichte, blasses/gelbes Grün, mehrere Probleme, viele kahle Stellen
-⚫ MANGELHAFT (40-59): Sehr schwache Dichte, braune/gelbe Bereiche, erhebliche Probleme, dominante Kahlstellen
-💀 KRITISCH (0-39): Rasen größtenteils tot/braun, extreme Probleme, Kompletterneuerung nötig
-
-BEWERTUNGSKRITERIEN (jeweils 0-20 Punkte):
-1. GRASDICHTE: Lücken, Kahlstellen, Gleichmäßigkeit der Narbe
-2. FARBQUALITÄT: Grünton, Vitalität, Verfärbungen, Gelbstich
-3. GESUNDHEIT: Krankheiten, Schädlinge, Pilzbefall, Stress-Symptome
-4. UNKRAUTFREIHEIT: Moos, Klee, Löwenzahn, andere Fremdpflanzen
-5. BODENZUSTAND: Verdichtung, Drainage, Nährstoffversorgung (erkennbar)
-
-WICHTIG: 
-- Seien Sie kritisch und nutzen Sie die VOLLE BANDBREITE von 0-100. Ein durchschnittlicher Rasen sollte 60-70 Punkte erhalten, nicht 80+!
-- Beschreiben Sie KONKRET was Sie auf dem Bild sehen: Farbe, Textur, sichtbare Probleme, Mähmuster etc.
-- Geben Sie SPEZIFISCHE Produktempfehlungen mit Mengenangaben (g/m²) und konkreten Marken
-- Erklären Sie WARUM jedes Problem besteht und was die Ursache sein könnte
-- Bei Wetterdaten: Geben Sie KONKRETE Zeitpunkte (Wochentag, Uhrzeit) für Pflegemaßnahmen
-
-Antworten Sie NUR mit einem validen JSON-Objekt (kein Markdown, kein Text davor/danach):
-{
-  "overall_health": 62,
-  "grass_condition": "Ausführliche Beschreibung des sichtbaren Rasenzustands (mind. 3-4 Sätze)",
-  "problems": ["Problem 1 mit Erklärung der Ursache", "Problem 2 mit Fachbegriff"],
-  "recommendations": ["Konkrete Empfehlung 1 mit Produkt, Menge und Timing", "Empfehlung 2"],
-  "timeline": "Realistischer Zeitrahmen für sichtbare Verbesserungen",
-  "score": 62,
-  "weather_recommendations": ["Wetterbasierte Empfehlung mit Wochentag und Uhrzeit"],
-  "detailed_scoring": {
-    "grass_density": 12,
-    "color_quality": 14,
-    "health_status": 13,
-    "weed_freedom": 11,
-    "soil_condition": 12
-  },
-  "summary_short": "Kurze Zusammenfassung in einem Satz",
-  "density_note": "Bewertung der Grasdichte mit Details",
-  "moisture_note": "Bewertung der Feuchtigkeit",
-  "soil_note": "Bewertung des Bodens",
-  "sunlight_note": "Bewertung der Lichtverhältnisse",
-  "step_1": "Wichtigste sofortige Maßnahme mit konkreter Anleitung",
-  "step_2": "Zweite Maßnahme mit Zeitplan",
-  "step_3": "Dritte Maßnahme für langfristigen Erfolg"
-}`
-          },
+          { role: 'system', content: systemPrompt },
           {
             role: 'user',
             content: [
@@ -198,15 +244,12 @@ Antworten Sie NUR mit einem validen JSON-Objekt (kein Markdown, kein Text davor/
               },
               {
                 type: 'image_url',
-                image_url: {
-                  url: signedUrlData.signedUrl,
-                  detail: 'high'
-                }
+                image_url: { url: signedUrlData.signedUrl, detail: 'high' }
               }
             ]
           }
         ],
-        max_tokens: 2500,
+        max_tokens: maxTokens,
         temperature: 0.3
       }),
     });
@@ -218,103 +261,84 @@ Antworten Sie NUR mit einem validen JSON-Objekt (kein Markdown, kein Text davor/
     }
 
     const openAIResult = await openAIResponse.json();
-    console.log('OpenAI response received');
+    const content = openAIResult.choices[0].message.content;
+    console.log('OpenAI response received, length:', content?.length);
 
     let analysisResult;
     try {
-      // Try to parse the JSON response from OpenAI
-      const content = openAIResult.choices[0].message.content;
-      analysisResult = JSON.parse(content);
-    } catch (parseError) {
-      // If JSON parsing fails, create a structured response
-      console.log('Using fallback analysis structure');
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      analysisResult = JSON.parse(jsonMatch ? jsonMatch[0] : content);
+    } catch {
+      console.log('JSON parse failed, using fallback');
       analysisResult = {
-        overall_health: "75",
-        grass_condition: openAIResult.choices[0].message.content,
-        problems: ["Analyse konnte nicht vollständig strukturiert werden"],
-        recommendations: ["Detaillierte Analyse im Grass Condition Feld verfügbar"],
-        timeline: "2-4 Wochen",
-        score: "75"
+        score: 65,
+        summary_short: content || 'Analyse abgeschlossen',
+        problems: ['Detaillierte Analyse verfügbar'],
+        step_1: 'Regelmäßig mähen',
+        step_2: 'Bewässern nach Bedarf',
+        step_3: 'Düngen im Frühjahr',
       };
     }
 
-    // Update job with results
-    console.log('Updating job with analysis results...');
-    const { error: updateError } = await supabase
-      .from('analysis_jobs')
-      .update({ 
+    // Check if analysis returned an error (no lawn detected)
+    if (analysisResult.error) {
+      console.log('Analysis returned error:', analysisResult.error);
+      // Still save it so the frontend can display the error
+      await supabase.from('analysis_jobs').update({
         status: 'completed',
         result: analysisResult,
         completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      })
-      .eq('id', jobId);
+      }).eq('id', jobId);
 
-    if (updateError) {
-      console.error('Failed to update job:', updateError);
-      throw new Error('Failed to save analysis results');
+      return new Response(
+        JSON.stringify({ success: true, message: 'Analysis completed with error' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Process analysis completion - create reminders and update highscore
+    // Update job with results
+    await supabase.from('analysis_jobs').update({
+      status: 'completed',
+      result: analysisResult,
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }).eq('id', jobId);
+
+    // Process analysis completion for logged-in users
     if (job.user_id) {
       try {
-        console.log('Processing analysis completion for user:', job.user_id);
-        
-        // Extract structured data from analysisResult
-        const score = parseInt(analysisResult.score) || 75;
-        const summaryShort = analysisResult.grass_condition || 'Analyse abgeschlossen';
-        const step1 = Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[0] : 'Regelmäßig mähen';
-        const step2 = Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[1] : 'Bewässern nach Bedarf';
-        const step3 = Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[2] : 'Düngen im Frühjahr';
-        
-        const { data: completionResult, error: completionError } = await supabase.rpc('handle_analysis_completion', {
+        const score = parseInt(analysisResult.score) || 65;
+        const { error: completionError } = await supabase.rpc('handle_analysis_completion', {
           p_user_id: job.user_id,
           p_score: score,
-          p_summary_short: summaryShort,
-          p_density_note: analysisResult.detailed_scoring?.grass_density || 'Gute Dichte',
-          p_sunlight_note: 'Ausreichend Sonneneinstrahlung',
-          p_moisture_note: 'Moderate Feuchtigkeit',
-          p_soil_note: analysisResult.detailed_scoring?.soil_condition || 'Stabiler Boden',
-          p_step_1: step1,
-          p_step_2: step2,
-          p_step_3: step3,
+          p_summary_short: analysisResult.summary_short || analysisResult.grass_condition || 'Analyse abgeschlossen',
+          p_density_note: analysisResult.density_note || String(analysisResult.detailed_scoring?.grass_density || ''),
+          p_sunlight_note: analysisResult.sunlight_note || '',
+          p_moisture_note: analysisResult.moisture_note || '',
+          p_soil_note: analysisResult.soil_note || '',
+          p_step_1: analysisResult.step_1 || (Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[0] : '') || '',
+          p_step_2: analysisResult.step_2 || (Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[1] : '') || '',
+          p_step_3: analysisResult.step_3 || (Array.isArray(analysisResult.recommendations) ? analysisResult.recommendations[2] : '') || '',
           p_image_url: job.image_path
         });
-
-        if (completionError) {
-          console.error('Error in analysis completion:', completionError);
-        } else {
-          console.log('Analysis completion processed successfully:', completionResult);
-        }
-      } catch (error) {
-        console.error('Failed to process analysis completion:', error);
-        // Don't throw here - we want the analysis to still succeed even if reminder creation fails
+        if (completionError) console.error('Completion error:', completionError);
+      } catch (e) {
+        console.error('Failed to process completion:', e);
       }
     }
 
     console.log('Analysis completed successfully');
-
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Analysis completed successfully' 
-      }),
+      JSON.stringify({ success: true, message: 'Analysis completed successfully' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('=== PROCESS ANALYSIS ERROR ===');
-    console.error('Error details:', error);
-    
+    console.error('=== PROCESS ANALYSIS ERROR ===', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message || 'Failed to process analysis' 
-      }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ success: false, error: error.message || 'Failed to process analysis' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
