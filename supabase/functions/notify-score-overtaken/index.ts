@@ -1,11 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { emailLayout } from "../_shared/email-template.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { emailLayout, greeting, paragraph, heading, infoCard, ctaButton, signoff, scoreDisplay } from '../_shared/email-template.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,161 +17,145 @@ serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
-
-    if (!resendApiKey) {
-      console.error('RESEND_API_KEY not configured');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+    const resendKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendKey) {
       return new Response(JSON.stringify({ error: 'Email not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // Find neighbors in same PLZ region (first 2 digits) who now have a lower score
     const plzPrefix = zipCode.substring(0, 2);
 
-    const { data: overtakenUsers, error } = await supabase
+    // Get all scores in same PLZ region for ranking
+    const { data: allScores, error } = await supabase
       .from('lawn_highscores')
       .select('user_id, user_name, lawn_score, zip_code')
-      .neq('user_id', userId)
-      .lt('lawn_score', newScore)
       .not('zip_code', 'is', null);
 
-    if (error) {
-      console.error('Error fetching overtaken users:', error);
-      throw error;
-    }
+    if (error) throw error;
 
-    // Filter by PLZ prefix in code (Supabase doesn't have startsWith)
-    const neighbors = (overtakenUsers || []).filter(
-      u => u.zip_code?.substring(0, 2) === plzPrefix
+    const regionScores = (allScores || [])
+      .filter((u: any) => u.zip_code?.substring(0, 2) === plzPrefix)
+      .sort((a: any, b: any) => b.lawn_score - a.lawn_score);
+
+    const totalInRegion = regionScores.length;
+
+    // Find users who were overtaken
+    const overtaken = regionScores.filter(
+      (u: any) => u.user_id !== userId && u.lawn_score < newScore
     );
 
-    console.log(`Found ${neighbors.length} overtaken neighbors in PLZ ${plzPrefix}xxx`);
+    console.log(`Found ${overtaken.length} overtaken neighbors in PLZ ${plzPrefix}xxx`);
 
     let emailsSent = 0;
 
-    for (const neighbor of neighbors) {
-      // Get neighbor's email from profiles
+    for (const neighbor of overtaken) {
+      // Get profile + check rate limit
       const { data: profile } = await supabase
         .from('profiles')
-        .select('email, full_name, email_preferences')
+        .select('email, full_name, email_preferences, last_overtaken_notification')
         .eq('id', neighbor.user_id)
         .single();
 
       if (!profile?.email) continue;
 
-      // Check if user has reminders enabled
+      // Check email preferences
       const prefs = profile.email_preferences as any;
       if (prefs && prefs.reminders === false) continue;
 
-      const scoreDiff = newScore - neighbor.lawn_score;
+      // Rate limit: max 1 per 24h
+      if (profile.last_overtaken_notification) {
+        const lastNotif = new Date(profile.last_overtaken_notification);
+        const hoursSince = (Date.now() - lastNotif.getTime()) / (1000 * 60 * 60);
+        if (hoursSince < 24) {
+          console.log(`Skipping ${profile.email} — notified ${Math.round(hoursSince)}h ago`);
+          continue;
+        }
+      }
+
       const neighborName = profile.full_name?.split(' ')[0] || 'Rasenfreund';
+      const difference = newScore - neighbor.lawn_score;
 
-      const emailContent = `
-        <tr>
-          <td class="content-block" style="padding:32px 40px;">
-            <h1 class="hero-title" style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:700;color:#1a1a1a;margin:0 0 16px;line-height:1.3;">
-              ${neighborName}, ein Nachbar hat dich überholt! 🏃‍♂️
-            </h1>
-            
-            <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:15px;color:#555;line-height:1.6;margin:0 0 24px;">
-              Jemand in deiner Nachbarschaft (PLZ ${plzPrefix}xxx) hat jetzt einen besseren Rasen-Score als du!
-            </p>
+      // Calculate old and new rank
+      const newRank = regionScores.filter((u: any) =>
+        u.user_id === neighbor.user_id ? false : u.lawn_score > neighbor.lawn_score
+      ).length + 1 + 1; // +1 for the new scorer pushing them down
+      const oldRank = newRank - 1;
 
-            <!-- Score Comparison -->
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-              <tr>
-                <td style="padding:16px;background:#fef3c7;border-radius:12px;text-align:center;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td width="45%" style="text-align:center;padding:8px;">
-                        <p style="font-family:'Inter',Arial,sans-serif;font-size:12px;color:#92400e;margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px;">Dein Score</p>
-                        <p style="font-family:'Inter',Arial,sans-serif;font-size:32px;font-weight:800;color:#b45309;margin:0;">${neighbor.lawn_score}</p>
-                      </td>
-                      <td width="10%" style="text-align:center;">
-                        <p style="font-size:20px;margin:0;">⚡</p>
-                      </td>
-                      <td width="45%" style="text-align:center;padding:8px;">
-                        <p style="font-family:'Inter',Arial,sans-serif;font-size:12px;color:#166534;margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px;">Nachbar</p>
-                        <p style="font-family:'Inter',Arial,sans-serif;font-size:32px;font-weight:800;color:#16a34a;margin:0;">${newScore}</p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
+      // Get last analysis for quick tips
+      const { data: analysis } = await supabase
+        .from('analyses')
+        .select('step_1, step_2, score, created_at')
+        .eq('user_id', neighbor.user_id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-            <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:15px;color:#555;line-height:1.6;margin:0 0 24px;">
-              Du liegst <strong>${scoreDiff} Punkte</strong> hinter deinem Nachbarn. Mit der richtigen Pflege kannst du deinen Score schnell verbessern!
-            </p>
+      const tip1 = analysis?.step_1 || 'Regelmäßig mähen — nicht kürzer als 4 cm';
+      const tip2 = analysis?.step_2 || 'Bewässerung am frühen Morgen für bestes Ergebnis';
 
-            <!-- CTA Button -->
-            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 24px;">
-              <tr>
-                <td style="border-radius:12px;background:linear-gradient(135deg,#166534,#16a34a);">
-                  <a href="https://www.rasenpilot.com/lawn-analysis?ref=overtaken-email" 
-                     class="cta-button"
-                     style="display:inline-block;padding:14px 32px;font-family:'Inter',Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:12px;">
-                    🔍 Neue Analyse starten & aufsteigen
-                  </a>
-                </td>
-              </tr>
-            </table>
+      const content = `
+        ${greeting(neighborName)}
+        ${paragraph(`In PLZ <strong>${plzPrefix}xxx</strong> hat jemand gerade deinen Rasen-Score überholt!`)}
 
-            <!-- Tips -->
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
-              <tr>
-                <td style="padding:16px;background:#f0fdf4;border-radius:12px;border-left:4px solid #16a34a;">
-                  <p style="font-family:'Inter',Arial,sans-serif;font-size:13px;font-weight:600;color:#166534;margin:0 0 8px;">💡 Tipp: So überholst du zurück</p>
-                  <p style="font-family:'Inter',Arial,sans-serif;font-size:13px;color:#555;line-height:1.5;margin:0;">
-                    Starte eine neue Rasenanalyse und folge den personalisierten Pflegetipps. Premium-Nutzer verbessern ihren Score 3x schneller!
-                  </p>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+        ${infoCard(
+          '📊 Dein Ranking',
+          `Dein Rang vorher: <strong>Platz ${oldRank}</strong> von ${totalInRegion}<br>Dein Rang jetzt: <strong>Platz ${newRank}</strong> von ${totalInRegion}`,
+          '📉', '#fef3c7', '#fde68a'
+        )}
+
+        ${infoCard(
+          '⚡ Score-Vergleich',
+          `Dein Score: <strong>${neighbor.lawn_score}/100</strong><br>Neuer Konkurrent: <strong>${newScore}/100</strong><br>Differenz: nur <strong>${difference} Punkte</strong>!`,
+          '⚡', '#fee2e2', '#fecaca'
+        )}
+
+        ${heading('💡 So holst du schnell auf')}
+        ${infoCard('Schritt 1', tip1, '→', '#f0fdf4', '#bbf7d0')}
+        ${infoCard('Schritt 2', tip2, '→', '#f0fdf4', '#bbf7d0')}
+
+        ${ctaButton('Jetzt Analyse starten und aufholen →', 'https://www.rasenpilot.com/lawn-analysis?ref=overtaken-email')}
+        ${paragraph('Niemand will den schlechtesten Rasen in der Nachbarschaft — oder? 😄')}
+        ${signoff('Das Rasenpilot Team')}
       `;
 
-      const html = emailLayout(emailContent, `Ein Nachbar hat deinen Rasen-Score überholt! Dein Score: ${neighbor.lawn_score} → Nachbar: ${newScore}`);
+      const html = emailLayout(content, `Jemand hat deinen Rasen-Score überholt!`);
 
       try {
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${resendApiKey}`,
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
           body: JSON.stringify({
             from: 'Rasenpilot <noreply@rasenpilot.com>',
             to: [profile.email],
-            subject: `🏃 Ein Nachbar hat deinen Rasen-Score überholt! (${neighbor.lawn_score} → ${newScore})`,
+            subject: `😱 ${neighborName}, jemand hat deinen Rasen-Score überholt!`,
             html,
           }),
         });
 
         if (res.ok) {
           emailsSent++;
-          console.log(`Notification sent to ${profile.email}`);
+          // Update rate limit timestamp
+          await supabase
+            .from('profiles')
+            .update({ last_overtaken_notification: new Date().toISOString() })
+            .eq('id', neighbor.user_id);
+          console.log(`Overtaken notification sent to ${profile.email}`);
         } else {
-          const errText = await res.text();
-          console.error(`Failed to send to ${profile.email}:`, errText);
+          console.error(`Failed to send to ${profile.email}:`, await res.text());
         }
       } catch (emailErr) {
-        console.error(`Email send error for ${profile.email}:`, emailErr);
+        console.error(`Email error for ${profile.email}:`, emailErr);
       }
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      overtakenCount: neighbors.length,
-      emailsSent 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    return new Response(JSON.stringify({
+      success: true, overtakenCount: overtaken.length, emailsSent
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
   } catch (err) {
     console.error('Error in notify-score-overtaken:', err);
