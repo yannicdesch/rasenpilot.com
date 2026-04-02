@@ -12,13 +12,12 @@ serve(async (req) => {
   }
 
   try {
-    console.log('[DAILY-EMAIL-CRON] Starting daily email report job');
+    console.log('[WEEKLY-EMAIL-CRON] Starting weekly email report job');
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get email report settings
     const { data: settings, error: settingsError } = await supabase
       .from('site_settings')
       .select('email_reports')
@@ -27,7 +26,7 @@ serve(async (req) => {
       .single();
 
     if (settingsError || !settings?.email_reports) {
-      console.log('[DAILY-EMAIL-CRON] No email report settings found');
+      console.log('[WEEKLY-EMAIL-CRON] No email report settings found');
       return new Response(
         JSON.stringify({ message: 'No email report settings configured' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -36,50 +35,34 @@ serve(async (req) => {
 
     const emailConfig = settings.email_reports;
     
-    if (!emailConfig.enabled) {
-      console.log('[DAILY-EMAIL-CRON] Email reports are disabled');
+    if (!emailConfig.enabled || !emailConfig.recipientEmail) {
+      console.log('[WEEKLY-EMAIL-CRON] Email reports disabled or no recipient');
       return new Response(
-        JSON.stringify({ message: 'Email reports are disabled' }),
+        JSON.stringify({ message: 'Email reports disabled or no recipient' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!emailConfig.recipientEmail) {
-      console.log('[DAILY-EMAIL-CRON] No recipient email configured');
-      return new Response(
-        JSON.stringify({ message: 'No recipient email configured' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Send the email report
-    console.log('[DAILY-EMAIL-CRON] Sending email report to:', emailConfig.recipientEmail);
+    console.log('[WEEKLY-EMAIL-CRON] Sending weekly report to:', emailConfig.recipientEmail);
     const { data, error } = await supabase.functions.invoke('send-email-report', {
-      body: { 
-        recipient: emailConfig.recipientEmail,
-        isTest: false
-      }
+      body: { recipient: emailConfig.recipientEmail, isTest: false }
     });
 
     if (error) {
-      console.error('[DAILY-EMAIL-CRON] Error sending email:', error);
+      console.error('[WEEKLY-EMAIL-CRON] Error:', error);
       throw error;
     }
 
-    console.log('[DAILY-EMAIL-CRON] Email report sent successfully');
+    console.log('[WEEKLY-EMAIL-CRON] Weekly report sent successfully');
     return new Response(
-      JSON.stringify({ success: true, message: 'Daily email report sent' }),
+      JSON.stringify({ success: true, message: 'Weekly email report sent' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
-    console.error('[DAILY-EMAIL-CRON] Error:', error);
+    console.error('[WEEKLY-EMAIL-CRON] Error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
