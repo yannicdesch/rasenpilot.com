@@ -35,7 +35,6 @@ const AnalysisResult = () => {
   const [error, setError] = useState<string | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [previousScore, setPreviousScore] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
   const stepsRef = useRef<HTMLDivElement>(null);
 
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
