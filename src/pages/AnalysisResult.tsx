@@ -108,6 +108,9 @@ const AnalysisResult = () => {
   }, [isPremium, analysisData]);
 
   useEffect(() => {
+    let pollTimer: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+
     const fetchAnalysisResult = async () => {
       if (!jobId) {
         setError('Keine Analyse-ID gefunden');
@@ -122,7 +125,23 @@ const AnalysisResult = () => {
         if (error) throw error;
 
         if (data && typeof data === 'object' && !Array.isArray(data)) {
-          setAnalysisData(data as unknown as AnalysisJobResult);
+          const jobData = data as unknown as AnalysisJobResult;
+          
+          // If still processing, poll every 2 seconds
+          if (jobData.status === 'processing' || jobData.status === 'pending') {
+            if (!cancelled) {
+              pollTimer = setTimeout(fetchAnalysisResult, 2000);
+            }
+            return;
+          }
+          
+          if (jobData.status === 'failed') {
+            setError('Die Analyse ist fehlgeschlagen. Bitte versuche es erneut.');
+            setIsLoading(false);
+            return;
+          }
+
+          setAnalysisData(jobData);
           await trackAnalysisFromReminder();
         } else {
           setError('Analyse-Ergebnis nicht gefunden');
@@ -131,11 +150,18 @@ const AnalysisResult = () => {
         console.error('Error fetching analysis result:', error);
         setError('Fehler beim Laden des Ergebnisses');
       } finally {
-        setIsLoading(false);
+        if (!cancelled && !pollTimer) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchAnalysisResult();
+    
+    return () => {
+      cancelled = true;
+      if (pollTimer) clearTimeout(pollTimer);
+    };
   }, [jobId]);
 
   const getHealthScore = () => {

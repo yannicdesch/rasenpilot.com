@@ -303,25 +303,49 @@ const LawnAnalysis = () => {
         throw new Error(`Analyse konnte nicht gestartet werden: ${analysisError.message}`);
       }
 
+      // Poll for completion before navigating (max 60 seconds)
+      console.log('⏳ Waiting for analysis to complete...');
+      let pollAttempts = 0;
+      const maxAttempts = 30; // 30 * 2s = 60s max
+      let analysisCompleted = false;
+
+      while (pollAttempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        pollAttempts++;
+        
+        try {
+          const { data: jobStatus } = await supabase
+            .rpc('get_analysis_job', { p_job_id: jobId });
+          
+          const status = (jobStatus as any)?.status;
+          console.log(`Poll ${pollAttempts}/${maxAttempts}: status = ${status}`);
+          
+          if (status === 'completed') {
+            analysisCompleted = true;
+            break;
+          } else if (status === 'failed') {
+            throw new Error('Die Analyse ist fehlgeschlagen. Bitte versuche es erneut.');
+          }
+        } catch (pollError: any) {
+          if (pollError.message?.includes('fehlgeschlagen')) throw pollError;
+          console.warn('Poll error, retrying...', pollError);
+        }
+      }
+
       clearInterval(tipInterval);
       
       // Mark anonymous analysis as used
       if (!user) {
         markAnonymousAnalysisUsed();
       }
-      
-      // Success feedback
-      toast({
-        title: "🎉 Analyse gestartet!",
-        description: "Ihr Foto wird jetzt von der KI analysiert...",
-      });
 
-      console.log('✅ Analysis started successfully, navigating to results...');
-      // Navigate to results after brief success message
-      setTimeout(() => {
-        console.log('🔗 Navigating to:', `/analysis-result/${jobId}`);
-        navigate(`/analysis-result/${jobId}`);
-      }, 2000);
+      if (!analysisCompleted) {
+        // Navigate anyway after timeout - result page will handle polling
+        console.log('⚠️ Analysis not yet complete after timeout, navigating anyway...');
+      }
+      
+      console.log('✅ Analysis complete, navigating to results...');
+      navigate(`/analysis-result/${jobId}`);
 
     } catch (error) {
       console.error('Analysis error:', error);
