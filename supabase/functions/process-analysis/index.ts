@@ -135,7 +135,7 @@ WICHTIGER HINWEIS: Berücksichtigen Sie diese präzisen Wetterdaten für alle Pf
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
@@ -156,24 +156,37 @@ BEWERTUNGSKRITERIEN (jeweils 0-20 Punkte):
 4. UNKRAUTFREIHEIT: Moos, Klee, Löwenzahn, andere Fremdpflanzen
 5. BODENZUSTAND: Verdichtung, Drainage, Nährstoffversorgung (erkennbar)
 
-WICHTIG: Seien Sie kritisch und nutzen Sie die VOLLE BANDBREITE von 0-100. Ein durchschnittlicher Rasen sollte 60-70 Punkte erhalten, nicht 80+!
+WICHTIG: 
+- Seien Sie kritisch und nutzen Sie die VOLLE BANDBREITE von 0-100. Ein durchschnittlicher Rasen sollte 60-70 Punkte erhalten, nicht 80+!
+- Beschreiben Sie KONKRET was Sie auf dem Bild sehen: Farbe, Textur, sichtbare Probleme, Mähmuster etc.
+- Geben Sie SPEZIFISCHE Produktempfehlungen mit Mengenangaben (g/m²) und konkreten Marken
+- Erklären Sie WARUM jedes Problem besteht und was die Ursache sein könnte
+- Bei Wetterdaten: Geben Sie KONKRETE Zeitpunkte (Wochentag, Uhrzeit) für Pflegemaßnahmen
 
-Antworten Sie als JSON-Objekt:
+Antworten Sie NUR mit einem validen JSON-Objekt (kein Markdown, kein Text davor/danach):
 {
-  "overall_health": "Prozentuale Gesundheit (0-100)",
-  "grass_condition": "Detaillierte Beschreibung des Rasenzustands auf Deutsch",
-  "problems": ["Liste identifizierter Probleme mit Fachbegriffen"],
-  "recommendations": ["Konkrete, umsetzbare Empfehlungen mit Mengenangaben und Produktnamen"],
+  "overall_health": 62,
+  "grass_condition": "Ausführliche Beschreibung des sichtbaren Rasenzustands (mind. 3-4 Sätze)",
+  "problems": ["Problem 1 mit Erklärung der Ursache", "Problem 2 mit Fachbegriff"],
+  "recommendations": ["Konkrete Empfehlung 1 mit Produkt, Menge und Timing", "Empfehlung 2"],
   "timeline": "Realistischer Zeitrahmen für sichtbare Verbesserungen",
-  "score": "Gesamtbewertung (0-100) - NUTZEN SIE DIE VOLLE BANDBREITE!",
-  "weather_recommendations": ["Wetterbasierte Timing-Empfehlungen mit konkreten Uhrzeiten und Bedingungen"],
+  "score": 62,
+  "weather_recommendations": ["Wetterbasierte Empfehlung mit Wochentag und Uhrzeit"],
   "detailed_scoring": {
-    "grass_density": "Punkte für Grasdichte (0-20)",
-    "color_quality": "Punkte für Farbqualität (0-20)", 
-    "health_status": "Punkte für Gesundheit (0-20)",
-    "weed_freedom": "Punkte für Unkrautfreiheit (0-20)",
-    "soil_condition": "Punkte für Bodenzustand (0-20)"
-  }
+    "grass_density": 12,
+    "color_quality": 14,
+    "health_status": 13,
+    "weed_freedom": 11,
+    "soil_condition": 12
+  },
+  "summary_short": "Kurze Zusammenfassung in einem Satz",
+  "density_note": "Bewertung der Grasdichte mit Details",
+  "moisture_note": "Bewertung der Feuchtigkeit",
+  "soil_note": "Bewertung des Bodens",
+  "sunlight_note": "Bewertung der Lichtverhältnisse",
+  "step_1": "Wichtigste sofortige Maßnahme mit konkreter Anleitung",
+  "step_2": "Zweite Maßnahme mit Zeitplan",
+  "step_3": "Dritte Maßnahme für langfristigen Erfolg"
 }`
           },
           {
@@ -181,18 +194,20 @@ Antworten Sie als JSON-Objekt:
             content: [
               {
                 type: 'text',
-                text: `Bitte analysiere diesen Rasen professionell. Rasentyp: ${job.grass_type || 'unbekannt'}, Ziel: ${job.lawn_goal || 'Allgemeine Verbesserung'}. ${zipCode ? `Standort: PLZ ${zipCode}.` : ''} Gib eine detaillierte Analyse auf Deutsch und berücksichtige bei verfügbaren Wetterdaten die optimalen Zeitpunkte für Pflegemaßnahmen.`
+                text: `Analysiere diesen Rasen professionell und detailliert. Rasentyp: ${job.grass_type || 'unbekannt'}, Ziel: ${job.lawn_goal || 'Allgemeine Verbesserung'}. ${zipCode ? `Standort: PLZ ${zipCode}.` : ''} Beschreibe konkret was du auf dem Foto siehst und gib spezifische, umsetzbare Empfehlungen.`
               },
               {
                 type: 'image_url',
                 image_url: {
-                  url: signedUrlData.signedUrl
+                  url: signedUrlData.signedUrl,
+                  detail: 'high'
                 }
               }
             ]
           }
         ],
-        max_tokens: 1000
+        max_tokens: 2500,
+        temperature: 0.3
       }),
     });
 
