@@ -186,10 +186,10 @@ const AnalysisResult = () => {
     }
     const base = healthScore;
     return {
-      density: Math.max(30, base - 10 + Math.round(Math.random() * 15)),
-      moisture: Math.max(25, base - 15 + Math.round(Math.random() * 20)),
-      sunlight: Math.max(35, base - 5 + Math.round(Math.random() * 15)),
-      soil: Math.max(30, base - 10 + Math.round(Math.random() * 15)),
+      density: Math.max(30, Math.min(100, base - 3)),
+      moisture: Math.max(25, Math.min(100, base - 8)),
+      sunlight: Math.max(35, Math.min(100, base + 2)),
+      soil: Math.max(30, Math.min(100, base - 5)),
     };
   };
 
