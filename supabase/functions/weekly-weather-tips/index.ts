@@ -19,12 +19,12 @@ serve(async (req) => {
     const resendKey = Deno.env.get('RESEND_API_KEY');
 
     if (!openAIKey || !weatherKey) {
-      throw new Error('Missing required API keys (OPENAI_API_KEY or OPENWEATHERMAP_API_KEY)');
+      throw new Error('Missing required API keys');
     }
 
     console.log('Starting weekly weather tips job...');
 
-    // Get all premium/pro subscribers
+    // Get premium subscribers
     const { data: subscribers, error: subError } = await supabase
       .from('subscribers')
       .select('user_id, email')
@@ -38,7 +38,6 @@ serve(async (req) => {
 
     const userIds = subscribers.map((s: any) => s.user_id).filter(Boolean);
 
-    // Fetch profiles and lawn profiles for all premium users
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, email, full_name, email_preferences')
@@ -49,23 +48,17 @@ serve(async (req) => {
       .select('user_id, zip_code, grass_type, lawn_size, lawn_goal, soil_type')
       .in('user_id', userIds);
 
-    // Fetch latest analysis for each user
     const { data: analyses } = await supabase
       .from('analyses')
       .select('user_id, score, summary_short, density_note, moisture_note, soil_note, sunlight_note, step_1, step_2, step_3, created_at')
       .in('user_id', userIds)
       .order('created_at', { ascending: false });
 
-    // Group data by user
     const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
     const lawnMap = new Map((lawnProfiles || []).map((l: any) => [l.user_id, l]));
-    
-    // Only keep latest analysis per user
     const analysisMap = new Map<string, any>();
     for (const a of (analyses || [])) {
-      if (!analysisMap.has(a.user_id)) {
-        analysisMap.set(a.user_id, a);
-      }
+      if (!analysisMap.has(a.user_id)) analysisMap.set(a.user_id, a);
     }
 
     let tipsSent = 0;
@@ -77,60 +70,43 @@ serve(async (req) => {
         const lawn = lawnMap.get(sub.user_id);
         if (!profile || !lawn || !lawn.zip_code) continue;
 
-        // Check email preferences - respect opt-out
         if (profile.email_preferences) {
-          const prefs = typeof profile.email_preferences === 'string' 
-            ? JSON.parse(profile.email_preferences) 
+          const prefs = typeof profile.email_preferences === 'string'
+            ? JSON.parse(profile.email_preferences)
             : profile.email_preferences;
           if (prefs.reminders === false) continue;
         }
 
         const analysis = analysisMap.get(sub.user_id);
-
-        // Fetch weather for user's PLZ
         const weather = await fetchWeather(lawn.zip_code, weatherKey);
-        if (!weather) {
-          errors.push(`Weather fetch failed for PLZ ${lawn.zip_code}`);
-          continue;
-        }
+        if (!weather) { errors.push(`Weather failed for PLZ ${lawn.zip_code}`); continue; }
 
-        // Generate tips with GPT-4o
-        const tips = await generateWeatherTips(openAIKey, analysis, weather, lawn);
-        if (!tips) {
-          errors.push(`GPT tips generation failed for user ${sub.user_id}`);
-          continue;
-        }
+        const dailyForecast = buildDailyForecast(weather);
+        const tips = await generateTips(openAIKey, weather, analysis, lawn);
+        if (!tips) { errors.push(`GPT failed for ${sub.user_id}`); continue; }
 
-        // Send email
         if (resendKey) {
-          const sent = await sendTipsEmail(
-            resendKey,
-            profile.email,
-            profile.full_name || 'Rasenfreund',
-            tips,
-            weather,
-            analysis
+          const sent = await sendEmail(
+            resendKey, profile.email, profile.full_name || 'Rasenfreund',
+            lawn.zip_code, dailyForecast, tips, analysis
           );
-          if (sent) tipsSent++;
-          else errors.push(`Email send failed for ${profile.email}`);
+          if (sent) tipsSent++; else errors.push(`Email failed for ${profile.email}`);
         } else {
-          console.log(`[DRY RUN] Would send tips to ${profile.email}`);
+          console.log(`[DRY RUN] Would send to ${profile.email}`);
           tipsSent++;
         }
       } catch (err) {
-        errors.push(`Error for user ${sub.user_id}: ${err.message}`);
+        errors.push(`Error for ${sub.user_id}: ${err.message}`);
       }
     }
 
-    console.log(`Weekly tips job complete: ${tipsSent} sent, ${errors.length} errors`);
+    console.log(`Weekly tips done: ${tipsSent} sent, ${errors.length} errors`);
     return jsonResponse({ success: true, tipsSent, totalUsers: subscribers.length, errors: errors.length > 0 ? errors : undefined });
-
   } catch (error) {
     console.error('Error in weekly-weather-tips:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 });
 
@@ -140,185 +116,205 @@ function jsonResponse(data: any) {
   });
 }
 
+// --- Weather ---
+
 async function fetchWeather(zip: string, apiKey: string): Promise<any | null> {
   try {
-    const url = `https://api.openweathermap.org/data/2.5/forecast?zip=${zip},DE&appid=${apiKey}&lang=de&units=metric`;
-    const res = await fetch(url);
-    if (!res.ok) {
-      // Try AT and CH if DE fails
-      for (const country of ['AT', 'CH']) {
-        const altUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zip},${country}&appid=${apiKey}&lang=de&units=metric`;
-        const altRes = await fetch(altUrl);
-        if (altRes.ok) return await altRes.json();
-        await altRes.text(); // consume body
-      }
-      console.error(`Weather API error for PLZ ${zip}: ${res.status}`);
+    for (const country of ['DE', 'AT', 'CH']) {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?zip=${zip},${country}&appid=${apiKey}&lang=de&units=metric`;
+      const res = await fetch(url);
+      if (res.ok) return await res.json();
       await res.text();
-      return null;
     }
-    return await res.json();
+    return null;
   } catch (err) {
     console.error(`Weather fetch error for PLZ ${zip}:`, err);
     return null;
   }
 }
 
-function summarizeWeather(weatherData: any): string {
-  if (!weatherData?.list) return 'Keine Wetterdaten verfügbar';
-  
-  const forecasts = weatherData.list.slice(0, 16); // ~2 days in 3h intervals
-  const temps = forecasts.map((f: any) => f.main.temp);
-  const minTemp = Math.round(Math.min(...temps));
-  const maxTemp = Math.round(Math.max(...temps));
-  const avgTemp = Math.round(temps.reduce((a: number, b: number) => a + b, 0) / forecasts.length);
-  
-  const rainForecasts = forecasts.filter((f: any) => 
-    f.weather?.[0]?.main === 'Rain' || f.weather?.[0]?.main === 'Drizzle'
-  );
-  const hasRain = rainForecasts.length > 0;
-  const rainChance = Math.round((rainForecasts.length / forecasts.length) * 100);
-  
-  const descriptions = [...new Set(forecasts.map((f: any) => f.weather?.[0]?.description).filter(Boolean))];
-  
-  const humidity = Math.round(forecasts.reduce((a: number, f: any) => a + f.main.humidity, 0) / forecasts.length);
-  const windSpeed = Math.round(forecasts.reduce((a: number, f: any) => a + f.wind.speed, 0) / forecasts.length * 10) / 10;
+const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
-  return `Temperatur: ${minTemp}°C bis ${maxTemp}°C (Ø ${avgTemp}°C). Luftfeuchtigkeit: Ø ${humidity}%. Wind: Ø ${windSpeed} m/s. Regen: ${hasRain ? `Ja (${rainChance}% der Vorhersagen)` : 'Nein'}. Wetter: ${descriptions.slice(0, 3).join(', ')}.`;
+interface DayForecast {
+  label: string;
+  date: string;
+  temp: number;
+  condition: string;
+  rain: boolean;
+  humidity: number;
 }
 
-async function generateWeatherTips(
-  apiKey: string,
-  analysis: any | undefined,
-  weather: any,
-  lawn: any
-): Promise<string | null> {
+function buildDailyForecast(weather: any): DayForecast[] {
+  if (!weather?.list) return [];
+  const dayMap = new Map<string, any[]>();
+  for (const entry of weather.list) {
+    const d = new Date(entry.dt * 1000);
+    const key = d.toISOString().slice(0, 10);
+    if (!dayMap.has(key)) dayMap.set(key, []);
+    dayMap.get(key)!.push(entry);
+  }
+
+  const days: DayForecast[] = [];
+  for (const [dateStr, entries] of dayMap) {
+    if (days.length >= 5) break;
+    const d = new Date(dateStr);
+    const temps = entries.map((e: any) => e.main.temp);
+    const maxTemp = Math.round(Math.max(...temps));
+    const descriptions = entries.map((e: any) => e.weather?.[0]?.description).filter(Boolean);
+    const hasRain = entries.some((e: any) => ['Rain', 'Drizzle'].includes(e.weather?.[0]?.main));
+    const avgHumidity = Math.round(entries.reduce((s: number, e: any) => s + e.main.humidity, 0) / entries.length);
+    const mostCommon = mode(descriptions) || 'bewölkt';
+
+    days.push({
+      label: WEEKDAYS[d.getDay()],
+      date: `${d.getDate()}.${d.getMonth() + 1}.`,
+      temp: maxTemp,
+      condition: mostCommon,
+      rain: hasRain,
+      humidity: avgHumidity,
+    });
+  }
+  return days;
+}
+
+function mode(arr: string[]): string | null {
+  const freq = new Map<string, number>();
+  for (const v of arr) freq.set(v, (freq.get(v) || 0) + 1);
+  let max = 0, result: string | null = null;
+  for (const [k, c] of freq) { if (c > max) { max = c; result = k; } }
+  return result;
+}
+
+// --- GPT Tips ---
+
+async function generateTips(
+  apiKey: string, weather: any, analysis: any | undefined, lawn: any
+): Promise<{ watering: string; mowing: string; topTip: string } | null> {
   try {
-    const weatherSummary = summarizeWeather(weather);
-    
-    let analysisContext = 'Keine vorherige Analyse vorhanden.';
+    const weatherSummary = JSON.stringify(buildDailyForecast(weather));
+
+    let analysisJson = 'Keine Analyse vorhanden.';
     if (analysis) {
-      const problems = [analysis.density_note, analysis.moisture_note, analysis.soil_note, analysis.sunlight_note]
-        .filter(Boolean).join(', ');
-      const steps = [analysis.step_1, analysis.step_2, analysis.step_3].filter(Boolean).join('; ');
-      analysisContext = `Score: ${analysis.score}/100. Probleme: ${problems || 'Keine'}. Pflegeplan: ${steps || 'Keiner'}. Zusammenfassung: ${analysis.summary_short || 'Keine'}.`;
+      analysisJson = JSON.stringify({
+        score: analysis.score,
+        density: analysis.density_note,
+        moisture: analysis.moisture_note,
+        soil: analysis.soil_note,
+        sunlight: analysis.sunlight_note,
+        step_1: analysis.step_1,
+        step_2: analysis.step_2,
+        step_3: analysis.step_3,
+        summary: analysis.summary_short,
+      });
     }
 
-    const prompt = `Based on this lawn analysis: ${analysisContext}
-And this week's weather forecast: ${weatherSummary}
+    const prompt = `Based on this week weather forecast: ${weatherSummary} and this lawn analysis: ${analysisJson}, generate 3 specific lawn care tips in German using du-form. Keep each tip under 2 sentences. Be specific about timing (Montag früh, Mittwoch abend etc.).
+
 Lawn info: Grasart: ${lawn.grass_type}, Größe: ${lawn.lawn_size}, Ziel: ${lawn.lawn_goal}, Boden: ${lawn.soil_type || 'unbekannt'}.
 
-Give 3 specific lawn care tips for this week in German. Be very specific about timing and quantities. Format each tip with an emoji and a title on the first line, then the detail. Keep it under 100 words total.`;
+Return ONLY valid JSON with this exact structure:
+{"watering": "...", "mowing": "...", "topTip": "..."}
+
+watering = Bewässerungstipp basierend auf Verdunstung + Regenvorhersage
+mowing = Mähtipp basierend auf Feuchtigkeit + Temperatur
+topTip = Wichtigster Tipp aus letzter Analyse kombiniert mit Wetter`;
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
-          { role: 'system', content: 'Du bist ein deutscher Rasenexperte. Gib präzise, wetterbezogene Pflegetipps. Antworte nur auf Deutsch.' },
+          { role: 'system', content: 'Du bist ein deutscher Rasenexperte. Antworte NUR mit validem JSON.' },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
-        max_tokens: 300,
+        temperature: 0.5,
+        max_tokens: 400,
       }),
     });
 
-    if (!res.ok) {
-      console.error('OpenAI error:', res.status, await res.text());
-      return null;
-    }
-
+    if (!res.ok) { console.error('OpenAI error:', res.status); return null; }
     const data = await res.json();
-    return data.choices?.[0]?.message?.content || null;
+    const content = data.choices?.[0]?.message?.content?.trim();
+    if (!content) return null;
+
+    const cleaned = content.replace(/```json\n?/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleaned);
   } catch (err) {
-    console.error('GPT tips generation error:', err);
+    console.error('GPT tips error:', err);
     return null;
   }
 }
 
-function formatTipsAsHtml(tipsText: string): string {
-  // Split tips by newlines and format them as info cards
-  const lines = tipsText.split('\n').filter(l => l.trim());
-  let html = '';
-  let currentTitle = '';
-  let currentBody = '';
+// --- Email ---
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    // Detect tip headers (usually start with emoji or number)
-    if (/^[\d️⃣🌱🌿💧☀️✂️🧪🌦️❄️🍂🔥💡⚡🌡️]/.test(trimmed) || /^\d+[\.\)]/.test(trimmed)) {
-      if (currentTitle) {
-        html += infoCard(currentTitle, currentBody, '🌱', '#f0fdf4', '#bbf7d0');
-      }
-      currentTitle = trimmed;
-      currentBody = '';
-    } else if (currentTitle) {
-      currentBody += (currentBody ? ' ' : '') + trimmed;
-    } else {
-      currentTitle = trimmed;
-    }
-  }
-  if (currentTitle) {
-    html += infoCard(currentTitle, currentBody, '🌱', '#f0fdf4', '#bbf7d0');
-  }
-
-  return html || paragraph(tipsText);
+function formatAnalysisDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
 }
 
-async function sendTipsEmail(
-  resendKey: string,
-  email: string,
-  name: string,
-  tips: string,
-  weather: any,
+async function sendEmail(
+  resendKey: string, email: string, name: string, zip: string,
+  forecast: DayForecast[], tips: { watering: string; mowing: string; topTip: string },
   analysis: any | undefined
 ): Promise<boolean> {
   try {
-    const weatherSummary = summarizeWeather(weather);
-    const tipsHtml = formatTipsAsHtml(tips);
-    
+    // Build weather table
+    const weatherRows = forecast.map(d =>
+      `<tr>
+        <td style="padding:6px 12px;border-bottom:1px solid #e5e7eb;font-weight:600">${d.label} ${d.date}</td>
+        <td style="padding:6px 12px;border-bottom:1px solid #e5e7eb">${d.temp}°C</td>
+        <td style="padding:6px 12px;border-bottom:1px solid #e5e7eb">${d.rain ? '🌧️' : '☀️'} ${d.condition}</td>
+      </tr>`
+    ).join('');
+
+    const weatherTable = `
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
+        <thead><tr style="background:#f0fdf4">
+          <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #bbf7d0">Tag</th>
+          <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #bbf7d0">Temp</th>
+          <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #bbf7d0">Wetter</th>
+        </tr></thead>
+        <tbody>${weatherRows}</tbody>
+      </table>`;
+
+    const scoreSection = analysis
+      ? `${scoreDisplay(analysis.score, `Score vom ${formatAnalysisDate(analysis.created_at)}`)}`
+      : '';
+
     const content = `
       ${greeting(name)}
-      ${paragraph('Hier sind deine <strong>personalisierten Rasen-Tipps</strong> für diese Woche — basierend auf deinem Wetter und deiner letzten Analyse.')}
-      
-      ${heading('🌦️ Dein Wetter diese Woche')}
-      ${infoCard('Wetterbericht', weatherSummary, '🌤️', '#eff6ff', '#bfdbfe')}
-      
-      ${analysis ? scoreDisplay(analysis.score, analysis.summary_short || undefined) : ''}
-      
-      ${heading('🌱 Deine 3 Tipps für diese Woche')}
-      ${tipsHtml}
-      
-      ${ctaButton('Zum Dashboard →', 'https://www.rasenpilot.com/premium-dashboard')}
-      ${paragraph('Diese Tipps basieren auf deinem Standort, aktuellen Wetterdaten und deiner letzten Rasen-Analyse. Je regelmäßiger du analysierst, desto besser werden die Empfehlungen!')}
-      ${signoff()}
+      ${paragraph(`Diese Woche in PLZ <strong>${zip}</strong>:`)}
+      ${weatherTable}
+
+      ${heading('🌱 Dein persönlicher Rasen-Plan')}
+
+      ${infoCard('💧 Bewässerung', tips.watering, '💧', '#eff6ff', '#bfdbfe')}
+      ${infoCard('✂️ Mähen', tips.mowing, '✂️', '#f0fdf4', '#bbf7d0')}
+      ${infoCard('🌱 Diese Woche besonders wichtig', tips.topTip, '⭐', '#fffbeb', '#fde68a')}
+
+      ${scoreSection}
+
+      ${ctaButton('Rasen neu analysieren →', 'https://www.rasenpilot.com/lawn-analysis')}
+      ${signoff('Das Rasenpilot Team')}
     `;
 
-    const emailHtml = emailLayout(content, `Deine 3 Rasen-Tipps für diese Woche`);
+    const emailHtml = emailLayout(content, `Dein Rasen-Plan für diese Woche`);
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${resendKey}`,
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
       body: JSON.stringify({
         from: 'Rasenpilot <noreply@rasenpilot.com>',
         to: [email],
-        subject: `🌱 Dein Rasen-Tipp für diese Woche, ${name}`,
+        subject: `☀️ Dein Rasen-Plan für diese Woche, ${name}`,
         html: emailHtml,
       }),
     });
 
-    if (!res.ok) {
-      console.error('Resend error:', res.status, await res.text());
-      return false;
-    }
+    if (!res.ok) { console.error('Resend error:', res.status, await res.text()); return false; }
     await res.text();
-    console.log(`Tips email sent to ${email}`);
+    console.log(`Weekly tips sent to ${email}`);
     return true;
   } catch (err) {
     console.error('Email send error:', err);
