@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp, MessageCircle, Facebook, Instagram, Copy, Check } from 'lucide-react';
+import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +13,8 @@ import { useLawn } from '@/context/LawnContext';
 import { useRetentionTracking } from '@/hooks/useRetentionTracking';
 import { useSubscription } from '@/hooks/useSubscription';
 import { amazonProducts, getAmazonUrl, getAmazonImageUrl } from '@/lib/amazonProducts';
+import { getRank, getNextRank } from '@/lib/rankSystem';
+import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 
 interface AnalysisJobResult {
   id: string;
@@ -33,7 +35,6 @@ const AnalysisResult = () => {
   const [error, setError] = useState<string | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [previousScore, setPreviousScore] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
   const stepsRef = useRef<HTMLDivElement>(null);
 
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
@@ -116,13 +117,10 @@ const AnalysisResult = () => {
     return next.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  const shareText = `Mein Rasen hat ${healthScore}/100 Punkte! 🌱 Kannst du mich schlagen? → rasenpilot.com`;
-  const shareUrl = 'https://rasenpilot.com';
-
-  const handleWhatsApp = () => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-  const handleFacebook = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
-  const handleInstagram = () => { navigator.clipboard.writeText(shareText); toast.success('Text kopiert! Füge ihn in deine Instagram Story ein 📸'); };
-  const handleCopyLink = () => { navigator.clipboard.writeText(shareText); setCopied(true); toast.success('In die Zwischenablage kopiert!'); setTimeout(() => setCopied(false), 2000); };
+  // Share data for Wrapped-style card
+  const rank = getRank(healthScore);
+  const nextRank = getNextRank(healthScore);
+  const nextScoreGoal = nextRank ? nextRank.minScore : 100;
 
   const handleDownloadPlan = () => {
     if (!result) return;
@@ -279,6 +277,19 @@ const AnalysisResult = () => {
   const diseases = result?.diseases || [];
   const weatherRecs = result?.weather_recommendations || [];
 
+  const shareData = {
+    score: healthScore,
+    rankName: rank.name,
+    rankEmoji: rank.emoji,
+    problems: result?.problems || [],
+    scoreDiff,
+    zipRank: null as number | null,
+    zipTotal: null as number | null,
+    zip: profile?.zipCode || undefined,
+    nextScoreGoal,
+    stepsCount: [result?.step_1, result?.step_2, result?.step_3].filter(Boolean).length,
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <SEO
@@ -328,7 +339,7 @@ const AnalysisResult = () => {
             <Button
               variant="outline"
               className="flex-1 border-green-200 text-green-700 hover:bg-green-50"
-              onClick={handleCopyLink}
+              onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })}
             >
               <Share2 className="h-4 w-4 mr-2" />
               Score teilen
@@ -338,22 +349,6 @@ const AnalysisResult = () => {
               onClick={() => stepsRef.current?.scrollIntoView({ behavior: 'smooth' })}
             >
               Mein Aktionsplan →
-            </Button>
-          </div>
-
-          {/* Share row */}
-          <div className="flex justify-center gap-2 mt-4">
-            <Button size="sm" onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#20bd5a] text-white h-9 px-3">
-              <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
-            </Button>
-            <Button size="sm" onClick={handleFacebook} className="bg-[#1877F2] hover:bg-[#1565d8] text-white h-9 px-3">
-              <Facebook className="h-4 w-4 mr-1" /> Facebook
-            </Button>
-            <Button size="sm" onClick={handleInstagram} className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white h-9 px-3">
-              <Instagram className="h-4 w-4 mr-1" /> Instagram
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleCopyLink} className="h-9 px-3 border-border">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
         </div>
@@ -542,32 +537,10 @@ const AnalysisResult = () => {
         )}
 
         {/* ═══════════════════════════════════════════════
-            BLOCK 6 — SCORE TEILEN
+            BLOCK 6 — SCORE TEILEN (Wrapped-style)
         ═══════════════════════════════════════════════ */}
-        <div className="mb-8">
-          <Card className="border-border">
-            <CardContent className="p-5">
-              <p className="text-sm font-semibold text-foreground mb-1 flex items-center gap-2">
-                <Share2 className="h-4 w-4" /> Kannst du mich schlagen? 💪
-              </p>
-              <p className="text-xs text-muted-foreground mb-3">Teile deinen Score — fordere Freunde heraus!</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#20bd5a] text-white h-10 text-sm">
-                  <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
-                </Button>
-                <Button onClick={handleFacebook} className="bg-[#1877F2] hover:bg-[#1565d8] text-white h-10 text-sm">
-                  <Facebook className="h-4 w-4 mr-2" /> Facebook
-                </Button>
-                <Button onClick={handleInstagram} className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white h-10 text-sm">
-                  <Instagram className="h-4 w-4 mr-2" /> Instagram
-                </Button>
-                <Button onClick={handleCopyLink} variant="outline" className="h-10 text-sm border-border">
-                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                  {copied ? 'Kopiert!' : 'Link kopieren'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <div id="share-section" className="mb-8">
+          <LawnScoreShareCard data={shareData} />
         </div>
 
       </div>
