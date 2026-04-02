@@ -339,7 +339,7 @@ const AnalysisResult = () => {
             <Button
               variant="outline"
               className="flex-1 border-green-200 text-green-700 hover:bg-green-50"
-              onClick={handleCopyLink}
+              onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })}
             >
               <Share2 className="h-4 w-4 mr-2" />
               Score teilen
@@ -349,22 +349,6 @@ const AnalysisResult = () => {
               onClick={() => stepsRef.current?.scrollIntoView({ behavior: 'smooth' })}
             >
               Mein Aktionsplan →
-            </Button>
-          </div>
-
-          {/* Share row */}
-          <div className="flex justify-center gap-2 mt-4">
-            <Button size="sm" onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#20bd5a] text-white h-9 px-3">
-              <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
-            </Button>
-            <Button size="sm" onClick={handleFacebook} className="bg-[#1877F2] hover:bg-[#1565d8] text-white h-9 px-3">
-              <Facebook className="h-4 w-4 mr-1" /> Facebook
-            </Button>
-            <Button size="sm" onClick={handleInstagram} className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white h-9 px-3">
-              <Instagram className="h-4 w-4 mr-1" /> Instagram
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleCopyLink} className="h-9 px-3 border-border">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
         </div>
