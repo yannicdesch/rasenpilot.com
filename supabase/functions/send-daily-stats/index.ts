@@ -116,6 +116,7 @@ serve(async (req) => {
       eventsToday: eventsToday || 0,
       newUsersList: newUsersList || [],
       topPages,
+      topReferrers,
     });
 
     const subject = `📈 Rasenpilot Daily Stats — ${todayStr}`;
