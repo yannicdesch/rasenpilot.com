@@ -74,17 +74,31 @@ serve(async (req) => {
     // --- TOP PAGES (letzte 24h) ---
     const { data: recentPageViews } = await supabase
       .from('page_views')
-      .select('path')
+      .select('path, referrer')
       .gte('timestamp', yesterdayISO)
       .limit(1000);
 
     const pageCounts: Record<string, number> = {};
+    const referrerCounts: Record<string, number> = {};
     recentPageViews?.forEach(pv => {
       pageCounts[pv.path] = (pageCounts[pv.path] || 0) + 1;
+      if (pv.referrer) {
+        try {
+          const hostname = new URL(pv.referrer).hostname.replace(/^www\./, '');
+          if (!hostname.includes('rasenpilot')) {
+            referrerCounts[hostname] = (referrerCounts[hostname] || 0) + 1;
+          }
+        } catch { /* ignore invalid URLs */ }
+      } else {
+        referrerCounts['(direkt / keine Referrer)'] = (referrerCounts['(direkt / keine Referrer)'] || 0) + 1;
+      }
     });
     const topPages = Object.entries(pageCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
+    const topReferrers = Object.entries(referrerCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
 
     const html = generateDailyStatsHTML({
       todayStr,
@@ -102,6 +116,7 @@ serve(async (req) => {
       eventsToday: eventsToday || 0,
       newUsersList: newUsersList || [],
       topPages,
+      topReferrers,
     });
 
     const subject = `📈 Rasenpilot Daily Stats — ${todayStr}`;
@@ -133,6 +148,12 @@ function generateDailyStatsHTML(d: any) {
         `<tr><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;font-family:monospace;font-size:13px;">${path}</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700;">${count}</td></tr>`
       ).join('')
     : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#94a3b8;">Keine Page Views</td></tr>';
+
+  const topReferrerRows = d.topReferrers.length > 0
+    ? d.topReferrers.map(([source, count]: [string, number]) =>
+        `<tr><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;font-size:13px;">${source}</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700;">${count}</td></tr>`
+      ).join('')
+    : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#94a3b8;">Keine Referrer-Daten</td></tr>';
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1e293b;">
@@ -204,6 +225,14 @@ function generateDailyStatsHTML(d: any) {
   <div style="font-size:15px;font-weight:700;color:#166534;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #dcfce7;">📄 Top Seiten (24h)</div>
   <table style="width:100%;border-collapse:collapse;font-size:13px;">
     ${topPagesRows}
+  </table>
+</div>
+
+<!-- Traffic Sources -->
+<div style="margin-bottom:18px;">
+  <div style="font-size:15px;font-weight:700;color:#166534;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #dcfce7;">🔗 Traffic-Quellen (24h)</div>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;">
+    ${topReferrerRows}
   </table>
 </div>
 
