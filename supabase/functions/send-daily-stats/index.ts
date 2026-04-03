@@ -228,7 +228,6 @@ function generateDailyStatsHTML(d: any) {
 }
 
 async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
   if (!RESEND_API_KEY) {
@@ -237,21 +236,12 @@ async function sendEmail({ to, subject, html }: { to: string; subject: string; h
     return true;
   }
 
-  const gatewayUrl = LOVABLE_API_KEY
-    ? 'https://connector-gateway.lovable.dev/resend/emails'
-    : 'https://api.resend.com/emails';
-
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (LOVABLE_API_KEY) {
-    headers['Authorization'] = `Bearer ${LOVABLE_API_KEY}`;
-    headers['X-Connection-Api-Key'] = RESEND_API_KEY;
-  } else {
-    headers['Authorization'] = `Bearer ${RESEND_API_KEY}`;
-  }
-
-  const response = await fetch(gatewayUrl, {
+  const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${RESEND_API_KEY}`,
+    },
     body: JSON.stringify({
       from: 'Rasenpilot <noreply@rasenpilot.com>',
       to: [to],
