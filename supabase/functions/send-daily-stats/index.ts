@@ -121,7 +121,7 @@ serve(async (req) => {
       premiumCount,
       proCount,
       totalPaying,
-      mrr,
+      mrr: mrrDisplay,
       analysesToday,
       avgScoreToday,
       totalAnalyses: totalAnalyses || 0,
