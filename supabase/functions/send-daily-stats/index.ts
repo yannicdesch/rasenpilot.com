@@ -93,17 +93,47 @@ serve(async (req) => {
 
     const pageCounts: Record<string, number> = {};
     const referrerCounts: Record<string, number> = {};
+
+    // Map hostnames to friendly channel names
+    const channelMap: Record<string, string> = {
+      'facebook.com': '📘 Facebook',
+      'm.facebook.com': '📘 Facebook',
+      'l.facebook.com': '📘 Facebook',
+      'lm.facebook.com': '📘 Facebook',
+      'instagram.com': '📸 Instagram',
+      'l.instagram.com': '📸 Instagram',
+      'google.com': '🔍 Google',
+      'google.de': '🔍 Google',
+      'linkedin.com': '💼 LinkedIn',
+      'bing.com': '🔍 Bing',
+      'ecosia.org': '🌿 Ecosia',
+      'twitter.com': '🐦 Twitter/X',
+      'x.com': '🐦 Twitter/X',
+      't.co': '🐦 Twitter/X',
+      'pinterest.com': '📌 Pinterest',
+      'pinterest.de': '📌 Pinterest',
+      'youtube.com': '🎬 YouTube',
+      'tiktok.com': '🎵 TikTok',
+      'reddit.com': '🟠 Reddit',
+      'teams.cdn.office.net': '💬 MS Teams',
+      'statics.teams.cdn.office.net': '💬 MS Teams',
+    };
+
+    const internalDomains = ['rasenpilot', 'lovableproject.com', 'lovable.app', 'lovable.dev'];
+
     recentPageViews?.forEach(pv => {
       pageCounts[pv.path] = (pageCounts[pv.path] || 0) + 1;
       if (pv.referrer) {
         try {
           const hostname = new URL(pv.referrer).hostname.replace(/^www\./, '');
-          if (!hostname.includes('rasenpilot')) {
-            referrerCounts[hostname] = (referrerCounts[hostname] || 0) + 1;
-          }
+          // Skip internal traffic
+          if (internalDomains.some(d => hostname.includes(d))) return;
+          // Map to friendly name or use hostname
+          const channel = channelMap[hostname] || hostname;
+          referrerCounts[channel] = (referrerCounts[channel] || 0) + 1;
         } catch { /* ignore invalid URLs */ }
       } else {
-        referrerCounts['(direkt / keine Referrer)'] = (referrerCounts['(direkt / keine Referrer)'] || 0) + 1;
+        referrerCounts['🔗 Direkt / Kein Referrer'] = (referrerCounts['🔗 Direkt / Kein Referrer'] || 0) + 1;
       }
     });
     const topPages = Object.entries(pageCounts)
