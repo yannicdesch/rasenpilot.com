@@ -149,6 +149,12 @@ function generateDailyStatsHTML(d: any) {
       ).join('')
     : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#94a3b8;">Keine Page Views</td></tr>';
 
+  const topReferrerRows = d.topReferrers.length > 0
+    ? d.topReferrers.map(([source, count]: [string, number]) =>
+        `<tr><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;font-size:13px;">${source}</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700;">${count}</td></tr>`
+      ).join('')
+    : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#94a3b8;">Keine Referrer-Daten</td></tr>';
+
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1e293b;">
 <div style="max-width:560px;margin:20px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
