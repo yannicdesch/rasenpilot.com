@@ -74,17 +74,31 @@ serve(async (req) => {
     // --- TOP PAGES (letzte 24h) ---
     const { data: recentPageViews } = await supabase
       .from('page_views')
-      .select('path')
+      .select('path, referrer')
       .gte('timestamp', yesterdayISO)
       .limit(1000);
 
     const pageCounts: Record<string, number> = {};
+    const referrerCounts: Record<string, number> = {};
     recentPageViews?.forEach(pv => {
       pageCounts[pv.path] = (pageCounts[pv.path] || 0) + 1;
+      if (pv.referrer) {
+        try {
+          const hostname = new URL(pv.referrer).hostname.replace(/^www\./, '');
+          if (!hostname.includes('rasenpilot')) {
+            referrerCounts[hostname] = (referrerCounts[hostname] || 0) + 1;
+          }
+        } catch { /* ignore invalid URLs */ }
+      } else {
+        referrerCounts['(direkt / keine Referrer)'] = (referrerCounts['(direkt / keine Referrer)'] || 0) + 1;
+      }
     });
     const topPages = Object.entries(pageCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
+    const topReferrers = Object.entries(referrerCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
 
     const html = generateDailyStatsHTML({
       todayStr,
