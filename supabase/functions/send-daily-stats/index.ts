@@ -222,6 +222,14 @@ function generateDailyStatsHTML(d: any) {
   </table>
 </div>
 
+<!-- Traffic Sources -->
+<div style="margin-bottom:18px;">
+  <div style="font-size:15px;font-weight:700;color:#166534;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #dcfce7;">🔗 Traffic-Quellen (24h)</div>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;">
+    ${topReferrerRows}
+  </table>
+</div>
+
 <!-- New Users -->
 <div style="margin-bottom:12px;">
   <div style="font-size:15px;font-weight:700;color:#166534;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #dcfce7;">🆕 Neue Nutzer heute</div>
