@@ -31,12 +31,25 @@ serve(async (req) => {
     // --- SUBSCRIPTIONS ---
     const { data: allSubs } = await supabase.from('subscribers').select('id, subscribed, subscription_tier, is_trial, trial_end, created_at');
     const activeTrials = allSubs?.filter(s => s.is_trial && s.trial_end && new Date(s.trial_end) > now).length || 0;
-    const premiumCount = allSubs?.filter(s => s.subscribed && s.subscription_tier === 'premium').length || 0;
-    const proCount = allSubs?.filter(s => s.subscribed && s.subscription_tier === 'pro').length || 0;
+
+    // Map all tier variants to pricing
+    const premiumTiers = ['monthly', 'premium_monthly', 'premium', 'yearly', 'premium_yearly'];
+    const proTiers = ['pro_monthly', 'pro', 'pro_yearly'];
+    const activeSubs = allSubs?.filter(s => s.subscribed) || [];
+    const premiumCount = activeSubs.filter(s => premiumTiers.includes(s.subscription_tier)).length;
+    const proCount = activeSubs.filter(s => proTiers.includes(s.subscription_tier)).length;
     const totalPaying = premiumCount + proCount;
 
-    // --- MRR ---
-    const mrr = ((premiumCount * 999 + proCount * 1999) / 100).toFixed(2);
+    // --- MRR (monthly recurring revenue) ---
+    let mrr = 0;
+    activeSubs.forEach(s => {
+      const tier = s.subscription_tier;
+      if (tier === 'monthly' || tier === 'premium_monthly' || tier === 'premium') mrr += 999;
+      else if (tier === 'yearly' || tier === 'premium_yearly') mrr += Math.round(7999 / 12);
+      else if (tier === 'pro_monthly' || tier === 'pro') mrr += 1999;
+      else if (tier === 'pro_yearly') mrr += Math.round(15999 / 12);
+    });
+    const mrrDisplay = (mrr / 100).toFixed(2);
 
     // --- ANALYSEN (letzte 24h) ---
     const { data: todayAnalyses } = await supabase
@@ -108,7 +121,7 @@ serve(async (req) => {
       premiumCount,
       proCount,
       totalPaying,
-      mrr,
+      mrr: mrrDisplay,
       analysesToday,
       avgScoreToday,
       totalAnalyses: totalAnalyses || 0,
