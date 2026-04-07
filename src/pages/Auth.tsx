@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
 import MainNavigation from '@/components/MainNavigation';
 import PasswordResetLink from '@/components/PasswordResetLink';
+import { trackMetaCompleteRegistration, trackMetaLead } from '@/lib/analytics/metaPixel';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -55,6 +56,10 @@ const Auth = () => {
         return;
       }
 
+      // Track Meta Pixel events for registration funnel
+      trackMetaCompleteRegistration('Signup', 'success');
+      trackMetaLead('registration');
+      
       toast.success('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail.');
       
       // Redirect to intended destination (e.g. subscription with plan)
