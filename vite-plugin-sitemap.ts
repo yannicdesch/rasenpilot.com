@@ -79,6 +79,7 @@ async function fetchPublishedBlogPosts(supabaseUrl: string, supabaseAnonKey: str
     .from("blog_posts")
     .select("slug, updated_at, date")
     .eq("status", "published")
+    .is("redirect_to", null)
     .order("date", { ascending: false });
 
   if (error) {
