@@ -122,6 +122,9 @@ export default function Subscription() {
   const { subscription, loading, checkSubscription, openCustomerPortal, isSubscribed, subscriptionTier, isTrial, trialEnd, planTier } = useSubscription();
 
   const ref = searchParams.get('ref');
+  // Warm traffic = user came from analysis, or has already done an analysis, or is logged in
+  const hasUsedAnalysis = localStorage.getItem('rasenpilot_anonymous_analysis_used') === 'true';
+  const isWarmTraffic = ref === 'analysis' || ref === 'limit' || hasUsedAnalysis || !!user;
 
   useEffect(() => {
     const getUser = async () => {
