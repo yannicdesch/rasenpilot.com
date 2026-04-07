@@ -7,7 +7,7 @@ import SEO from '@/components/SEO';
 const TermsOfUse = () => {
   return (
     <div className="min-h-screen flex flex-col">
-      <SEO 
+      <SEO noindex={true} 
         title="Nutzungsbedingungen | Rasenpilot"
         description="Nutzungsbedingungen für die Verwendung des Rasenpilot-Services - Informieren Sie sich über die rechtlichen Rahmenbedingungen."
         canonical="https://www.rasenpilot.com/nutzungsbedingungen"
