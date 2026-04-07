@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
 import MainNavigation from '@/components/MainNavigation';
 import PasswordResetLink from '@/components/PasswordResetLink';
+import { trackMetaCompleteRegistration, trackMetaLead } from '@/lib/analytics/metaPixel';
 
 const Auth = () => {
   const navigate = useNavigate();
