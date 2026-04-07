@@ -26,7 +26,7 @@ const StickyMobileCTA = () => {
         onClick={() => navigate('/lawn-analysis')}
         className="w-full py-5 min-h-[56px] text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
       >
-        Rasen kostenlos analysieren
+        Kostenlos starten — 1 Analyse gratis
         <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
     </div>
