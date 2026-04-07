@@ -23,7 +23,6 @@ const STATIC_PAGES = [
   { path: "/highscore", priority: "0.7", changefreq: "daily" },
   { path: "/weather-advice", priority: "0.7", changefreq: "daily" },
   { path: "/season-guide", priority: "0.7", changefreq: "monthly" },
-  { path: "/care-calendar", priority: "0.6", changefreq: "weekly" },
   { path: "/ueber-uns", priority: "0.5", changefreq: "monthly" },
   { path: "/kontakt", priority: "0.5", changefreq: "monthly" },
   { path: "/rasenpflege-oesterreich", priority: "0.8", changefreq: "monthly" },
@@ -80,6 +79,7 @@ async function fetchPublishedBlogPosts(supabaseUrl: string, supabaseAnonKey: str
     .from("blog_posts")
     .select("slug, updated_at, date")
     .eq("status", "published")
+    .is("redirect_to", null)
     .order("date", { ascending: false });
 
   if (error) {

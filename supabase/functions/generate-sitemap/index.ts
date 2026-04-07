@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const today = new Date().toISOString().split("T")[0];
 
-    // Fetch ALL published blog posts (handle >1000 with pagination)
+    // Fetch only published posts (excludes 'redirect' and 'draft')
     const allPosts: { slug: string; updated_at: string | null; date: string }[] = [];
     let from = 0;
     const pageSize = 1000;
@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
         .from("blog_posts")
         .select("slug, updated_at, date")
         .eq("status", "published")
+        .is("redirect_to", null)
         .order("created_at", { ascending: false })
         .range(from, from + pageSize - 1);
 
@@ -82,7 +83,7 @@ Deno.serve(async (req) => {
       xml += `  </url>\n`;
     }
 
-    // Blog posts
+    // Blog posts (only published, non-redirected)
     for (const post of allPosts) {
       const lastmod = post.updated_at
         ? post.updated_at.split("T")[0]
