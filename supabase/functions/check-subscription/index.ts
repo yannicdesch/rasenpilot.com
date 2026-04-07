@@ -26,6 +26,20 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
+    // Handle get-session-email action (no auth required)
+    let body: any = {};
+    try { body = await req.json(); } catch {}
+    
+    if (body?.action === 'get-session-email' && body?.session_id) {
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+      if (!stripeKey) throw new Error("Stripe key not configured");
+      const stripeClient = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+      const session = await stripeClient.checkout.sessions.retrieve(body.session_id);
+      return new Response(JSON.stringify({ email: session.customer_details?.email || session.customer_email || '' }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
 
