@@ -307,10 +307,24 @@ export default function Subscription() {
           </div>
         </div>
 
-        {/* Sample result preview */}
-        <div className="container mx-auto px-4 max-w-3xl pb-10">
+        <div className="container mx-auto px-4 max-w-4xl pb-10">
           <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">So sieht dein Ergebnis aus</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-6 text-center">So sieht dein Ergebnis aus</h3>
+            
+            {/* Before / After images */}
+            <div className="flex items-center justify-center gap-3 md:gap-6 mb-8">
+              <div className="relative">
+                <img src={lawnBefore} alt="Rasen vorher" className="w-36 h-36 md:w-48 md:h-48 object-cover rounded-2xl shadow-md" loading="lazy" width={640} height={640} />
+                <span className="absolute bottom-2 left-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-lg shadow">Vorher</span>
+              </div>
+              <ArrowRightIcon className="h-6 w-6 md:h-8 md:w-8 text-green-600 flex-shrink-0" />
+              <div className="relative">
+                <img src={lawnAfter} alt="Rasen nachher" className="w-36 h-36 md:w-48 md:h-48 object-cover rounded-2xl shadow-md" loading="lazy" width={640} height={640} />
+                <span className="absolute bottom-2 left-2 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-lg shadow">Nachher</span>
+              </div>
+            </div>
+
+            {/* Analysis result mockup */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -354,28 +368,6 @@ export default function Subscription() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Social proof — real stats */}
-        <div className="container mx-auto px-4 max-w-3xl pb-10">
-          <div className="flex flex-wrap justify-center gap-6 md:gap-10">
-            <div className="text-center">
-              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">15+</p>
-              <p className="text-sm text-gray-500">Analysen durchgeführt</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">Ø 65</p>
-              <p className="text-sm text-gray-500">Lawn Score</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">30 Sek</p>
-              <p className="text-sm text-gray-500">Ergebnis-Zeit</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">50+</p>
-              <p className="text-sm text-gray-500">Probleme erkennbar</p>
             </div>
           </div>
         </div>
