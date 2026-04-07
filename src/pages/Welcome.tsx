@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Mail, ArrowRight, RefreshCcw } from 'lucide-react';
+import { CheckCircle, Mail, ArrowRight, RefreshCcw, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import SEO from '@/components/SEO';
@@ -12,9 +12,43 @@ export default function Welcome() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [resending, setResending] = useState(false);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(true);
   
-  const email = searchParams.get('email') || '';
   const sessionId = searchParams.get('session_id') || '';
+
+  useEffect(() => {
+    const fetchEmail = async () => {
+      if (!sessionId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch the customer email from the Stripe checkout session
+        const { data, error } = await supabase.functions.invoke('check-subscription', {
+          body: { action: 'get-session-email', session_id: sessionId }
+        });
+        
+        if (data?.email) {
+          setEmail(data.email);
+        }
+      } catch (err) {
+        console.error('Could not fetch session email:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Also check URL param as fallback
+    const urlEmail = searchParams.get('email');
+    if (urlEmail && urlEmail !== '{customer_email}') {
+      setEmail(urlEmail);
+      setLoading(false);
+    } else {
+      fetchEmail();
+    }
+  }, [sessionId, searchParams]);
 
   const handleResendEmail = async () => {
     if (!email) {
@@ -81,8 +115,14 @@ export default function Welcome() {
                 <Mail className="h-5 w-5" />
                 <span className="font-medium">Wir haben dir eine E-Mail geschickt an:</span>
               </div>
-              {email && (
+              {loading ? (
+                <div className="flex justify-center py-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-green-600" />
+                </div>
+              ) : email ? (
                 <p className="text-lg font-bold text-gray-900">{email}</p>
+              ) : (
+                <p className="text-sm text-gray-500">Deine registrierte E-Mail-Adresse</p>
               )}
               <p className="text-sm text-gray-600">
                 Klick auf den Link in der E-Mail um dein Passwort zu setzen und loszulegen.

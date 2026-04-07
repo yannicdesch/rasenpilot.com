@@ -125,7 +125,7 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: 7,
       },
-      success_url: `${origin}/welcome?session_id={CHECKOUT_SESSION_ID}&email={customer_email}`,
+      success_url: `${origin}/welcome?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/subscription?ref=canceled`,
       metadata: {
         price_type: mappedPriceType,
