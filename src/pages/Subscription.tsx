@@ -45,7 +45,6 @@ const SeasonalBanner = () => {
 
 const SubscriptionExitIntent = () => {
   const [show, setShow] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (window.innerWidth < 768) return;
@@ -64,19 +63,30 @@ const SubscriptionExitIntent = () => {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative bg-white border rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="relative bg-white rounded-3xl shadow-2xl p-10 max-w-md mx-4 text-center border border-gray-100 animate-in zoom-in-95 duration-300">
         <button
           onClick={() => setShow(false)}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
-        <p className="text-4xl mb-4">🌱</p>
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">Warte!</h2>
-        <p className="text-gray-600 mb-6">
-          Deine 7 Tage kostenlose Testphase läuft noch.
+        
+        {/* Icon */}
+        <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-50 flex items-center justify-center">
+          <Leaf className="h-8 w-8 text-green-600" />
+        </div>
+
+        <h2 className="text-2xl font-display font-bold text-gray-900 mb-2">
+          Nicht so schnell!
+        </h2>
+        <p className="text-gray-500 mb-2 text-base leading-relaxed">
+          Dein Rasen verdient die beste Pflege.
         </p>
+        <p className="text-sm text-gray-400 mb-6">
+          Starte jetzt kostenlos — keine Kreditkarte nötig für 7 Tage.
+        </p>
+
         <Button
           onClick={() => {
             setShow(false);
@@ -84,10 +94,17 @@ const SubscriptionExitIntent = () => {
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
           size="lg"
-          className="w-full py-6 text-base font-bold bg-green-600 hover:bg-green-700 text-white rounded-xl"
+          className="w-full py-5 text-base font-bold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl shadow-lg shadow-green-600/20 transition-all hover:shadow-xl hover:shadow-green-600/30"
         >
-          Kostenlos starten <ArrowRight className="ml-2 h-5 w-5" />
+          7 Tage kostenlos testen
+          <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
+
+        <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-400">
+          <span className="flex items-center gap-1"><Lock className="h-3 w-3" /> Jederzeit kündbar</span>
+          <span>•</span>
+          <span>Keine versteckten Kosten</span>
+        </div>
       </div>
     </div>
   );
