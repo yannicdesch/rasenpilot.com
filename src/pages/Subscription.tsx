@@ -478,7 +478,7 @@ export default function Subscription() {
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
             
             {/* FREE — reduced visual weight for warm traffic */}
-            <Card className="relative bg-white border-2 border-gray-200 shadow-lg">
+            <Card className={`relative bg-white border-2 border-gray-200 ${isWarmTraffic ? 'opacity-75 shadow-sm' : 'shadow-lg'}`}>
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-display font-bold text-gray-900">Kostenlos</CardTitle>
                 <CardDescription className="text-gray-600">Zum Ausprobieren</CardDescription>
