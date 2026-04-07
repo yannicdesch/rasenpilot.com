@@ -56,6 +56,10 @@ const Auth = () => {
         return;
       }
 
+      // Track Meta Pixel events for registration funnel
+      trackMetaCompleteRegistration('Signup', 'success');
+      trackMetaLead('registration');
+      
       toast.success('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail.');
       
       // Redirect to intended destination (e.g. subscription with plan)
