@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { 
   RefreshCcw, ExternalLink, ArrowLeft, Star, Shield, 
   Clock, CheckCircle, Sparkles, Zap, Award, Lock, CreditCard, Leaf,
-  TrendingUp, Calendar, MessageSquare, Camera, X, Crown, Headphones, ArrowRight
+  TrendingUp, Calendar, MessageSquare, Camera, X, Crown, Headphones, ArrowRight, ArrowRightIcon
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import lawnBefore from '@/assets/lawn-before.jpg';
+import lawnAfter from '@/assets/lawn-after.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import SEO from '@/components/SEO';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
