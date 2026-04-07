@@ -143,6 +143,44 @@ serve(async (req) => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 8);
 
+    // --- CONVERSION FUNNEL (letzte 24h) ---
+    const funnelVisitors = pageViewsToday || 0;
+    const funnelAnalysisViews = recentPageViews?.filter(pv => pv.path === '/lawn-analysis').length || 0;
+    const funnelAnalysisComplete = analysesToday;
+    const funnelRegistered = newUsersToday;
+    const funnelSubViews = recentPageViews?.filter(pv => pv.path === '/subscription').length || 0;
+    const funnelTrialStarted = allSubs?.filter(s => s.created_at >= yesterdayISO).length || 0;
+    const funnelPaid = allSubs?.filter(s => s.subscribed && s.created_at >= yesterdayISO).length || 0;
+
+    // --- CONVERSION FUNNEL (letzte 7 Tage für Vergleich) ---
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekAgoISO = weekAgo.toISOString();
+    
+    const { count: weekPageViews } = await supabase
+      .from('page_views')
+      .select('id', { count: 'exact', head: true })
+      .gte('timestamp', weekAgoISO);
+    
+    const { data: weekPageViewPaths } = await supabase
+      .from('page_views')
+      .select('path')
+      .gte('timestamp', weekAgoISO)
+      .in('path', ['/lawn-analysis', '/subscription'])
+      .limit(5000);
+    
+    const weekAnalysisViews = weekPageViewPaths?.filter(pv => pv.path === '/lawn-analysis').length || 0;
+    const weekSubViews = weekPageViewPaths?.filter(pv => pv.path === '/subscription').length || 0;
+    
+    const { count: weekAnalyses } = await supabase
+      .from('analyses')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', weekAgoISO);
+    
+    const weekNewUsers = allProfiles?.filter(p => p.created_at >= weekAgoISO).length || 0;
+    const weekTrials = allSubs?.filter(s => s.created_at >= weekAgoISO).length || 0;
+    const weekPaid = allSubs?.filter(s => s.subscribed && s.created_at >= weekAgoISO).length || 0;
+
     const html = generateDailyStatsHTML({
       todayStr,
       totalUsers,
@@ -160,6 +198,24 @@ serve(async (req) => {
       newUsersList: newUsersList || [],
       topPages,
       topReferrers,
+      funnel: {
+        visitors: funnelVisitors,
+        analysisViews: funnelAnalysisViews,
+        analysisComplete: funnelAnalysisComplete,
+        registered: funnelRegistered,
+        subViews: funnelSubViews,
+        trialStarted: funnelTrialStarted,
+        paid: funnelPaid,
+      },
+      funnelWeek: {
+        visitors: weekPageViews || 0,
+        analysisViews: weekAnalysisViews,
+        analysisComplete: weekAnalyses || 0,
+        registered: weekNewUsers,
+        subViews: weekSubViews,
+        trialStarted: weekTrials,
+        paid: weekPaid,
+      },
     });
 
     const subject = `📈 Rasenpilot Daily Stats — ${todayStr}`;
