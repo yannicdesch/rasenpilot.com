@@ -475,17 +475,29 @@ export default function Subscription() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  className="w-full py-6 text-sm md:text-base font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg text-white whitespace-normal leading-tight h-auto min-h-[3rem]"
-                  onClick={() => handleSubscribe(billingInterval === 'monthly' ? 'pro_monthly' : 'pro_yearly')}
-                  disabled={!!loadingPlan || isCurrentPlan('pro')}
-                >
-                  {loadingPlan?.startsWith('pro') && <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />}
-                  {isCurrentPlan('pro') 
-                    ? '✓ Aktueller Plan' 
-                    : <>7 Tage kostenlos testen<br /><span className="text-xs font-normal opacity-90">danach {billingInterval === 'monthly' ? '19,99€/Monat' : '159,99€/Jahr'}</span></>
-                  }
-                </Button>
+                <div className="w-full space-y-3">
+                  <Button 
+                    className="w-full py-6 text-lg font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg text-white h-auto"
+                    onClick={() => handleSubscribe(billingInterval === 'monthly' ? 'pro_monthly' : 'pro_yearly')}
+                    disabled={!!loadingPlan || isCurrentPlan('pro')}
+                  >
+                    {loadingPlan?.startsWith('pro') && <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />}
+                    {isCurrentPlan('pro') 
+                      ? '✓ Aktueller Plan' 
+                      : '7 Tage kostenlos testen'
+                    }
+                  </Button>
+                  {!isCurrentPlan('pro') && (
+                    <div className="text-center space-y-1">
+                      <p className="text-sm font-medium text-gray-700">
+                        danach {billingInterval === 'monthly' ? '19,99€/Monat' : '159,99€/Jahr'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Keine Zahlung heute — erste Abbuchung nach 7 Tagen
+                      </p>
+                    </div>
+                  )}
+                </div>
               </CardFooter>
             </Card>
           </div>
