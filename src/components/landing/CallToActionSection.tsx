@@ -38,7 +38,7 @@ const CallToActionSection = () => {
             className="bg-background text-primary hover:bg-background/90 text-xl py-7 px-12 shadow-2xl font-poppins font-semibold transition-all duration-300 transform hover:-translate-y-1"
           >
             <Sparkles className="mr-2 h-6 w-6" />
-            Kostenlose KI-Analyse starten
+            Kostenlos starten — 1 Analyse gratis
           </Button>
           <Button 
             onClick={handleFullVersionClick}

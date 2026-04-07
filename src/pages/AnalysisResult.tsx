@@ -516,21 +516,25 @@ const AnalysisResult = () => {
         ═══════════════════════════════════════════════ */}
         {!isPremium && (
           <div className="mb-8">
-            <Card className="bg-green-50 border-green-200">
+            <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg">
               <CardContent className="p-6 text-center">
-                <h3 className="text-lg font-bold text-foreground mb-2">🌱 Willst du noch mehr?</h3>
+                <div className="inline-block bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold mb-3">
+                  Du hast 1 von 1 kostenlosen Analysen verwendet
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">🌱 Unbegrenzte Analysen freischalten</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Premium zeigt dir deinen vollständigen Pflegekalender, wetterbasierte Tipps und unbegrenzte Analysen.
+                  Mit Premium erhältst du unbegrenzte Analysen, einen vollständigen Pflegekalender und wetterbasierte Tipps.
                 </p>
                 {result?.upgrade_teaser && (
                   <p className="text-xs text-green-700 font-medium mb-4 bg-green-100 rounded-lg p-2">{result.upgrade_teaser}</p>
                 )}
                 <Button
-                  className="bg-green-600 hover:bg-green-700 h-12 w-full font-bold"
+                  className="bg-green-600 hover:bg-green-700 h-12 w-full font-bold text-base"
                   onClick={() => navigate('/subscription?ref=analysis-upsell')}
                 >
-                  7 Tage kostenlos testen →
+                  7 Tage kostenlos testen — dann 9,99€/Monat
                 </Button>
+                <p className="text-xs text-muted-foreground mt-2">Keine Zahlung heute · Jederzeit kündbar</p>
               </CardContent>
             </Card>
           </div>

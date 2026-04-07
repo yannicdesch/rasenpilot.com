@@ -188,7 +188,8 @@ serve(async (req) => {
 
 function funnelRate(from: number, to: number): string {
   if (from === 0) return '0%';
-  return (to / from * 100).toFixed(1) + '%';
+  const rate = Math.min(to / from * 100, 100);
+  return rate.toFixed(1) + '%';
 }
 
 function funnelBarWidth(value: number, max: number): number {
