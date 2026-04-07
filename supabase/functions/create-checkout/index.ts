@@ -115,7 +115,7 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://www.rasenpilot.com";
 
     const sessionConfig: any = {
-      payment_method_types: ['card', 'paypal', 'link'],
+      payment_method_types: ['card', 'klarna'],
       line_items: [
         {
           price: finalProduct.stripe_price_id,
