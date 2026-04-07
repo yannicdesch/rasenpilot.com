@@ -115,6 +115,7 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://www.rasenpilot.com";
 
     const sessionConfig: any = {
+      payment_method_types: ['card', 'paypal', 'link'],
       line_items: [
         {
           price: finalProduct.stripe_price_id,
@@ -124,6 +125,11 @@ serve(async (req) => {
       mode: "subscription",
       subscription_data: {
         trial_period_days: 7,
+      },
+      custom_text: {
+        submit: {
+          message: 'Jetzt kostenlos starten — 7 Tage testen, jederzeit kündbar.',
+        },
       },
       success_url: `${origin}/welcome?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/subscription?ref=canceled`,
