@@ -98,21 +98,25 @@ async function sendEmail(email: string, resendKey: string, subject: string, html
   }
 }
 
-async function sendTrialWelcomeEmail(email: string, resendKey: string) {
+async function sendTrialWelcomeEmail(email: string, resendKey: string, userName?: string) {
+  const name = userName || email.split('@')[0];
   const content = `
-    ${greeting('Premium-Mitglied')}
-    ${paragraph('Schön, dass du dabei bist! 🎉 Deine <strong>7-tägige kostenlose Testphase</strong> hat begonnen.')}
-    ${heading('3 Tipps für den perfekten Start')}
-    ${featureList([
-      { icon: '📸', text: '<strong>Lade ein Foto hoch</strong> – Unsere KI analysiert deinen Rasen und erstellt einen personalisierten Pflegeplan.' },
-      { icon: '📅', text: '<strong>Entdecke den Pflegekalender</strong> – Tägliche Aufgaben basierend auf Wetter und Saison.' },
-      { icon: '💬', text: '<strong>Nutze den KI-Chat</strong> – Stelle Rasenfragen und bekomme sofort Experten-Antworten.' },
-    ])}
-    ${ctaButton('Erste Analyse starten →', 'https://www.rasenpilot.com/lawn-analysis')}
-    ${infoCard('Deine Testphase', 'Du hast 7 Tage vollen Zugang zu allen Premium-Features. Danach wird dein Abo automatisch aktiviert – du kannst jederzeit vorher kündigen.', '📌', '#eff6ff', '#bfdbfe')}
-    ${signoff()}
+    <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:16px;color:#1f2937;line-height:1.6;margin:0 0 16px;">
+      Hey <strong>${name}</strong>!
+    </p>
+    ${paragraph('Schön dass du da bist. 🌱')}
+    ${paragraph('<strong>Eine Sache kannst du jetzt sofort tun:</strong><br/>Mach ein Foto von deinem Rasen und lade es hoch — du bekommst in 30 Sekunden deinen persönlichen Lawn Score.')}
+    ${ctaButton('Jetzt ersten Rasen analysieren →', 'https://www.rasenpilot.com/lawn-analysis')}
+    ${infoCard('Tipp', 'Fotografiere bei Tageslicht von oben für das beste Ergebnis.', '📸', '#f0fdf4', '#bbf7d0')}
+    ${paragraph('Die meisten Gartenbesitzer in Deutschland haben einen Score unter 65 — <strong>wie gut ist deiner?</strong>')}
+    <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:14px;color:#6b7280;margin:24px 0 0;line-height:1.6;">
+      — Yannic von Rasenpilot
+    </p>
+    <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:13px;color:#9ca3af;margin:12px 0 0;line-height:1.6;">
+      PS: Falls du Fragen hast, antworte einfach auf diese Email. Ich lese jede Nachricht persönlich.
+    </p>
   `;
-  await sendEmail(email, resendKey, "Willkommen bei Rasenpilot Premium! 🌱", emailLayout(content, 'Deine 7-tägige Testphase hat begonnen'));
+  await sendEmail(email, resendKey, `Dein Rasen wartet auf seine erste Analyse 📸`, emailLayout(content, 'Mach jetzt dein erstes Rasenfoto und erhalte deinen Lawn Score'));
 }
 
 async function sendRegistrationPromptEmail(email: string, resendKey: string) {
