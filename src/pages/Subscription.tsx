@@ -395,20 +395,29 @@ export default function Subscription() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  className="w-full py-6 text-sm md:text-base font-bold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg whitespace-normal leading-tight h-auto min-h-[3rem]"
-                  onClick={() => handleSubscribe(billingInterval === 'monthly' ? 'premium_monthly' : 'premium_yearly')}
-                  disabled={!!loadingPlan || isCurrentPlan('premium')}
-                >
-                  {loadingPlan?.startsWith('premium') && <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />}
-                  {isCurrentPlan('premium') 
-                    ? '✓ Aktueller Plan' 
-                    : <>7 Tage kostenlos testen<br /><span className="text-xs font-normal opacity-90">danach {billingInterval === 'monthly' ? '9,99€/Monat' : '79,99€/Jahr'}</span></>
-                  }
-                </Button>
-                {!isCurrentPlan('premium') && (
-                  <p className="text-xs text-muted-foreground text-center mt-2">Keine Zahlung heute — erste Abbuchung nach 7 Tagen</p>
-                )}
+                <div className="w-full space-y-3">
+                  <Button 
+                    className="w-full py-6 text-lg font-bold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg h-auto"
+                    onClick={() => handleSubscribe(billingInterval === 'monthly' ? 'premium_monthly' : 'premium_yearly')}
+                    disabled={!!loadingPlan || isCurrentPlan('premium')}
+                  >
+                    {loadingPlan?.startsWith('premium') && <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />}
+                    {isCurrentPlan('premium') 
+                      ? '✓ Aktueller Plan' 
+                      : '7 Tage kostenlos testen'
+                    }
+                  </Button>
+                  {!isCurrentPlan('premium') && (
+                    <div className="text-center space-y-1">
+                      <p className="text-sm font-medium text-gray-700">
+                        danach {billingInterval === 'monthly' ? '9,99€/Monat' : '79,99€/Jahr'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Keine Zahlung heute — erste Abbuchung nach 7 Tagen
+                      </p>
+                    </div>
+                  )}
+                </div>
               </CardFooter>
             </Card>
 
