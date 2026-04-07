@@ -333,11 +333,18 @@ async function processStripeEvent(
 
       await upsertSubscriber(supabase, stripe, subscription, email);
 
-      // Send Day 1 welcome email for trial subscribers
+      // Send personalized welcome email for trial subscribers
       if (subscription.status === "trialing") {
         const resendKey = Deno.env.get("RESEND_API_KEY");
         if (resendKey) {
-          await sendTrialWelcomeEmail(email, resendKey);
+          // Look up user's name from profile
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("first_name, full_name")
+            .eq("email", email)
+            .maybeSingle();
+          const userName = profile?.first_name || profile?.full_name?.split(' ')[0] || undefined;
+          await sendTrialWelcomeEmail(email, resendKey, userName);
         }
       }
       return;
