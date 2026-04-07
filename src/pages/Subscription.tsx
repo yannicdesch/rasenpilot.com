@@ -758,6 +758,14 @@ export default function Subscription() {
                 Deine Daten sind durch PCI-DSS Level 1 geschützt — der höchste Sicherheitsstandard.
               </AccordionContent>
             </AccordionItem>
+
+            <AccordionItem value="free-analysis">
+              <AccordionTrigger className="text-left">Was passiert mit meiner kostenlosen Analyse?</AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                Deine Ergebnisse bleiben <strong>gespeichert</strong> und sind in Premium weiterhin einsehbar. 
+                Du kannst direkt daran anknüpfen und weitere Analysen durchführen, um deinen Fortschritt zu verfolgen.
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
 
           {/* Payment Methods */}
