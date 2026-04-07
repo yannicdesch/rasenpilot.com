@@ -115,7 +115,6 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://www.rasenpilot.com";
 
     const sessionConfig: any = {
-      payment_method_types: ['card', 'klarna'],
       line_items: [
         {
           price: finalProduct.stripe_price_id,
@@ -123,6 +122,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      payment_method_types: ['card', 'paypal', 'sepa_debit', 'klarna'],
       subscription_data: {
         trial_period_days: 7,
       },
