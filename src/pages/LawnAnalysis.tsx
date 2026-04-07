@@ -594,21 +594,21 @@ const LawnAnalysis = () => {
           </>
         )}
         
-        {/* 3-Step Process — desktop only */}
-        <div className="hidden md:flex items-center justify-center gap-2 mb-6">
-          <div className="flex flex-col items-center text-center">
-            <span className="text-2xl mb-1">📸</span>
-            <span className="text-xs font-medium text-gray-700">Foto hochladen</span>
+        {/* 3-Step Process — visible on all devices */}
+        <div className="flex items-center justify-center gap-2 mb-4 md:mb-6">
+          <div className="flex items-center gap-1.5">
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-xs md:text-sm font-bold">1</div>
+            <span className="text-xs md:text-sm font-medium text-foreground">Foto</span>
           </div>
-          <div className="text-gray-300 text-lg">→</div>
-          <div className="flex flex-col items-center text-center">
-            <span className="text-2xl mb-1">🤖</span>
-            <span className="text-xs font-medium text-gray-700">KI analysiert</span>
+          <div className="w-6 md:w-8 h-px bg-border" />
+          <div className="flex items-center gap-1.5">
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs md:text-sm font-bold">2</div>
+            <span className="text-xs md:text-sm text-muted-foreground">KI analysiert</span>
           </div>
-          <div className="text-gray-300 text-lg">→</div>
-          <div className="flex flex-col items-center text-center">
-            <span className="text-2xl mb-1">🌱</span>
-            <span className="text-xs font-medium text-gray-700">Plan erhalten</span>
+          <div className="w-6 md:w-8 h-px bg-border" />
+          <div className="flex items-center gap-1.5">
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs md:text-sm font-bold">3</div>
+            <span className="text-xs md:text-sm text-muted-foreground">Ergebnis</span>
           </div>
         </div>
 
