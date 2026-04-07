@@ -83,8 +83,15 @@ export const useSubscription = () => {
 
   const createCheckout = async (priceType: string, guestEmail?: string) => {
     try {
+      // Use guest email, or fall back to logged-in user's email
+      let email = guestEmail;
+      if (!email) {
+        const { data: { user } } = await supabase.auth.getUser();
+        email = user?.email || undefined;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceType, email: guestEmail }
+        body: { priceType, email }
       });
 
       if (error) throw error;
