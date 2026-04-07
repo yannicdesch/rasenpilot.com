@@ -1,11 +1,44 @@
 # Rasenpilot (Garden Pilot) - KI-Rasenanalyse
 User-agent: *
 Allow: /
+Allow: /blog/
+Allow: /blog-overview
+Allow: /ratgeber
+Allow: /local/
+Allow: /lawn-analysis
+Allow: /highscore
+Allow: /weather-advice
+Allow: /season-guide
+Allow: /ueber-uns
+Allow: /kontakt
+Allow: /rasenpflege-oesterreich
+Allow: /rasenpflege-schweiz
+
+# Block user-specific/internal pages
 Disallow: /dashboard
 Disallow: /settings
 Disallow: /admin-panel
 Disallow: /admin-login
 Disallow: /account-settings
 Disallow: /debug-analysis
+Disallow: /analysis-history
+Disallow: /analysis-result/
+Disallow: /care-calendar
+Disallow: /premium-dashboard
+Disallow: /subscription/manage
+Disallow: /subscription-success
+Disallow: /welcome
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /chat
+Disallow: /chat-assistant
+
+# Block low-value legal pages from crawling (save crawl budget)
+Disallow: /agb
+Disallow: /datenschutz
+Disallow: /cookie-policy
+Disallow: /terms-of-use
+Disallow: /nutzungsbedingungen
+Disallow: /impressum
 
 Sitemap: https://www.rasenpilot.com/sitemap.xml

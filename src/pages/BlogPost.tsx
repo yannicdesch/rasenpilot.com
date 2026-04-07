@@ -52,6 +52,20 @@ const BlogPost = () => {
       if (!slug) return;
       
       try {
+        // First check if this slug has a redirect (merged duplicate)
+        const { data: redirectPost } = await supabase
+          .from('blog_posts')
+          .select('redirect_to')
+          .eq('slug', slug)
+          .eq('status', 'redirect')
+          .single();
+
+        if (redirectPost?.redirect_to) {
+          // 301-style redirect to the canonical article
+          navigate(`/blog/${redirectPost.redirect_to}`, { replace: true });
+          return;
+        }
+
         // Try to fetch from Supabase for latest version
         const { data: supabasePost, error } = await supabase
           .from('blog_posts')
@@ -74,7 +88,8 @@ const BlogPost = () => {
             readTime: supabasePost.read_time || 5,
             keywords: supabasePost.tags ? supabasePost.tags.split(',').map(tag => tag.trim()) : [],
             metaTitle: seoData?.metaTitle || supabasePost.title,
-            metaDescription: seoData?.metaDescription || supabasePost.excerpt || ''
+            metaDescription: seoData?.metaDescription || supabasePost.excerpt || '',
+            image: supabasePost.image || undefined
           };
           
           setPost(convertedPost);
@@ -108,13 +123,13 @@ const BlogPost = () => {
             setRelatedPosts(convertedRelated);
           }
         } else if (!post) {
-          // No static data and no Supabase data — redirect
-          navigate('/blog-overview');
+          // No published post found — redirect to blog overview
+          navigate('/blog-overview', { replace: true });
         }
       } catch (error) {
         console.error('Error fetching blog post:', error);
         if (!post) {
-          navigate('/blog-overview');
+          navigate('/blog-overview', { replace: true });
         }
       }
     };

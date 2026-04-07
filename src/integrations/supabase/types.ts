@@ -153,6 +153,7 @@ export type Database = {
           id: number
           image: string | null
           read_time: number | null
+          redirect_to: string | null
           seo: Json | null
           slug: string
           status: string
@@ -171,6 +172,7 @@ export type Database = {
           id?: number
           image?: string | null
           read_time?: number | null
+          redirect_to?: string | null
           seo?: Json | null
           slug: string
           status?: string
@@ -189,6 +191,7 @@ export type Database = {
           id?: number
           image?: string | null
           read_time?: number | null
+          redirect_to?: string | null
           seo?: Json | null
           slug?: string
           status?: string

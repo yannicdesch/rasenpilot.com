@@ -7,7 +7,7 @@ import SEO from '@/components/SEO';
 const CookiePolicy = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEO title="Cookie-Richtlinie | Rasenpilot" description="Informationen über die Verwendung von Cookies auf rasenpilot.com." canonical="/cookie-policy" />
+      <SEO noindex={true} title="Cookie-Richtlinie | Rasenpilot" description="Informationen über die Verwendung von Cookies auf rasenpilot.com." canonical="/cookie-policy" />
       <MainNavigation />
       
       <div className="container mx-auto px-4 py-8">
