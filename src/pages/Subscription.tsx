@@ -477,7 +477,7 @@ export default function Subscription() {
           {/* 3-Tier Pricing Cards */}
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
             
-            {/* FREE */}
+            {/* FREE — reduced visual weight for warm traffic */}
             <Card className="relative bg-white border-2 border-gray-200 shadow-lg">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-display font-bold text-gray-900">Kostenlos</CardTitle>
