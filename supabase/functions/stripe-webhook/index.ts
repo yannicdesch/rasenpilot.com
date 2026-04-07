@@ -274,23 +274,21 @@ async function processStripeEvent(
                 console.log("[STRIPE-WEBHOOK] Password setup email sent to:", customerEmail);
               }
 
-              // Also send welcome email via Resend
+              // Also send personalized welcome email
               const resendKey = Deno.env.get("RESEND_API_KEY");
               if (resendKey) {
+                const name = customerEmail.split('@')[0];
                 const welcomeContent = `
-                  ${greeting('Premium-Mitglied')}
+                  <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:16px;color:#1f2937;line-height:1.6;margin:0 0 16px;">
+                    Hey <strong>${name}</strong>!
+                  </p>
                   ${paragraph('Dein Rasenpilot Premium Account ist bereit! 🎉')}
                   ${paragraph('Klick auf den Button unten, um dein Passwort zu setzen und direkt loszulegen:')}
-                  ${ctaButton('Passwort setzen →', 'https://www.rasenpilot.com/auth')}
+                  ${ctaButton('Passwort setzen →', 'https://www.rasenpilot.com/reset-password')}
                   ${infoCard('Wichtig', 'Bitte setze dein Passwort innerhalb von 24 Stunden. Danach kannst du dich jederzeit einloggen und alle Premium-Features nutzen.', '📌', '#eff6ff', '#bfdbfe')}
-                  ${heading('Was dich erwartet')}
-                  ${featureList([
-                    { icon: '📸', text: '<strong>Unbegrenzte KI-Rasenanalysen</strong>' },
-                    { icon: '📅', text: '<strong>Persönlicher Pflegekalender</strong>' },
-                    { icon: '💬', text: '<strong>KI-Experten-Chat</strong>' },
-                    { icon: '🌤️', text: '<strong>Wöchentliche Wetter-Tipps</strong>' },
-                  ])}
-                  ${signoff()}
+                  <p style="font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-size:14px;color:#6b7280;margin:24px 0 0;line-height:1.6;">
+                    — Yannic von Rasenpilot
+                  </p>
                 `;
                 await sendEmail(
                   customerEmail, 
