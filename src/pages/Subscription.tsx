@@ -406,6 +406,9 @@ export default function Subscription() {
                     : <>7 Tage kostenlos testen<br /><span className="text-xs font-normal opacity-90">danach {billingInterval === 'monthly' ? '9,99€/Monat' : '79,99€/Jahr'}</span></>
                   }
                 </Button>
+                {!isCurrentPlan('premium') && (
+                  <p className="text-xs text-muted-foreground text-center mt-2">Keine Zahlung heute — erste Abbuchung nach 7 Tagen</p>
+                )}
               </CardFooter>
             </Card>
 
