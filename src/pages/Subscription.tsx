@@ -230,10 +230,10 @@ export default function Subscription() {
       <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50/30">
         <MainNavigation />
 
-        {/* Hero for cold traffic */}
+        {/* Hero for cold traffic — matches Facebook ad messaging */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-green-600/5 via-transparent to-green-600/10" />
-          <div className="container mx-auto px-4 pt-10 pb-8 max-w-4xl relative text-center">
+          <div className="container mx-auto px-4 pt-10 pb-6 max-w-4xl relative text-center">
             {ref === 'analysis' && (
               <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 -ml-2">
                 <ArrowLeft className="h-4 w-4 mr-2" /> Zurück zur Analyse
@@ -251,14 +251,14 @@ export default function Subscription() {
             )}
 
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold mb-3 text-gray-900 leading-tight">
-              Der grünste Rasen in<br className="hidden md:block" /> deiner <span className="text-green-600">Straße</span>
+              Niemand kennt deinen Rasen —<br className="hidden md:block" /> <span className="text-green-600">jetzt schon</span>
             </h1>
-            <p className="text-base md:text-lg text-gray-600 mb-4">
-              Starte kostenlos — upgrade jederzeit
+            <p className="text-base md:text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+              Unsere KI analysiert dein Rasenfoto in 30 Sekunden und erstellt dir einen persönlichen Pflegeplan.
             </p>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap justify-center gap-3 md:gap-5 mb-2">
+            <div className="flex flex-wrap justify-center gap-3 md:gap-5">
               <span className="inline-flex items-center gap-1.5 text-sm md:text-base font-medium text-gray-700">
                 ✅ 7 Tage kostenlos
               </span>
@@ -266,25 +266,115 @@ export default function Subscription() {
                 🔒 Jederzeit kündbar
               </span>
               <span className="inline-flex items-center gap-1.5 text-sm md:text-base font-medium text-gray-700">
-                ⚡ Sofort starten
+                ⚡ Ergebnis in 30 Sek
               </span>
             </div>
           </div>
         </div>
 
-        {/* Testimonial */}
-        <div className="container mx-auto px-4 max-w-2xl pb-10">
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">
-            <div className="flex justify-center gap-0.5 mb-3">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-              ))}
+        {/* How it works — 3 steps */}
+        <div className="container mx-auto px-4 max-w-4xl py-10">
+          <h2 className="text-xl md:text-2xl font-display font-bold text-center mb-8 text-gray-900">
+            So funktioniert's
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-green-100 flex items-center justify-center">
+                <Camera className="h-7 w-7 text-green-600" />
+              </div>
+              <div className="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">Schritt 1</div>
+              <h3 className="font-bold text-gray-900 mb-1">Foto machen</h3>
+              <p className="text-sm text-gray-500">Fotografiere deinen Rasen von oben — ein Schnappschuss reicht.</p>
             </div>
-            <blockquote className="text-gray-700 italic mb-3 text-sm md:text-base">
-              „Mein Rasen sieht nach 4 Wochen komplett anders aus. Hätte nie gedacht dass eine App so einen Unterschied macht."
-            </blockquote>
-            <p className="font-semibold text-gray-900 text-sm">Markus R., Stuttgart</p>
-            <p className="text-xs text-gray-400 mt-1">(Beispiel-Erfahrung)</p>
+            <div className="text-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-green-100 flex items-center justify-center">
+                <Sparkles className="h-7 w-7 text-green-600" />
+              </div>
+              <div className="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">Schritt 2</div>
+              <h3 className="font-bold text-gray-900 mb-1">KI analysiert</h3>
+              <p className="text-sm text-gray-500">Unsere KI erkennt Probleme, Mängel und Potenzial in Sekunden.</p>
+            </div>
+            <div className="text-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-green-100 flex items-center justify-center">
+                <Calendar className="h-7 w-7 text-green-600" />
+              </div>
+              <div className="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">Schritt 3</div>
+              <h3 className="font-bold text-gray-900 mb-1">Pflegeplan erhalten</h3>
+              <p className="text-sm text-gray-500">Du bekommst konkrete Maßnahmen — abgestimmt auf deinen Rasen.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sample result preview */}
+        <div className="container mx-auto px-4 max-w-3xl pb-10">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">So sieht dein Ergebnis aus</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-white">72</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900">Dein Lawn Score</p>
+                    <p className="text-sm text-gray-500">Bewertet auf einer Skala von 0-100</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-gray-700">Dichte: Gut — leichte Lücken erkannt</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                    <span className="text-gray-700">Feuchtigkeit: Leicht zu trocken</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-gray-700">Farbe: Gesundes Grün</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <p className="font-bold text-gray-900 text-sm">Dein 3-Schritte Pflegeplan:</p>
+                <div className="space-y-2">
+                  <div className="flex gap-3 items-start">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center">1</span>
+                    <p className="text-sm text-gray-700">Morgens gießen — mind. 15 Min pro Fläche</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center">2</span>
+                    <p className="text-sm text-gray-700">Langzeit-Dünger ausbringen (NPK 15-5-10)</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center">3</span>
+                    <p className="text-sm text-gray-700">Nachsaat an kahlen Stellen im Mai</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Social proof — real stats */}
+        <div className="container mx-auto px-4 max-w-3xl pb-10">
+          <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">15+</p>
+              <p className="text-sm text-gray-500">Analysen durchgeführt</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">Ø 65</p>
+              <p className="text-sm text-gray-500">Lawn Score</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">30 Sek</p>
+              <p className="text-sm text-gray-500">Ergebnis-Zeit</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl font-display font-bold text-green-700">50+</p>
+              <p className="text-sm text-gray-500">Probleme erkennbar</p>
+            </div>
           </div>
         </div>
 
