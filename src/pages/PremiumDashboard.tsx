@@ -62,7 +62,7 @@ const PremiumDashboard = () => {
   if (!isPremium) {
     return (
       <>
-        <SEO title="Premium Mitgliedschaft erforderlich - Rasenpilot" description="Upgrade zu Premium für Zugang zu exklusiven Rasenpflege-Features." />
+        <SEO noindex={true} title="Premium Mitgliedschaft erforderlich - Rasenpilot" description="Upgrade zu Premium für Zugang zu exklusiven Rasenpflege-Features." />
         <MainNavigation />
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
           <div className="max-w-2xl mx-auto pt-12">
@@ -130,7 +130,7 @@ const PremiumDashboard = () => {
 
   return (
     <>
-      <SEO title="Premium Dashboard - Rasenpilot" description="Dein persönliches Premium Dashboard mit exklusiven Rasenpflege-Features." />
+      <SEO noindex={true} title="Premium Dashboard - Rasenpilot" description="Dein persönliches Premium Dashboard mit exklusiven Rasenpflege-Features." />
       <MainNavigation />
       
       {celebrationRank && (

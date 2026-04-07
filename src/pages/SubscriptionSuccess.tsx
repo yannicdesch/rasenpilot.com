@@ -70,7 +70,7 @@ const SubscriptionSuccess = () => {
 
   return (
     <>
-      <SEO 
+      <SEO noindex={true} 
         title="Zahlung erfolgreich - Rasenpilot"
         description="Ihre Premium-Mitgliedschaft wurde erfolgreich aktiviert. Entdecken Sie alle Premium-Features von Rasenpilot."
       />

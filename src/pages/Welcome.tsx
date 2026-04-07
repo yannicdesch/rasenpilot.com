@@ -51,7 +51,7 @@ export default function Welcome() {
 
   return (
     <>
-      <SEO 
+      <SEO noindex={true} 
         title="Willkommen bei Rasenpilot Premium 🌱"
         description="Deine Zahlung war erfolgreich. Setze jetzt dein Passwort um loszulegen."
         canonical="/welcome"
