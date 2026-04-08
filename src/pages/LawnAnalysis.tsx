@@ -394,8 +394,8 @@ const LawnAnalysis = () => {
   return (
     <div className="min-h-[100dvh] md:min-h-screen bg-gradient-to-b from-green-50 to-white flex flex-col">
       <SEO 
-        title="Kostenlose Rasen Analyse App — Foto hochladen & sofort Ergebnis | Rasenpilot"
-        description="Rasen Analyse App kostenlos nutzen: Foto hochladen und in 30 Sekunden KI-gestützte Rasenanalyse mit persönlichem Pflegeplan erhalten. Ohne Anmeldung."
+        title="Kostenlose Rasenanalyse — KI erkennt Probleme sofort | Rasenpilot"
+        description="Foto hochladen, KI analysiert Moos, Pilze, Nährstoffmangel und gibt dir einen persönlichen Pflegeplan. 100% kostenlos, keine Anmeldung nötig."
         keywords="Rasen Analyse App, Rasenanalyse, KI Rasenanalyse, Rasen analysieren App, kostenlos, Pflegeplan"
         canonical="https://www.rasenpilot.com/lawn-analysis"
       />
