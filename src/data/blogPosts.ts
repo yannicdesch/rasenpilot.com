@@ -649,6 +649,117 @@ Direkt nach dem Vertikutieren ist der ideale Moment für Nachsaat, Düngung und 
     metaTitle: "Rasen vertikutieren — Wann, wie oft und was danach zu tun ist",
     metaDescription: "Rasen vertikutieren im Frühjahr: Der komplette Leitfaden für den richtigen Zeitpunkt, die richtige Technik und die optimale Nachpflege für einen gesunden Rasen.",
     image: "https://images.unsplash.com/photo-1592150621744-aca64f48394a?w=800&h=400&fit=crop"
+  },
+  {
+    id: 9,
+    title: "Rasen kalken — Wann, wie viel und warum es wichtig ist",
+    slug: "rasen-kalken-fruehjahr-leitfaden",
+    content: `<h1>Rasen kalken — Wann, wie viel und warum es wichtig ist</h1>
+
+<p>Ein gesunder Rasen braucht mehr als nur regelmäßiges Mähen und Düngen — auch der pH-Wert des Bodens spielt eine entscheidende Rolle. Der pH-Wert gibt an, wie sauer oder alkalisch dein Boden ist. Die meisten Rasengräser fühlen sich bei einem pH-Wert zwischen 5,5 und 6,5 am wohlsten. Liegt der Wert darunter, wird der Boden zu sauer: Nährstoffe werden schlechter verfügbar, das Gras wächst langsam und <a href="/blog/moos-im-rasen-bekaempfen">Moos</a> breitet sich aus. Genau hier kommt das Kalken ins Spiel. Kalk neutralisiert die Bodensäure, verbessert die Bodenstruktur und schafft die Grundlage dafür, dass dein Rasen Nährstoffe wie Stickstoff, Phosphor und Kalium überhaupt aufnehmen kann. In diesem Leitfaden erfährst du alles, was du über das Rasen kalken wissen musst — vom richtigen Zeitpunkt über die passende Kalkmenge bis hin zu typischen Fehlern, die du vermeiden solltest.</p>
+
+<h2>Wann sollte man den Rasen kalken?</h2>
+
+<p>Der beste Zeitpunkt zum Rasen kalken ist das <a href="/blog/rasen-im-fruehling-pflegen">Frühjahr</a> — idealerweise zwischen Februar und April, bevor die Hauptwachstumsphase beginnt. So hat der Kalk genügend Zeit, in den Boden einzudringen und den pH-Wert zu regulieren, bevor du mit dem <a href="/blog/rasen-richtig-duengen">Düngen</a> startest.</p>
+
+<p>Wichtig: Kalke und dünge niemals gleichzeitig. Zwischen dem Kalken und der ersten Düngung sollten mindestens vier bis sechs Wochen liegen. Kalk und Stickstoffdünger können chemisch miteinander reagieren, wodurch der Stickstoff als Ammoniak verfliegt und dem Rasen nicht mehr zur Verfügung steht.</p>
+
+<p>Auch im Herbst (Oktober bis November) ist ein guter Zeitpunkt zum Kalken. Der Kalk wird dann über den Winter langsam vom Regen in den Boden eingewaschen und wirkt bis zum Frühjahr. Vermeide es, bei Frost, extremer Hitze oder auf ausgetrocknetem Boden zu kalken — der Kalk kann dann nicht richtig wirken.</p>
+
+<p>Ein häufiger Fehler: Viele Gartenbesitzer kalken nach dem <a href="/blog/rasen-vertikutieren-wann-wie-oft-anleitung">Vertikutieren</a>. Das ist grundsätzlich möglich, aber der Rasen ist nach dem Vertikutieren geschwächt. Besser ist es, erst zu kalken, dann vier Wochen zu warten, und anschließend zu vertikutieren und zu düngen.</p>
+
+<h2>Wie erkenne ich ob mein Rasen Kalk braucht?</h2>
+
+<p>Es gibt mehrere Anzeichen, die auf einen zu sauren Boden hindeuten:</p>
+
+<p><strong>Moos im Rasen:</strong> Das deutlichste Signal. Moos liebt saure, feuchte Böden. Wenn sich Moos trotz regelmäßiger Pflege hartnäckig hält, liegt der pH-Wert deines Bodens wahrscheinlich unter 5,5.</p>
+
+<p><strong>Gelbe oder blasse Flecken:</strong> Wenn dein Rasen trotz ausreichender Düngung gelblich aussieht, kann es sein, dass der Boden die Nährstoffe wegen eines zu niedrigen pH-Werts gar nicht an die Gräser weitergibt.</p>
+
+<p><strong>Klee und Unkraut:</strong> Bestimmte Unkräuter wie Sauerampfer und Hahnenfuß gedeihen besonders gut auf sauren Böden. Wenn diese Pflanzen sich ausbreiten, ist das ein Hinweis auf Kalkbedarf.</p>
+
+<p><strong>Langsames Wachstum:</strong> Trotz Düngung und <a href="/blog/rasen-bewaesserung-guide">ausreichender Bewässerung</a> wächst der Rasen kaum? Ein saurer Boden blockiert die Nährstoffaufnahme und bremst das Wachstum.</p>
+
+<p><strong>pH-Test machen:</strong> Die sicherste Methode ist ein Bodentest. Einfache pH-Testsets bekommst du im Baumarkt für wenige Euro. Nimm Bodenproben aus verschiedenen Stellen deines Gartens und mische sie. Ein pH-Wert unter 5,5 bedeutet: Dein Rasen braucht definitiv Kalk.</p>
+
+<h2>Welche Kalkart ist die richtige?</h2>
+
+<p>Kalk ist nicht gleich Kalk. Für den Rasen kommen vor allem drei Arten in Frage:</p>
+
+<p><strong>Kohlensaurer Kalk (Gartenkalk):</strong> Die mildeste und am häufigsten empfohlene Kalkart für Rasen. Er wirkt langsam und gleichmäßig, sodass eine Überdosierung kaum möglich ist. Ideal für leichte bis mittelschwere Böden und für Gartenbesitzer, die zum ersten Mal kalken.</p>
+
+<p><strong>Dolomitkalk:</strong> Enthält neben Kalziumkarbonat auch Magnesium. Besonders empfehlenswert, wenn dein Rasen unter Magnesiummangel leidet (erkennbar an gelblichen Blatträndern). Dolomitkalk wirkt ebenfalls langsam und schonend.</p>
+
+<p><strong>Branntkalk (Löschkalk):</strong> Sehr aggressiv und schnellwirkend. Für Rasenflächen ausdrücklich nicht empfohlen. Branntkalk kann die Grasnarbe verbrennen und das Bodenleben schädigen. Er eignet sich höchstens für stark versauerte, ungenutzte Flächen unter fachkundiger Anleitung.</p>
+
+<p>Für die meisten Rasen ist kohlensaurer Kalk oder Dolomitkalk die richtige Wahl. Granulierter Kalk lässt sich besonders gleichmäßig mit einem Streuwagen ausbringen und staubt weniger als Kalkpulver.</p>
+
+<h2>Wie viel Kalk braucht mein Rasen?</h2>
+
+<p>Die benötigte Kalkmenge hängt von zwei Faktoren ab: dem aktuellen pH-Wert und der Bodenart.</p>
+
+<p><strong>Sandige Böden:</strong> Sandböden versauern schneller, benötigen aber weniger Kalk pro Anwendung. Richtwert: 150-200 g kohlensaurer Kalk pro Quadratmeter.</p>
+
+<p><strong>Lehmige Böden:</strong> Lehmböden puffern den pH-Wert besser, brauchen aber höhere Mengen zum Anheben. Richtwert: 300-400 g pro Quadratmeter.</p>
+
+<p><strong>Tonige Böden:</strong> Schwere Tonböden brauchen die höchsten Mengen: 400-500 g pro Quadratmeter.</p>
+
+<p>Als allgemeine Faustregel gilt: Für eine moderate Korrektur des pH-Werts bei leichten Böden reichen etwa 200 g pro Quadratmeter, bei schweren Böden etwa 400 g. Wenn der pH-Wert sehr niedrig ist (unter 4,5), verteile die Gesamtmenge auf zwei Anwendungen im Abstand von sechs bis acht Wochen. So vermeidest du einen pH-Schock für das Bodenleben.</p>
+
+<h2>Schritt-für-Schritt — So kalkst du deinen Rasen richtig</h2>
+
+<p><strong>Schritt 1: pH-Wert messen</strong><br>
+Nimm Bodenproben aus mindestens drei verschiedenen Stellen deines Rasens. Mische die Proben und teste den pH-Wert. Nur wenn er unter 5,5 liegt, ist Kalken notwendig.</p>
+
+<p><strong>Schritt 2: Rasen mähen</strong><br>
+Mähe den Rasen vor dem Kalken auf eine normale Höhe von 4-5 cm. So kann der Kalk besser auf den Boden gelangen. Beachte dazu unsere Tipps zum <a href="/blog/perfekter-maehrhythmus-rasen">richtigen Mährhythmus</a>.</p>
+
+<p><strong>Schritt 3: Kalk gleichmäßig ausbringen</strong><br>
+Verwende einen Streuwagen für eine gleichmäßige Verteilung. Fahre in parallelen Bahnen über die Fläche, ähnlich wie beim Mähen. Trage die Hälfte der Menge in Längsrichtung und die andere Hälfte in Querrichtung auf — so vermeidest du Streifen und Überdosierungen an einzelnen Stellen.</p>
+
+<p><strong>Schritt 4: Einwässern</strong><br>
+Wässere den Rasen nach dem Kalken leicht, damit der Kalk in den Boden gelangt und nicht auf den Blättern liegen bleibt. Alternativ kannst du vor einem angekündigten Regentag kalken — so erledigt die Natur das Einwässern für dich.</p>
+
+<p><strong>Schritt 5: Abwarten</strong><br>
+Gib dem Kalk mindestens vier bis sechs Wochen Zeit zum Wirken, bevor du düngst oder vertikutierst. Kontrolliere den pH-Wert nach etwa acht Wochen erneut, um den Erfolg zu überprüfen.</p>
+
+<h2>Was passiert wenn man zu viel kalkt?</h2>
+
+<p>Überkalkung ist ein häufiges Problem bei unerfahrenen Gartenbesitzern. Wenn der pH-Wert zu stark angehoben wird (über 7,0), entstehen neue Probleme:</p>
+
+<p><strong>Nährstoffblockade:</strong> Bei zu hohem pH-Wert werden Spurenelemente wie Eisen, Mangan und Zink im Boden gebunden und stehen dem Rasen nicht mehr zur Verfügung. Die Folge: Chlorose (Gelbfärbung der Blätter trotz ausreichender Düngung).</p>
+
+<p><strong>Eisenmangel:</strong> Der Rasen wird blass und gelblich, obwohl genügend Eisen im Boden vorhanden ist — es ist nur bei hohem pH-Wert für die Wurzeln nicht aufnehmbar.</p>
+
+<p><strong>Bodenleben stören:</strong> Nützliche Bodenorganismen wie Regenwürmer und Mikroben bevorzugen einen leicht sauren bis neutralen pH-Wert. Überkalkung schädigt das Bodenleben und beeinträchtigt damit die natürliche Bodengesundheit.</p>
+
+<p><strong>Unkraut fördern:</strong> Einige unerwünschte Pflanzen wie Hirtentäschel und Brennnessel bevorzugen alkalische Böden. Zu viel Kalk kann deren Ausbreitung begünstigen.</p>
+
+<p>Die Lösung bei Überkalkung: Verwende einen sauren Dünger (z. B. Ammoniumsulfat) und mulche mit Nadelholzrinde, um den pH-Wert langsam wieder zu senken. Eine Korrektur dauert oft mehrere Monate — deshalb ist es so wichtig, vorher den pH-Wert zu messen und nicht blind zu kalken.</p>
+
+<h2>Wie Rasenpilot dir sagt ob dein Rasen Kalk braucht</h2>
+
+<p>Einen pH-Bodentest durchzuführen ist hilfreich — aber nicht jeder hat die Zeit oder das Equipment dafür. Genau hier hilft dir <a href="/lawn-analysis">Rasenpilot</a>: Unsere KI-Rasenanalyse erkennt anhand eines Fotos typische Symptome eines zu sauren Bodens. Moos im Rasen, gelbliche Verfärbungen, Nährstoffmangel und schlechtes Wachstum — all das sind visuelle Indikatoren, die unsere KI in Sekunden identifiziert.</p>
+
+<p>Basierend auf der Analyse erhältst du einen persönlichen Pflegeplan mit konkreten Empfehlungen: ob Kalken nötig ist, welcher Dünger sinnvoll wäre und welche weiteren Maßnahmen dein Rasen braucht. Alles in 30 Sekunden, kostenlos und ohne Anmeldung.</p>
+
+<div style="background: #e8f5e9; padding: 24px; border-radius: 12px; text-align: center; margin: 24px 0;">
+<p style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Braucht dein Rasen Kalk?</p>
+<p style="margin-bottom: 16px;">Unsere KI erkennt es sofort — einfach Foto hochladen und in 30 Sekunden kostenlos herausfinden.</p>
+<a href="/lawn-analysis" style="display: inline-block; background: #22c55e; color: white; padding: 12px 28px; border-radius: 8px; font-weight: 600; text-decoration: none;">Jetzt kostenlos analysieren</a>
+</div>
+
+<p>Mach jetzt den ersten Schritt zu einem perfekten Rasen:</p>
+<a href="/lawn-analysis">Kostenlose Rasenanalyse starten →</a>`,
+    excerpt: "Rasen kalken: Wann ist der richtige Zeitpunkt, wie viel Kalk braucht dein Rasen und welche Kalkart ist die beste? Der komplette Leitfaden für 2026.",
+    date: "08.04.2026",
+    author: "Rasenpilot Team",
+    category: "Rasenpflege",
+    readTime: 9,
+    keywords: ["Rasen kalken", "Rasen kalken Frühjahr", "pH-Wert Rasen", "Gartenkalk", "Dolomitkalk", "Moos im Rasen", "Rasenpflege Frühling"],
+    metaTitle: "Rasen kalken im Frühjahr — Der komplette Leitfaden 2026",
+    metaDescription: "Wann und wie oft sollte man Rasen kalken? Alles über den richtigen Zeitpunkt, die richtige Menge und welche Kalkart für deinen Rasen geeignet ist.",
+    image: "https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&h=400&fit=crop"
   }
 ];
 
