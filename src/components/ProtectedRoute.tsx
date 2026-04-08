@@ -36,19 +36,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
           try {
             console.log('ProtectedRoute: Checking admin role for user:', session?.user.email);
             
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
+            const { data: roleData, error: roleError } = await supabase
+              .from('user_roles')
               .select('role')
-              .eq('id', session?.user.id)
-              .single();
+              .eq('user_id', session?.user.id)
+              .eq('role', 'admin')
+              .maybeSingle();
               
-            if (profileError) {
-              console.error('ProtectedRoute: Profile error:', profileError);
+            if (roleError) {
+              console.error('ProtectedRoute: Role check error:', roleError);
               setIsAdmin(false);
-              toast.error('Profil nicht gefunden. Admin-Berechtigung erforderlich.');
+              toast.error('Rollenberechtigung konnte nicht geprüft werden.');
             } else {
-              const adminStatus = profile?.role === 'admin';
-              console.log('ProtectedRoute: Admin status:', adminStatus, 'Role:', profile?.role);
+              const adminStatus = !!roleData;
+              console.log('ProtectedRoute: Admin status:', adminStatus);
               setIsAdmin(adminStatus);
               
               if (!adminStatus) {
