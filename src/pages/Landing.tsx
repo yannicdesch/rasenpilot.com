@@ -28,8 +28,8 @@ const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <SEO 
-        title="Rasenpilot — KI-Rasenanalyse kostenlos | Lawn Score in 30 Sekunden"
-        description="Lade ein Foto deines Rasens hoch und erhalte sofort deine persönliche KI-Diagnose mit Lawn Score, Pflegekalender und Produktempfehlungen. Kostenlos & ohne Anmeldung."
+        title="Rasenpilot — KI-Rasenanalyse für deinen perfekten Rasen"
+        description="Lade ein Foto hoch und erhalte in 30 Sekunden eine persönliche KI-Analyse deines Rasens. Kostenlos starten — kein Account nötig."
         canonical="/"
         keywords="rasen analyse, rasen ki, rasenpflege app, lawn score, rasen gelb, rasen moos, rasendünger empfehlung"
         type="website"
