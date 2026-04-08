@@ -70,13 +70,14 @@ const AdminLoginForm: React.FC<AdminLoginFormProps> = ({ onLoginSuccess }) => {
 
       if (data.user) {
         // Verify admin role
-        const { data: profile } = await supabase
-          .from('profiles')
+        const { data: roleData } = await supabase
+          .from('user_roles')
           .select('role')
-          .eq('id', data.user.id)
-          .single();
+          .eq('user_id', data.user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
 
-        if (profile?.role !== 'admin') {
+        if (!roleData) {
           await trackAdminAction('login_insufficient_privileges', data.user.email || email);
           await supabase.auth.signOut();
           setErrors(['Keine Administrator-Berechtigung']);

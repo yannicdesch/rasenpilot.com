@@ -45,22 +45,23 @@ export const SecureAdminAuth: React.FC<SecureAdminAuthProps> = ({ children }) =>
 
       console.log('SecureAdminAuth: User found, checking admin role for:', user.email);
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
         .select('role')
-        .eq('id', user.id)
-        .single();
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
 
-      if (profileError) {
-        console.error('SecureAdminAuth: Profile error:', profileError);
+      if (roleError) {
+        console.error('SecureAdminAuth: Role check error:', roleError);
         setIsValidAdmin(false);
-        setSecurityWarning('Profile not found. Admin role required.');
+        setSecurityWarning('Role check failed. Admin role required.');
         setIsLoading(false);
         return;
       }
 
-      const isAdmin = profile?.role === 'admin';
-      console.log('SecureAdminAuth: Admin check result:', isAdmin, 'Role:', profile?.role);
+      const isAdmin = !!roleData;
+      console.log('SecureAdminAuth: Admin check result:', isAdmin);
       
       if (isAdmin) {
         setIsValidAdmin(true);
