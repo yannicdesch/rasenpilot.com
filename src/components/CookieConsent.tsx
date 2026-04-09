@@ -77,31 +77,24 @@ const CookieConsent: React.FC = () => {
 
   return (
     <>
-      <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-md">
-        <Card className="border shadow-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Cookie className="h-5 w-5" />
-              Cookie-Einstellungen
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und unsere Website zu analysieren. 
-              Sie können Ihre Präferenzen jederzeit anpassen.
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <div className="bg-background/95 backdrop-blur-sm border-t shadow-lg px-4 py-3 md:py-4">
+          <div className="max-w-screen-md mx-auto flex items-center gap-3">
+            <p className="text-xs text-muted-foreground flex-1 leading-snug">
+              Wir nutzen Cookies für Analyse & Werbung.{' '}
+              <Link to="/datenschutz" className="text-primary hover:underline">Mehr erfahren</Link>
             </p>
-            
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button onClick={acceptAll} className="flex-1">
-                Alle akzeptieren
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button onClick={acceptNecessary} variant="ghost" size="sm" className="text-xs h-8 px-3">
+                Nur nötige
               </Button>
-              <Button onClick={acceptNecessary} variant="outline" className="flex-1">
-                Nur notwendige
+              <Button onClick={acceptAll} size="sm" className="text-xs h-8 px-3">
+                OK
               </Button>
               <Dialog open={showPreferences} onOpenChange={setShowPreferences}>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <Settings className="h-4 w-4" />
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Settings className="h-3.5 w-3.5" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
@@ -112,46 +105,35 @@ const CookieConsent: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Notwendige Cookies</p>
-                          <p className="text-sm text-muted-foreground">
-                            Erforderlich für grundlegende Funktionen
-                          </p>
+                          <p className="font-medium text-sm">Notwendige Cookies</p>
+                          <p className="text-xs text-muted-foreground">Erforderlich</p>
                         </div>
                         <Switch checked disabled />
                       </div>
-                      
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Analyse-Cookies</p>
-                          <p className="text-sm text-muted-foreground">
-                            Helfen uns die Website zu verbessern
-                          </p>
+                          <p className="font-medium text-sm">Analyse-Cookies</p>
+                          <p className="text-xs text-muted-foreground">Website verbessern</p>
                         </div>
                         <Switch 
                           checked={preferences.analytics}
                           onCheckedChange={(checked) => handlePreferenceChange('analytics', checked)}
                         />
                       </div>
-                      
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Marketing-Cookies</p>
-                          <p className="text-sm text-muted-foreground">
-                            Für personalisierte Werbung
-                          </p>
+                          <p className="font-medium text-sm">Marketing-Cookies</p>
+                          <p className="text-xs text-muted-foreground">Personalisierte Werbung</p>
                         </div>
                         <Switch 
                           checked={preferences.marketing}
                           onCheckedChange={(checked) => handlePreferenceChange('marketing', checked)}
                         />
                       </div>
-                      
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Präferenz-Cookies</p>
-                          <p className="text-sm text-muted-foreground">
-                            Speichern Ihre Einstellungen
-                          </p>
+                          <p className="font-medium text-sm">Präferenz-Cookies</p>
+                          <p className="text-xs text-muted-foreground">Einstellungen speichern</p>
                         </div>
                         <Switch 
                           checked={preferences.preferences}
@@ -159,42 +141,16 @@ const CookieConsent: React.FC = () => {
                         />
                       </div>
                     </div>
-                    
                     <div className="flex gap-2">
-                      <Button 
-                        onClick={() => savePreferences(preferences)}
-                        className="flex-1"
-                      >
-                        Speichern
-                      </Button>
-                      <Button 
-                        onClick={() => setShowPreferences(false)}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        Abbrechen
-                      </Button>
+                      <Button onClick={() => savePreferences(preferences)} className="flex-1" size="sm">Speichern</Button>
+                      <Button onClick={() => setShowPreferences(false)} variant="outline" className="flex-1" size="sm">Abbrechen</Button>
                     </div>
-                    
-                    <p className="text-xs text-muted-foreground">
-                      Weitere Informationen finden Sie in unserer{' '}
-                      <Link to="/datenschutz" className="text-primary hover:underline">
-                        Datenschutzerklärung
-                      </Link>
-                    </p>
                   </div>
                 </DialogContent>
               </Dialog>
             </div>
-            
-            <p className="text-xs text-muted-foreground">
-              Mehr Details in unserer{' '}
-              <Link to="/datenschutz" className="text-primary hover:underline">
-                Datenschutzerklärung
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </>
   );
