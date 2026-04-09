@@ -175,7 +175,7 @@ const LawnAnalysis = () => {
 
   const validateFile = (file: File): string | null => {
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
     if (file.size > maxSize) {
       return "Datei zu groß (max. 10 MB).";
