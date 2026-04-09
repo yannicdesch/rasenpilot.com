@@ -815,7 +815,8 @@ const LawnAnalysis = () => {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png"
+        accept="image/*"
+        capture="environment"
           onChange={handleFileInputChange}
           className="hidden"
         />
