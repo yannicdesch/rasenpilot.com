@@ -65,19 +65,22 @@ serve(async (req) => {
     });
     const mrrDisplay = (mrr / 100).toFixed(2);
 
-    // --- ANALYSEN ---
-    const { data: todayAnalyses } = await supabase.from('analyses').select('id, score').gte('created_at', yesterdayISO);
-    const analysesToday = todayAnalyses?.length || 0;
-    const avgScoreToday = todayAnalyses && todayAnalyses.length > 0
-      ? Math.round(todayAnalyses.reduce((sum, a) => sum + a.score, 0) / todayAnalyses.length) : 0;
+    // --- ANALYSEN (from analysis_jobs to include anonymous users) ---
+    const { data: todayJobs } = await supabase.from('analysis_jobs').select('id, result, created_at').eq('status', 'completed').gte('created_at', yesterdayISO);
+    const analysesToday = todayJobs?.length || 0;
+    const avgScoreToday = todayJobs && todayJobs.length > 0
+      ? Math.round(todayJobs.reduce((sum, j) => {
+          const score = j.result && typeof j.result === 'object' ? (j.result as any).score || 0 : 0;
+          return sum + score;
+        }, 0) / todayJobs.length) : 0;
 
-    const { data: analyses7d } = await supabase.from('analyses').select('id').gte('created_at', days7agoISO);
-    const analysesCount7d = analyses7d?.length || 0;
+    const { data: jobs7d } = await supabase.from('analysis_jobs').select('id').eq('status', 'completed').gte('created_at', days7agoISO);
+    const analysesCount7d = jobs7d?.length || 0;
 
-    const { data: analyses30d } = await supabase.from('analyses').select('id').gte('created_at', days30agoISO);
-    const analysesCount30d = analyses30d?.length || 0;
+    const { data: jobs30d } = await supabase.from('analysis_jobs').select('id').eq('status', 'completed').gte('created_at', days30agoISO);
+    const analysesCount30d = jobs30d?.length || 0;
 
-    const { count: totalAnalyses } = await supabase.from('analyses').select('id', { count: 'exact', head: true });
+    const { count: totalAnalyses } = await supabase.from('analysis_jobs').select('id', { count: 'exact', head: true }).eq('status', 'completed');
 
     // --- PAGE VIEWS ---
     const { count: pageViewsToday } = await supabase.from('page_views').select('id', { count: 'exact', head: true }).gte('timestamp', yesterdayISO);

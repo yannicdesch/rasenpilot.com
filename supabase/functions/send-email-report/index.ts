@@ -51,19 +51,22 @@ serve(async (req) => {
     const cancelledSubscriptions = churns;
     const mrrGrowth = (((newSubscriptions - cancelledSubscriptions) * premiumPrice) / 100).toFixed(2);
 
-    // --- ANALYSEN ---
+    // --- ANALYSEN (from analysis_jobs to include anonymous users) ---
     const { data: weeklyAnalyses } = await supabase
-      .from('analyses')
-      .select('id, score')
+      .from('analysis_jobs')
+      .select('id, result')
+      .eq('status', 'completed')
       .gte('created_at', weekAgoISO);
     
     const weeklyAnalysesCount = weeklyAnalyses?.length || 0;
     const avgScore = weeklyAnalyses && weeklyAnalyses.length > 0
-      ? Math.round(weeklyAnalyses.reduce((sum, a) => sum + a.score, 0) / weeklyAnalyses.length)
+      ? Math.round(weeklyAnalyses.reduce((sum, j) => {
+          const score = j.result && typeof j.result === 'object' ? (j.result as any).score || 0 : 0;
+          return sum + score;
+        }, 0) / weeklyAnalyses.length)
       : 0;
 
-    const { data: allAnalyses } = await supabase.from('analyses').select('id');
-    const totalAnalyses = allAnalyses?.length || 0;
+    const { count: totalAnalyses } = await supabase.from('analysis_jobs').select('id', { count: 'exact', head: true }).eq('status', 'completed');
 
     // --- EMAILS ---
     // Try to count reminder_logs as proxy for sent emails
