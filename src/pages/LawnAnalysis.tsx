@@ -274,14 +274,14 @@ const LawnAnalysis = () => {
           p_image_path: uploadData.path,
           p_grass_type: profile?.grassType || 'unbekannt',
           p_lawn_goal: profile?.lawnGoal || 'gesunder-rasen',
-          p_metadata: JSON.stringify({ 
+          p_metadata: { 
             auto_analysis: true, 
             conversion_optimized: true,
             upload_timestamp: new Date().toISOString(),
             zipCode: zipCode || '10115',
             userLocation: userLocation,
             locationMethod: locationStatus
-          })
+          } as any
         });
 
       if (jobError) throw jobError;
