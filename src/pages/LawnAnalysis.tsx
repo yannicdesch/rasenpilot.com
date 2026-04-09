@@ -175,14 +175,17 @@ const LawnAnalysis = () => {
 
   const validateFile = (file: File): string | null => {
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
     if (file.size > maxSize) {
       return "Datei zu groß (max. 10 MB).";
     }
 
-    if (!allowedTypes.includes(file.type)) {
-      return "Nur JPG/PNG erlaubt.";
+    // Accept any image type, or files with image extensions but empty MIME (HEIC on some browsers)
+    const isImage = file.type.startsWith('image/') || 
+      /\.(jpg|jpeg|png|webp|heic|heif)$/i.test(file.name);
+    
+    if (!isImage) {
+      return "Nur Bilddateien erlaubt (JPG, PNG, WebP).";
     }
 
     return null;
