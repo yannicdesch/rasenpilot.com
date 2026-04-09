@@ -175,14 +175,17 @@ const LawnAnalysis = () => {
 
   const validateFile = (file: File): string | null => {
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
     if (file.size > maxSize) {
       return "Datei zu groß (max. 10 MB).";
     }
 
-    if (!allowedTypes.includes(file.type)) {
-      return "Nur JPG/PNG erlaubt.";
+    // Accept any image type, or files with image extensions but empty MIME (HEIC on some browsers)
+    const isImage = file.type.startsWith('image/') || 
+      /\.(jpg|jpeg|png|webp|heic|heif)$/i.test(file.name);
+    
+    if (!isImage) {
+      return "Nur Bilddateien erlaubt (JPG, PNG, WebP).";
     }
 
     return null;
@@ -274,14 +277,14 @@ const LawnAnalysis = () => {
           p_image_path: uploadData.path,
           p_grass_type: profile?.grassType || 'unbekannt',
           p_lawn_goal: profile?.lawnGoal || 'gesunder-rasen',
-          p_metadata: JSON.stringify({ 
+          p_metadata: { 
             auto_analysis: true, 
             conversion_optimized: true,
             upload_timestamp: new Date().toISOString(),
             zipCode: zipCode || '10115',
             userLocation: userLocation,
             locationMethod: locationStatus
-          })
+          } as any
         });
 
       if (jobError) throw jobError;
@@ -815,7 +818,8 @@ const LawnAnalysis = () => {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png"
+        accept="image/*"
+        capture="environment"
           onChange={handleFileInputChange}
           className="hidden"
         />
