@@ -15,6 +15,9 @@ import { trackMetaCompleteRegistration, trackMetaLead } from '@/lib/analytics/me
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect');
+  const ref = searchParams.get('ref');
+  const isFromAnalysis = ref === 'result-save' || ref === 'blurred-rec';
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
