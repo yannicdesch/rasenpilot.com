@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +40,16 @@ const AnalysisResult = () => {
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [previousScore, setPreviousScore] = useState<number | null>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Show toast after successful registration redirect
+  useEffect(() => {
+    if (searchParams.get('registered') === '1') {
+      toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+      searchParams.delete('registered');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
 
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
   const { retentionData } = useRetentionTracking(healthScore, jobId);

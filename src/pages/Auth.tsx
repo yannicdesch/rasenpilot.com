@@ -67,12 +67,14 @@ const Auth = () => {
       
       toast.success('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail.');
       
-      // Redirect to intended destination (e.g. subscription with plan)
-      const redirect = searchParams.get('redirect');
+      // Redirect to intended destination
+      const redirect = redirectPath;
       const plan = searchParams.get('plan');
       if (redirect) {
-        const url = plan ? `${redirect}?plan=${plan}` : redirect;
-        navigate(url);
+        const separator = redirect.includes('?') ? '&' : '?';
+        const registered = isFromAnalysis ? `${separator}registered=1` : '';
+        const planParam = plan ? `${registered ? '&' : separator}plan=${plan}` : '';
+        navigate(`${redirect}${registered}${planParam}`);
       } else {
         navigate('/');
       }
@@ -104,12 +106,14 @@ const Auth = () => {
 
       toast.success('Erfolgreich angemeldet!');
       
-      // Redirect to intended destination (e.g. subscription with plan)
-      const redirect = searchParams.get('redirect');
+      // Redirect to intended destination
+      const redirect = redirectPath;
       const plan = searchParams.get('plan');
       if (redirect) {
-        const url = plan ? `${redirect}?plan=${plan}` : redirect;
-        navigate(url);
+        const separator = redirect.includes('?') ? '&' : '?';
+        const registered = isFromAnalysis ? `${separator}registered=1` : '';
+        const planParam = plan ? `${registered ? '&' : separator}plan=${plan}` : '';
+        navigate(`${redirect}${registered}${planParam}`);
       } else {
         navigate('/premium-dashboard');
       }
