@@ -31,6 +31,8 @@ const AnalysisResult = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const { profile } = useLawn();
+  const { user } = useAuth();
+  const isAnonymous = !user;
   const { isPremium, planTier } = useSubscription();
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
