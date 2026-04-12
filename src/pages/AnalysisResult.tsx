@@ -15,6 +15,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { amazonProducts, getAmazonUrl, getAmazonImageUrl } from '@/lib/amazonProducts';
 import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
+import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AnalysisJobResult {
   id: string;
