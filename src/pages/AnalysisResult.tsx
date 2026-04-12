@@ -40,6 +40,16 @@ const AnalysisResult = () => {
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [previousScore, setPreviousScore] = useState<number | null>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Show toast after successful registration redirect
+  useEffect(() => {
+    if (searchParams.get('registered') === '1') {
+      toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+      searchParams.delete('registered');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
 
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
   const { retentionData } = useRetentionTracking(healthScore, jobId);
