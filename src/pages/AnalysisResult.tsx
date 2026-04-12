@@ -15,6 +15,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { amazonProducts, getAmazonUrl, getAmazonImageUrl } from '@/lib/amazonProducts';
 import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
+import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AnalysisJobResult {
   id: string;
@@ -29,6 +31,8 @@ const AnalysisResult = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const { profile } = useLawn();
+  const { user } = useAuth();
+  const isAnonymous = !user;
   const { isPremium, planTier } = useSubscription();
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -354,21 +358,34 @@ const AnalysisResult = () => {
         </div>
 
         {/* ═══════════════════════════════════════════════
+            REGISTRATION BANNER (anonymous users only)
+        ═══════════════════════════════════════════════ */}
+        {isAnonymous && (
+          <RegistrationBanner score={healthScore} jobId={jobId} />
+        )}
+
+        {/* ═══════════════════════════════════════════════
             BLOCK 2 — TOP 3 SOFORTMASSNAHMEN
         ═══════════════════════════════════════════════ */}
         <div ref={stepsRef} className="mb-8">
           <h2 className="text-lg font-bold text-foreground mb-4">Deine 3 nächsten Schritte</h2>
           <div className="space-y-3">
-            {[result?.step_1, result?.step_2, result?.step_3].filter(Boolean).map((step, i) => (
-              <Card key={i} className="border-green-100 shadow-sm">
-                <CardContent className="p-4 flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl font-bold text-green-600">{i + 1}</span>
-                  </div>
-                  <p className="text-sm text-foreground leading-relaxed pt-2">{step}</p>
-                </CardContent>
-              </Card>
-            ))}
+            {[result?.step_1, result?.step_2, result?.step_3].filter(Boolean).map((step, i) => {
+              const isBlurred = isAnonymous && i >= 1; // blur steps 2 and 3
+              return (
+                <div key={i} className="relative">
+                  <Card className={`border-green-100 shadow-sm ${isBlurred ? 'select-none' : ''}`}>
+                    <CardContent className={`p-4 flex items-start gap-4 ${isBlurred ? 'blur-sm' : ''}`}>
+                      <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xl font-bold text-green-600">{i + 1}</span>
+                      </div>
+                      <p className="text-sm text-foreground leading-relaxed pt-2">{step}</p>
+                    </CardContent>
+                  </Card>
+                  {isBlurred && <BlurredRecommendationOverlay jobId={jobId} />}
+                </div>
+              );
+            })}
           </div>
         </div>
 
