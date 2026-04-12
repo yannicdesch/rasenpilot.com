@@ -130,7 +130,7 @@ const LawnComparison: React.FC<LawnComparisonProps> = ({ oldImageUrl, oldScore, 
           <CardDescription>Lade ein neues Foto hoch und vergleiche es mit deiner letzten Analyse</CardDescription>
         </CardHeader>
         <CardContent>
-          <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
           <Button
             onClick={() => fileInputRef.current?.click()}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-6 text-base"
