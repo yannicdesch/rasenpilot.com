@@ -150,7 +150,7 @@ const Auth = () => {
                   </Button>
                 </div>
               ) : (
-                <Tabs defaultValue="signin" className="space-y-4">
+                <Tabs defaultValue={isFromAnalysis ? "signup" : "signin"} className="space-y-4">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="signin">Anmelden</TabsTrigger>
                     <TabsTrigger value="signup">Registrieren</TabsTrigger>
