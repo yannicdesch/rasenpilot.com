@@ -132,7 +132,9 @@ const Auth = () => {
                 Willkommen bei RasenPilot
               </CardTitle>
               <CardDescription>
-                Melden Sie sich an oder registrieren Sie sich für Premium-Features
+                {isFromAnalysis 
+                  ? 'Registriere dich kostenlos, um dein Analyseergebnis dauerhaft zu speichern.'
+                  : 'Melden Sie sich an oder registrieren Sie sich für Premium-Features'}
               </CardDescription>
             </CardHeader>
             <CardContent>
