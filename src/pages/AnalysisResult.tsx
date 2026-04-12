@@ -42,14 +42,23 @@ const AnalysisResult = () => {
   const stepsRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Show toast after successful registration redirect
+  // After registration: claim orphaned analysis and show toast
   useEffect(() => {
-    if (searchParams.get('registered') === '1') {
+    if (searchParams.get('registered') === '1' && user && jobId) {
       toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
+
+      // Claim the anonymous analysis job for this new user
+      supabase.rpc('claim_orphaned_analysis', {
+        p_user_id: user.id,
+        p_email: user.email || '',
+        p_analysis_id: jobId,
+      }).then(({ error }) => {
+        if (error) console.error('Failed to claim analysis:', error);
+      });
     }
-  }, []);
+  }, [user]);
 
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
   const { retentionData } = useRetentionTracking(healthScore, jobId);
