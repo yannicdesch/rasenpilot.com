@@ -15,6 +15,9 @@ import { trackMetaCompleteRegistration, trackMetaLead } from '@/lib/analytics/me
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect');
+  const ref = searchParams.get('ref');
+  const isFromAnalysis = ref === 'result-save' || ref === 'blurred-rec';
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
@@ -40,7 +43,9 @@ const Auth = () => {
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: redirectPath 
+            ? `${window.location.origin}${redirectPath}` 
+            : `${window.location.origin}/`,
           data: {
             full_name: formData.fullName
           }
@@ -127,7 +132,9 @@ const Auth = () => {
                 Willkommen bei RasenPilot
               </CardTitle>
               <CardDescription>
-                Melden Sie sich an oder registrieren Sie sich für Premium-Features
+                {isFromAnalysis 
+                  ? 'Registriere dich kostenlos, um dein Analyseergebnis dauerhaft zu speichern.'
+                  : 'Melden Sie sich an oder registrieren Sie sich für Premium-Features'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -143,7 +150,7 @@ const Auth = () => {
                   </Button>
                 </div>
               ) : (
-                <Tabs defaultValue="signin" className="space-y-4">
+                <Tabs defaultValue={isFromAnalysis ? "signup" : "signin"} className="space-y-4">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="signin">Anmelden</TabsTrigger>
                     <TabsTrigger value="signup">Registrieren</TabsTrigger>
