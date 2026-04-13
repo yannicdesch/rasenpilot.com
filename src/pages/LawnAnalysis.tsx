@@ -283,7 +283,9 @@ const LawnAnalysis = () => {
             upload_timestamp: new Date().toISOString(),
             zipCode: zipCode || '10115',
             userLocation: userLocation,
-            locationMethod: locationStatus
+            locationMethod: locationStatus,
+            sunExposure: sunExposure,
+            puddlesAfterRain: puddlesAfterRain
           } as any
         });
 
