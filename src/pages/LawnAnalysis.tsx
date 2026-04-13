@@ -94,6 +94,8 @@ const LawnAnalysis = () => {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sunExposure, setSunExposure] = useState<string | null>(null);
+  const [puddlesAfterRain, setPuddlesAfterRain] = useState<string | null>(null);
 
   // Rotating lawn tips during analysis
   const lawnTips = [
