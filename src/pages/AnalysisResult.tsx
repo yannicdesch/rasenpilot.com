@@ -465,7 +465,101 @@ const AnalysisResult = () => {
         </div>
 
         {/* ═══════════════════════════════════════════════
-            BLOCK 3 — PRODUKTEMPFEHLUNGEN
+            REFINEMENT SECTION — Analyse verfeinern
+        ═══════════════════════════════════════════════ */}
+        <div className="mb-8">
+          <button
+            onClick={() => setRefineExpanded(!refineExpanded)}
+            className="w-full flex items-center justify-between p-3 rounded-lg border border-border bg-accent/30 hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              <span className="text-sm font-medium text-foreground">Analyse verfeinern für noch genauere Empfehlungen</span>
+            </div>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${refineExpanded ? 'rotate-180' : ''}`} />
+          </button>
+
+          {refineExpanded && (
+            <Card className="mt-3 border-amber-200/50 bg-amber-50/30">
+              <CardContent className="p-4 space-y-4">
+                {/* Q1: Last fertilized */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-2">Wann zuletzt gedüngt?</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'this_year', label: 'Dieses Jahr' },
+                      { value: 'last_year', label: 'Letztes Jahr' },
+                      { value: 'never', label: 'Noch nie' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setLastFertilized(opt.value)}
+                        className={`p-2.5 rounded-lg border text-center transition-all text-sm font-medium ${
+                          lastFertilized === opt.value
+                            ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                            : 'border-border bg-white hover:border-green-300'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Q2: Lawn usage */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-2">Rasen-Nutzung?</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'family', label: '👨‍👩‍👧 Familienrasen' },
+                      { value: 'display', label: '🌿 Repräsentation' },
+                      { value: 'pets', label: '🐕 Hunde & Tiere' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setLawnUsage(opt.value)}
+                        className={`p-2.5 rounded-lg border text-center transition-all text-xs font-medium ${
+                          lawnUsage === opt.value
+                            ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                            : 'border-border bg-white hover:border-green-300'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Update button */}
+                <Button
+                  onClick={handleRefineAnalysis}
+                  disabled={!lastFertilized || !lawnUsage || isRefining}
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white h-11 font-semibold"
+                >
+                  {isRefining ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Empfehlungen werden aktualisiert...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Empfehlungen aktualisieren
+                    </>
+                  )}
+                </Button>
+
+                {(!lastFertilized || !lawnUsage) && (
+                  <p className="text-xs text-muted-foreground text-center">Bitte beantworte beide Fragen</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/*
         ═══════════════════════════════════════════════ */}
         {products.length > 0 && (
           <div className="mb-8">
