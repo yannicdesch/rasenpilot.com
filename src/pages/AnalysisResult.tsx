@@ -54,14 +54,14 @@ const AnalysisResult = () => {
         p_email: user.email || '',
         p_analysis_id: jobId,
       }).then(({ data, error }) => {
+        const result = data as Record<string, unknown> | null;
         if (error) {
           console.error('Failed to claim analysis:', error);
           toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
-        } else if (data?.trial_created) {
+        } else if (result?.trial_created) {
           toast.success('🎉 Ergebnis gespeichert & 7-Tage-Premium-Trial aktiviert! Alle Features sind jetzt freigeschaltet.', {
             duration: 8000,
           });
-          // Refresh subscription state to reflect trial
           checkSubscription();
         } else {
           toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
