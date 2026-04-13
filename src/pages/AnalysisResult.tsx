@@ -42,6 +42,12 @@ const AnalysisResult = () => {
   const stepsRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Refinement state
+  const [refineExpanded, setRefineExpanded] = useState(false);
+  const [lastFertilized, setLastFertilized] = useState<string | null>(null);
+  const [lawnUsage, setLawnUsage] = useState<string | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+
   // After registration: claim orphaned analysis and show toast
   useEffect(() => {
     if (searchParams.get('registered') === '1' && user && jobId) {
