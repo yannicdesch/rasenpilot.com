@@ -33,7 +33,7 @@ const AnalysisResult = () => {
   const { profile } = useLawn();
   const { user } = useAuth();
   const isAnonymous = !user;
-  const { isPremium, planTier } = useSubscription();
+  const { isPremium, planTier, checkSubscription } = useSubscription();
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
