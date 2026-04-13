@@ -24,13 +24,9 @@ interface LawnScoreShareCardProps {
 
 // Identity statements based on score — Spotify Wrapped style
 const getIdentityStatement = (score: number): string => {
-  if (score >= 90) return 'Ich bin unter den besten Rasenbesitzern Deutschlands 👑';
-  if (score >= 80) return 'Mein Rasen ist besser als die meisten in meiner Straße 🏆';
-  if (score >= 70) return 'Ich arbeite aktiv an meinem Rasen — und man sieht es 💪';
-  if (score >= 60) return 'Ich hab gerade herausgefunden was meinem Rasen fehlt 🔍';
-  if (score >= 50) return 'Ok, mein Rasen braucht professionelle Hilfe 😅';
-  if (score >= 40) return 'Mein Rasen hat offiziell Katastrophenstatus 💀';
-  return 'RIP mein Rasen. Neustart incoming 😂';
+  if (score > 70) return `Mein Rasen-Score: ${score}/100 🏆 — Gehöre ich zu den besten Gärtnern in meiner Straße?`;
+  if (score >= 50) return `Mein Rasen-Score: ${score}/100 🌱 — Ich arbeite daran. Wie gut ist deiner?`;
+  return `Mein Rasen-Score: ${score}/100 — Die KI hat gesprochen. Kannst du es besser? 😄`;
 };
 
 const getProgressHook = (scoreDiff: number | null, nextScoreGoal: number): string => {
