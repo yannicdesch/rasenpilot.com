@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp } from 'lucide-react';
+import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -41,6 +41,23 @@ const AnalysisResult = () => {
   const [previousScore, setPreviousScore] = useState<number | null>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Refinement state
+  const [refineExpanded, setRefineExpanded] = useState(false);
+  const [lastFertilized, setLastFertilized] = useState<string | null>(null);
+  const [lawnUsage, setLawnUsage] = useState<string | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+  
+  // Load loading-screen context answers
+  const [loadingScreenContext, setLoadingScreenContext] = useState<{sunExposure?: string; puddlesAfterRain?: string} | null>(null);
+  useEffect(() => {
+    if (jobId) {
+      try {
+        const stored = localStorage.getItem(`analysis-context-${jobId}`);
+        if (stored) setLoadingScreenContext(JSON.parse(stored));
+      } catch {}
+    }
+  }, [jobId]);
 
   // After registration: claim orphaned analysis and show toast
   useEffect(() => {
@@ -175,6 +192,35 @@ const AnalysisResult = () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.success('Pflegeplan heruntergeladen!');
+  };
+
+  const handleRefineAnalysis = async () => {
+    if (!lastFertilized || !lawnUsage || !jobId) return;
+    setIsRefining(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('refine-analysis', {
+        body: { 
+          jobId, 
+          lastFertilized, 
+          lawnUsage,
+          sunExposure: loadingScreenContext?.sunExposure || null,
+          puddlesAfterRain: loadingScreenContext?.puddlesAfterRain || null
+        }
+      });
+      if (error) throw error;
+      if (data?.success && data?.result) {
+        setAnalysisData(prev => prev ? { ...prev, result: data.result } : prev);
+        toast.success('Empfehlungen wurden aktualisiert! 🎯');
+        setRefineExpanded(false);
+      } else {
+        throw new Error('Refinement failed');
+      }
+    } catch (err) {
+      console.error('Refine error:', err);
+      toast.error('Aktualisierung fehlgeschlagen. Bitte versuche es erneut.');
+    } finally {
+      setIsRefining(false);
+    }
   };
 
   // Get products from analysis result (ASIN-based)
@@ -426,7 +472,101 @@ const AnalysisResult = () => {
         </div>
 
         {/* ═══════════════════════════════════════════════
-            BLOCK 3 — PRODUKTEMPFEHLUNGEN
+            REFINEMENT SECTION — Analyse verfeinern
+        ═══════════════════════════════════════════════ */}
+        <div className="mb-8">
+          <button
+            onClick={() => setRefineExpanded(!refineExpanded)}
+            className="w-full flex items-center justify-between p-3 rounded-lg border border-border bg-accent/30 hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              <span className="text-sm font-medium text-foreground">Analyse verfeinern für noch genauere Empfehlungen</span>
+            </div>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${refineExpanded ? 'rotate-180' : ''}`} />
+          </button>
+
+          {refineExpanded && (
+            <Card className="mt-3 border-amber-200/50 bg-amber-50/30">
+              <CardContent className="p-4 space-y-4">
+                {/* Q1: Last fertilized */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-2">Wann zuletzt gedüngt?</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'this_year', label: 'Dieses Jahr' },
+                      { value: 'last_year', label: 'Letztes Jahr' },
+                      { value: 'never', label: 'Noch nie' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setLastFertilized(opt.value)}
+                        className={`p-2.5 rounded-lg border text-center transition-all text-sm font-medium ${
+                          lastFertilized === opt.value
+                            ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                            : 'border-border bg-white hover:border-green-300'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Q2: Lawn usage */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-2">Rasen-Nutzung?</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'family', label: '👨‍👩‍👧 Familienrasen' },
+                      { value: 'display', label: '🌿 Repräsentation' },
+                      { value: 'pets', label: '🐕 Hunde & Tiere' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setLawnUsage(opt.value)}
+                        className={`p-2.5 rounded-lg border text-center transition-all text-xs font-medium ${
+                          lawnUsage === opt.value
+                            ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                            : 'border-border bg-white hover:border-green-300'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Update button */}
+                <Button
+                  onClick={handleRefineAnalysis}
+                  disabled={!lastFertilized || !lawnUsage || isRefining}
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white h-11 font-semibold"
+                >
+                  {isRefining ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Empfehlungen werden aktualisiert...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Empfehlungen aktualisieren
+                    </>
+                  )}
+                </Button>
+
+                {(!lastFertilized || !lawnUsage) && (
+                  <p className="text-xs text-muted-foreground text-center">Bitte beantworte beide Fragen</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/*
         ═══════════════════════════════════════════════ */}
         {products.length > 0 && (
           <div className="mb-8">

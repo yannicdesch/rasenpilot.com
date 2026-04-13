@@ -60,10 +60,14 @@ serve(async (req) => {
     let zipCode = null;
     let weatherContext = '';
     let isPremiumUser = false;
+    let sunExposure = null;
+    let puddlesAfterRain = null;
     try {
       const metadata = typeof job.metadata === 'string' ? JSON.parse(job.metadata) : job.metadata;
       zipCode = metadata?.zipCode;
       isPremiumUser = metadata?.isPremium === true;
+      sunExposure = metadata?.sunExposure;
+      puddlesAfterRain = metadata?.puddlesAfterRain;
     } catch {}
 
     // Check subscription tier from DB if user_id exists
@@ -114,6 +118,28 @@ ${w.forecast?.map((f: any) => `• ${f.day}: ${f.high}°C/${f.low}°C, ${f.condi
     const season = getSeason();
 
     // Build prompt based on tier
+    // Build user context from loading-screen answers
+    let userContext = '';
+    if (sunExposure || puddlesAfterRain) {
+      userContext = '\n\nNUTZERANGABEN ZUM RASEN:';
+      if (sunExposure === 'full_sun') userContext += '\n• Sonneneinstrahlung: Vollsonne (6+ Stunden)';
+      else if (sunExposure === 'partial_shade') userContext += '\n• Sonneneinstrahlung: Halbschatten (3-6 Stunden)';
+      else if (sunExposure === 'full_shade') userContext += '\n• Sonneneinstrahlung: Viel Schatten (unter 3 Stunden)';
+      if (puddlesAfterRain === 'yes') userContext += '\n• Pfützen nach Regen: JA (Drainage-Problem wahrscheinlich)';
+      else if (puddlesAfterRain === 'no') userContext += '\n• Pfützen nach Regen: Nein (gute Drainage)';
+      
+      userContext += `
+
+ROOT-CAUSE ANALYSE (PFLICHT wenn Nutzerangaben vorhanden):
+- Halbschatten/Schatten + Pfützen = Drainage-Problem ist primäre Moosursache
+- Vollsonne + blasser Rasen = Nährstoffmangel oder Trockenstress ist primäre Ursache
+- Schatten + dichter Rasen = schattenverträgliche Mischung empfehlen
+- Pfützen + verdichteter Boden = Aerifizierung ist wichtigste Maßnahme
+
+FORMAT für Empfehlungen wenn Nutzerangaben vorhanden:
+"Weil [Ursache basierend auf Nutzerangaben + Fotobefund], empfehlen wir [Maßnahme] — am besten [konkreter Zeitpunkt]."`;
+    }
+
     const basePrompt = `Du bist ein professioneller Rasen- und Gartenexperte mit 20+ Jahren Erfahrung in Deutschland, Österreich und der Schweiz. Analysiere das Rasenbild wissenschaftlich präzise.
 
 WICHTIGE REGELN:
@@ -126,7 +152,7 @@ Jahreszeit: ${season}
 PLZ: ${zipCode || 'unbekannt'}
 Rasentyp: ${job.grass_type || 'unbekannt'}
 Ziel: ${job.lawn_goal || 'Allgemeine Verbesserung'}
-${weatherContext}
+${weatherContext}${userContext}
 
 SCORING-SYSTEM (0-100 Punkte):
 90-100: Perfekte Dichte, kräftiges Grün, keine Probleme
