@@ -101,21 +101,21 @@ serve(async (req) => {
     // --- PAGE VIEWS for funnel & referrers (24h) ---
     const { data: recentPageViews } = await supabase
       .from('page_views')
-      .select('path, referrer')
+      .select('path, referrer, utm_source, utm_medium, utm_campaign')
       .gte('timestamp', yesterdayISO)
       .limit(2000);
 
     // --- PAGE VIEWS for funnel (7d) ---
     const { data: pageViews7dData } = await supabase
       .from('page_views')
-      .select('path')
+      .select('path, utm_source, utm_medium, utm_campaign')
       .gte('timestamp', days7agoISO)
       .limit(5000);
 
     // --- PAGE VIEWS for funnel (30d) ---
     const { data: pageViews30dData } = await supabase
       .from('page_views')
-      .select('path')
+      .select('path, utm_source, utm_medium, utm_campaign')
       .gte('timestamp', days30agoISO)
       .limit(10000);
 
@@ -154,6 +154,34 @@ serve(async (req) => {
     const topPages = Object.entries(pageCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
     const topReferrers = Object.entries(referrerCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
+    // --- UTM CHANNEL CONVERSIONS (7d) ---
+    const buildUtmConversions = (pvData: any[] | null) => {
+      if (!pvData || pvData.length === 0) return [];
+      const channels: Record<string, { views: number; analyses: number; campaigns: Set<string> }> = {};
+      pvData.forEach(pv => {
+        const source = pv.utm_source;
+        if (!source) return;
+        const key = `${source}/${pv.utm_medium || 'none'}`;
+        if (!channels[key]) channels[key] = { views: 0, analyses: 0, campaigns: new Set() };
+        channels[key].views++;
+        if (pv.path === '/lawn-analysis') channels[key].analyses++;
+        if (pv.utm_campaign) channels[key].campaigns.add(pv.utm_campaign);
+      });
+      return Object.entries(channels)
+        .map(([key, data]) => ({
+          channel: key,
+          views: data.views,
+          analyses: data.analyses,
+          convRate: data.views > 0 ? (data.analyses / data.views * 100).toFixed(1) : '0',
+          campaigns: Array.from(data.campaigns).slice(0, 3).join(', '),
+        }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 10);
+    };
+
+    const utmConversions7d = buildUtmConversions(pageViews7dData);
+    const utmConversions24h = buildUtmConversions(recentPageViews);
+
     // --- FUNNEL DATA ---
     const buildFunnel = (pvData: any[] | null, pvCount: number, analysesCount: number, newUsers: number, newSubscriptions: number) => {
       const analysisViews = pvData?.filter(pv => pv.path === '/lawn-analysis').length || 0;
@@ -171,6 +199,7 @@ serve(async (req) => {
       pageViewsToday: pageViewsToday || 0, eventsToday: eventsToday || 0,
       newUsersList: newUsersList || [], topPages, topReferrers,
       funnel24h, funnel7d, funnel30d,
+      utmConversions24h, utmConversions7d,
     });
 
     const subject = `📈 Rasenpilot Daily Stats — ${todayStr}`;
@@ -239,6 +268,40 @@ function generateFunnelHTML(label: string, f: any): string {
 }
 
 function generateDailyStatsHTML(d: any) {
+  // UTM Conversions table
+  const buildUtmRows = (utmData: any[], label: string) => {
+    if (!utmData || utmData.length === 0) {
+      return `<div style="margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:4px;">${label}</div>
+        <div style="padding:8px;text-align:center;color:#94a3b8;font-size:13px;">Keine UTM-Daten — nutze Links mit ?utm_source=...</div>
+      </div>`;
+    }
+    const rows = utmData.map((u: any) => 
+      `<tr>
+        <td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;font-size:12px;">${u.channel}</td>
+        <td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700;">${u.views}</td>
+        <td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">${u.analyses}</td>
+        <td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700;color:${parseFloat(u.convRate) > 10 ? '#16a34a' : parseFloat(u.convRate) < 3 ? '#dc2626' : '#64748b'};">${u.convRate}%</td>
+        <td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#94a3b8;max-width:100px;overflow:hidden;text-overflow:ellipsis;">${u.campaigns || '—'}</td>
+      </tr>`
+    ).join('');
+    return `<div style="margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:4px;">${label}</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tr style="background:#f8fafc;">
+          <th style="padding:4px 6px;text-align:left;font-size:11px;color:#94a3b8;">Quelle/Medium</th>
+          <th style="padding:4px 6px;text-align:right;font-size:11px;color:#94a3b8;">Views</th>
+          <th style="padding:4px 6px;text-align:right;font-size:11px;color:#94a3b8;">Analysen</th>
+          <th style="padding:4px 6px;text-align:right;font-size:11px;color:#94a3b8;">Conv%</th>
+          <th style="padding:4px 6px;text-align:left;font-size:11px;color:#94a3b8;">Kampagne</th>
+        </tr>
+        ${rows}
+      </table>
+    </div>`;
+  };
+
+  const utmSection = buildUtmRows(d.utmConversions24h, '📊 Letzte 24h') + buildUtmRows(d.utmConversions7d, '📊 Letzte 7 Tage');
+
   const newUsersRows = d.newUsersList.length > 0
     ? d.newUsersList.map((u: any) =>
         `<tr><td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;">${u.full_name || '—'}</td><td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;">${u.email}</td><td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;">${new Date(u.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</td></tr>`
@@ -348,6 +411,12 @@ function generateDailyStatsHTML(d: any) {
   <table style="width:100%;border-collapse:collapse;font-size:13px;">
     ${topReferrerRows}
   </table>
+</div>
+
+<!-- UTM Conversions -->
+<div style="margin-bottom:18px;">
+  <div style="font-size:15px;font-weight:700;color:#166534;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #dcfce7;">📊 Conversions pro UTM-Quelle</div>
+  ${utmSection}
 </div>
 
 <!-- New Users -->
