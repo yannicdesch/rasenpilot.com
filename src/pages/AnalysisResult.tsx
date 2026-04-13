@@ -546,6 +546,26 @@ const AnalysisResult = () => {
                 </Card>
               )}
 
+              {/* Registration prompt for anonymous users */}
+              {isAnonymous && (
+                <Card className="border-green-200 bg-green-50/70 shadow-sm">
+                  <CardContent className="p-5 text-center">
+                    <h3 className="font-bold text-foreground text-base mb-1">
+                      Speichere dein Ergebnis und tracke deinen Fortschritt
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Erstelle ein kostenloses Konto — dein Score und Pflegeplan werden gespeichert und du wirst in 4 Wochen automatisch an die nächste Analyse erinnert.
+                    </p>
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-bold"
+                      onClick={() => navigate(`/auth?redirect=/analysis-result/${jobId}&ref=save-prompt`)}
+                    >
+                      Kostenlos registrieren
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* d) Pflegeplan Download */}
               <Button onClick={handleDownloadPlan} variant="outline" className="w-full border-green-200 text-green-700 hover:bg-green-50 h-11">
                 <Download className="h-4 w-4 mr-2" /> Pflegeplan herunterladen
