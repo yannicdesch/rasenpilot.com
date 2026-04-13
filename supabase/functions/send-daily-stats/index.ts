@@ -413,6 +413,12 @@ function generateDailyStatsHTML(d: any) {
   </table>
 </div>
 
+<!-- UTM Conversions -->
+<div style="margin-bottom:18px;">
+  <div style="font-size:15px;font-weight:700;color:#166534;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #dcfce7;">📊 Conversions pro UTM-Quelle</div>
+  ${utmSection}
+</div>
+
 <!-- New Users -->
 <div style="margin-bottom:12px;">
   <div style="font-size:15px;font-weight:700;color:#166534;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #dcfce7;">🆕 Neue Nutzer heute</div>
