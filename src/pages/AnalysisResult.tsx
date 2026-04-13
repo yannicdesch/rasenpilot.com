@@ -33,7 +33,7 @@ const AnalysisResult = () => {
   const { profile } = useLawn();
   const { user } = useAuth();
   const isAnonymous = !user;
-  const { isPremium, planTier } = useSubscription();
+  const { isPremium, planTier, checkSubscription } = useSubscription();
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,17 +45,27 @@ const AnalysisResult = () => {
   // After registration: claim orphaned analysis and show toast
   useEffect(() => {
     if (searchParams.get('registered') === '1' && user && jobId) {
-      toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
 
-      // Claim the anonymous analysis job for this new user
+      // Claim the anonymous analysis job and auto-activate trial
       supabase.rpc('claim_orphaned_analysis', {
         p_user_id: user.id,
         p_email: user.email || '',
         p_analysis_id: jobId,
-      }).then(({ error }) => {
-        if (error) console.error('Failed to claim analysis:', error);
+      }).then(({ data, error }) => {
+        const result = data as Record<string, unknown> | null;
+        if (error) {
+          console.error('Failed to claim analysis:', error);
+          toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+        } else if (result?.trial_created) {
+          toast.success('🎉 Ergebnis gespeichert & 7-Tage-Premium-Trial aktiviert! Alle Features sind jetzt freigeschaltet.', {
+            duration: 8000,
+          });
+          checkSubscription();
+        } else {
+          toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+        }
       });
     }
   }, [user]);
