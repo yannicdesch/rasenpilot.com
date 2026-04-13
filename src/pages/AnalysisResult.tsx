@@ -183,6 +183,39 @@ const AnalysisResult = () => {
     toast.success('Pflegeplan heruntergeladen!');
   };
 
+  const handleRefineAnalysis = async () => {
+    if (!lastFertilized || !lawnUsage || !jobId) return;
+    setIsRefining(true);
+    try {
+      // Get sun/puddle from existing metadata
+      const metadata = analysisData?.metadata ? 
+        (typeof analysisData.metadata === 'string' ? JSON.parse(analysisData.metadata) : analysisData.metadata) : {};
+      
+      const { data, error } = await supabase.functions.invoke('refine-analysis', {
+        body: { 
+          jobId, 
+          lastFertilized, 
+          lawnUsage,
+          sunExposure: metadata?.sunExposure || null,
+          puddlesAfterRain: metadata?.puddlesAfterRain || null
+        }
+      });
+      if (error) throw error;
+      if (data?.success && data?.result) {
+        setAnalysisData(prev => prev ? { ...prev, result: data.result } : prev);
+        toast.success('Empfehlungen wurden aktualisiert! 🎯');
+        setRefineExpanded(false);
+      } else {
+        throw new Error('Refinement failed');
+      }
+    } catch (err) {
+      console.error('Refine error:', err);
+      toast.error('Aktualisierung fehlgeschlagen. Bitte versuche es erneut.');
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
   // Get products from analysis result (ASIN-based)
   const getProducts = () => {
     const products: { asin: string; name: string; reason: string }[] = [];
