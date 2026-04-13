@@ -54,8 +54,25 @@ const AnalysisResult = () => {
         p_user_id: user.id,
         p_email: user.email || '',
         p_analysis_id: jobId,
-      }).then(({ error }) => {
-        if (error) console.error('Failed to claim analysis:', error);
+      }).then(async ({ data, error }) => {
+        if (error) {
+          console.error('Failed to claim analysis:', error);
+          return;
+        }
+        // Send trial offer email if analyses were claimed
+        const claimed = (data as any)?.claimed_analyses || 0;
+        if (claimed > 0 && user.email) {
+          try {
+            const score = analysisData?.result?.score || analysisData?.result?.overall_health || 58;
+            const name = user.user_metadata?.first_name || user.email?.split('@')[0] || 'dort';
+            await supabase.functions.invoke('send-trial-offer', {
+              body: { email: user.email, name, score }
+            });
+            console.log('Trial offer email sent to', user.email);
+          } catch (emailErr) {
+            console.error('Failed to send trial offer email:', emailErr);
+          }
+        }
       });
     }
   }, [user]);
