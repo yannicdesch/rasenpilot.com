@@ -51,7 +51,7 @@ export const getAmazonUrl = (asin: string): string => {
 };
 
 export const getAmazonImageUrl = (asin: string): string => {
-  return `https://ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${asin}&Format=_SL250_&ID=AsinImage&MarketPlace=DE&ServiceVersion=20070822&WS=1&tag=rasenpilot21-21`;
+  return `https://images-na.ssl-images-amazon.com/images/P/${asin}.jpg`;
 };
 
 export const getSeason = (): string => {
