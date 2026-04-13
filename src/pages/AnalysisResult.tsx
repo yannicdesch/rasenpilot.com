@@ -437,12 +437,18 @@ const AnalysisResult = () => {
                 return (
                   <Card key={i} className="border-border shadow-sm overflow-hidden">
                     <CardContent className="p-4 flex items-start gap-4">
-                      <div className="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                         <img
                           src={getAmazonImageUrl(p.asin)}
                           alt={p.name}
                           className="w-full h-full object-contain"
-                          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                          onError={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            img.onerror = null;
+                            img.src = '/logo.png';
+                            img.classList.remove('object-contain');
+                            img.classList.add('object-cover', 'p-2');
+                          }}
                         />
                       </div>
                       <div className="flex-1 min-w-0">
