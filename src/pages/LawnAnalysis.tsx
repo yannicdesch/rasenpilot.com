@@ -748,9 +748,9 @@ const LawnAnalysis = () => {
                 )}
               </>
             ) : isUploading ? (
-              <div className="space-y-4 md:space-y-6 w-full">
+              <div className="space-y-4 md:space-y-5 w-full">
                 {preview && (
-                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-lg overflow-hidden">
+                  <div className="w-14 h-14 md:w-16 md:h-16 mx-auto rounded-lg overflow-hidden">
                     <img src={preview} alt="Uploaded lawn" className="w-full h-full object-cover" />
                   </div>
                 )}
@@ -760,17 +760,72 @@ const LawnAnalysis = () => {
                 </div>
                 
                 <div>
-                  <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-2">
+                  <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-1">
                     Analysiere … ca. 30 s
                   </h3>
-                  
                   <Progress value={uploadProgress} className="mb-3" />
+                </div>
+
+                {/* Quick questions during wait */}
+                <div className="space-y-3 text-left">
+                  <p className="text-xs text-center text-muted-foreground">Hilf der KI — für genauere Ergebnisse:</p>
                   
-                  <div className="bg-green-100 rounded-lg p-2 md:p-3 min-h-10 flex items-center justify-center">
-                    <p className="text-xs md:text-sm text-green-800 font-medium text-center">
-                      {lawnTips[analysisStep]}
-                    </p>
+                  {/* Q1: Sun exposure */}
+                  <div>
+                    <p className="text-xs font-semibold text-foreground mb-1.5">Wie viel Sonne bekommt dein Rasen?</p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[
+                        { value: 'full_sun', label: '☀️ Vollsonne', sub: '6+ Std' },
+                        { value: 'partial_shade', label: '⛅ Halbschatten', sub: '3-6 Std' },
+                        { value: 'full_shade', label: '🌥️ Viel Schatten', sub: '' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setSunExposure(opt.value); }}
+                          className={`p-2 rounded-lg border text-center transition-all text-xs ${
+                            sunExposure === opt.value
+                              ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                              : 'border-border bg-white hover:border-green-300'
+                          }`}
+                        >
+                          <div className="font-medium">{opt.label}</div>
+                          {opt.sub && <div className="text-[10px] text-muted-foreground">{opt.sub}</div>}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+
+                  {/* Q2: Puddles */}
+                  <div>
+                    <p className="text-xs font-semibold text-foreground mb-1.5">Pfützen nach Regen?</p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { value: 'yes', label: '✅ Ja' },
+                        { value: 'no', label: '❌ Nein' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setPuddlesAfterRain(opt.value); }}
+                          className={`p-2 rounded-lg border text-center transition-all text-sm font-medium ${
+                            puddlesAfterRain === opt.value
+                              ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                              : 'border-border bg-white hover:border-green-300'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lawn tip */}
+                <div className="bg-green-100 rounded-lg p-2 md:p-3 min-h-10 flex items-center justify-center">
+                  <p className="text-xs md:text-sm text-green-800 font-medium text-center">
+                    {lawnTips[analysisStep]}
+                  </p>
                 </div>
               </div>
             ) : (
