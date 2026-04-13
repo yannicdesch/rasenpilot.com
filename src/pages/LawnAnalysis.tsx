@@ -352,6 +352,10 @@ const LawnAnalysis = () => {
       }
       
       console.log('✅ Analysis complete, navigating to results...');
+      // Store loading-screen answers for result page refinement
+      if (sunExposure || puddlesAfterRain) {
+        localStorage.setItem(`analysis-context-${jobId}`, JSON.stringify({ sunExposure, puddlesAfterRain }));
+      }
       navigate(`/analysis-result/${jobId}`);
 
     } catch (error) {
