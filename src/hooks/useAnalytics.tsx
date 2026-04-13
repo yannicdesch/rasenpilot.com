@@ -138,13 +138,30 @@ const useAnalytics = () => {
 
   const trackPageView = async (path: string) => {
     try {
+      const params = new URLSearchParams(window.location.search);
+      const ownHost = window.location.hostname;
+      let referrer: string | null = document.referrer || null;
+      
+      // Filter self-referrals
+      if (referrer) {
+        try {
+          const refUrl = new URL(referrer);
+          if (refUrl.hostname === ownHost || refUrl.hostname.includes('lovable.app')) {
+            referrer = null;
+          }
+        } catch {}
+      }
+
       await supabase
         .from('page_views')
         .insert([{
           path,
           timestamp: new Date().toISOString(),
-          referrer: document.referrer,
-          user_agent: navigator.userAgent
+          referrer,
+          user_agent: navigator.userAgent,
+          utm_source: params.get('utm_source') || null,
+          utm_medium: params.get('utm_medium') || null,
+          utm_campaign: params.get('utm_campaign') || null,
         }]);
     } catch (err) {
       console.error('Error tracking page view:', err);

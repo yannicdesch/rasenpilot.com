@@ -1,16 +1,49 @@
 
 import { supabase } from '@/lib/supabase';
 
-// Track page views
+// Extract UTM parameters from current URL
+const getUtmParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    utm_source: params.get('utm_source') || null,
+    utm_medium: params.get('utm_medium') || null,
+    utm_campaign: params.get('utm_campaign') || null,
+  };
+};
+
+// Get clean referrer (filter out own domain)
+const getCleanReferrer = (): string | null => {
+  const ref = document.referrer;
+  if (!ref) return null;
+  try {
+    const refUrl = new URL(ref);
+    const own = window.location.hostname;
+    // Filter out self-referrals and lovable preview domains
+    if (refUrl.hostname === own || refUrl.hostname.includes('lovable.app')) {
+      return null;
+    }
+    return ref;
+  } catch {
+    return ref || null;
+  }
+};
+
+// Track page views with referrer and UTM params
 export const trackPageView = async (path: string, referrer?: string, userAgent?: string) => {
   try {
+    const utm = getUtmParams();
+    const cleanReferrer = referrer ?? getCleanReferrer();
+
     const { error } = await supabase
       .from('page_views')
       .insert([{
         path,
-        referrer,
-        user_agent: userAgent,
-        timestamp: new Date().toISOString()
+        referrer: cleanReferrer,
+        user_agent: userAgent || navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        utm_source: utm.utm_source,
+        utm_medium: utm.utm_medium,
+        utm_campaign: utm.utm_campaign,
       }]);
 
     if (error) {
@@ -99,7 +132,6 @@ export const getAnalyticsData = async () => {
 // Test analytics functionality
 export const testAnalyticsConnection = async (): Promise<boolean> => {
   try {
-    // Test if we can access the analytics tables
     const { error: pageViewsError } = await supabase
       .from('page_views')
       .select('*', { count: 'exact' })
