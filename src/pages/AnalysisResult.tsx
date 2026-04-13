@@ -47,6 +47,17 @@ const AnalysisResult = () => {
   const [lastFertilized, setLastFertilized] = useState<string | null>(null);
   const [lawnUsage, setLawnUsage] = useState<string | null>(null);
   const [isRefining, setIsRefining] = useState(false);
+  
+  // Load loading-screen context answers
+  const [loadingScreenContext, setLoadingScreenContext] = useState<{sunExposure?: string; puddlesAfterRain?: string} | null>(null);
+  useEffect(() => {
+    if (jobId) {
+      try {
+        const stored = localStorage.getItem(`analysis-context-${jobId}`);
+        if (stored) setLoadingScreenContext(JSON.parse(stored));
+      } catch {}
+    }
+  }, [jobId]);
 
   // After registration: claim orphaned analysis and show toast
   useEffect(() => {
