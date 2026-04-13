@@ -445,7 +445,7 @@ const AnalysisResult = () => {
                           onError={(e) => {
                             const img = e.target as HTMLImageElement;
                             img.onerror = null;
-                            img.src = '/rasenpilot-logo.png';
+                            img.src = '/logo.png';
                             img.classList.remove('object-contain');
                             img.classList.add('object-cover', 'p-2');
                           }}
