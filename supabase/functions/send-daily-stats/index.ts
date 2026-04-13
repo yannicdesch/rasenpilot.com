@@ -101,21 +101,21 @@ serve(async (req) => {
     // --- PAGE VIEWS for funnel & referrers (24h) ---
     const { data: recentPageViews } = await supabase
       .from('page_views')
-      .select('path, referrer')
+      .select('path, referrer, utm_source, utm_medium, utm_campaign')
       .gte('timestamp', yesterdayISO)
       .limit(2000);
 
     // --- PAGE VIEWS for funnel (7d) ---
     const { data: pageViews7dData } = await supabase
       .from('page_views')
-      .select('path')
+      .select('path, utm_source, utm_medium, utm_campaign')
       .gte('timestamp', days7agoISO)
       .limit(5000);
 
     // --- PAGE VIEWS for funnel (30d) ---
     const { data: pageViews30dData } = await supabase
       .from('page_views')
-      .select('path')
+      .select('path, utm_source, utm_medium, utm_campaign')
       .gte('timestamp', days30agoISO)
       .limit(10000);
 
@@ -153,6 +153,34 @@ serve(async (req) => {
     });
     const topPages = Object.entries(pageCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
     const topReferrers = Object.entries(referrerCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+    // --- UTM CHANNEL CONVERSIONS (7d) ---
+    const buildUtmConversions = (pvData: any[] | null) => {
+      if (!pvData || pvData.length === 0) return [];
+      const channels: Record<string, { views: number; analyses: number; campaigns: Set<string> }> = {};
+      pvData.forEach(pv => {
+        const source = pv.utm_source;
+        if (!source) return;
+        const key = `${source}/${pv.utm_medium || 'none'}`;
+        if (!channels[key]) channels[key] = { views: 0, analyses: 0, campaigns: new Set() };
+        channels[key].views++;
+        if (pv.path === '/lawn-analysis') channels[key].analyses++;
+        if (pv.utm_campaign) channels[key].campaigns.add(pv.utm_campaign);
+      });
+      return Object.entries(channels)
+        .map(([key, data]) => ({
+          channel: key,
+          views: data.views,
+          analyses: data.analyses,
+          convRate: data.views > 0 ? (data.analyses / data.views * 100).toFixed(1) : '0',
+          campaigns: Array.from(data.campaigns).slice(0, 3).join(', '),
+        }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 10);
+    };
+
+    const utmConversions7d = buildUtmConversions(pageViews7dData);
+    const utmConversions24h = buildUtmConversions(recentPageViews);
 
     // --- FUNNEL DATA ---
     const buildFunnel = (pvData: any[] | null, pvCount: number, analysesCount: number, newUsers: number, newSubscriptions: number) => {
