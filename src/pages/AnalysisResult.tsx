@@ -198,17 +198,13 @@ const AnalysisResult = () => {
     if (!lastFertilized || !lawnUsage || !jobId) return;
     setIsRefining(true);
     try {
-      // Get sun/puddle from existing metadata
-      const metadata = analysisData?.metadata ? 
-        (typeof analysisData.metadata === 'string' ? JSON.parse(analysisData.metadata) : analysisData.metadata) : {};
-      
       const { data, error } = await supabase.functions.invoke('refine-analysis', {
         body: { 
           jobId, 
           lastFertilized, 
           lawnUsage,
-          sunExposure: metadata?.sunExposure || null,
-          puddlesAfterRain: metadata?.puddlesAfterRain || null
+          sunExposure: loadingScreenContext?.sunExposure || null,
+          puddlesAfterRain: loadingScreenContext?.puddlesAfterRain || null
         }
       });
       if (error) throw error;
