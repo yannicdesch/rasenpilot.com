@@ -199,6 +199,7 @@ serve(async (req) => {
       pageViewsToday: pageViewsToday || 0, eventsToday: eventsToday || 0,
       newUsersList: newUsersList || [], topPages, topReferrers,
       funnel24h, funnel7d, funnel30d,
+      utmConversions24h, utmConversions7d,
     });
 
     const subject = `📈 Rasenpilot Daily Stats — ${todayStr}`;
