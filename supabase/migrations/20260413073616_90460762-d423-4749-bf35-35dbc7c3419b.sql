@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE FUNCTION public.claim_orphaned_analysis(p_user_id uuid, p_email text, p_analysis_id uuid DEFAULT NULL::uuid)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -9,8 +8,6 @@ DECLARE
   claimed_analyses INTEGER := 0;
   analysis_record RECORD;
   latest_analysis_id UUID;
-  existing_sub RECORD;
-  trial_created BOOLEAN := false;
 BEGIN
   -- Claim specific analysis or recent ones
   IF p_analysis_id IS NOT NULL THEN
@@ -65,41 +62,8 @@ BEGIN
     WHERE id = p_user_id;
   END LOOP;
 
-  -- Auto-activate 7-day trial if analyses were claimed and no active subscription exists
-  IF claimed_analyses > 0 THEN
-    SELECT id, subscribed, is_trial INTO existing_sub
-    FROM public.subscribers
-    WHERE user_id = p_user_id OR email = p_email
-    LIMIT 1;
-
-    IF existing_sub IS NULL THEN
-      -- No subscriber record: create new trial
-      INSERT INTO public.subscribers (
-        email, user_id, subscribed, subscription_tier, 
-        is_trial, trial_start, trial_end
-      ) VALUES (
-        p_email, p_user_id, true, 'monthly',
-        true, now(), now() + INTERVAL '7 days'
-      );
-      trial_created := true;
-    ELSIF existing_sub.subscribed = false AND existing_sub.is_trial IS NOT TRUE THEN
-      -- Inactive subscriber without trial: activate trial
-      UPDATE public.subscribers
-      SET subscribed = true,
-          subscription_tier = 'monthly',
-          is_trial = true,
-          trial_start = now(),
-          trial_end = now() + INTERVAL '7 days',
-          user_id = p_user_id,
-          updated_at = now()
-      WHERE id = existing_sub.id;
-      trial_created := true;
-    END IF;
-  END IF;
-
   RETURN jsonb_build_object(
     'claimed_analyses', claimed_analyses,
-    'trial_created', trial_created,
     'success', true
   );
 END;

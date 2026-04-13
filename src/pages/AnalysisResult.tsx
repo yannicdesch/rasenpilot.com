@@ -33,7 +33,7 @@ const AnalysisResult = () => {
   const { profile } = useLawn();
   const { user } = useAuth();
   const isAnonymous = !user;
-  const { isPremium, planTier, checkSubscription } = useSubscription();
+  const { isPremium, planTier } = useSubscription();
   const [analysisData, setAnalysisData] = useState<AnalysisJobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,26 +45,33 @@ const AnalysisResult = () => {
   // After registration: claim orphaned analysis and show toast
   useEffect(() => {
     if (searchParams.get('registered') === '1' && user && jobId) {
+      toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
 
-      // Claim the anonymous analysis job and auto-activate trial
+      // Claim the anonymous analysis job for this new user
       supabase.rpc('claim_orphaned_analysis', {
         p_user_id: user.id,
         p_email: user.email || '',
         p_analysis_id: jobId,
-      }).then(({ data, error }) => {
-        const result = data as Record<string, unknown> | null;
+      }).then(async ({ data, error }) => {
         if (error) {
           console.error('Failed to claim analysis:', error);
-          toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
-        } else if (result?.trial_created) {
-          toast.success('🎉 Ergebnis gespeichert & 7-Tage-Premium-Trial aktiviert! Alle Features sind jetzt freigeschaltet.', {
-            duration: 8000,
-          });
-          checkSubscription();
-        } else {
-          toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+          return;
+        }
+        // Send trial offer email if analyses were claimed
+        const claimed = (data as any)?.claimed_analyses || 0;
+        if (claimed > 0 && user.email) {
+          try {
+            const score = analysisData?.result?.score || analysisData?.result?.overall_health || 58;
+            const name = user.user_metadata?.first_name || user.email?.split('@')[0] || 'dort';
+            await supabase.functions.invoke('send-trial-offer', {
+              body: { email: user.email, name, score }
+            });
+            console.log('Trial offer email sent to', user.email);
+          } catch (emailErr) {
+            console.error('Failed to send trial offer email:', emailErr);
+          }
         }
       });
     }
