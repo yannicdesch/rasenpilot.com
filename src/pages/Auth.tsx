@@ -94,18 +94,24 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Build the post-confirmation redirect URL with ?registered=1 so the
-      // analysis-result page knows to claim the orphaned analysis and unlock content.
-      const plan = searchParams.get('plan');
-      let postConfirmPath = redirectPath || '/';
-      if (redirectPath && isFromAnalysis) {
-        const sep = postConfirmPath.includes('?') ? '&' : '?';
-        postConfirmPath = `${postConfirmPath}${sep}registered=1`;
-      }
-      if (plan) {
-        const sep = postConfirmPath.includes('?') ? '&' : '?';
-        postConfirmPath = `${postConfirmPath}${sep}plan=${plan}`;
-      }
+      // Build the post-confirmation redirect using the central helper so the
+      // same params (?registered=1, ?plan=) are applied everywhere.
+      const plan = searchParams.get('plan') || undefined;
+      const baseRedirect = redirectPath || '/';
+      const postConfirmPath = buildPostAuthPath({
+        redirectPath: baseRedirect,
+        fromAnalysis: isFromAnalysis,
+        plan,
+      });
+
+      // Persist the intent BEFORE signUp so it survives the email
+      // confirmation round-trip (new tab/session loses URL params).
+      saveAuthIntent({
+        redirectPath: baseRedirect,
+        jobId: extractJobIdFromPath(baseRedirect),
+        plan,
+        fromAnalysis: isFromAnalysis,
+      });
 
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
@@ -140,6 +146,7 @@ const Auth = () => {
       if (data.session) {
         setAuthStatus('confirmed');
         toast.success('Registrierung erfolgreich!');
+        clearAuthIntent();
         setTimeout(() => navigate(postConfirmPath), 1200);
       } else {
         setAuthStatus('pending');
