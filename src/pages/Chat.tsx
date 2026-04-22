@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import MainNavigation from '@/components/MainNavigation';
 import SEO from '@/components/SEO';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useChatContext, buildSystemPrompt } from '@/hooks/useChatContext';
+import { useChatContext } from '@/hooks/useChatContext';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
