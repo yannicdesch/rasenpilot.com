@@ -419,6 +419,13 @@ const AnalysisResult = () => {
       />
       <MainNavigation />
 
+      <PostConfirmationModal
+        open={showPostConfirmModal}
+        onClose={() => setShowPostConfirmModal(false)}
+        problems={result?.problems || []}
+        score={healthScore}
+      />
+
       <div className="container mx-auto px-4 py-6 max-w-lg">
 
         {/* ═══════════════════════════════════════════════
