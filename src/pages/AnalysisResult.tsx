@@ -45,6 +45,7 @@ const AnalysisResult = () => {
   const [previousScore, setPreviousScore] = useState<number | null>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showPostConfirmModal, setShowPostConfirmModal] = useState(false);
 
   // Refinement state
   const [refineExpanded, setRefineExpanded] = useState(false);
