@@ -16,10 +16,12 @@ export const initializeGA = async (measurementId?: string): Promise<void> => {
   // Fetch GA ID from site settings if not provided
   if (!gaId) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('site_settings')
         .select('google_analytics_id')
-        .single();
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
       gaId = data?.google_analytics_id || 'G-7F24N28JNH';
     } catch (error) {
       console.warn('Could not fetch GA ID from settings, using default');
