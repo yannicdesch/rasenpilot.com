@@ -11,6 +11,12 @@ import { Eye, EyeOff, User, Mail, Lock, CheckCircle2, MailCheck, Loader2 } from 
 import MainNavigation from '@/components/MainNavigation';
 import PasswordResetLink from '@/components/PasswordResetLink';
 import { trackMetaCompleteRegistration, trackMetaLead } from '@/lib/analytics/metaPixel';
+import {
+  saveAuthIntent,
+  clearAuthIntent,
+  buildPostAuthPath,
+  extractJobIdFromPath,
+} from '@/lib/authRedirectIntent';
 
 const Auth = () => {
   const navigate = useNavigate();
