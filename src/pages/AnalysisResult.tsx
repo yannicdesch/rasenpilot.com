@@ -16,8 +16,10 @@ import { amazonProducts, getAmazonUrl, getAmazonImageUrl } from '@/lib/amazonPro
 import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
+import ShareChallengeBar from '@/components/conversion/ShareChallengeBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
+import { linkifyProducts } from '@/lib/linkifyProducts';
 
 interface AnalysisJobResult {
   id: string;
@@ -80,7 +82,7 @@ const AnalysisResult = () => {
 
     if (!urlFlag && !intentMatch) return;
 
-    toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+    toast.success('Dein Ergebnis wurde gespeichert ✅ — hier sind alle deine Empfehlungen.');
     if (urlFlag) {
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
@@ -462,7 +464,7 @@ const AnalysisResult = () => {
             REGISTRATION BANNER (anonymous users only)
         ═══════════════════════════════════════════════ */}
         {isAnonymous && (
-          <RegistrationBanner score={healthScore} jobId={jobId} />
+          <RegistrationBanner score={healthScore} jobId={jobId} startTime={analysisData?.created_at} />
         )}
 
         {/* ═══════════════════════════════════════════════
@@ -473,17 +475,26 @@ const AnalysisResult = () => {
           <div className="space-y-3">
             {[result?.step_1, result?.step_2, result?.step_3].filter(Boolean).map((step, i) => {
               const isBlurred = isAnonymous && i >= 1; // blur steps 2 and 3
+              const stepNumber = (i + 1) as 1 | 2 | 3;
               return (
                 <div key={i} className="relative">
                   <Card className={`border-green-100 shadow-sm ${isBlurred ? 'select-none' : ''}`}>
                     <CardContent className={`p-4 flex items-start gap-4 ${isBlurred ? 'blur-sm' : ''}`}>
                       <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xl font-bold text-green-600">{i + 1}</span>
+                        <span className="text-xl font-bold text-green-600">{stepNumber}</span>
                       </div>
-                      <p className="text-sm text-foreground leading-relaxed pt-2">{step}</p>
+                      <p className="text-sm text-foreground leading-relaxed pt-2">
+                        {linkifyProducts(step)}
+                      </p>
                     </CardContent>
                   </Card>
-                  {isBlurred && <BlurredRecommendationOverlay jobId={jobId} />}
+                  {isBlurred && (
+                    <BlurredRecommendationOverlay
+                      jobId={jobId}
+                      stepNumber={stepNumber as 2 | 3}
+                      score={healthScore}
+                    />
+                  )}
                 </div>
               );
             })}
@@ -786,6 +797,9 @@ const AnalysisResult = () => {
         </div>
 
       </div>
+
+      {/* Share-challenge bar — appears 30s after load */}
+      <ShareChallengeBar score={healthScore} />
     </div>
   );
 };
