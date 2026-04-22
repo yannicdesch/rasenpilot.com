@@ -797,6 +797,9 @@ const AnalysisResult = () => {
         </div>
 
       </div>
+
+      {/* Share-challenge bar — appears 30s after load */}
+      <ShareChallengeBar score={healthScore} />
     </div>
   );
 };
