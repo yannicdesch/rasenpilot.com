@@ -17,6 +17,7 @@ import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
 import { useAuth } from '@/contexts/AuthContext';
+import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
 
 interface AnalysisJobResult {
   id: string;
