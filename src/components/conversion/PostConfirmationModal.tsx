@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface PostConfirmationModalProps {
@@ -49,6 +49,18 @@ const PostConfirmationModal: React.FC<PostConfirmationModalProps> = ({ open, onC
             </ul>
           </div>
         )}
+
+        {/* Leaderboard confirmation */}
+        <div className="mx-6 mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+          <Trophy className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-green-900 leading-snug">
+            <strong>Du bist jetzt in der Bestenliste!</strong>
+            <br />
+            <span className="text-green-800">
+              Dein Score{typeof score === 'number' ? ` (${score}/100)` : ''} wurde anonymisiert in die Nachbarschafts-Bestenliste eingetragen.
+            </span>
+          </div>
+        </div>
 
         <div className="px-6 pb-6 pt-2 space-y-3">
           <Button

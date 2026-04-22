@@ -110,8 +110,12 @@ const AnalysisResult = () => {
         console.error('Failed to claim analysis:', error);
         return;
       }
-      // Send trial offer email if analyses were claimed
       const claimed = (data as any)?.claimed_analyses || 0;
+      const highscoreCreated = (data as any)?.highscore_created;
+      if (highscoreCreated) {
+        toast.success('🏆 Du wurdest in die Bestenliste aufgenommen!');
+      }
+      // Send trial offer email if analyses were claimed
       if (claimed > 0 && user.email) {
         try {
           const score = analysisData?.result?.score || analysisData?.result?.overall_health || 58;
