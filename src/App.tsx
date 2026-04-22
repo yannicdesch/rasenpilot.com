@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import StuckLoadingFallback from "@/components/StuckLoadingFallback";
 
 // Lazy-load non-critical global components
 const JourneyTracker = lazy(() => import("@/components/JourneyTracker"));
