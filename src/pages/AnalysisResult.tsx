@@ -82,7 +82,7 @@ const AnalysisResult = () => {
 
     if (!urlFlag && !intentMatch) return;
 
-    toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+    toast.success('Dein Ergebnis wurde gespeichert ✅ — hier sind alle deine Empfehlungen.');
     if (urlFlag) {
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
