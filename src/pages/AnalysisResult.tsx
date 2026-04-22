@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp, Sparkles } from 'lucide-react';
+import { CheckCircle, ArrowRight, Download, Share2, ChevronDown, ChevronUp, ExternalLink, Camera, RefreshCw, TrendingUp, Sparkles, Lock, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
