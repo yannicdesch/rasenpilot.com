@@ -17,6 +17,7 @@ import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
 import { useAuth } from '@/contexts/AuthContext';
+import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
 
 interface AnalysisJobResult {
   id: string;
@@ -59,40 +60,58 @@ const AnalysisResult = () => {
     }
   }, [jobId]);
 
-  // After registration: claim orphaned analysis and show toast
+  // After registration: claim orphaned analysis and show toast.
+  // Trigger sources (any one is enough — the claim is idempotent):
+  //   1. URL flag ?registered=1 (set when redirected from Auth in same tab)
+  //   2. Persisted auth intent in localStorage matching this jobId
+  //      (covers the email-confirmation round-trip that drops URL params)
   useEffect(() => {
-    if (searchParams.get('registered') === '1' && user && jobId) {
-      toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+    if (!user || !jobId) return;
+
+    const urlFlag = searchParams.get('registered') === '1';
+    let intentMatch = false;
+    try {
+      const intent = getAuthIntent();
+      if (intent && (intent.jobId === jobId || intent.redirectPath?.includes(jobId))) {
+        intentMatch = true;
+        clearAuthIntent();
+      }
+    } catch {}
+
+    if (!urlFlag && !intentMatch) return;
+
+    toast.success('Ergebnis gespeichert! Alle Empfehlungen sind jetzt freigeschaltet. 🎉');
+    if (urlFlag) {
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
-
-      // Claim the anonymous analysis job for this new user
-      supabase.rpc('claim_orphaned_analysis', {
-        p_user_id: user.id,
-        p_email: user.email || '',
-        p_analysis_id: jobId,
-      }).then(async ({ data, error }) => {
-        if (error) {
-          console.error('Failed to claim analysis:', error);
-          return;
-        }
-        // Send trial offer email if analyses were claimed
-        const claimed = (data as any)?.claimed_analyses || 0;
-        if (claimed > 0 && user.email) {
-          try {
-            const score = analysisData?.result?.score || analysisData?.result?.overall_health || 58;
-            const name = user.user_metadata?.first_name || user.email?.split('@')[0] || 'dort';
-            await supabase.functions.invoke('send-trial-offer', {
-              body: { email: user.email, name, score }
-            });
-            console.log('Trial offer email sent to', user.email);
-          } catch (emailErr) {
-            console.error('Failed to send trial offer email:', emailErr);
-          }
-        }
-      });
     }
-  }, [user]);
+
+    // Claim the anonymous analysis job for this new user
+    supabase.rpc('claim_orphaned_analysis', {
+      p_user_id: user.id,
+      p_email: user.email || '',
+      p_analysis_id: jobId,
+    }).then(async ({ data, error }) => {
+      if (error) {
+        console.error('Failed to claim analysis:', error);
+        return;
+      }
+      // Send trial offer email if analyses were claimed
+      const claimed = (data as any)?.claimed_analyses || 0;
+      if (claimed > 0 && user.email) {
+        try {
+          const score = analysisData?.result?.score || analysisData?.result?.overall_health || 58;
+          const name = user.user_metadata?.first_name || user.email?.split('@')[0] || 'dort';
+          await supabase.functions.invoke('send-trial-offer', {
+            body: { email: user.email, name, score }
+          });
+          console.log('Trial offer email sent to', user.email);
+        } catch (emailErr) {
+          console.error('Failed to send trial offer email:', emailErr);
+        }
+      }
+    });
+  }, [user, jobId]);
 
   const healthScore = analysisData?.result?.score || analysisData?.result?.overall_health || 65;
   const { retentionData } = useRetentionTracking(healthScore, jobId);
