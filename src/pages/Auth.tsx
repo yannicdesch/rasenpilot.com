@@ -27,6 +27,55 @@ const Auth = () => {
     fullName: ''
   });
 
+  // Post-registration status screen
+  // 'idle'      = normal auth form
+  // 'pending'   = signup ok, waiting for email confirmation
+  // 'confirmed' = session detected, redirecting
+  const [authStatus, setAuthStatus] = useState<'idle' | 'pending' | 'confirmed'>('idle');
+  const [pendingEmail, setPendingEmail] = useState<string>('');
+  const [pendingRedirect, setPendingRedirect] = useState<string>('/');
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Watch for session while in 'pending' — auto-advance to 'confirmed'
+  useEffect(() => {
+    if (authStatus !== 'pending') return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setAuthStatus('confirmed');
+        setTimeout(() => navigate(pendingRedirect), 1500);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [authStatus, pendingRedirect, navigate]);
+
+  // Resend cooldown ticker
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
+
+  const handleResendEmail = async () => {
+    if (!pendingEmail || resendCooldown > 0) return;
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: pendingEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}${pendingRedirect}`,
+        },
+      });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success('Bestätigungs-E-Mail erneut gesendet.');
+      setResendCooldown(30);
+    } catch {
+      toast.error('Erneutes Senden fehlgeschlagen. Bitte später erneut versuchen.');
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
