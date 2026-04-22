@@ -57,7 +57,7 @@ const PostConfirmationModal: React.FC<PostConfirmationModalProps> = ({ open, onC
             <strong>Du bist jetzt in der Bestenliste!</strong>
             <br />
             <span className="text-green-800">
-              Dein Score{typeof score === 'number' ? ` (${score}/100)` : ''} wurde anonymisiert in die Nachbarschafts-Bestenliste eingetragen.
+              Dein Score{typeof score === 'number' ? ` (${score}/100)` : ''} wurde mit deinem Vornamen und deiner PLZ in die Nachbarschafts-Bestenliste eingetragen.
             </span>
           </div>
         </div>
