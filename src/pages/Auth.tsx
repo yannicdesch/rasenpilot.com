@@ -39,13 +39,24 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // Build the post-confirmation redirect URL with ?registered=1 so the
+      // analysis-result page knows to claim the orphaned analysis and unlock content.
+      const plan = searchParams.get('plan');
+      let postConfirmPath = redirectPath || '/';
+      if (redirectPath && isFromAnalysis) {
+        const sep = postConfirmPath.includes('?') ? '&' : '?';
+        postConfirmPath = `${postConfirmPath}${sep}registered=1`;
+      }
+      if (plan) {
+        const sep = postConfirmPath.includes('?') ? '&' : '?';
+        postConfirmPath = `${postConfirmPath}${sep}plan=${plan}`;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: redirectPath 
-            ? `${window.location.origin}${redirectPath}` 
-            : `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}${postConfirmPath}`,
           data: {
             full_name: formData.fullName
           }
@@ -64,19 +75,17 @@ const Auth = () => {
       // Track Meta Pixel events for registration funnel
       trackMetaCompleteRegistration('Signup', 'success');
       trackMetaLead('registration');
-      
-      toast.success('Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail.');
-      
-      // Redirect to intended destination
-      const redirect = redirectPath;
-      const plan = searchParams.get('plan');
-      if (redirect) {
-        const separator = redirect.includes('?') ? '&' : '?';
-        const registered = isFromAnalysis ? `${separator}registered=1` : '';
-        const planParam = plan ? `${registered ? '&' : separator}plan=${plan}` : '';
-        navigate(`${redirect}${registered}${planParam}`);
+
+      // If a session was created immediately (email confirmation disabled),
+      // redirect now. Otherwise, instruct the user to confirm their email
+      // and stay on this page so they don't land back as anonymous.
+      if (data.session) {
+        toast.success('Registrierung erfolgreich!');
+        navigate(postConfirmPath);
       } else {
-        navigate('/');
+        toast.success('Bitte bestätige deine E-Mail — danach werden deine Empfehlungen automatisch freigeschaltet.', {
+          duration: 8000,
+        });
       }
     } catch (error) {
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
