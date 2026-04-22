@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, CheckCircle2, MailCheck, Loader2 } from 'lucide-react';
 import MainNavigation from '@/components/MainNavigation';
 import PasswordResetLink from '@/components/PasswordResetLink';
 import { trackMetaCompleteRegistration, trackMetaLead } from '@/lib/analytics/metaPixel';
@@ -26,6 +26,55 @@ const Auth = () => {
     password: '',
     fullName: ''
   });
+
+  // Post-registration status screen
+  // 'idle'      = normal auth form
+  // 'pending'   = signup ok, waiting for email confirmation
+  // 'confirmed' = session detected, redirecting
+  const [authStatus, setAuthStatus] = useState<'idle' | 'pending' | 'confirmed'>('idle');
+  const [pendingEmail, setPendingEmail] = useState<string>('');
+  const [pendingRedirect, setPendingRedirect] = useState<string>('/');
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Watch for session while in 'pending' — auto-advance to 'confirmed'
+  useEffect(() => {
+    if (authStatus !== 'pending') return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setAuthStatus('confirmed');
+        setTimeout(() => navigate(pendingRedirect), 1500);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [authStatus, pendingRedirect, navigate]);
+
+  // Resend cooldown ticker
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
+
+  const handleResendEmail = async () => {
+    if (!pendingEmail || resendCooldown > 0) return;
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: pendingEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}${pendingRedirect}`,
+        },
+      });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success('Bestätigungs-E-Mail erneut gesendet.');
+      setResendCooldown(30);
+    } catch {
+      toast.error('Erneutes Senden fehlgeschlagen. Bitte später erneut versuchen.');
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -76,16 +125,19 @@ const Auth = () => {
       trackMetaCompleteRegistration('Signup', 'success');
       trackMetaLead('registration');
 
+      // Always store the intended redirect for the status screen
+      setPendingEmail(formData.email);
+      setPendingRedirect(postConfirmPath);
+
       // If a session was created immediately (email confirmation disabled),
-      // redirect now. Otherwise, instruct the user to confirm their email
-      // and stay on this page so they don't land back as anonymous.
+      // jump straight to the 'confirmed' screen and redirect.
       if (data.session) {
+        setAuthStatus('confirmed');
         toast.success('Registrierung erfolgreich!');
-        navigate(postConfirmPath);
+        setTimeout(() => navigate(postConfirmPath), 1200);
       } else {
-        toast.success('Bitte bestätige deine E-Mail — danach werden deine Empfehlungen automatisch freigeschaltet.', {
-          duration: 8000,
-        });
+        setAuthStatus('pending');
+        setResendCooldown(30);
       }
     } catch (error) {
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
@@ -132,6 +184,92 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  // ─────────────────────────────────────────────────────────────
+  // Post-registration status screens
+  // ─────────────────────────────────────────────────────────────
+  if (authStatus === 'pending' || authStatus === 'confirmed') {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+        <MainNavigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto">
+            <Card className="shadow-lg">
+              {authStatus === 'pending' ? (
+                <CardContent className="p-8 text-center space-y-5">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-amber-100 flex items-center justify-center">
+                    <MailCheck className="h-8 w-8 text-amber-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground mb-2">
+                      Bitte bestätige deine E-Mail
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Wir haben einen Bestätigungs-Link an
+                    </p>
+                    <p className="text-sm font-semibold text-foreground my-1 break-all">
+                      {pendingEmail}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      gesendet. Klicke darauf, um dein Konto zu aktivieren.
+                    </p>
+                  </div>
+
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-left space-y-2">
+                    <div className="flex items-start gap-2">
+                      <Loader2 className="h-4 w-4 text-green-600 animate-spin mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-green-800">
+                        Diese Seite wartet automatisch auf deine Bestätigung — danach
+                        wirst du sofort zu deinem Ergebnis weitergeleitet.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>Keine E-Mail erhalten? Schaue auch im Spam-Ordner nach.</p>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleResendEmail}
+                    disabled={resendCooldown > 0}
+                  >
+                    {resendCooldown > 0
+                      ? `Erneut senden in ${resendCooldown}s`
+                      : 'Bestätigungs-E-Mail erneut senden'}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    className="w-full text-sm text-muted-foreground"
+                    onClick={() => setAuthStatus('idle')}
+                  >
+                    Zurück
+                  </Button>
+                </CardContent>
+              ) : (
+                <CardContent className="p-8 text-center space-y-5">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground mb-2">
+                      E-Mail bestätigt 🎉
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Dein Konto ist aktiv. Du wirst gleich zu deinem Ergebnis weitergeleitet…
+                    </p>
+                  </div>
+                  <Loader2 className="h-5 w-5 text-green-600 animate-spin mx-auto" />
+                </CardContent>
+              )}
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
