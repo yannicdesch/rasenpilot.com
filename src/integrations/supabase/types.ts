@@ -730,6 +730,36 @@ export type Database = {
           },
         ]
       }
+      site_health_state: {
+        Row: {
+          consecutive_stuck_count: number
+          id: number
+          last_alert_sent_at: string | null
+          last_checked_at: string | null
+          last_message: string | null
+          last_status: string
+          stuck_since: string | null
+        }
+        Insert: {
+          consecutive_stuck_count?: number
+          id?: number
+          last_alert_sent_at?: string | null
+          last_checked_at?: string | null
+          last_message?: string | null
+          last_status?: string
+          stuck_since?: string | null
+        }
+        Update: {
+          consecutive_stuck_count?: number
+          id?: number
+          last_alert_sent_at?: string | null
+          last_checked_at?: string | null
+          last_message?: string | null
+          last_status?: string
+          stuck_since?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           email_reports: Json | null

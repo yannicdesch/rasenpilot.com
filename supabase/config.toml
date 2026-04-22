@@ -57,3 +57,6 @@ verify_jwt = false
 [functions.site-health-check]
 verify_jwt = false
 
+[functions.site-health-monitor]
+verify_jwt = false
+
