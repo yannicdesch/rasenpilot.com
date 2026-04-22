@@ -426,7 +426,7 @@ const AnalysisResult = () => {
         score={healthScore}
       />
 
-      <div className="container mx-auto px-4 py-6 max-w-lg">
+      <div className="container mx-auto px-4 py-6 max-w-lg pb-32">
 
         {/* ═══════════════════════════════════════════════
             BLOCK 1 — HERO (above fold)
