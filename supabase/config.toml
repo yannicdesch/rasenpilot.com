@@ -54,3 +54,6 @@ verify_jwt = false
 [functions.weekly-weather-tips]
 verify_jwt = false
 
+[functions.site-health-check]
+verify_jwt = false
+
