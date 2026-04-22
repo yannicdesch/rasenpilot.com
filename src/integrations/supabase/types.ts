@@ -240,105 +240,6 @@ export type Database = {
           },
         ]
       }
-      communication_contacts: {
-        Row: {
-          country_code: string | null
-          created_at: string
-          email: string | null
-          email_opt_in: boolean | null
-          id: string
-          last_email_date: string | null
-          last_sms_date: string | null
-          last_whatsapp_date: string | null
-          phone_number: string | null
-          sms_opt_in: boolean | null
-          total_email_count: number | null
-          total_sms_count: number | null
-          total_whatsapp_count: number | null
-          updated_at: string
-          user_id: string
-          whatsapp_opt_in: boolean | null
-        }
-        Insert: {
-          country_code?: string | null
-          created_at?: string
-          email?: string | null
-          email_opt_in?: boolean | null
-          id?: string
-          last_email_date?: string | null
-          last_sms_date?: string | null
-          last_whatsapp_date?: string | null
-          phone_number?: string | null
-          sms_opt_in?: boolean | null
-          total_email_count?: number | null
-          total_sms_count?: number | null
-          total_whatsapp_count?: number | null
-          updated_at?: string
-          user_id: string
-          whatsapp_opt_in?: boolean | null
-        }
-        Update: {
-          country_code?: string | null
-          created_at?: string
-          email?: string | null
-          email_opt_in?: boolean | null
-          id?: string
-          last_email_date?: string | null
-          last_sms_date?: string | null
-          last_whatsapp_date?: string | null
-          phone_number?: string | null
-          sms_opt_in?: boolean | null
-          total_email_count?: number | null
-          total_sms_count?: number | null
-          total_whatsapp_count?: number | null
-          updated_at?: string
-          user_id?: string
-          whatsapp_opt_in?: boolean | null
-        }
-        Relationships: []
-      }
-      communication_events: {
-        Row: {
-          channel: string
-          content: string | null
-          created_at: string
-          email: string | null
-          event_type: string
-          id: string
-          message_id: string
-          metadata: Json | null
-          phone_number: string | null
-          timestamp: string
-          user_id: string | null
-        }
-        Insert: {
-          channel: string
-          content?: string | null
-          created_at?: string
-          email?: string | null
-          event_type: string
-          id?: string
-          message_id: string
-          metadata?: Json | null
-          phone_number?: string | null
-          timestamp?: string
-          user_id?: string | null
-        }
-        Update: {
-          channel?: string
-          content?: string | null
-          created_at?: string
-          email?: string | null
-          event_type?: string
-          id?: string
-          message_id?: string
-          metadata?: Json | null
-          phone_number?: string | null
-          timestamp?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       events: {
         Row: {
           action: string
@@ -973,10 +874,6 @@ export type Database = {
         Returns: undefined
       }
       get_analysis_job: { Args: { p_job_id: string }; Returns: Json }
-      get_communication_analytics: {
-        Args: { p_timeframe?: string }
-        Returns: Json
-      }
       get_current_user_id: { Args: never; Returns: string }
       get_today_analysis_count: { Args: never; Returns: number }
       handle_analysis_completion: {
@@ -1002,26 +899,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_sms_count: {
-        Args: { phone_number_param: string; user_id_param: string }
-        Returns: undefined
-      }
-      increment_whatsapp_count: {
-        Args: { phone_number_param: string; user_id_param: string }
-        Returns: undefined
-      }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
-      track_communication_event: {
-        Args: {
-          p_channel: string
-          p_event_type: string
-          p_message_id: string
-          p_metadata?: Json
-          p_phone_number?: string
-          p_user_id?: string
-        }
-        Returns: undefined
-      }
       update_analysis_job: {
         Args: {
           p_error_message?: string
@@ -1030,16 +908,6 @@ export type Database = {
           p_status?: string
         }
         Returns: boolean
-      }
-      update_communication_contact: {
-        Args: {
-          p_country_code: string
-          p_phone_number: string
-          p_sms_opt_in: boolean
-          p_user_id: string
-          p_whatsapp_opt_in: boolean
-        }
-        Returns: undefined
       }
       update_user_highscore:
         | {
