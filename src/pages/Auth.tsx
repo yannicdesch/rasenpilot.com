@@ -185,6 +185,92 @@ const Auth = () => {
     }
   };
 
+  // ─────────────────────────────────────────────────────────────
+  // Post-registration status screens
+  // ─────────────────────────────────────────────────────────────
+  if (authStatus === 'pending' || authStatus === 'confirmed') {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+        <MainNavigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto">
+            <Card className="shadow-lg">
+              {authStatus === 'pending' ? (
+                <CardContent className="p-8 text-center space-y-5">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-amber-100 flex items-center justify-center">
+                    <MailCheck className="h-8 w-8 text-amber-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground mb-2">
+                      Bitte bestätige deine E-Mail
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Wir haben einen Bestätigungs-Link an
+                    </p>
+                    <p className="text-sm font-semibold text-foreground my-1 break-all">
+                      {pendingEmail}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      gesendet. Klicke darauf, um dein Konto zu aktivieren.
+                    </p>
+                  </div>
+
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-left space-y-2">
+                    <div className="flex items-start gap-2">
+                      <Loader2 className="h-4 w-4 text-green-600 animate-spin mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-green-800">
+                        Diese Seite wartet automatisch auf deine Bestätigung — danach
+                        wirst du sofort zu deinem Ergebnis weitergeleitet.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>Keine E-Mail erhalten? Schaue auch im Spam-Ordner nach.</p>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleResendEmail}
+                    disabled={resendCooldown > 0}
+                  >
+                    {resendCooldown > 0
+                      ? `Erneut senden in ${resendCooldown}s`
+                      : 'Bestätigungs-E-Mail erneut senden'}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    className="w-full text-sm text-muted-foreground"
+                    onClick={() => setAuthStatus('idle')}
+                  >
+                    Zurück
+                  </Button>
+                </CardContent>
+              ) : (
+                <CardContent className="p-8 text-center space-y-5">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground mb-2">
+                      E-Mail bestätigt 🎉
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Dein Konto ist aktiv. Du wirst gleich zu deinem Ergebnis weitergeleitet…
+                    </p>
+                  </div>
+                  <Loader2 className="h-5 w-5 text-green-600 animate-spin mx-auto" />
+                </CardContent>
+              )}
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <MainNavigation />
