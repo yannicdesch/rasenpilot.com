@@ -85,6 +85,16 @@ const AnalysisResult = () => {
     if (!urlFlag && !intentMatch) return;
 
     toast.success('Dein Ergebnis wurde gespeichert ✅ — hier sind alle deine Empfehlungen.');
+    // Show post-confirmation modal once per user/job
+    try {
+      const seenKey = `post-confirm-modal-seen-${jobId}`;
+      if (!localStorage.getItem(seenKey)) {
+        setShowPostConfirmModal(true);
+        localStorage.setItem(seenKey, '1');
+      }
+    } catch {
+      setShowPostConfirmModal(true);
+    }
     if (urlFlag) {
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
