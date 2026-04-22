@@ -16,8 +16,10 @@ import { amazonProducts, getAmazonUrl, getAmazonImageUrl } from '@/lib/amazonPro
 import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
+import ShareChallengeBar from '@/components/conversion/ShareChallengeBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
+import { linkifyProducts } from '@/lib/linkifyProducts';
 
 interface AnalysisJobResult {
   id: string;
