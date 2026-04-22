@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import StuckLoadingFallback from "@/components/StuckLoadingFallback";
 
 // Lazy-load non-critical global components
 const JourneyTracker = lazy(() => import("@/components/JourneyTracker"));
@@ -69,14 +71,7 @@ const RasenpflegeSchweiz = lazy(() => import("./pages/RasenpflegeSchweiz"));
 
 const queryClient = new QueryClient();
 
-const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-3">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      <p className="text-sm text-muted-foreground">Laden...</p>
-    </div>
-  </div>
-);
+const PageLoader = () => <StuckLoadingFallback />;
 
 const App = () => {
   useEffect(() => {
@@ -84,6 +79,7 @@ const App = () => {
   }, []);
 
   return (
+  <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
@@ -176,6 +172,7 @@ const App = () => {
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
   );
 };
 
