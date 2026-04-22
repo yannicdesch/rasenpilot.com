@@ -804,6 +804,31 @@ const AnalysisResult = () => {
 
       </div>
 
+      {/* Sticky Premium CTA — visible while scrolling for non-premium users */}
+      {!isPremium && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-green-600 to-green-700 shadow-2xl border-t border-green-800/20">
+          <div className="container mx-auto px-4 py-3 max-w-lg flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-yellow-300" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-bold text-sm leading-tight">Premium freischalten</p>
+              <p className="text-green-50 text-xs leading-tight">7 Tage kostenlos · dann 9,99€/Mon.</p>
+            </div>
+            <Button
+              size="sm"
+              className="bg-white text-green-700 hover:bg-green-50 font-bold flex-shrink-0 h-10 px-4"
+              onClick={() => navigate(isAnonymous
+                ? `/auth?redirect=/analysis-result/${jobId}&ref=sticky-cta`
+                : '/subscription?ref=sticky-cta'
+              )}
+            >
+              Jetzt starten →
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Share-challenge bar — appears 30s after load */}
       <ShareChallengeBar score={healthScore} />
     </div>
