@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, CheckCircle2, MailCheck, Loader2 } from 'lucide-react';
 import MainNavigation from '@/components/MainNavigation';
 import PasswordResetLink from '@/components/PasswordResetLink';
 import { trackMetaCompleteRegistration, trackMetaLead } from '@/lib/analytics/metaPixel';
