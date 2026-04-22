@@ -662,121 +662,108 @@ const AnalysisResult = () => {
         )}
 
         {/* ═══════════════════════════════════════════════
-            BLOCK 4 — COLLAPSED DETAILS
+            BLOCK 4 — VOLLSTÄNDIGE ANALYSE (immer sichtbar)
         ═══════════════════════════════════════════════ */}
-        <div className="mb-8">
-          <Button
-            variant="outline"
-            className="w-full border-border hover:bg-accent/50 h-12 justify-between"
-            onClick={() => setDetailsExpanded(!detailsExpanded)}
-          >
-            <span className="font-medium">Vollständige Analyse anzeigen</span>
-            {detailsExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        <div className="mb-8 space-y-6">
+
+          {/* a) Detail-Scores */}
+          <Card className="border-border">
+            <CardContent className="p-5">
+              <h3 className="font-bold text-foreground mb-4">Detail-Scores</h3>
+              <div className="space-y-4">
+                {[
+                  { label: '🌱 Dichte', value: subScores.density, note: result?.density_note },
+                  { label: '💧 Feuchtigkeit', value: subScores.moisture, note: result?.moisture_note },
+                  { label: '🌞 Sonneneinstrahlung', value: subScores.sunlight, note: result?.sunlight_note },
+                  { label: '🪱 Bodenqualität', value: subScores.soil, note: result?.soil_note },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="font-medium">{item.label}</span>
+                      <span className={`font-bold ${getScoreColor(item.value)}`}>{item.value}/100</span>
+                    </div>
+                    <Progress value={item.value} className="h-2.5" />
+                    {item.note && <p className="text-xs text-muted-foreground mt-1">{item.note}</p>}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* b) Krankheiten & Schädlinge */}
+          {diseases.length > 0 && (
+            <Card className="border-border">
+              <CardContent className="p-5">
+                <h3 className="font-bold text-foreground mb-4">Krankheiten & Schädlinge</h3>
+                <div className="space-y-3">
+                  {diseases.map((d: any, i: number) => (
+                    <div key={i} className="p-3 bg-accent/30 rounded-lg">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-sm">{d.name}</span>
+                        <Badge variant={d.severity === 'Hoch' ? 'destructive' : d.severity === 'Mittel' ? 'default' : 'secondary'} className="text-xs">
+                          {d.severity}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{d.description}</p>
+                      {d.treatment && <p className="text-xs text-green-700 font-medium mt-1">Behandlung: {d.treatment}</p>}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* c) Wetterbasierte Tipps */}
+          {weatherRecs.length > 0 && (
+            <Card className="border-border">
+              <CardContent className="p-5">
+                <h3 className="font-bold text-foreground mb-4">☀️ Wetterbasierte Tipps</h3>
+                <div className="space-y-2">
+                  {weatherRecs.map((tip: string, i: number) => (
+                    <div key={i} className="flex items-start gap-2 text-sm">
+                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Registration prompt for anonymous users */}
+          {isAnonymous && (
+            <Card className="border-green-200 bg-green-50/70 shadow-sm">
+              <CardContent className="p-5 text-center">
+                <h3 className="font-bold text-foreground text-base mb-1">
+                  Speichere dein Ergebnis und tracke deinen Fortschritt
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Erstelle ein kostenloses Konto — dein Score und Pflegeplan werden gespeichert und du wirst in 4 Wochen automatisch an die nächste Analyse erinnert.
+                </p>
+                <Button
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-bold"
+                  onClick={() => navigate(`/auth?redirect=/analysis-result/${jobId}&ref=save-prompt`)}
+                >
+                  Kostenlos registrieren
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* d) Pflegeplan Download */}
+          <Button onClick={handleDownloadPlan} variant="outline" className="w-full border-green-200 text-green-700 hover:bg-green-50 h-11">
+            <Download className="h-4 w-4 mr-2" /> Pflegeplan herunterladen
           </Button>
 
-          {detailsExpanded && (
-            <div className="mt-4 space-y-6 animate-in slide-in-from-top-2 duration-300">
-
-              {/* a) Detail-Scores */}
-              <Card className="border-border">
-                <CardContent className="p-5">
-                  <h3 className="font-bold text-foreground mb-4">Detail-Scores</h3>
-                  <div className="space-y-4">
-                    {[
-                      { label: '🌱 Dichte', value: subScores.density, note: result?.density_note },
-                      { label: '💧 Feuchtigkeit', value: subScores.moisture, note: result?.moisture_note },
-                      { label: '🌞 Sonneneinstrahlung', value: subScores.sunlight, note: result?.sunlight_note },
-                      { label: '🪱 Bodenqualität', value: subScores.soil, note: result?.soil_note },
-                    ].map((item, i) => (
-                      <div key={i}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="font-medium">{item.label}</span>
-                          <span className={`font-bold ${getScoreColor(item.value)}`}>{item.value}/100</span>
-                        </div>
-                        <Progress value={item.value} className="h-2.5" />
-                        {item.note && <p className="text-xs text-muted-foreground mt-1">{item.note}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* b) Krankheiten & Schädlinge */}
-              {diseases.length > 0 && (
-                <Card className="border-border">
-                  <CardContent className="p-5">
-                    <h3 className="font-bold text-foreground mb-4">Krankheiten & Schädlinge</h3>
-                    <div className="space-y-3">
-                      {diseases.map((d: any, i: number) => (
-                        <div key={i} className="p-3 bg-accent/30 rounded-lg">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-sm">{d.name}</span>
-                            <Badge variant={d.severity === 'Hoch' ? 'destructive' : d.severity === 'Mittel' ? 'default' : 'secondary'} className="text-xs">
-                              {d.severity}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground">{d.description}</p>
-                          {d.treatment && <p className="text-xs text-green-700 font-medium mt-1">Behandlung: {d.treatment}</p>}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* c) Wetterbasierte Tipps */}
-              {weatherRecs.length > 0 && (
-                <Card className="border-border">
-                  <CardContent className="p-5">
-                    <h3 className="font-bold text-foreground mb-4">☀️ Wetterbasierte Tipps</h3>
-                    <div className="space-y-2">
-                      {weatherRecs.map((tip: string, i: number) => (
-                        <div key={i} className="flex items-start gap-2 text-sm">
-                          <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                          <span className="text-muted-foreground">{tip}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Registration prompt for anonymous users */}
-              {isAnonymous && (
-                <Card className="border-green-200 bg-green-50/70 shadow-sm">
-                  <CardContent className="p-5 text-center">
-                    <h3 className="font-bold text-foreground text-base mb-1">
-                      Speichere dein Ergebnis und tracke deinen Fortschritt
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Erstelle ein kostenloses Konto — dein Score und Pflegeplan werden gespeichert und du wirst in 4 Wochen automatisch an die nächste Analyse erinnert.
-                    </p>
-                    <Button
-                      className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base font-bold"
-                      onClick={() => navigate(`/auth?redirect=/analysis-result/${jobId}&ref=save-prompt`)}
-                    >
-                      Kostenlos registrieren
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* d) Pflegeplan Download */}
-              <Button onClick={handleDownloadPlan} variant="outline" className="w-full border-green-200 text-green-700 hover:bg-green-50 h-11">
-                <Download className="h-4 w-4 mr-2" /> Pflegeplan herunterladen
-              </Button>
-
-              {/* e) Re-analyze CTA */}
-              <Button
-                variant="outline"
-                className="w-full border-border hover:bg-accent/50 h-11"
-                onClick={() => navigate('/lawn-analysis')}
-              >
-                <ArrowRight className="h-4 w-4 mr-2" />
-                Rasen in 4 Wochen neu analysieren → {getNextAnalysisDate()}
-              </Button>
-            </div>
-          )}
+          {/* e) Re-analyze CTA */}
+          <Button
+            variant="outline"
+            className="w-full border-border hover:bg-accent/50 h-11"
+            onClick={() => navigate('/lawn-analysis')}
+          >
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Rasen in 4 Wochen neu analysieren → {getNextAnalysisDate()}
+          </Button>
         </div>
 
         {/* ═══════════════════════════════════════════════
