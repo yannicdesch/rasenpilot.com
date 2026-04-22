@@ -179,16 +179,20 @@ const Auth = () => {
       }
 
       toast.success('Erfolgreich angemeldet!');
-      
-      // Redirect to intended destination
-      const redirect = redirectPath;
-      const plan = searchParams.get('plan');
-      if (redirect) {
-        const separator = redirect.includes('?') ? '&' : '?';
-        const registered = isFromAnalysis ? `${separator}registered=1` : '';
-        const planParam = plan ? `${registered ? '&' : separator}plan=${plan}` : '';
-        navigate(`${redirect}${registered}${planParam}`);
+
+      // Redirect to intended destination — use the helper so ?registered=1
+      // and ?plan= are applied consistently across all entry points.
+      const plan = searchParams.get('plan') || undefined;
+      if (redirectPath) {
+        const target = buildPostAuthPath({
+          redirectPath,
+          fromAnalysis: isFromAnalysis,
+          plan,
+        });
+        clearAuthIntent();
+        navigate(target);
       } else {
+        clearAuthIntent();
         navigate('/premium-dashboard');
       }
     } catch (error) {
