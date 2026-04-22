@@ -17,6 +17,7 @@ import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
 import ShareChallengeBar from '@/components/conversion/ShareChallengeBar';
+import PostConfirmationModal from '@/components/conversion/PostConfirmationModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
 import { linkifyProducts } from '@/lib/linkifyProducts';
