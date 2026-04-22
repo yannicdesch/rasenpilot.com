@@ -87,13 +87,12 @@ const Chat = () => {
     setUserMessageCount(newCount);
 
     try {
-      const systemPrompt = buildSystemPrompt(chatContext);
-      
       const { data, error } = await supabase.functions.invoke('chat-with-ai', {
         body: {
           message: inputMessage,
           conversation_history: messages.filter(m => m.id !== '1'),
-          system_prompt: systemPrompt,
+          analysis_context: chatContext.analysis,
+          profile_context: chatContext.profile,
         }
       });
 
