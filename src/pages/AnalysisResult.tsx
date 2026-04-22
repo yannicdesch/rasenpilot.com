@@ -17,6 +17,7 @@ import { getRank, getNextRank } from '@/lib/rankSystem';
 import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
 import ShareChallengeBar from '@/components/conversion/ShareChallengeBar';
+import PostConfirmationModal from '@/components/conversion/PostConfirmationModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
 import { linkifyProducts } from '@/lib/linkifyProducts';
@@ -44,6 +45,7 @@ const AnalysisResult = () => {
   const [previousScore, setPreviousScore] = useState<number | null>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showPostConfirmModal, setShowPostConfirmModal] = useState(false);
 
   // Refinement state
   const [refineExpanded, setRefineExpanded] = useState(false);
@@ -83,6 +85,16 @@ const AnalysisResult = () => {
     if (!urlFlag && !intentMatch) return;
 
     toast.success('Dein Ergebnis wurde gespeichert ✅ — hier sind alle deine Empfehlungen.');
+    // Show post-confirmation modal once per user/job
+    try {
+      const seenKey = `post-confirm-modal-seen-${jobId}`;
+      if (!localStorage.getItem(seenKey)) {
+        setShowPostConfirmModal(true);
+        localStorage.setItem(seenKey, '1');
+      }
+    } catch {
+      setShowPostConfirmModal(true);
+    }
     if (urlFlag) {
       searchParams.delete('registered');
       setSearchParams(searchParams, { replace: true });
@@ -406,6 +418,13 @@ const AnalysisResult = () => {
         canonical={`https://www.rasenpilot.com/analysis-result/${jobId}`}
       />
       <MainNavigation />
+
+      <PostConfirmationModal
+        open={showPostConfirmModal}
+        onClose={() => setShowPostConfirmModal(false)}
+        problems={result?.problems || []}
+        score={healthScore}
+      />
 
       <div className="container mx-auto px-4 py-6 max-w-lg">
 
