@@ -71,14 +71,7 @@ const RasenpflegeSchweiz = lazy(() => import("./pages/RasenpflegeSchweiz"));
 
 const queryClient = new QueryClient();
 
-const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-3">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      <p className="text-sm text-muted-foreground">Laden...</p>
-    </div>
-  </div>
-);
+const PageLoader = () => <StuckLoadingFallback />;
 
 const App = () => {
   useEffect(() => {
@@ -86,6 +79,7 @@ const App = () => {
   }, []);
 
   return (
+  <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
