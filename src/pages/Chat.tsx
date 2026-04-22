@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import MainNavigation from '@/components/MainNavigation';
 import SEO from '@/components/SEO';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useChatContext, buildSystemPrompt } from '@/hooks/useChatContext';
+import { useChatContext } from '@/hooks/useChatContext';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -87,13 +87,12 @@ const Chat = () => {
     setUserMessageCount(newCount);
 
     try {
-      const systemPrompt = buildSystemPrompt(chatContext);
-      
       const { data, error } = await supabase.functions.invoke('chat-with-ai', {
         body: {
           message: inputMessage,
           conversation_history: messages.filter(m => m.id !== '1'),
-          system_prompt: systemPrompt,
+          analysis_context: chatContext.analysis,
+          profile_context: chatContext.profile,
         }
       });
 
