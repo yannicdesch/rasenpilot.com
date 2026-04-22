@@ -464,7 +464,7 @@ const AnalysisResult = () => {
             REGISTRATION BANNER (anonymous users only)
         ═══════════════════════════════════════════════ */}
         {isAnonymous && (
-          <RegistrationBanner score={healthScore} jobId={jobId} />
+          <RegistrationBanner score={healthScore} jobId={jobId} startTime={analysisData?.created_at} />
         )}
 
         {/* ═══════════════════════════════════════════════
