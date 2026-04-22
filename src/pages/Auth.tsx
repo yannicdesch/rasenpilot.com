@@ -125,16 +125,19 @@ const Auth = () => {
       trackMetaCompleteRegistration('Signup', 'success');
       trackMetaLead('registration');
 
+      // Always store the intended redirect for the status screen
+      setPendingEmail(formData.email);
+      setPendingRedirect(postConfirmPath);
+
       // If a session was created immediately (email confirmation disabled),
-      // redirect now. Otherwise, instruct the user to confirm their email
-      // and stay on this page so they don't land back as anonymous.
+      // jump straight to the 'confirmed' screen and redirect.
       if (data.session) {
+        setAuthStatus('confirmed');
         toast.success('Registrierung erfolgreich!');
-        navigate(postConfirmPath);
+        setTimeout(() => navigate(postConfirmPath), 1200);
       } else {
-        toast.success('Bitte bestätige deine E-Mail — danach werden deine Empfehlungen automatisch freigeschaltet.', {
-          duration: 8000,
-        });
+        setAuthStatus('pending');
+        setResendCooldown(30);
       }
     } catch (error) {
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
