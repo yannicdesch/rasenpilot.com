@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import StuckLoadingFallback from "@/components/StuckLoadingFallback";
+import LoadingAnalysis from "@/components/LoadingAnalysis";
 import { AnalysisStartOverlay } from "@/lib/startAnalysis";
 
 // Lazy-load non-critical global components
