@@ -166,6 +166,12 @@ const MainNavigation = () => {
                       Konto-Einstellungen
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/referral" className="flex items-center gap-2">
+                      <Gift size={16} />
+                      Freunde einladen
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin-panel" className="flex items-center gap-2">
