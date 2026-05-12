@@ -8,9 +8,11 @@ import { Helmet } from 'react-helmet-async';
 import FAQ from '@/components/FAQ';
 import LazyImage from '@/components/LazyImage';
 import MainNavigation from '@/components/MainNavigation';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 
 const SimplifiedLanding = () => {
   const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
 
   // Product Schema structured data for Google rich results
   const productSchema = {
