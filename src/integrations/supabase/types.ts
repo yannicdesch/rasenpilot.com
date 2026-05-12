@@ -297,6 +297,45 @@ export type Database = {
           },
         ]
       }
+      email_sequences: {
+        Row: {
+          completed: boolean
+          created_at: string
+          current_step: number
+          email: string
+          id: string
+          last_sent: string | null
+          sequence_type: string
+          started_at: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          current_step?: number
+          email: string
+          id?: string
+          last_sent?: string | null
+          sequence_type: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          current_step?: number
+          email?: string
+          id?: string
+          last_sent?: string | null
+          sequence_type?: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           action: string
