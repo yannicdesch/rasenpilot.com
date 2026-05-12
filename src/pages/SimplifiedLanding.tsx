@@ -87,7 +87,7 @@ const SimplifiedLanding = () => {
             
             <Button 
               size="lg"
-              onClick={() => navigate('/lawn-analysis')}
+              onClick={startAnalysis}
               className="bg-green-600 hover:bg-green-700 text-lg px-8 py-3 mb-4"
             >
               <Camera className="mr-2 h-5 w-5" />
