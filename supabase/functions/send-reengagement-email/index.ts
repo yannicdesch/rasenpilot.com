@@ -160,8 +160,9 @@ serve(async (req) => {
             method: 'POST',
             headers,
             body: JSON.stringify({
-              from: 'Rasenpilot <noreply@rasenpilot.com>',
+              from: 'Yannic von Rasenpilot <noreply@rasenpilot.com>',
               to: [profile.email],
+              reply_to: 'rasenpilot@gmail.com',
               subject,
               html,
             }),

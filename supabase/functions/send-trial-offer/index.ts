@@ -92,8 +92,9 @@ serve(async (req: Request): Promise<Response> => {
 </html>`;
 
     const data = await resend.emails.send({
-      from: "Yannic von Rasenpilot <onboarding@resend.dev>",
+      from: "Yannic von Rasenpilot <noreply@rasenpilot.com>",
       to: [email],
+      reply_to: "rasenpilot@gmail.com",
       subject: `${userName}, dein Rasen-Score ist ${userScore} — mit Premium schaffst du 80+ 🌿`,
       html,
     });
