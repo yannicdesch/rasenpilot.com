@@ -44,6 +44,57 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_weekly_stats: {
+        Row: {
+          avg_impact_score: number | null
+          avg_impact_score_approved: number | null
+          computed_at: string
+          created_at: string
+          expected_met_count: number
+          expected_met_rate: number | null
+          id: string
+          per_agent: Json
+          total_approved: number
+          total_done: number
+          total_pending: number
+          total_proposed: number
+          total_rejected: number
+          week_start: string
+        }
+        Insert: {
+          avg_impact_score?: number | null
+          avg_impact_score_approved?: number | null
+          computed_at?: string
+          created_at?: string
+          expected_met_count?: number
+          expected_met_rate?: number | null
+          id?: string
+          per_agent?: Json
+          total_approved?: number
+          total_done?: number
+          total_pending?: number
+          total_proposed?: number
+          total_rejected?: number
+          week_start: string
+        }
+        Update: {
+          avg_impact_score?: number | null
+          avg_impact_score_approved?: number | null
+          computed_at?: string
+          created_at?: string
+          expected_met_count?: number
+          expected_met_rate?: number | null
+          id?: string
+          per_agent?: Json
+          total_approved?: number
+          total_done?: number
+          total_pending?: number
+          total_proposed?: number
+          total_rejected?: number
+          week_start?: string
+        }
+        Relationships: []
+      }
       analyses: {
         Row: {
           created_at: string

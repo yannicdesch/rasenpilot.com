@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, Play, Copy, Check } from "lucide-react";
 import WeeklyOptimizations from "@/components/admin/WeeklyOptimizations";
+import AgentPerformanceTrend from "@/components/admin/AgentPerformanceTrend";
 
 interface AgentReport {
   id: string;
@@ -100,6 +101,9 @@ const AdminAgents = () => {
           </div>
         </div>
 
+        <div className="mb-10">
+          <AgentPerformanceTrend />
+        </div>
         <div className="mb-10">
           <WeeklyOptimizations />
         </div>
