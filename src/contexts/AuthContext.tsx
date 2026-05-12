@@ -31,6 +31,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
+
+        // On new sign-up/sign-in, redeem any pending referral code
+        if (event === 'SIGNED_IN' && session?.user) {
+          const code = localStorage.getItem('pending_referral_code');
+          if (code) {
+            supabase.functions
+              .invoke('handle-referral-signup', {
+                body: {
+                  referral_code: code,
+                  user_id: session.user.id,
+                  email: session.user.email,
+                },
+              })
+              .then(() => localStorage.removeItem('pending_referral_code'))
+              .catch((e) => console.error('Referral redeem failed:', e));
+          }
+        }
       }
     );
 
