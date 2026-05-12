@@ -101,7 +101,7 @@ const FreeVsPremiumSection = () => {
                 </div>
               ))}
               <Button 
-                onClick={() => navigate('/lawn-analysis')}
+                onClick={startAnalysis}
                 className="w-full mt-6"
                 variant="outline"
               >
