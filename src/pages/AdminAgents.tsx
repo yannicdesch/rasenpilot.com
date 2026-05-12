@@ -18,7 +18,7 @@ interface AgentReport {
 }
 
 const AdminAgents = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const [reports, setReports] = useState<AgentReport[]>([]);
   const [loading, setLoading] = useState(true);
