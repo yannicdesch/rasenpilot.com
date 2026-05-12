@@ -3,7 +3,7 @@ import React from 'react';
 import SecureAdminAuth from '@/components/admin/SecureAdminAuth';
 import MainNavigation from '@/components/MainNavigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Users, Settings, FileText, Globe, Database, BookOpen, AlertTriangle } from 'lucide-react';
+import { BarChart3, Users, Settings, FileText, Globe, Database, BookOpen, AlertTriangle, Mail } from 'lucide-react';
 import SiteAnalytics from '@/components/admin/SiteAnalytics';
 import UserManagement from '@/components/admin/UserManagement';
 import SiteSettings from '@/components/admin/SiteSettings';
@@ -12,6 +12,7 @@ import ContentManagement from '@/components/admin/ContentManagement';
 import { DatabaseSetup } from '@/components/admin/DatabaseSetup';
 import BlogManagement from '@/components/admin/BlogManagement';
 import OrphanedSubscriptions from '@/components/admin/OrphanedSubscriptions';
+import EmailSequencesAdmin from '@/components/admin/EmailSequencesAdmin';
 
 const AdminPanel = () => {
   return (
@@ -31,7 +32,7 @@ const AdminPanel = () => {
             </div>
 
             <Tabs defaultValue="analytics" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-7">
+              <TabsList className="grid w-full grid-cols-8">
                 <TabsTrigger value="analytics" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="hidden sm:inline">Statistiken</span>
@@ -59,6 +60,10 @@ const AdminPanel = () => {
                 <TabsTrigger value="orphaned" className="flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
                   <span className="hidden sm:inline">Verwaist</span>
+                </TabsTrigger>
+                <TabsTrigger value="emails" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  <span className="hidden sm:inline">Emails</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -88,6 +93,10 @@ const AdminPanel = () => {
 
               <TabsContent value="orphaned">
                 <OrphanedSubscriptions />
+              </TabsContent>
+
+              <TabsContent value="emails">
+                <EmailSequencesAdmin />
               </TabsContent>
             </Tabs>
           </div>
