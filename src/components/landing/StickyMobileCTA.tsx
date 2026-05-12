@@ -24,7 +24,7 @@ const StickyMobileCTA = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-background/95 backdrop-blur-md border-t border-border shadow-2xl md:hidden">
       <Button
-        onClick={() => navigate('/lawn-analysis')}
+        onClick={startAnalysis}
         className="w-full py-5 min-h-[56px] text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
       >
         Kostenlos starten — 1 Analyse gratis
