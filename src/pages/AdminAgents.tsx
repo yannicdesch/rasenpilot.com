@@ -24,6 +24,7 @@ const AdminAgents = () => {
   const [reports, setReports] = useState<AgentReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const loadReports = async () => {
     setLoading(true);
