@@ -102,6 +102,9 @@ const AdminAgents = () => {
         </div>
 
         <div className="mb-10">
+          <AgentPerformanceTrend />
+        </div>
+        <div className="mb-10">
           <WeeklyOptimizations />
         </div>
         {loading ? (
