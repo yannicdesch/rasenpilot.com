@@ -100,6 +100,33 @@ export type Database = {
           },
         ]
       }
+      analysis_feedback: {
+        Row: {
+          analysis_id: string | null
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          user_id: string | null
+        }
+        Insert: {
+          analysis_id?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          user_id?: string | null
+        }
+        Update: {
+          analysis_id?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analysis_jobs: {
         Row: {
           completed_at: string | null
