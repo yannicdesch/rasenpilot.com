@@ -224,42 +224,59 @@ Deno.serve(async (req) => {
     const agentResults = await Promise.all(
       agentsToRun.map(async (a) => {
         try {
-          const text = await callClaude(a.system, a.buildUser(metrics));
-          return { ...a, text, ok: true as const };
+          const text = await callClaude(a.system, a.buildUser(metrics) + LOVABLE_PROMPT_SUFFIX);
+          const { content, lovable_prompt } = splitReportAndPrompt(text);
+          return { ...a, text, content, lovable_prompt, ok: true as const };
         } catch (e: any) {
-          return { ...a, text: `Fehler: ${e.message}`, ok: false as const };
+          return { ...a, text: `Fehler: ${e.message}`, content: `Fehler: ${e.message}`, lovable_prompt: null, ok: false as const };
         }
       })
     );
 
     // Agent 6 (Orchestrator): Summary — includes feedback agent if present
     const summaryUser = `Hier sind ${agentResults.length} Expertenanalysen:\n\n${agentResults
-      .map((r) => `### ${r.name}\n${r.text}`)
-      .join("\n\n")}\n\nFasse zu EINER täglichen Prioritätenliste mit GENAU 3 Aktionen für heute zusammen. Berücksichtige explizit die Nutzer-Feedback-Insights wenn vorhanden. Knapp, konkret, umsetzbar.`;
-    const summary = await callClaude(
+      .map((r) => `### ${r.name}\n${r.content}`)
+      .join("\n\n")}\n\nFasse zu EINER täglichen Prioritätenliste mit GENAU 3 Aktionen für heute zusammen. Berücksichtige explizit die Nutzer-Feedback-Insights wenn vorhanden. Knapp, konkret, umsetzbar.` + LOVABLE_PROMPT_SUFFIX;
+    const summaryRaw = await callClaude(
       "Du bist Chief of Staff. Synthetisiere Expertenmeinungen (inkl. echtem Nutzer-Feedback) zu einer klaren, priorisierten Tagesliste. Keine Wiederholungen, keine Floskeln.",
       summaryUser
     );
+    const { content: summary, lovable_prompt: summaryPrompt } = splitReportAndPrompt(summaryRaw);
 
-    // Save all 6 to agent_reports
+    // Save all to agent_reports
     const reportType = mode === "weekly" ? "weekly" : "daily";
     const rows = [
       ...agentResults.map((r) => ({
         agent: r.name,
         report_type: reportType,
-        content: r.text,
+        content: r.content,
+        lovable_prompt: r.lovable_prompt,
         metrics: metrics,
       })),
       {
         agent: "Daily Summary",
         report_type: reportType,
         content: summary,
+        lovable_prompt: summaryPrompt,
         metrics: metrics,
       },
     ];
     await supabase.from("agent_reports").insert(rows);
 
     const dateStr = new Date().toLocaleDateString("de-DE");
+
+    // Build Lovable-prompt boxes for each agent (top 3 priority actions)
+    const promptBoxes = agentResults
+      .slice(0, 3)
+      .map((r) => {
+        if (!r.lovable_prompt) return "";
+        return `
+          <div style="margin: 12px 0 24px;">
+            <div style="font-weight: 600; color: #007B43; margin-bottom: 6px;">${escapeHtml(r.name)} → Direkt in Lovable einfügen</div>
+            <pre style="white-space: pre-wrap; font-family: ui-monospace, monospace; background: #F1F3F5; color: #212529; padding: 14px; border-radius: 8px; border: 1px solid #DEE2E6; font-size: 13px; line-height: 1.5;">${escapeHtml(r.lovable_prompt)}</pre>
+          </div>`;
+      })
+      .join("");
 
     // Daily briefing email (summary)
     const summaryHtml = `
@@ -268,6 +285,8 @@ Deno.serve(async (req) => {
         <p style="color: #666;">${dateStr}</p>
         <h2>Top 3 Aktionen für heute</h2>
         <pre style="white-space: pre-wrap; font-family: inherit; background: #DFF0D8; padding: 16px; border-radius: 8px;">${escapeHtml(summary)}</pre>
+        <h2 style="margin-top: 32px;">Lovable-Prompts zu den Top-Aktionen</h2>
+        ${promptBoxes || '<p style="color:#666;">Keine Prompts erzeugt.</p>'}
         <h3>Kennzahlen</h3>
         <ul>
           <li>Signups heute: <b>${metrics.signups_today}</b></li>
@@ -283,11 +302,17 @@ Deno.serve(async (req) => {
     // Weekly deep dives — only when mode=weekly
     if (mode === "weekly") {
       for (const r of agentResults) {
+        const promptBox = r.lovable_prompt
+          ? `<h2 style="margin-top:24px;">Lovable Prompt</h2>
+             <pre style="white-space: pre-wrap; font-family: ui-monospace, monospace; background:#F1F3F5; color:#212529; padding:14px; border-radius:8px; border:1px solid #DEE2E6; font-size:13px;">${escapeHtml(r.lovable_prompt)}</pre>
+             <p style="color:#007B43; font-weight:600;">→ Direkt in Lovable einfügen</p>`
+          : "";
         const html = `
           <div style="font-family: -apple-system, sans-serif; max-width: 640px; margin: 0 auto;">
             <h1 style="color: #007B43;">${r.name}</h1>
             <p style="color: #666;">${dateStr}</p>
-            <pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(r.text)}</pre>
+            <pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(r.content)}</pre>
+            ${promptBox}
           </div>`;
         await sendEmail(`Rasenpilot Weekly Deep Dive – ${r.name}`, html);
       }
