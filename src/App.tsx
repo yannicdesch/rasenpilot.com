@@ -52,6 +52,8 @@ const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
 const CareCalendar = lazy(() => import("./pages/CareCalendar"));
 const AccountSettings = lazy(() => import("./pages/AccountSettings"));
 const Chat = lazy(() => import("./pages/Chat"));
+const Referral = lazy(() => import("./pages/Referral"));
+import ReferralCodeCapture from "@/components/ReferralCodeCapture";
 
 // Local SEO Pages
 const Munich = lazy(() => import("./pages/local/Munich"));
@@ -101,6 +103,7 @@ const App = () => {
             <SiteHealthBanner />
           </Suspense>
           <AnalysisStartOverlay />
+          <ReferralCodeCapture />
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -167,6 +170,7 @@ const App = () => {
             <Route path="/chat" element={<Chat />} />
             <Route path="/chat-assistant" element={<Chat />} />
             <Route path="/account-settings" element={<AccountSettings />} />
+            <Route path="/referral" element={<Referral />} />
             
             {/* Admin Panel */}
             <Route path="/admin-login" element={<AdminLogin />} />

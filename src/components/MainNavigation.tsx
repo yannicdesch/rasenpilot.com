@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Leaf, Menu, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut, LogIn, CloudSun, MessageCircle, LayoutDashboard, CreditCard, Shield, History, Calendar, Flame } from 'lucide-react';
+import { Leaf, Menu, BookOpen, Trophy, Settings, Camera, Crown, User, LogOut, LogIn, CloudSun, MessageCircle, LayoutDashboard, CreditCard, Shield, History, Calendar, Flame, Gift } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -164,6 +164,12 @@ const MainNavigation = () => {
                     <Link to="/account-settings" className="flex items-center gap-2">
                       <Settings size={16} />
                       Konto-Einstellungen
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/referral" className="flex items-center gap-2">
+                      <Gift size={16} />
+                      Freunde einladen
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin && (
