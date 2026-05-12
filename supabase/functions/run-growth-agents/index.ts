@@ -306,12 +306,33 @@ Deno.serve(async (req) => {
         lovable_prompt: r.lovable_prompt,
       }));
       const cpoRaw = await callClaude(
-        "Du bist Chief Product Officer. Du bekommst 7 Agenten-Reports und wählst die 3 Änderungen mit dem höchsten Impact für Rasenpilot diese Woche.",
-        `Hier sind die Reports als JSON:\n${JSON.stringify(reportsForCpo, null, 2)}\n\nAntworte AUSSCHLIESSLICH mit einem validen JSON-Array (keine Markdown-Codeblöcke, kein Text drumherum) mit GENAU 3 Objekten:\n[{"title":"kurzer Titel","agent":"welcher Agent empfiehlt das","impact_score":1-10,"expected_metric":"was verbessert sich konkret","lovable_prompt":"fertiger Lovable-Prompt"}]`
+        "Du bist Chief Product Officer. Du bekommst die Agenten-Reports und wählst die 3 Änderungen mit dem höchsten Impact für Rasenpilot diese Woche. HARTE REGEL: Du darfst KEINE Optimierung vorschlagen, die einem bereits umgesetzten Eintrag aus der Sperrliste entspricht – außer der Admin hat sie explizit zur Wiederholung freigegeben (mit Begründung). Lieber weniger als 3 Vorschläge als ein Duplikat.",
+        `Hier sind die Reports als JSON:\n${JSON.stringify(reportsForCpo, null, 2)}\n${learningContext}\n\nAntworte AUSSCHLIESSLICH mit einem validen JSON-Array (keine Markdown-Codeblöcke, kein Text drumherum) mit MAXIMAL 3 Objekten:\n[{"title":"kurzer Titel","agent":"welcher Agent empfiehlt das","impact_score":1-10,"expected_metric":"was verbessert sich konkret","lovable_prompt":"fertiger Lovable-Prompt"}]`
       );
       const jsonMatch = cpoRaw.match(/\[[\s\S]*\]/);
       const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : cpoRaw);
       if (Array.isArray(parsed)) top3 = parsed.slice(0, 3);
+
+      // Server-side guard: drop any proposal whose title overlaps a blocked title
+      const isBlocked = (title: string) => {
+        const t = normalize(title);
+        if (!t) return false;
+        return blockedTitles.some((b) => {
+          if (!b) return false;
+          if (t === b || t.includes(b) || b.includes(t)) return true;
+          // token overlap >= 60%
+          const ts = new Set(t.split(" ").filter((w) => w.length > 3));
+          const bs = b.split(" ").filter((w) => w.length > 3);
+          if (bs.length === 0 || ts.size === 0) return false;
+          const overlap = bs.filter((w) => ts.has(w)).length;
+          return overlap / Math.max(ts.size, bs.length) >= 0.6;
+        });
+      };
+      const beforeCount = top3.length;
+      top3 = top3.filter((o: any) => !isBlocked(String(o?.title ?? "")));
+      if (beforeCount !== top3.length) {
+        console.log(`CPO blocklist filter removed ${beforeCount - top3.length} duplicate(s)`);
+      }
 
       // Monday of this week (UTC)
       const monday = new Date();
