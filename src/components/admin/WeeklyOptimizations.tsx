@@ -214,7 +214,14 @@ const WeeklyOptimizations = () => {
                       </TableCell>
                       <TableCell className="text-xs max-w-[220px]">
                         {r.result_metric ? (
-                          <span className="text-foreground">{r.result_metric}</span>
+                          <div>
+                            <div className="text-foreground">{r.result_metric}</div>
+                            {r.result_measured_at && (
+                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                                gemessen {new Date(r.result_measured_at).toLocaleDateString("de-DE")}
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-muted-foreground italic">noch offen</span>
                         )}
