@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 
 const StickyMobileCTA = () => {
-  const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
   const location = useLocation();
   const [visible, setVisible] = useState(false);
 
