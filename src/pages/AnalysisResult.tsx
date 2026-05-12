@@ -431,6 +431,12 @@ const AnalysisResult = () => {
         score={healthScore}
       />
 
+      <AnalysisFeedbackModal
+        analysisId={jobId}
+        userId={user?.id ?? null}
+        delayMs={3000}
+      />
+
       <div className="container mx-auto px-4 py-6 max-w-lg pb-32">
 
         {/* ═══════════════════════════════════════════════
