@@ -37,6 +37,8 @@ const WeeklyOptimizations = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [repeatEdits, setRepeatEdits] = useState<Record<string, string>>({});
+  const [repeatSavingId, setRepeatSavingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
