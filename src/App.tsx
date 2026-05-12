@@ -52,6 +52,8 @@ const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
 const CareCalendar = lazy(() => import("./pages/CareCalendar"));
 const AccountSettings = lazy(() => import("./pages/AccountSettings"));
 const Chat = lazy(() => import("./pages/Chat"));
+const Referral = lazy(() => import("./pages/Referral"));
+import ReferralCodeCapture from "@/components/ReferralCodeCapture";
 
 // Local SEO Pages
 const Munich = lazy(() => import("./pages/local/Munich"));
