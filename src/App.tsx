@@ -94,6 +94,7 @@ const App = () => {
             <CookieConsent />
             <SiteHealthBanner />
           </Suspense>
+          <AnalysisStartOverlay />
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
