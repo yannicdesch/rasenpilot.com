@@ -310,7 +310,16 @@ const WeeklyOptimizations = () => {
                       Woche {r.week_start} · {r.agent} · Impact {r.impact_score ?? "—"}/10
                     </div>
                   </div>
-                  <Badge>Approved</Badge>
+                  <div className="flex items-center gap-2">
+                    {r.allow_repeat ? (
+                      <Badge variant="outline" className="border-amber-500 text-amber-700">
+                        Wiederholung erlaubt
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Gesperrt für Agenten</Badge>
+                    )}
+                    <Badge>Approved</Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
