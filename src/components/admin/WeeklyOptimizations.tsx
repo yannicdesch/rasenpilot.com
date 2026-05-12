@@ -405,5 +405,3 @@ const WeeklyOptimizations = () => {
 };
 
 export default WeeklyOptimizations;
-
-export default WeeklyOptimizations;
