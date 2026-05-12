@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Save } from "lucide-react";
+import { Loader2, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Save, GraduationCap } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface QueueRow {
   id: string;
