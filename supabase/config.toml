@@ -64,3 +64,6 @@ verify_jwt = false
 
 [functions.reactivation-email]
 verify_jwt = false
+
+[functions.get-social-proof-stats]
+verify_jwt = false
