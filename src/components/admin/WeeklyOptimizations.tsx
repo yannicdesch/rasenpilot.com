@@ -338,7 +338,14 @@ const WeeklyOptimizations = () => {
                   </div>
                 )}
                 <div>
-                  <label className="text-sm font-medium block mb-1">Tatsächliches Ergebnis</label>
+                  <div className="flex items-baseline justify-between mb-1">
+                    <label className="text-sm font-medium">Tatsächliches Ergebnis</label>
+                    {r.result_measured_at && (
+                      <span className="text-[11px] text-muted-foreground">
+                        gemessen {new Date(r.result_measured_at).toLocaleString("de-DE")}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Input
                       value={edits[r.id] ?? ""}
