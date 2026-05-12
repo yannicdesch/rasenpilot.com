@@ -102,6 +102,7 @@ const App = () => {
             <ConversionTracker />
             <CookieConsent />
             <SiteHealthBanner />
+            <ReactivationBanner />
           </Suspense>
           <AnalysisStartOverlay />
           <ReferralCodeCapture />
