@@ -118,6 +118,29 @@ const WeeklyOptimizations = () => {
     else toast.success("Ergebnis gespeichert");
   };
 
+  const setAllowRepeat = async (row: QueueRow, allow: boolean) => {
+    const justification = (repeatEdits[row.id] ?? "").trim();
+    if (allow && justification.length < 10) {
+      toast.error("Bitte mindestens 10 Zeichen Begründung angeben.");
+      return;
+    }
+    setRepeatSavingId(row.id);
+    const { error } = await supabase
+      .from("optimization_queue")
+      .update({
+        allow_repeat: allow,
+        repeat_justification: allow ? justification : null,
+      })
+      .eq("id", row.id);
+    setRepeatSavingId(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(allow ? "Wiederholung freigegeben" : "Sperre wieder aktiv");
+    await load();
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
