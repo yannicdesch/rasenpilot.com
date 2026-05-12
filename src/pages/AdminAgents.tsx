@@ -7,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, RefreshCw, Play } from "lucide-react";
+import { Loader2, RefreshCw, Play, Copy, Check } from "lucide-react";
 
 interface AgentReport {
   id: string;
   agent: string;
   report_type: string;
   content: string;
+  lovable_prompt: string | null;
   created_at: string;
 }
 
