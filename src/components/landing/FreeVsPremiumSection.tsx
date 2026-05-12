@@ -10,8 +10,6 @@ const FreeVsPremiumSection = () => {
   const navigate = useNavigate();
   const startAnalysis = useStartAnalysis();
 
-const FreeVsPremiumSection = () => {
-  const navigate = useNavigate();
 
   const features = [
     {
