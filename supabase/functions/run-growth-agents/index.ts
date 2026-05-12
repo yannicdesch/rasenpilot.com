@@ -197,9 +197,15 @@ Deno.serve(async (req) => {
 
     const metrics = await gatherMetrics();
 
-    // Run 5 agents in parallel
+    // Decide if Feedback Analyst runs:
+    // - weekly: always
+    // - daily: only when new feedback came in last 24h
+    const includeFeedback = mode === "weekly" || (metrics.feedback_30d?.new_last_24h ?? 0) > 0;
+    const agentsToRun = includeFeedback ? [...AGENTS, FEEDBACK_AGENT] : AGENTS;
+
+    // Run agents in parallel
     const agentResults = await Promise.all(
-      AGENTS.map(async (a) => {
+      agentsToRun.map(async (a) => {
         try {
           const text = await callClaude(a.system, a.buildUser(metrics));
           return { ...a, text, ok: true as const };
@@ -209,12 +215,12 @@ Deno.serve(async (req) => {
       })
     );
 
-    // Agent 6: Summary
-    const summaryUser = `Hier sind 5 Expertenanalysen:\n\n${agentResults
+    // Agent 6 (Orchestrator): Summary — includes feedback agent if present
+    const summaryUser = `Hier sind ${agentResults.length} Expertenanalysen:\n\n${agentResults
       .map((r) => `### ${r.name}\n${r.text}`)
-      .join("\n\n")}\n\nFasse zu EINER täglichen Prioritätenliste mit GENAU 3 Aktionen für heute zusammen. Knapp, konkret, umsetzbar.`;
+      .join("\n\n")}\n\nFasse zu EINER täglichen Prioritätenliste mit GENAU 3 Aktionen für heute zusammen. Berücksichtige explizit die Nutzer-Feedback-Insights wenn vorhanden. Knapp, konkret, umsetzbar.`;
     const summary = await callClaude(
-      "Du bist Chief of Staff. Synthetisiere Expertenmeinungen zu einer klaren, priorisierten Tagesliste. Keine Wiederholungen, keine Floskeln.",
+      "Du bist Chief of Staff. Synthetisiere Expertenmeinungen (inkl. echtem Nutzer-Feedback) zu einer klaren, priorisierten Tagesliste. Keine Wiederholungen, keine Floskeln.",
       summaryUser
     );
 
