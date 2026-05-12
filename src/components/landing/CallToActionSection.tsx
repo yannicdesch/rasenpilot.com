@@ -1,22 +1,22 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Sparkles } from 'lucide-react';
 import { useInteractionTracking } from '@/hooks/useJourneyTracking';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 
 const CallToActionSection = () => {
-  const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
   const { trackButtonClick } = useInteractionTracking('/');
   
   const handleFreeAnalysisClick = () => {
     trackButtonClick('free_analysis_cta', { section: 'main_cta', priority: 'primary' });
-    navigate('/lawn-analysis');
+    startAnalysis();
   };
   
   const handleFullVersionClick = () => {
     trackButtonClick('full_version_cta', { section: 'main_cta', priority: 'secondary' });
-    navigate('/lawn-analysis');
+    startAnalysis();
   };
   
   return (
