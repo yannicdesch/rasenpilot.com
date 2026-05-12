@@ -29,7 +29,7 @@ const AdminAgents = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("agent_reports")
-      .select("id, agent, report_type, content, created_at")
+      .select("id, agent, report_type, content, lovable_prompt, created_at")
       .order("created_at", { ascending: false })
       .limit(7);
     if (error) {
