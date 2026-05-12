@@ -356,8 +356,59 @@ const WeeklyOptimizations = () => {
           ))
         )}
       </div>
+                <div className="rounded-lg border border-dashed p-3 space-y-2">
+                  <div className="text-sm font-medium">
+                    Agenten-Sperre {r.allow_repeat ? "(aufgehoben)" : "(aktiv)"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Standardmäßig dürfen Agenten diese Optimierung nicht erneut vorschlagen.
+                    Erlaube die Wiederholung nur mit klarer Begründung – Agenten müssen darauf eingehen.
+                  </p>
+                  <textarea
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px]"
+                    value={repeatEdits[r.id] ?? ""}
+                    onChange={(e) =>
+                      setRepeatEdits((p) => ({ ...p, [r.id]: e.target.value }))
+                    }
+                    placeholder="z.B. 'Erste Umsetzung hatte Bug X – diesmal sauber bauen' (mind. 10 Zeichen)"
+                  />
+                  <div className="flex gap-2">
+                    {!r.allow_repeat ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setAllowRepeat(r, true)}
+                        disabled={repeatSavingId === r.id}
+                      >
+                        {repeatSavingId === r.id ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : null}
+                        Wiederholung freigeben
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => setAllowRepeat(r, false)}
+                        disabled={repeatSavingId === r.id}
+                      >
+                        {repeatSavingId === r.id ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : null}
+                        Sperre wieder aktivieren
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </section>
   );
 };
+
+export default WeeklyOptimizations;
 
 export default WeeklyOptimizations;
