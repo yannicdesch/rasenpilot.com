@@ -98,6 +98,33 @@ async function gatherMetrics() {
   const activeSubsCount = activeSubs.count ?? 0;
   const mrrEstimate = +(activeSubsCount * 9.99).toFixed(2);
 
+  // Feedback metrics (last 30d)
+  const dayAgo = new Date(now.getTime() - 86400000);
+  const feedbackRes = await supabase
+    .from("user_feedback")
+    .select("feedback_text, sentiment, topics, created_at, email_subject, user_name")
+    .gte("created_at", monthAgo.toISOString())
+    .limit(1000);
+  const feedback = feedbackRes.data ?? [];
+
+  const sentimentCounts: Record<string, number> = { positive: 0, neutral: 0, negative: 0 };
+  const topicCounts: Record<string, number> = {};
+  for (const f of feedback) {
+    if (f.sentiment) sentimentCounts[f.sentiment] = (sentimentCounts[f.sentiment] ?? 0) + 1;
+    for (const t of (f.topics ?? [])) topicCounts[t] = (topicCounts[t] ?? 0) + 1;
+  }
+  const topTopics = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, v]) => ({ topic: k, count: v }));
+  const topExamples = [...feedback]
+    .sort((a, b) => (b.feedback_text?.length ?? 0) - (a.feedback_text?.length ?? 0))
+    .slice(0, 5)
+    .map((f) => ({
+      sentiment: f.sentiment,
+      topics: f.topics,
+      subject: f.email_subject,
+      text: (f.feedback_text ?? "").slice(0, 1500),
+    }));
+  const newFeedback24h = feedback.filter((f: any) => new Date(f.created_at) >= dayAgo).length;
+
   return {
     signups_today: signupsToday.count ?? 0,
     signups_this_week: signupsWeek.count ?? 0,
@@ -108,9 +135,23 @@ async function gatherMetrics() {
     top_utm_sources_30d: topUtm,
     active_subscribers: activeSubsCount,
     mrr_estimate_eur: mrrEstimate,
+    feedback_30d: {
+      total: feedback.length,
+      new_last_24h: newFeedback24h,
+      sentiment_counts: sentimentCounts,
+      top_topics: topTopics,
+      examples: topExamples,
+    },
     generated_at: now.toISOString(),
   };
 }
+
+const FEEDBACK_AGENT = {
+  key: "feedback_analyst",
+  name: "Feedback Analyst",
+  system: "Du bist UX-Researcher und Customer-Insights-Experte. Du analysierst echtes Nutzer-Feedback und destillierst daraus klare Produktentscheidungen. Sei konkret, zitiere wenn möglich direkt aus dem Feedback.",
+  buildUser: (m: any) => `Feedback-Daten (letzte 30 Tage):\n${JSON.stringify(m.feedback_30d, null, 2)}\n\nFrage: Was sagen unsere Nutzer wirklich? Welche 3 Insights aus dem Feedback sollen wir diese Woche umsetzen?`,
+};
 
 const AGENTS = [
   {
@@ -156,9 +197,15 @@ Deno.serve(async (req) => {
 
     const metrics = await gatherMetrics();
 
-    // Run 5 agents in parallel
+    // Decide if Feedback Analyst runs:
+    // - weekly: always
+    // - daily: only when new feedback came in last 24h
+    const includeFeedback = mode === "weekly" || (metrics.feedback_30d?.new_last_24h ?? 0) > 0;
+    const agentsToRun = includeFeedback ? [...AGENTS, FEEDBACK_AGENT] : AGENTS;
+
+    // Run agents in parallel
     const agentResults = await Promise.all(
-      AGENTS.map(async (a) => {
+      agentsToRun.map(async (a) => {
         try {
           const text = await callClaude(a.system, a.buildUser(metrics));
           return { ...a, text, ok: true as const };
@@ -168,12 +215,12 @@ Deno.serve(async (req) => {
       })
     );
 
-    // Agent 6: Summary
-    const summaryUser = `Hier sind 5 Expertenanalysen:\n\n${agentResults
+    // Agent 6 (Orchestrator): Summary — includes feedback agent if present
+    const summaryUser = `Hier sind ${agentResults.length} Expertenanalysen:\n\n${agentResults
       .map((r) => `### ${r.name}\n${r.text}`)
-      .join("\n\n")}\n\nFasse zu EINER täglichen Prioritätenliste mit GENAU 3 Aktionen für heute zusammen. Knapp, konkret, umsetzbar.`;
+      .join("\n\n")}\n\nFasse zu EINER täglichen Prioritätenliste mit GENAU 3 Aktionen für heute zusammen. Berücksichtige explizit die Nutzer-Feedback-Insights wenn vorhanden. Knapp, konkret, umsetzbar.`;
     const summary = await callClaude(
-      "Du bist Chief of Staff. Synthetisiere Expertenmeinungen zu einer klaren, priorisierten Tagesliste. Keine Wiederholungen, keine Floskeln.",
+      "Du bist Chief of Staff. Synthetisiere Expertenmeinungen (inkl. echtem Nutzer-Feedback) zu einer klaren, priorisierten Tagesliste. Keine Wiederholungen, keine Floskeln.",
       summaryUser
     );
 
