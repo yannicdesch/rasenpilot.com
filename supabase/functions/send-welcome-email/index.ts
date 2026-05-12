@@ -46,7 +46,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Yannic von Rasenpilot <noreply@rasenpilot.com>",
       to: [email],
-      reply_to: "info@rasenpilot.com",
+      reply_to: "rasenpilot@gmail.com",
       subject: "Dein Rasen wartet auf seine erste Analyse 📸",
       html: emailLayout(content, 'Mach jetzt dein erstes Rasenfoto und erhalte deinen Lawn Score'),
     });

@@ -146,7 +146,7 @@ serve(async (req) => {
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
           body: JSON.stringify({
             from: 'Rasenpilot <noreply@rasenpilot.com>',
-            reply_to: 'info@rasenpilot.com',
+            reply_to: 'rasenpilot@gmail.com',
             to: [user.email],
             subject,
             html: emailLayout(content, `${step1} — Score: ${score}/100`),

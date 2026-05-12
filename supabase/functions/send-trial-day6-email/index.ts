@@ -121,7 +121,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             from: "Yannic von Rasenpilot <noreply@rasenpilot.com>",
-            reply_to: "info@rasenpilot.com",
+            reply_to: "rasenpilot@gmail.com",
             to: user.email,
             subject,
             html: emailLayout(content, preheader),
