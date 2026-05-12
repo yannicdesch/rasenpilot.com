@@ -19,6 +19,8 @@ interface QueueRow {
   status: string | null;
   result_metric: string | null;
   created_at: string;
+  allow_repeat?: boolean | null;
+  repeat_justification?: string | null;
 }
 
 const fourWeeksAgoISO = () => {
