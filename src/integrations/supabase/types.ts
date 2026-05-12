@@ -474,11 +474,13 @@ export type Database = {
       optimization_queue: {
         Row: {
           agent: string
+          approved_at: string | null
           created_at: string | null
           expected_metric: string | null
           id: string
           impact_score: number | null
           lovable_prompt: string
+          rejected_at: string | null
           result_metric: string | null
           status: string | null
           title: string
@@ -486,11 +488,13 @@ export type Database = {
         }
         Insert: {
           agent: string
+          approved_at?: string | null
           created_at?: string | null
           expected_metric?: string | null
           id?: string
           impact_score?: number | null
           lovable_prompt: string
+          rejected_at?: string | null
           result_metric?: string | null
           status?: string | null
           title: string
@@ -498,11 +502,13 @@ export type Database = {
         }
         Update: {
           agent?: string
+          approved_at?: string | null
           created_at?: string | null
           expected_metric?: string | null
           id?: string
           impact_score?: number | null
           lovable_prompt?: string
+          rejected_at?: string | null
           result_metric?: string | null
           status?: string | null
           title?: string
