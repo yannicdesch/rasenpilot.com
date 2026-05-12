@@ -36,6 +36,7 @@ const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const UeberUns = lazy(() => import("./pages/UeberUns"));
 const Kontakt = lazy(() => import("./pages/Kontakt"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const AdminAgents = lazy(() => import("./pages/AdminAgents"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -162,6 +163,7 @@ const App = () => {
             {/* Admin Panel */}
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin-panel" element={<AdminPanel />} />
+            <Route path="/admin/agents" element={<AdminAgents />} />
             
             {/* Catch-all route for 404 errors */}
             <Route path="*" element={<NotFound />} />
