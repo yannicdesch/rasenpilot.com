@@ -18,6 +18,7 @@ import LawnScoreShareCard from '@/components/LawnScoreShareCard';
 import { RegistrationBanner, BlurredRecommendationOverlay } from '@/components/conversion/RegistrationPrompt';
 import ShareChallengeBar from '@/components/conversion/ShareChallengeBar';
 import PostConfirmationModal from '@/components/conversion/PostConfirmationModal';
+import AnalysisFeedbackModal from '@/components/AnalysisFeedbackModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
 import { linkifyProducts } from '@/lib/linkifyProducts';
@@ -428,6 +429,12 @@ const AnalysisResult = () => {
         onClose={() => setShowPostConfirmModal(false)}
         problems={result?.problems || []}
         score={healthScore}
+      />
+
+      <AnalysisFeedbackModal
+        analysisId={jobId}
+        userId={user?.id ?? null}
+        delayMs={3000}
       />
 
       <div className="container mx-auto px-4 py-6 max-w-lg pb-32">
