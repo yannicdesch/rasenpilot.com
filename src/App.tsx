@@ -36,6 +36,7 @@ const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const UeberUns = lazy(() => import("./pages/UeberUns"));
 const Kontakt = lazy(() => import("./pages/Kontakt"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const AdminAgents = lazy(() => import("./pages/AdminAgents"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
