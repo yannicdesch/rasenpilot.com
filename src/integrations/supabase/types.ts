@@ -483,6 +483,7 @@ export type Database = {
           lovable_prompt: string
           rejected_at: string | null
           repeat_justification: string | null
+          result_measured_at: string | null
           result_metric: string | null
           status: string | null
           title: string
@@ -499,6 +500,7 @@ export type Database = {
           lovable_prompt: string
           rejected_at?: string | null
           repeat_justification?: string | null
+          result_measured_at?: string | null
           result_metric?: string | null
           status?: string | null
           title: string
@@ -515,6 +517,7 @@ export type Database = {
           lovable_prompt?: string
           rejected_at?: string | null
           repeat_justification?: string | null
+          result_measured_at?: string | null
           result_metric?: string | null
           status?: string | null
           title?: string

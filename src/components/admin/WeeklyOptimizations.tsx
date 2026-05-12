@@ -18,6 +18,7 @@ interface QueueRow {
   lovable_prompt: string;
   status: string | null;
   result_metric: string | null;
+  result_measured_at?: string | null;
   created_at: string;
   allow_repeat?: boolean | null;
   repeat_justification?: string | null;
@@ -213,7 +214,14 @@ const WeeklyOptimizations = () => {
                       </TableCell>
                       <TableCell className="text-xs max-w-[220px]">
                         {r.result_metric ? (
-                          <span className="text-foreground">{r.result_metric}</span>
+                          <div>
+                            <div className="text-foreground">{r.result_metric}</div>
+                            {r.result_measured_at && (
+                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                                gemessen {new Date(r.result_measured_at).toLocaleDateString("de-DE")}
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-muted-foreground italic">noch offen</span>
                         )}
@@ -330,7 +338,14 @@ const WeeklyOptimizations = () => {
                   </div>
                 )}
                 <div>
-                  <label className="text-sm font-medium block mb-1">Tatsächliches Ergebnis</label>
+                  <div className="flex items-baseline justify-between mb-1">
+                    <label className="text-sm font-medium">Tatsächliches Ergebnis</label>
+                    {r.result_measured_at && (
+                      <span className="text-[11px] text-muted-foreground">
+                        gemessen {new Date(r.result_measured_at).toLocaleString("de-DE")}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Input
                       value={edits[r.id] ?? ""}
