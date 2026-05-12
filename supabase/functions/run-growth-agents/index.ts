@@ -54,6 +54,23 @@ function escapeHtml(s: string) {
   return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
 }
 
+const LOVABLE_PROMPT_SUFFIX = `
+
+Schreibe am Ende deiner Antwort einen fertigen Prompt unter der Überschrift '## Lovable Prompt'. Dieser Prompt soll direkt in Lovable eingefügt werden können um die empfohlene Änderung umzusetzen. Der Prompt soll:
+- Konkret und technisch präzise sein
+- Den bestehenden Tech-Stack erwähnen (Supabase, Resend, React, TypeScript)
+- Die genaue Tabelle, Edge Function oder UI-Komponente nennen die geändert werden soll
+- Mit 'In meiner Rasenpilot App:' beginnen`;
+
+function splitReportAndPrompt(text: string): { content: string; lovable_prompt: string | null } {
+  const marker = /^#{1,6}\s*Lovable Prompt\s*$/im;
+  const match = text.match(marker);
+  if (!match || match.index === undefined) return { content: text.trim(), lovable_prompt: null };
+  const before = text.slice(0, match.index).trim();
+  const after = text.slice(match.index + match[0].length).trim();
+  return { content: before, lovable_prompt: after || null };
+}
+
 async function gatherMetrics() {
   const now = new Date();
   const startOfDay = new Date(now); startOfDay.setUTCHours(0, 0, 0, 0);
