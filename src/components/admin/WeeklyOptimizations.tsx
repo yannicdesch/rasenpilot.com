@@ -30,6 +30,7 @@ const fourWeeksAgoISO = () => {
 const WeeklyOptimizations = () => {
   const [pending, setPending] = useState<QueueRow[]>([]);
   const [approved, setApproved] = useState<QueueRow[]>([]);
+  const [learning, setLearning] = useState<QueueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
