@@ -38,7 +38,7 @@ const WeeklyOptimizations = () => {
 
   const load = async () => {
     setLoading(true);
-    const [pRes, aRes] = await Promise.all([
+    const [pRes, aRes, lRes] = await Promise.all([
       supabase
         .from("optimization_queue")
         .select("*")
@@ -51,6 +51,13 @@ const WeeklyOptimizations = () => {
         .eq("status", "approved")
         .gte("week_start", fourWeeksAgoISO())
         .order("week_start", { ascending: false }),
+      supabase
+        .from("optimization_queue")
+        .select("*")
+        .in("status", ["approved", "done"])
+        .gte("week_start", fourWeeksAgoISO())
+        .order("week_start", { ascending: false })
+        .order("impact_score", { ascending: false }),
     ]);
     if (pRes.error) toast.error(pRes.error.message);
     else setPending((pRes.data ?? []) as QueueRow[]);
@@ -62,6 +69,8 @@ const WeeklyOptimizations = () => {
       rows.forEach((r) => (initial[r.id] = r.result_metric ?? ""));
       setEdits(initial);
     }
+    if (lRes.error) toast.error(lRes.error.message);
+    else setLearning((lRes.data ?? []) as QueueRow[]);
     setLoading(false);
   };
 
