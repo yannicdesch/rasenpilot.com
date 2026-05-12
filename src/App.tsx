@@ -76,7 +76,6 @@ const queryClient = new QueryClient();
 
 const PageLoader = () => {
   if (typeof window !== 'undefined' && window.location.pathname === '/lawn-analysis') {
-    const LoadingAnalysis = require('@/components/LoadingAnalysis').default;
     return <LoadingAnalysis estimatedMs={4000} blockNavigation />;
   }
   return <StuckLoadingFallback />;
