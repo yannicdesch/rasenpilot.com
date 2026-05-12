@@ -432,6 +432,45 @@ export type Database = {
         }
         Relationships: []
       }
+      optimization_queue: {
+        Row: {
+          agent: string
+          created_at: string | null
+          expected_metric: string | null
+          id: string
+          impact_score: number | null
+          lovable_prompt: string
+          result_metric: string | null
+          status: string | null
+          title: string
+          week_start: string
+        }
+        Insert: {
+          agent: string
+          created_at?: string | null
+          expected_metric?: string | null
+          id?: string
+          impact_score?: number | null
+          lovable_prompt: string
+          result_metric?: string | null
+          status?: string | null
+          title: string
+          week_start: string
+        }
+        Update: {
+          agent?: string
+          created_at?: string | null
+          expected_metric?: string | null
+          id?: string
+          impact_score?: number | null
+          lovable_prompt?: string
+          result_metric?: string | null
+          status?: string | null
+          title?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       orphaned_subscriptions: {
         Row: {
           created_at: string | null
@@ -550,6 +589,8 @@ export type Database = {
           is_active: boolean | null
           last_overtaken_notification: string | null
           last_sign_in_at: string | null
+          referral_code: string | null
+          referral_count: number
           role: string | null
           updated_at: string | null
         }
@@ -565,6 +606,8 @@ export type Database = {
           is_active?: boolean | null
           last_overtaken_notification?: string | null
           last_sign_in_at?: string | null
+          referral_code?: string | null
+          referral_count?: number
           role?: string | null
           updated_at?: string | null
         }
@@ -580,8 +623,43 @@ export type Database = {
           is_active?: boolean | null
           last_overtaken_notification?: string | null
           last_sign_in_at?: string | null
+          referral_code?: string | null
+          referral_count?: number
           role?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_email: string
+          referred_user_id: string | null
+          referrer_user_id: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_email: string
+          referred_user_id?: string | null
+          referrer_user_id: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_email?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string
+          status?: string
         }
         Relationships: []
       }
@@ -969,6 +1047,7 @@ export type Database = {
         Args: { p_analysis_id: string; p_score: number; p_user_id: string }
         Returns: undefined
       }
+      generate_referral_code: { Args: never; Returns: string }
       get_analysis_job: { Args: { p_job_id: string }; Returns: Json }
       get_current_user_id: { Args: never; Returns: string }
       get_today_analysis_count: { Args: never; Returns: number }
@@ -996,6 +1075,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
       update_analysis_job: {
         Args: {
           p_error_message?: string
