@@ -359,7 +359,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, mode, metrics, agents: agentResults.length, summary }),
+      JSON.stringify({ success: true, mode, metrics, agents: agentResults.length, summary, top3_queued: top3.length }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e: any) {
