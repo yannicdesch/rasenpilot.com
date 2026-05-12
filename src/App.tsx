@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import StuckLoadingFallback from "@/components/StuckLoadingFallback";
+import { AnalysisStartOverlay } from "@/lib/startAnalysis";
 
 // Lazy-load non-critical global components
 const JourneyTracker = lazy(() => import("@/components/JourneyTracker"));
