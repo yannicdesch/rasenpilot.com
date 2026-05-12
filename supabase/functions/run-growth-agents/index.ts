@@ -98,6 +98,33 @@ async function gatherMetrics() {
   const activeSubsCount = activeSubs.count ?? 0;
   const mrrEstimate = +(activeSubsCount * 9.99).toFixed(2);
 
+  // Feedback metrics (last 30d)
+  const dayAgo = new Date(now.getTime() - 86400000);
+  const feedbackRes = await supabase
+    .from("user_feedback")
+    .select("feedback_text, sentiment, topics, created_at, email_subject, user_name")
+    .gte("created_at", monthAgo.toISOString())
+    .limit(1000);
+  const feedback = feedbackRes.data ?? [];
+
+  const sentimentCounts: Record<string, number> = { positive: 0, neutral: 0, negative: 0 };
+  const topicCounts: Record<string, number> = {};
+  for (const f of feedback) {
+    if (f.sentiment) sentimentCounts[f.sentiment] = (sentimentCounts[f.sentiment] ?? 0) + 1;
+    for (const t of (f.topics ?? [])) topicCounts[t] = (topicCounts[t] ?? 0) + 1;
+  }
+  const topTopics = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, v]) => ({ topic: k, count: v }));
+  const topExamples = [...feedback]
+    .sort((a, b) => (b.feedback_text?.length ?? 0) - (a.feedback_text?.length ?? 0))
+    .slice(0, 5)
+    .map((f) => ({
+      sentiment: f.sentiment,
+      topics: f.topics,
+      subject: f.email_subject,
+      text: (f.feedback_text ?? "").slice(0, 1500),
+    }));
+  const newFeedback24h = feedback.filter((f: any) => new Date(f.created_at) >= dayAgo).length;
+
   return {
     signups_today: signupsToday.count ?? 0,
     signups_this_week: signupsWeek.count ?? 0,
@@ -108,9 +135,23 @@ async function gatherMetrics() {
     top_utm_sources_30d: topUtm,
     active_subscribers: activeSubsCount,
     mrr_estimate_eur: mrrEstimate,
+    feedback_30d: {
+      total: feedback.length,
+      new_last_24h: newFeedback24h,
+      sentiment_counts: sentimentCounts,
+      top_topics: topTopics,
+      examples: topExamples,
+    },
     generated_at: now.toISOString(),
   };
 }
+
+const FEEDBACK_AGENT = {
+  key: "feedback_analyst",
+  name: "Feedback Analyst",
+  system: "Du bist UX-Researcher und Customer-Insights-Experte. Du analysierst echtes Nutzer-Feedback und destillierst daraus klare Produktentscheidungen. Sei konkret, zitiere wenn möglich direkt aus dem Feedback.",
+  buildUser: (m: any) => `Feedback-Daten (letzte 30 Tage):\n${JSON.stringify(m.feedback_30d, null, 2)}\n\nFrage: Was sagen unsere Nutzer wirklich? Welche 3 Insights aus dem Feedback sollen wir diese Woche umsetzen?`,
+};
 
 const AGENTS = [
   {
