@@ -19,6 +19,8 @@ interface QueueRow {
   status: string | null;
   result_metric: string | null;
   created_at: string;
+  allow_repeat?: boolean | null;
+  repeat_justification?: string | null;
 }
 
 const fourWeeksAgoISO = () => {
@@ -35,6 +37,8 @@ const WeeklyOptimizations = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [repeatEdits, setRepeatEdits] = useState<Record<string, string>>({});
+  const [repeatSavingId, setRepeatSavingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -66,8 +70,13 @@ const WeeklyOptimizations = () => {
       const rows = (aRes.data ?? []) as QueueRow[];
       setApproved(rows);
       const initial: Record<string, string> = {};
-      rows.forEach((r) => (initial[r.id] = r.result_metric ?? ""));
+      const initialRepeat: Record<string, string> = {};
+      rows.forEach((r) => {
+        initial[r.id] = r.result_metric ?? "";
+        initialRepeat[r.id] = r.repeat_justification ?? "";
+      });
       setEdits(initial);
+      setRepeatEdits(initialRepeat);
     }
     if (lRes.error) toast.error(lRes.error.message);
     else setLearning((lRes.data ?? []) as QueueRow[]);
@@ -107,6 +116,29 @@ const WeeklyOptimizations = () => {
     setSavingId(null);
     if (error) toast.error(error.message);
     else toast.success("Ergebnis gespeichert");
+  };
+
+  const setAllowRepeat = async (row: QueueRow, allow: boolean) => {
+    const justification = (repeatEdits[row.id] ?? "").trim();
+    if (allow && justification.length < 10) {
+      toast.error("Bitte mindestens 10 Zeichen Begründung angeben.");
+      return;
+    }
+    setRepeatSavingId(row.id);
+    const { error } = await supabase
+      .from("optimization_queue")
+      .update({
+        allow_repeat: allow,
+        repeat_justification: allow ? justification : null,
+      })
+      .eq("id", row.id);
+    setRepeatSavingId(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(allow ? "Wiederholung freigegeben" : "Sperre wieder aktiv");
+    await load();
   };
 
   if (loading) {
@@ -278,7 +310,16 @@ const WeeklyOptimizations = () => {
                       Woche {r.week_start} · {r.agent} · Impact {r.impact_score ?? "—"}/10
                     </div>
                   </div>
-                  <Badge>Approved</Badge>
+                  <div className="flex items-center gap-2">
+                    {r.allow_repeat ? (
+                      <Badge variant="outline" className="border-amber-500 text-amber-700">
+                        Wiederholung erlaubt
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Gesperrt für Agenten</Badge>
+                    )}
+                    <Badge>Approved</Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -308,6 +349,50 @@ const WeeklyOptimizations = () => {
                         <Save className="h-4 w-4" />
                       )}
                     </Button>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-dashed p-3 space-y-2">
+                  <div className="text-sm font-medium">
+                    Agenten-Sperre {r.allow_repeat ? "(aufgehoben)" : "(aktiv)"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Standardmäßig dürfen Agenten diese Optimierung nicht erneut vorschlagen.
+                    Erlaube die Wiederholung nur mit klarer Begründung – Agenten müssen darauf eingehen.
+                  </p>
+                  <textarea
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px]"
+                    value={repeatEdits[r.id] ?? ""}
+                    onChange={(e) =>
+                      setRepeatEdits((p) => ({ ...p, [r.id]: e.target.value }))
+                    }
+                    placeholder="z.B. 'Erste Umsetzung hatte Bug X – diesmal sauber bauen' (mind. 10 Zeichen)"
+                  />
+                  <div className="flex gap-2">
+                    {!r.allow_repeat ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setAllowRepeat(r, true)}
+                        disabled={repeatSavingId === r.id}
+                      >
+                        {repeatSavingId === r.id ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : null}
+                        Wiederholung freigeben
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => setAllowRepeat(r, false)}
+                        disabled={repeatSavingId === r.id}
+                      >
+                        {repeatSavingId === r.id ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : null}
+                        Sperre wieder aktivieren
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>

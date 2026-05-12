@@ -218,19 +218,35 @@ Deno.serve(async (req) => {
     const fourWeeksAgo = new Date(Date.now() - 28 * 86400000).toISOString().slice(0, 10);
     const { data: pastOpts } = await supabase
       .from("optimization_queue")
-      .select("week_start, agent, title, impact_score, expected_metric, result_metric, status")
+      .select("week_start, agent, title, impact_score, expected_metric, result_metric, status, allow_repeat, repeat_justification")
       .in("status", ["approved", "done"])
       .gte("week_start", fourWeeksAgo)
       .order("week_start", { ascending: false });
 
-    const learningContext = (pastOpts && pastOpts.length > 0)
-      ? `\n\nDiese Änderungen wurden in den letzten 4 Wochen umgesetzt:\n${pastOpts.map((o: any) =>
-          `- [${o.week_start}] (${o.agent}, Impact ${o.impact_score ?? "—"}/10) ${o.title}` +
-          (o.expected_metric ? ` | erwartet: ${o.expected_metric}` : "") +
-          (o.result_metric ? ` | tatsächlich: ${o.result_metric}` : " | Ergebnis noch offen") +
-          ` [${o.status}]`
-        ).join("\n")}\n\nBerücksichtige was funktioniert hat und was nicht. Wiederhole keine Empfehlungen die bereits umgesetzt wurden, außer mit klarer Begründung.`
-      : "";
+    // Split into BLOCKED (no repeats allowed) and ALLOWED-REPEAT (admin justified)
+    const blockedOpts = (pastOpts ?? []).filter((o: any) => !o.allow_repeat);
+    const allowedRepeatOpts = (pastOpts ?? []).filter((o: any) => o.allow_repeat && o.repeat_justification);
+
+    const formatOpt = (o: any) =>
+      `- [${o.week_start}] (${o.agent}, Impact ${o.impact_score ?? "—"}/10) ${o.title}` +
+      (o.expected_metric ? ` | erwartet: ${o.expected_metric}` : "") +
+      (o.result_metric ? ` | tatsächlich: ${o.result_metric}` : " | Ergebnis noch offen");
+
+    let learningContext = "";
+    if (blockedOpts.length > 0) {
+      learningContext += `\n\n🚫 GESPERRTE THEMEN (bereits umgesetzt – DU DARFST DIESE NICHT ERNEUT VORSCHLAGEN):\n${blockedOpts.map(formatOpt).join("\n")}\n\nHARTE REGEL: Schlage KEINE Optimierung vor, die thematisch, funktional oder vom Titel her einer dieser Einträge gleicht. Auch keine Varianten, Erweiterungen oder "verbesserten Versionen". Wenn dir nichts Neues einfällt, schlage explizit weniger als 3 Aktionen vor – aber NIEMALS Duplikate.`;
+    }
+    if (allowedRepeatOpts.length > 0) {
+      learningContext += `\n\n✅ ERNEUT ERLAUBT (Admin hat Wiederholung freigegeben mit Begründung):\n${allowedRepeatOpts.map((o: any) => `${formatOpt(o)}\n  → Begründung: ${o.repeat_justification}`).join("\n")}\n\nDiese Themen darfst du erneut vorschlagen, MUSST aber in deinem Vorschlag explizit auf die Begründung des Admins eingehen und erklären, was dieses Mal anders ist.`;
+    }
+    if (pastOpts && pastOpts.length > 0) {
+      learningContext += `\n\nBerücksichtige zusätzlich, was in den Ergebnissen funktioniert hat und was nicht.`;
+    }
+
+    // Build a normalized blocklist for server-side filtering of CPO output
+    const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9äöüß ]+/g, " ").replace(/\s+/g, " ").trim();
+    const blockedTitles = blockedOpts.map((o: any) => normalize(o.title));
+
 
     // Decide if Feedback Analyst runs:
     // - weekly: always
@@ -290,12 +306,33 @@ Deno.serve(async (req) => {
         lovable_prompt: r.lovable_prompt,
       }));
       const cpoRaw = await callClaude(
-        "Du bist Chief Product Officer. Du bekommst 7 Agenten-Reports und wählst die 3 Änderungen mit dem höchsten Impact für Rasenpilot diese Woche.",
-        `Hier sind die Reports als JSON:\n${JSON.stringify(reportsForCpo, null, 2)}\n\nAntworte AUSSCHLIESSLICH mit einem validen JSON-Array (keine Markdown-Codeblöcke, kein Text drumherum) mit GENAU 3 Objekten:\n[{"title":"kurzer Titel","agent":"welcher Agent empfiehlt das","impact_score":1-10,"expected_metric":"was verbessert sich konkret","lovable_prompt":"fertiger Lovable-Prompt"}]`
+        "Du bist Chief Product Officer. Du bekommst die Agenten-Reports und wählst die 3 Änderungen mit dem höchsten Impact für Rasenpilot diese Woche. HARTE REGEL: Du darfst KEINE Optimierung vorschlagen, die einem bereits umgesetzten Eintrag aus der Sperrliste entspricht – außer der Admin hat sie explizit zur Wiederholung freigegeben (mit Begründung). Lieber weniger als 3 Vorschläge als ein Duplikat.",
+        `Hier sind die Reports als JSON:\n${JSON.stringify(reportsForCpo, null, 2)}\n${learningContext}\n\nAntworte AUSSCHLIESSLICH mit einem validen JSON-Array (keine Markdown-Codeblöcke, kein Text drumherum) mit MAXIMAL 3 Objekten:\n[{"title":"kurzer Titel","agent":"welcher Agent empfiehlt das","impact_score":1-10,"expected_metric":"was verbessert sich konkret","lovable_prompt":"fertiger Lovable-Prompt"}]`
       );
       const jsonMatch = cpoRaw.match(/\[[\s\S]*\]/);
       const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : cpoRaw);
       if (Array.isArray(parsed)) top3 = parsed.slice(0, 3);
+
+      // Server-side guard: drop any proposal whose title overlaps a blocked title
+      const isBlocked = (title: string) => {
+        const t = normalize(title);
+        if (!t) return false;
+        return blockedTitles.some((b) => {
+          if (!b) return false;
+          if (t === b || t.includes(b) || b.includes(t)) return true;
+          // token overlap >= 60%
+          const ts = new Set(t.split(" ").filter((w) => w.length > 3));
+          const bs = b.split(" ").filter((w) => w.length > 3);
+          if (bs.length === 0 || ts.size === 0) return false;
+          const overlap = bs.filter((w) => ts.has(w)).length;
+          return overlap / Math.max(ts.size, bs.length) >= 0.6;
+        });
+      };
+      const beforeCount = top3.length;
+      top3 = top3.filter((o: any) => !isBlocked(String(o?.title ?? "")));
+      if (beforeCount !== top3.length) {
+        console.log(`CPO blocklist filter removed ${beforeCount - top3.length} duplicate(s)`);
+      }
 
       // Monday of this week (UTC)
       const monday = new Date();
