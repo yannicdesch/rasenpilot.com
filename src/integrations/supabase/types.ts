@@ -823,6 +823,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_feedback: {
+        Row: {
+          created_at: string | null
+          email_subject: string | null
+          feedback_text: string
+          id: string
+          raw_email: Json | null
+          sentiment: string | null
+          sequence_day: number | null
+          topics: string[] | null
+          user_email: string | null
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_subject?: string | null
+          feedback_text: string
+          id?: string
+          raw_email?: Json | null
+          sentiment?: string | null
+          sequence_day?: number | null
+          topics?: string[] | null
+          user_email?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_subject?: string | null
+          feedback_text?: string
+          id?: string
+          raw_email?: Json | null
+          sentiment?: string | null
+          sequence_day?: number | null
+          topics?: string[] | null
+          user_email?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
