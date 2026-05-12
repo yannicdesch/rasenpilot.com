@@ -17,6 +17,7 @@ const JourneyTracker = lazy(() => import("@/components/JourneyTracker"));
 const ConversionTracker = lazy(() => import("@/components/ConversionTracker"));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
 const SiteHealthBanner = lazy(() => import('@/components/admin/SiteHealthBanner'));
+const ReactivationBanner = lazy(() => import('@/components/ReactivationBanner'));
 
 // All pages lazy-loaded for optimal code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -101,6 +102,7 @@ const App = () => {
             <ConversionTracker />
             <CookieConsent />
             <SiteHealthBanner />
+            <ReactivationBanner />
           </Suspense>
           <AnalysisStartOverlay />
           <ReferralCodeCapture />

@@ -348,6 +348,42 @@ export type Database = {
           },
         ]
       }
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          percent_off: number
+          redeemed_at: string | null
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          percent_off?: number
+          redeemed_at?: string | null
+          source?: string
+          user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          percent_off?: number
+          redeemed_at?: string | null
+          source?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       email_sequences: {
         Row: {
           completed: boolean
@@ -734,6 +770,38 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      reactivation_email_log: {
+        Row: {
+          discount_code_id: string | null
+          email: string
+          id: string
+          sent_at: string
+          user_id: string | null
+        }
+        Insert: {
+          discount_code_id?: string | null
+          email: string
+          id?: string
+          sent_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          discount_code_id?: string | null
+          email?: string
+          id?: string
+          sent_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactivation_email_log_discount_code_id_fkey"
+            columns: ["discount_code_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referrals: {
         Row: {
