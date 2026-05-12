@@ -162,6 +162,7 @@ const App = () => {
             {/* Admin Panel */}
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin-panel" element={<AdminPanel />} />
+            <Route path="/admin/agents" element={<AdminAgents />} />
             
             {/* Catch-all route for 404 errors */}
             <Route path="*" element={<NotFound />} />
