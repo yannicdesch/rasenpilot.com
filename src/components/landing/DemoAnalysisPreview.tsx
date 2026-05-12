@@ -82,7 +82,7 @@ const DemoAnalysisPreview = () => {
             {/* CTA */}
             <div className="px-5 pb-5 sm:px-6 sm:pb-6">
               <Button
-                onClick={() => navigate('/lawn-analysis')}
+                onClick={startAnalysis}
                 className="w-full py-5 text-base font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md min-h-[48px]"
               >
                 Jetzt deinen Rasen analysieren
