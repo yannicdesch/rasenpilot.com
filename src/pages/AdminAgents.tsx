@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, Play, Copy, Check } from "lucide-react";
+import WeeklyOptimizations from "@/components/admin/WeeklyOptimizations";
 
 interface AgentReport {
   id: string;
@@ -99,6 +100,9 @@ const AdminAgents = () => {
           </div>
         </div>
 
+        <div className="mb-10">
+          <WeeklyOptimizations />
+        </div>
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
