@@ -218,19 +218,35 @@ Deno.serve(async (req) => {
     const fourWeeksAgo = new Date(Date.now() - 28 * 86400000).toISOString().slice(0, 10);
     const { data: pastOpts } = await supabase
       .from("optimization_queue")
-      .select("week_start, agent, title, impact_score, expected_metric, result_metric, status")
+      .select("week_start, agent, title, impact_score, expected_metric, result_metric, status, allow_repeat, repeat_justification")
       .in("status", ["approved", "done"])
       .gte("week_start", fourWeeksAgo)
       .order("week_start", { ascending: false });
 
-    const learningContext = (pastOpts && pastOpts.length > 0)
-      ? `\n\nDiese Änderungen wurden in den letzten 4 Wochen umgesetzt:\n${pastOpts.map((o: any) =>
-          `- [${o.week_start}] (${o.agent}, Impact ${o.impact_score ?? "—"}/10) ${o.title}` +
-          (o.expected_metric ? ` | erwartet: ${o.expected_metric}` : "") +
-          (o.result_metric ? ` | tatsächlich: ${o.result_metric}` : " | Ergebnis noch offen") +
-          ` [${o.status}]`
-        ).join("\n")}\n\nBerücksichtige was funktioniert hat und was nicht. Wiederhole keine Empfehlungen die bereits umgesetzt wurden, außer mit klarer Begründung.`
-      : "";
+    // Split into BLOCKED (no repeats allowed) and ALLOWED-REPEAT (admin justified)
+    const blockedOpts = (pastOpts ?? []).filter((o: any) => !o.allow_repeat);
+    const allowedRepeatOpts = (pastOpts ?? []).filter((o: any) => o.allow_repeat && o.repeat_justification);
+
+    const formatOpt = (o: any) =>
+      `- [${o.week_start}] (${o.agent}, Impact ${o.impact_score ?? "—"}/10) ${o.title}` +
+      (o.expected_metric ? ` | erwartet: ${o.expected_metric}` : "") +
+      (o.result_metric ? ` | tatsächlich: ${o.result_metric}` : " | Ergebnis noch offen");
+
+    let learningContext = "";
+    if (blockedOpts.length > 0) {
+      learningContext += `\n\n🚫 GESPERRTE THEMEN (bereits umgesetzt – DU DARFST DIESE NICHT ERNEUT VORSCHLAGEN):\n${blockedOpts.map(formatOpt).join("\n")}\n\nHARTE REGEL: Schlage KEINE Optimierung vor, die thematisch, funktional oder vom Titel her einer dieser Einträge gleicht. Auch keine Varianten, Erweiterungen oder "verbesserten Versionen". Wenn dir nichts Neues einfällt, schlage explizit weniger als 3 Aktionen vor – aber NIEMALS Duplikate.`;
+    }
+    if (allowedRepeatOpts.length > 0) {
+      learningContext += `\n\n✅ ERNEUT ERLAUBT (Admin hat Wiederholung freigegeben mit Begründung):\n${allowedRepeatOpts.map((o: any) => `${formatOpt(o)}\n  → Begründung: ${o.repeat_justification}`).join("\n")}\n\nDiese Themen darfst du erneut vorschlagen, MUSST aber in deinem Vorschlag explizit auf die Begründung des Admins eingehen und erklären, was dieses Mal anders ist.`;
+    }
+    if (pastOpts && pastOpts.length > 0) {
+      learningContext += `\n\nBerücksichtige zusätzlich, was in den Ergebnissen funktioniert hat und was nicht.`;
+    }
+
+    // Build a normalized blocklist for server-side filtering of CPO output
+    const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9äöüß ]+/g, " ").replace(/\s+/g, " ").trim();
+    const blockedTitles = blockedOpts.map((o: any) => normalize(o.title));
+
 
     // Decide if Feedback Analyst runs:
     // - weekly: always
