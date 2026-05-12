@@ -20,6 +20,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          lovable_prompt: string | null
           metrics: Json | null
           report_type: string
         }
@@ -28,6 +29,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          lovable_prompt?: string | null
           metrics?: Json | null
           report_type: string
         }
@@ -36,6 +38,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          lovable_prompt?: string | null
           metrics?: Json | null
           report_type?: string
         }

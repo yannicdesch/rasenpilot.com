@@ -1,0 +1,1 @@
+ALTER TABLE public.agent_reports ADD COLUMN IF NOT EXISTS lovable_prompt text;
