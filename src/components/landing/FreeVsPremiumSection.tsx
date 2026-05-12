@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 
 const FreeVsPremiumSection = () => {
   const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
+
 
   const features = [
     {
@@ -98,7 +101,7 @@ const FreeVsPremiumSection = () => {
                 </div>
               ))}
               <Button 
-                onClick={() => navigate('/lawn-analysis')}
+                onClick={startAnalysis}
                 className="w-full mt-6"
                 variant="outline"
               >

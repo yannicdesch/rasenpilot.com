@@ -1,11 +1,13 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Droplets, Sun, Leaf, AlertTriangle } from 'lucide-react';
 
 const DemoAnalysisPreview = () => {
   const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
 
   return (
     <section className="py-12 md:py-20 bg-gradient-to-b from-background to-accent/10">
@@ -80,7 +82,7 @@ const DemoAnalysisPreview = () => {
             {/* CTA */}
             <div className="px-5 pb-5 sm:px-6 sm:pb-6">
               <Button
-                onClick={() => navigate('/lawn-analysis')}
+                onClick={startAnalysis}
                 className="w-full py-5 text-base font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md min-h-[48px]"
               >
                 Jetzt deinen Rasen analysieren

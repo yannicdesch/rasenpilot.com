@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star } from 'lucide-react';
 import lawnBefore from '@/assets/lawn-before.jpg';
 import lawnAfter from '@/assets/lawn-after.jpg';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 
 const HeroSection = () => {
-  const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
 
   return (
     <section className="relative w-full pt-6 pb-6 md:pt-12 md:pb-16 overflow-hidden bg-gradient-to-b from-accent/40 to-background">
@@ -63,7 +63,7 @@ const HeroSection = () => {
 
           {/* CTA */}
           <Button
-            onClick={() => navigate('/lawn-analysis')}
+            onClick={startAnalysis}
             size="lg"
             className="w-full sm:w-auto text-base sm:text-lg py-7 px-8 sm:px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground min-h-[60px]"
           >

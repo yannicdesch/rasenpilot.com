@@ -8,9 +8,11 @@ import { Helmet } from 'react-helmet-async';
 import FAQ from '@/components/FAQ';
 import LazyImage from '@/components/LazyImage';
 import MainNavigation from '@/components/MainNavigation';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 
 const SimplifiedLanding = () => {
   const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
 
   // Product Schema structured data for Google rich results
   const productSchema = {
@@ -85,7 +87,7 @@ const SimplifiedLanding = () => {
             
             <Button 
               size="lg"
-              onClick={() => navigate('/lawn-analysis')}
+              onClick={startAnalysis}
               className="bg-green-600 hover:bg-green-700 text-lg px-8 py-3 mb-4"
             >
               <Camera className="mr-2 h-5 w-5" />
