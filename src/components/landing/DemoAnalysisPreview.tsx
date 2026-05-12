@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useStartAnalysis } from '@/lib/startAnalysis';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Droplets, Sun, Leaf, AlertTriangle } from 'lucide-react';
 
