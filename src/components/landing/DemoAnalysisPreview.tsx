@@ -7,6 +7,7 @@ import { ArrowRight, Droplets, Sun, Leaf, AlertTriangle } from 'lucide-react';
 
 const DemoAnalysisPreview = () => {
   const navigate = useNavigate();
+  const startAnalysis = useStartAnalysis();
 
   return (
     <section className="py-12 md:py-20 bg-gradient-to-b from-background to-accent/10">
