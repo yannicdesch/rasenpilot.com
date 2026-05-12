@@ -337,6 +337,18 @@ const WeeklyOptimizations = () => {
                     <span className="text-muted-foreground">{r.expected_metric}</span>
                   </div>
                 )}
+                <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="font-semibold text-sm">Lovable Prompt</h4>
+                    <Button size="sm" variant="outline" onClick={() => copyPrompt(r)}>
+                      {copiedId === r.id ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                      {copiedId === r.id ? "Kopiert" : "Kopieren"}
+                    </Button>
+                  </div>
+                  <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-muted-foreground">
+                    {r.lovable_prompt}
+                  </pre>
+                </div>
                 <div>
                   <div className="flex items-baseline justify-between mb-1">
                     <label className="text-sm font-medium">Tatsächliches Ergebnis</label>
