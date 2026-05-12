@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -6,244 +5,239 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type AgentResult = {
-  agent: string;
-  content: string;
-  metrics?: Record<string, unknown>;
-};
+const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const MODEL = "claude-sonnet-4-20250514";
+const RECIPIENT = "info@rasenpilot.com";
+const FROM = "Rasenpilot Growth <onboarding@resend.dev>";
 
-// ───────────────────────────────────────────────
-// Agent stubs — TODO: hier die echte Logik einbauen
-// ───────────────────────────────────────────────
-async function agent1_traffic(supabase: any): Promise<AgentResult> {
-  const { count } = await supabase
-    .from("page_views")
-    .select("*", { count: "exact", head: true })
-    .gte("timestamp", new Date(Date.now() - 7 * 86400000).toISOString());
-  return {
-    agent: "agent_1_traffic",
-    content: `Traffic-Bericht (7 Tage): ${count ?? 0} Page Views.`,
-    metrics: { page_views_7d: count ?? 0 },
-  };
-}
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-async function agent2_conversion(supabase: any): Promise<AgentResult> {
-  const { count: analyses } = await supabase
-    .from("analysis_jobs")
-    .select("*", { count: "exact", head: true })
-    .gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString());
-  return {
-    agent: "agent_2_conversion",
-    content: `Conversion-Bericht: ${analyses ?? 0} Analysen in den letzten 7 Tagen.`,
-    metrics: { analyses_7d: analyses ?? 0 },
-  };
-}
-
-async function agent3_retention(supabase: any): Promise<AgentResult> {
-  const { count: subs } = await supabase
-    .from("subscribers")
-    .select("*", { count: "exact", head: true })
-    .eq("subscribed", true);
-  return {
-    agent: "agent_3_retention",
-    content: `Retention-Bericht: ${subs ?? 0} aktive Abonnenten.`,
-    metrics: { active_subscribers: subs ?? 0 },
-  };
-}
-
-async function agent4_content(supabase: any): Promise<AgentResult> {
-  const { count: posts } = await supabase
-    .from("blog_posts")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "published");
-  return {
-    agent: "agent_4_content",
-    content: `Content-Bericht: ${posts ?? 0} veröffentlichte Blog-Posts.`,
-    metrics: { published_posts: posts ?? 0 },
-  };
-}
-
-async function agent5_revenue(supabase: any): Promise<AgentResult> {
-  const { count: trials } = await supabase
-    .from("subscribers")
-    .select("*", { count: "exact", head: true })
-    .eq("is_trial", true);
-  return {
-    agent: "agent_5_revenue",
-    content: `Revenue-Bericht: ${trials ?? 0} laufende Trials.`,
-    metrics: { active_trials: trials ?? 0 },
-  };
-}
-
-async function agent6_summary(individualReports: AgentResult[]): Promise<AgentResult> {
-  const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-  const fallback = individualReports.map((r) => `• ${r.content}`).join("\n");
-
-  if (!lovableApiKey) {
-    return {
-      agent: "agent_6_summary",
-      content: `Wöchentliche Zusammenfassung:\n${fallback}`,
-      metrics: { agent_count: individualReports.length },
-    };
-  }
-
-  try {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Du bist ein Growth-Analyst für Rasenpilot. Fasse die Einzelberichte in 4-6 Sätzen auf Deutsch (Du-Form) zusammen, hebe Trends und Handlungsempfehlungen hervor.",
-          },
-          { role: "user", content: fallback },
-        ],
-      }),
-    });
-    const data = await res.json();
-    const content = data?.choices?.[0]?.message?.content || fallback;
-    return {
-      agent: "agent_6_summary",
-      content,
-      metrics: { agent_count: individualReports.length },
-    };
-  } catch (e) {
-    console.error("[AGENT-6] AI summary failed, using fallback:", e);
-    return {
-      agent: "agent_6_summary",
-      content: `Zusammenfassung:\n${fallback}`,
-      metrics: { agent_count: individualReports.length },
-    };
-  }
-}
-
-// ───────────────────────────────────────────────
-// Email helper
-// ───────────────────────────────────────────────
-async function sendReportEmail(subject: string, html: string) {
-  const resendKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendKey) {
-    console.log("[EMAIL] No RESEND_API_KEY, skipping email");
-    return;
-  }
-  const recipient = Deno.env.get("ADMIN_EMAIL") || "info@rasenpilot.com";
-  const res = await fetch("https://api.resend.com/emails", {
+async function callClaude(system: string, user: string): Promise<string> {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${resendKey}`,
       "Content-Type": "application/json",
+      "x-api-key": ANTHROPIC_API_KEY!,
+      "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      from: "Growth Bot <noreply@rasenpilot.com>",
-      to: recipient,
-      subject,
-      html,
+      model: MODEL,
+      max_tokens: 1000,
+      system,
+      messages: [{ role: "user", content: user }],
     }),
   });
-  console.log(`[EMAIL] ${subject} → ${res.status}`);
-}
-
-function reportToHtml(r: AgentResult): string {
-  return `
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin:12px 0;">
-      <h3 style="margin:0 0 8px;color:#166534;font-family:sans-serif;">${r.agent}</h3>
-      <p style="margin:0;white-space:pre-wrap;font-family:sans-serif;color:#1f2937;line-height:1.6;">${r.content}</p>
-    </div>
-  `;
-}
-
-// ───────────────────────────────────────────────
-// Main handler
-// ───────────────────────────────────────────────
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Claude ${res.status}: ${t}`);
   }
+  const json = await res.json();
+  return json.content?.[0]?.text ?? "";
+}
+
+async function sendEmail(subject: string, html: string) {
+  if (!RESEND_API_KEY) return;
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({ from: FROM, to: [RECIPIENT], subject, html }),
+  });
+}
+
+function escapeHtml(s: string) {
+  return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
+}
+
+async function gatherMetrics() {
+  const now = new Date();
+  const startOfDay = new Date(now); startOfDay.setUTCHours(0, 0, 0, 0);
+  const weekAgo = new Date(now.getTime() - 7 * 86400000);
+  const monthAgo = new Date(now.getTime() - 30 * 86400000);
+
+  const [signupsToday, signupsWeek, expiredTrialsNotConverted, allSubs, activeSubs, eventsRaw, analysesUsers, utmRaw] = await Promise.all([
+    supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", startOfDay.toISOString()),
+    supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", weekAgo.toISOString()),
+    supabase.from("subscribers").select("id", { count: "exact", head: true }).lt("trial_end", now.toISOString()).eq("subscribed", false).eq("is_trial", true),
+    supabase.from("subscribers").select("id, subscribed, is_trial, trial_end", { count: "exact" }),
+    supabase.from("subscribers").select("id", { count: "exact", head: true }).eq("subscribed", true),
+    supabase.from("events").select("category, action, label").gte("timestamp", weekAgo.toISOString()).limit(5000),
+    supabase.from("analyses").select("user_id").not("user_id", "is", null).limit(10000),
+    supabase.from("page_views").select("utm_source, utm_medium").gte("timestamp", monthAgo.toISOString()).limit(10000),
+  ]);
+
+  // Top events
+  const eventCounts: Record<string, number> = {};
+  (eventsRaw.data ?? []).forEach((e: any) => {
+    const k = `${e.category}:${e.action}${e.label ? `:${e.label}` : ""}`;
+    eventCounts[k] = (eventCounts[k] ?? 0) + 1;
+  });
+  const topEvents = Object.entries(eventCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, v]) => ({ event: k, count: v }));
+
+  // Unique analysis users
+  const uniqueAnalysisUsers = new Set((analysesUsers.data ?? []).map((a: any) => a.user_id)).size;
+
+  // Conversion rate
+  const trialEnded = (allSubs.data ?? []).filter((s: any) => s.trial_end && new Date(s.trial_end) < now).length;
+  const trialConverted = (allSubs.data ?? []).filter((s: any) => s.trial_end && new Date(s.trial_end) < now && s.subscribed).length;
+  const conversionRate = trialEnded > 0 ? +(trialConverted / trialEnded * 100).toFixed(1) : 0;
+
+  // UTM aggregation
+  const utmCounts: Record<string, number> = {};
+  (utmRaw.data ?? []).forEach((p: any) => {
+    const k = `${p.utm_source ?? "direct"} / ${p.utm_medium ?? "none"}`;
+    utmCounts[k] = (utmCounts[k] ?? 0) + 1;
+  });
+  const topUtm = Object.entries(utmCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, v]) => ({ source: k, count: v }));
+
+  const activeSubsCount = activeSubs.count ?? 0;
+  const mrrEstimate = +(activeSubsCount * 9.99).toFixed(2);
+
+  return {
+    signups_today: signupsToday.count ?? 0,
+    signups_this_week: signupsWeek.count ?? 0,
+    expired_trials_not_converted: expiredTrialsNotConverted.count ?? 0,
+    trial_to_paid_conversion_rate_pct: conversionRate,
+    top_events_7d: topEvents,
+    unique_users_with_analysis: uniqueAnalysisUsers,
+    top_utm_sources_30d: topUtm,
+    active_subscribers: activeSubsCount,
+    mrr_estimate_eur: mrrEstimate,
+    generated_at: now.toISOString(),
+  };
+}
+
+const AGENTS = [
+  {
+    key: "product_manager",
+    name: "Product Manager",
+    system: "Du bist erfahrener Product Manager für eine B2C SaaS App. Analysiere die Daten präzise und gib 3 konkrete, umsetzbare Empfehlungen. Keine Floskeln.",
+    buildUser: (m: any) => `Daten:\n${JSON.stringify(m, null, 2)}\n\nFrage: Was sind die 3 wichtigsten Produktprobleme diese Woche und wie lösen wir sie?`,
+  },
+  {
+    key: "marketing",
+    name: "Marketing",
+    system: "Du bist Growth-Marketing-Experte für Mobile/Web Apps. Fokus auf organisches Wachstum und günstige Kanäle für ein Early-Stage Startup.",
+    buildUser: (m: any) => `Daten:\n${JSON.stringify({ utm: m.top_utm_sources_30d, signups_today: m.signups_today, signups_this_week: m.signups_this_week, unique_users_with_analysis: m.unique_users_with_analysis }, null, 2)}\n\nFrage: Welche 3 Marketing-Aktionen bringen diese Woche die meisten neuen Nutzer?`,
+  },
+  {
+    key: "funnel",
+    name: "Funnel Experte",
+    system: "Du bist Conversion-Optimierungs-Experte. Analysiere wo Nutzer abspringen und gib konkrete Hypothesen zum Testen.",
+    buildUser: (m: any) => `Daten:\n${JSON.stringify({ expired_trials_not_converted: m.expired_trials_not_converted, conversion_rate_pct: m.trial_to_paid_conversion_rate_pct, top_events: m.top_events_7d }, null, 2)}\n\nFrage: Wo verlieren wir gerade die meisten Nutzer im Funnel und was testen wir zuerst?`,
+  },
+  {
+    key: "ads_creative",
+    name: "Ads & Creative Specialist",
+    system: "Du bist Creative Director und Ads-Spezialist für Direct-Response Social Media Ads. Du kennst Rasenpilot: eine KI-App die den Rasen analysiert und Pflegeempfehlungen gibt.",
+    buildUser: (m: any) => `Daten:\n${JSON.stringify({ utm: m.top_utm_sources_30d, unique_users_with_analysis: m.unique_users_with_analysis, signups_this_week: m.signups_this_week, active_subscribers: m.active_subscribers }, null, 2)}\n\nFrage: Schreibe 3 konkrete Ad-Hook-Ideen für Instagram/Facebook die wir diese Woche testen sollen. Mit Zielgruppe, Hook-Text und CTA.`,
+  },
+  {
+    key: "revenue",
+    name: "Revenue",
+    system: "Du bist SaaS Revenue-Experte. Fokus auf MRR-Wachstum, Churn-Reduktion und Upsell für ein Early-Stage Startup.",
+    buildUser: (m: any) => `Daten:\n${JSON.stringify({ mrr_eur: m.mrr_estimate_eur, active_subscribers: m.active_subscribers, expired_trials_not_converted: m.expired_trials_not_converted, conversion_rate_pct: m.trial_to_paid_conversion_rate_pct }, null, 2)}\n\nFrage: Was sind die 3 wichtigsten Hebel um den MRR diese Woche zu steigern?`,
+  },
+];
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY missing");
+
     const body = await req.json().catch(() => ({}));
-    const mode: "daily" | "weekly" = body?.mode === "weekly" ? "weekly" : "daily";
-    const reportType = mode;
+    const mode = body?.mode ?? "daily";
 
-    console.log(`[GROWTH-AGENTS] Starting in mode: ${mode}`);
+    const metrics = await gatherMetrics();
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    // Run 5 agents in parallel
+    const agentResults = await Promise.all(
+      AGENTS.map(async (a) => {
+        try {
+          const text = await callClaude(a.system, a.buildUser(metrics));
+          return { ...a, text, ok: true as const };
+        } catch (e: any) {
+          return { ...a, text: `Fehler: ${e.message}`, ok: false as const };
+        }
+      })
     );
 
-    // Always run agents 1-5 to feed the summary
-    const individualReports: AgentResult[] = await Promise.all([
-      agent1_traffic(supabase),
-      agent2_conversion(supabase),
-      agent3_retention(supabase),
-      agent4_content(supabase),
-      agent5_revenue(supabase),
-    ]);
+    // Agent 6: Summary
+    const summaryUser = `Hier sind 5 Expertenanalysen:\n\n${agentResults
+      .map((r) => `### ${r.name}\n${r.text}`)
+      .join("\n\n")}\n\nFasse zu EINER täglichen Prioritätenliste mit GENAU 3 Aktionen für heute zusammen. Knapp, konkret, umsetzbar.`;
+    const summary = await callClaude(
+      "Du bist Chief of Staff. Synthetisiere Expertenmeinungen zu einer klaren, priorisierten Tagesliste. Keine Wiederholungen, keine Floskeln.",
+      summaryUser
+    );
 
-    const summary = await agent6_summary(individualReports);
+    // Save all 6 to agent_reports
+    const reportType = mode === "weekly" ? "weekly" : "daily";
+    const rows = [
+      ...agentResults.map((r) => ({
+        agent: r.name,
+        report_type: reportType,
+        content: r.text,
+        metrics: metrics,
+      })),
+      {
+        agent: "Daily Summary",
+        report_type: reportType,
+        content: summary,
+        metrics: metrics,
+      },
+    ];
+    await supabase.from("agent_reports").insert(rows);
 
-    // Persist all reports
-    const allReports = [...individualReports, summary].map((r) => ({
-      agent: r.agent,
-      report_type: reportType,
-      content: r.content,
-      metrics: r.metrics ?? null,
-    }));
-    const { error: insertErr } = await supabase.from("agent_reports").insert(allReports);
-    if (insertErr) console.error("[GROWTH-AGENTS] Insert error:", insertErr);
+    const dateStr = new Date().toLocaleDateString("de-DE");
 
-    // Email logic
-    if (mode === "daily") {
-      // Daily → only summary
-      await sendReportEmail(
-        `📊 Daily Growth Summary — ${new Date().toLocaleDateString("de-DE")}`,
-        reportToHtml(summary)
-      );
-    } else {
-      // Weekly → all 5 individual + summary
-      const html =
-        `<h2 style="font-family:sans-serif;color:#166534;">Wöchentlicher Growth-Report</h2>` +
-        reportToHtml(summary) +
-        `<h3 style="font-family:sans-serif;color:#166534;margin-top:24px;">Einzelberichte</h3>` +
-        individualReports.map(reportToHtml).join("");
-      await sendReportEmail(
-        `📈 Weekly Growth Report — KW ${getWeekNumber(new Date())}`,
-        html
-      );
+    // Daily briefing email (summary)
+    const summaryHtml = `
+      <div style="font-family: -apple-system, sans-serif; max-width: 640px; margin: 0 auto;">
+        <h1 style="color: #007B43;">Rasenpilot Daily Briefing</h1>
+        <p style="color: #666;">${dateStr}</p>
+        <h2>Top 3 Aktionen für heute</h2>
+        <pre style="white-space: pre-wrap; font-family: inherit; background: #DFF0D8; padding: 16px; border-radius: 8px;">${escapeHtml(summary)}</pre>
+        <h3>Kennzahlen</h3>
+        <ul>
+          <li>Signups heute: <b>${metrics.signups_today}</b></li>
+          <li>Signups diese Woche: <b>${metrics.signups_this_week}</b></li>
+          <li>Aktive Abos: <b>${metrics.active_subscribers}</b></li>
+          <li>MRR-Schätzung: <b>${metrics.mrr_estimate_eur} €</b></li>
+          <li>Trial→Paid: <b>${metrics.trial_to_paid_conversion_rate_pct}%</b></li>
+          <li>Nutzer mit Analyse: <b>${metrics.unique_users_with_analysis}</b></li>
+        </ul>
+      </div>`;
+    await sendEmail(`Rasenpilot Daily Briefing – ${dateStr}`, summaryHtml);
+
+    // Weekly deep dives — only when mode=weekly
+    if (mode === "weekly") {
+      for (const r of agentResults) {
+        const html = `
+          <div style="font-family: -apple-system, sans-serif; max-width: 640px; margin: 0 auto;">
+            <h1 style="color: #007B43;">${r.name}</h1>
+            <p style="color: #666;">${dateStr}</p>
+            <pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(r.text)}</pre>
+          </div>`;
+        await sendEmail(`Rasenpilot Weekly Deep Dive – ${r.name}`, html);
+      }
     }
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        mode,
-        reports_generated: allReports.length,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ success: true, mode, metrics, agents: agentResults.length, summary }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (e) {
-    console.error("[GROWTH-AGENTS] Error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : String(e) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+  } catch (e: any) {
+    console.error("run-growth-agents error", e);
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
-
-function getWeekNumber(d: Date): number {
-  const target = new Date(d.valueOf());
-  const dayNr = (d.getDay() + 6) % 7;
-  target.setDate(target.getDate() - dayNr + 3);
-  const firstThursday = target.valueOf();
-  target.setMonth(0, 1);
-  if (target.getDay() !== 4) {
-    target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
-  }
-  return 1 + Math.ceil((firstThursday - target.valueOf()) / 604800000);
-}
