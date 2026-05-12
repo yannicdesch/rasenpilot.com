@@ -70,8 +70,13 @@ const WeeklyOptimizations = () => {
       const rows = (aRes.data ?? []) as QueueRow[];
       setApproved(rows);
       const initial: Record<string, string> = {};
-      rows.forEach((r) => (initial[r.id] = r.result_metric ?? ""));
+      const initialRepeat: Record<string, string> = {};
+      rows.forEach((r) => {
+        initial[r.id] = r.result_metric ?? "";
+        initialRepeat[r.id] = r.repeat_justification ?? "";
+      });
       setEdits(initial);
+      setRepeatEdits(initialRepeat);
     }
     if (lRes.error) toast.error(lRes.error.message);
     else setLearning((lRes.data ?? []) as QueueRow[]);
