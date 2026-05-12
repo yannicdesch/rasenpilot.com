@@ -63,7 +63,7 @@ const HeroSection = () => {
 
           {/* CTA */}
           <Button
-            onClick={() => navigate('/lawn-analysis')}
+            onClick={startAnalysis}
             size="lg"
             className="w-full sm:w-auto text-base sm:text-lg py-7 px-8 sm:px-12 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground min-h-[60px]"
           >
