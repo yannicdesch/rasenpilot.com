@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Save } from "lucide-react";
+import { Loader2, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Save, GraduationCap } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface QueueRow {
   id: string;
@@ -29,6 +30,7 @@ const fourWeeksAgoISO = () => {
 const WeeklyOptimizations = () => {
   const [pending, setPending] = useState<QueueRow[]>([]);
   const [approved, setApproved] = useState<QueueRow[]>([]);
+  const [learning, setLearning] = useState<QueueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
@@ -36,7 +38,7 @@ const WeeklyOptimizations = () => {
 
   const load = async () => {
     setLoading(true);
-    const [pRes, aRes] = await Promise.all([
+    const [pRes, aRes, lRes] = await Promise.all([
       supabase
         .from("optimization_queue")
         .select("*")
@@ -49,6 +51,13 @@ const WeeklyOptimizations = () => {
         .eq("status", "approved")
         .gte("week_start", fourWeeksAgoISO())
         .order("week_start", { ascending: false }),
+      supabase
+        .from("optimization_queue")
+        .select("*")
+        .in("status", ["approved", "done"])
+        .gte("week_start", fourWeeksAgoISO())
+        .order("week_start", { ascending: false })
+        .order("impact_score", { ascending: false }),
     ]);
     if (pRes.error) toast.error(pRes.error.message);
     else setPending((pRes.data ?? []) as QueueRow[]);
@@ -60,6 +69,8 @@ const WeeklyOptimizations = () => {
       rows.forEach((r) => (initial[r.id] = r.result_metric ?? ""));
       setEdits(initial);
     }
+    if (lRes.error) toast.error(lRes.error.message);
+    else setLearning((lRes.data ?? []) as QueueRow[]);
     setLoading(false);
   };
 
@@ -119,6 +130,75 @@ const WeeklyOptimizations = () => {
           <RefreshCw className="h-4 w-4 mr-2" /> Aktualisieren
         </Button>
       </div>
+
+      {/* Learning context — passed to agents next run */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                Lern-Kontext der Agenten (letzte 4 Wochen)
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Diese Änderungen werden bei jedem Lauf an alle 7 Agenten + den CPO-Orchestrator übergeben.
+                Status <code>approved</code> oder <code>done</code>.
+              </p>
+            </div>
+            <Badge variant="outline">{learning.length} Einträge</Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {learning.length === 0 ? (
+            <div className="py-6 text-center text-muted-foreground text-sm">
+              Noch keine Lern-Daten vorhanden. Sobald Optimierungen genehmigt werden, erscheinen sie hier.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Woche</TableHead>
+                    <TableHead>Agent</TableHead>
+                    <TableHead>Titel</TableHead>
+                    <TableHead className="whitespace-nowrap">Impact</TableHead>
+                    <TableHead>Erwartet</TableHead>
+                    <TableHead>Tatsächlich</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {learning.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                        {r.week_start}
+                      </TableCell>
+                      <TableCell className="text-xs">{r.agent}</TableCell>
+                      <TableCell className="text-sm font-medium max-w-[260px]">{r.title}</TableCell>
+                      <TableCell className="text-xs">{r.impact_score ?? "—"}/10</TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-[220px]">
+                        {r.expected_metric || "—"}
+                      </TableCell>
+                      <TableCell className="text-xs max-w-[220px]">
+                        {r.result_metric ? (
+                          <span className="text-foreground">{r.result_metric}</span>
+                        ) : (
+                          <span className="text-muted-foreground italic">noch offen</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={r.status === "done" ? "default" : "secondary"}>
+                          {r.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Pending */}
       <div className="space-y-3">
