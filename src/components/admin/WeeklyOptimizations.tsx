@@ -351,11 +351,6 @@ const WeeklyOptimizations = () => {
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
                 <div className="rounded-lg border border-dashed p-3 space-y-2">
                   <div className="text-sm font-medium">
                     Agenten-Sperre {r.allow_repeat ? "(aufgehoben)" : "(aktiv)"}
