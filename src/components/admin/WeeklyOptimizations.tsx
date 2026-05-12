@@ -18,6 +18,7 @@ interface QueueRow {
   lovable_prompt: string;
   status: string | null;
   result_metric: string | null;
+  result_measured_at?: string | null;
   created_at: string;
   allow_repeat?: boolean | null;
   repeat_justification?: string | null;
