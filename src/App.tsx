@@ -103,6 +103,7 @@ const App = () => {
             <SiteHealthBanner />
           </Suspense>
           <AnalysisStartOverlay />
+          <ReferralCodeCapture />
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
