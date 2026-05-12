@@ -129,6 +129,33 @@ const AdminAgents = () => {
                   <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground">
                     {r.content}
                   </pre>
+                  {r.lovable_prompt && (
+                    <div className="mt-6 rounded-lg border bg-muted/50 p-4">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <h4 className="font-semibold text-sm">Lovable Prompt</h4>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={async () => {
+                            await navigator.clipboard.writeText(r.lovable_prompt!);
+                            setCopiedId(r.id);
+                            toast.success("Prompt kopiert");
+                            setTimeout(() => setCopiedId((c) => (c === r.id ? null : c)), 2000);
+                          }}
+                        >
+                          {copiedId === r.id ? (
+                            <Check className="h-4 w-4 mr-1" />
+                          ) : (
+                            <Copy className="h-4 w-4 mr-1" />
+                          )}
+                          {copiedId === r.id ? "Kopiert" : "Kopieren"}
+                        </Button>
+                      </div>
+                      <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-muted-foreground">
+                        {r.lovable_prompt}
+                      </pre>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
