@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_reports: {
+        Row: {
+          agent: string
+          content: string
+          created_at: string | null
+          id: string
+          metrics: Json | null
+          report_type: string
+        }
+        Insert: {
+          agent: string
+          content: string
+          created_at?: string | null
+          id?: string
+          metrics?: Json | null
+          report_type: string
+        }
+        Update: {
+          agent?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          metrics?: Json | null
+          report_type?: string
+        }
+        Relationships: []
+      }
       analyses: {
         Row: {
           created_at: string
