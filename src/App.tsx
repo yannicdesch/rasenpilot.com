@@ -170,6 +170,7 @@ const App = () => {
             <Route path="/chat" element={<Chat />} />
             <Route path="/chat-assistant" element={<Chat />} />
             <Route path="/account-settings" element={<AccountSettings />} />
+            <Route path="/referral" element={<Referral />} />
             
             {/* Admin Panel */}
             <Route path="/admin-login" element={<AdminLogin />} />
