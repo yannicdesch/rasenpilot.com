@@ -131,6 +131,75 @@ const WeeklyOptimizations = () => {
         </Button>
       </div>
 
+      {/* Learning context — passed to agents next run */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                Lern-Kontext der Agenten (letzte 4 Wochen)
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Diese Änderungen werden bei jedem Lauf an alle 7 Agenten + den CPO-Orchestrator übergeben.
+                Status <code>approved</code> oder <code>done</code>.
+              </p>
+            </div>
+            <Badge variant="outline">{learning.length} Einträge</Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {learning.length === 0 ? (
+            <div className="py-6 text-center text-muted-foreground text-sm">
+              Noch keine Lern-Daten vorhanden. Sobald Optimierungen genehmigt werden, erscheinen sie hier.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Woche</TableHead>
+                    <TableHead>Agent</TableHead>
+                    <TableHead>Titel</TableHead>
+                    <TableHead className="whitespace-nowrap">Impact</TableHead>
+                    <TableHead>Erwartet</TableHead>
+                    <TableHead>Tatsächlich</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {learning.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                        {r.week_start}
+                      </TableCell>
+                      <TableCell className="text-xs">{r.agent}</TableCell>
+                      <TableCell className="text-sm font-medium max-w-[260px]">{r.title}</TableCell>
+                      <TableCell className="text-xs">{r.impact_score ?? "—"}/10</TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-[220px]">
+                        {r.expected_metric || "—"}
+                      </TableCell>
+                      <TableCell className="text-xs max-w-[220px]">
+                        {r.result_metric ? (
+                          <span className="text-foreground">{r.result_metric}</span>
+                        ) : (
+                          <span className="text-muted-foreground italic">noch offen</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={r.status === "done" ? "default" : "secondary"}>
+                          {r.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Pending */}
       <div className="space-y-3">
         <h3 className="text-lg font-semibold">Ausstehend ({pending.length})</h3>
