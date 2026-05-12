@@ -263,6 +263,46 @@ Deno.serve(async (req) => {
     ];
     await supabase.from("agent_reports").insert(rows);
 
+    // Final Orchestrator (CPO): pick Top 3 optimizations of the week → optimization_queue
+    let top3: any[] = [];
+    try {
+      const reportsForCpo = agentResults.map((r) => ({
+        agent: r.name,
+        report: r.content,
+        lovable_prompt: r.lovable_prompt,
+      }));
+      const cpoRaw = await callClaude(
+        "Du bist Chief Product Officer. Du bekommst 7 Agenten-Reports und wählst die 3 Änderungen mit dem höchsten Impact für Rasenpilot diese Woche.",
+        `Hier sind die Reports als JSON:\n${JSON.stringify(reportsForCpo, null, 2)}\n\nAntworte AUSSCHLIESSLICH mit einem validen JSON-Array (keine Markdown-Codeblöcke, kein Text drumherum) mit GENAU 3 Objekten:\n[{"title":"kurzer Titel","agent":"welcher Agent empfiehlt das","impact_score":1-10,"expected_metric":"was verbessert sich konkret","lovable_prompt":"fertiger Lovable-Prompt"}]`
+      );
+      const jsonMatch = cpoRaw.match(/\[[\s\S]*\]/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : cpoRaw);
+      if (Array.isArray(parsed)) top3 = parsed.slice(0, 3);
+
+      // Monday of this week (UTC)
+      const monday = new Date();
+      const diff = (monday.getUTCDay() + 6) % 7;
+      monday.setUTCDate(monday.getUTCDate() - diff);
+      monday.setUTCHours(0, 0, 0, 0);
+      const weekStart = monday.toISOString().slice(0, 10);
+
+      if (top3.length > 0) {
+        const queueRows = top3.map((o: any) => ({
+          week_start: weekStart,
+          agent: String(o.agent ?? "Orchestrator").slice(0, 200),
+          title: String(o.title ?? "Untitled").slice(0, 500),
+          impact_score: Math.max(1, Math.min(10, parseInt(o.impact_score, 10) || 5)),
+          expected_metric: o.expected_metric ? String(o.expected_metric) : null,
+          lovable_prompt: String(o.lovable_prompt ?? ""),
+          status: "pending",
+        }));
+        const { error: qErr } = await supabase.from("optimization_queue").insert(queueRows);
+        if (qErr) console.error("optimization_queue insert error", qErr);
+      }
+    } catch (e) {
+      console.error("CPO orchestrator failed", e);
+    }
+
     const dateStr = new Date().toLocaleDateString("de-DE");
 
     // Build Lovable-prompt boxes for each agent (top 3 priority actions)
