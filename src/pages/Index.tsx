@@ -9,6 +9,7 @@ import StructuredData from '@/components/StructuredData';
 import FAQ from '@/components/FAQ';
 import Testimonials from '@/components/Testimonials';
 import HeroSection from '@/components/landing/HeroSection';
+import SocialProofOnboarding from '@/components/landing/SocialProofOnboarding';
 import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
