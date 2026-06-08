@@ -67,3 +67,13 @@ verify_jwt = false
 
 [functions.get-social-proof-stats]
 verify_jwt = false
+
+[functions.handle-payment-failed]
+verify_jwt = false
+
+[functions.process-payment-retries]
+verify_jwt = false
+
+[functions.create-billing-portal]
+verify_jwt = false
+
