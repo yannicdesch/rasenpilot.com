@@ -181,6 +181,7 @@ const Auth = () => {
       });
 
       if (error) {
+        trackError({ type: 'auth_error', message: `signin: ${error.message}` });
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Ungültige Anmeldedaten. Bitte überprüfen Sie E-Mail und Passwort.');
         } else {
@@ -207,6 +208,10 @@ const Auth = () => {
         navigate('/premium-dashboard');
       }
     } catch (error) {
+      trackError({
+        type: 'auth_error',
+        message: `signin_exception: ${error instanceof Error ? error.message : 'unknown'}`,
+      });
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
     } finally {
       setIsLoading(false);
