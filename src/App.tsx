@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LawnProvider } from "@/context/LawnContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { initHttpsEnforcement } from "@/lib/httpsEnforcement";
+import { initSessionTracker } from "@/lib/sessionTracker";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import StuckLoadingFallback from "@/components/StuckLoadingFallback";
 import LoadingAnalysis from "@/components/LoadingAnalysis";
@@ -87,6 +88,7 @@ const PageLoader = () => {
 const App = () => {
   useEffect(() => {
     initHttpsEnforcement();
+    initSessionTracker();
   }, []);
 
   return (

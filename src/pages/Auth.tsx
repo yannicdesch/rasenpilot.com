@@ -17,6 +17,7 @@ import {
   buildPostAuthPath,
   extractJobIdFromPath,
 } from '@/lib/authRedirectIntent';
+import { trackError, trackInteraction, trackSubmit } from '@/lib/sessionTracker';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -93,6 +94,7 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    trackSubmit('signup_form', { email_domain: formData.email.split('@')[1] });
 
     try {
       // Build the post-confirmation redirect using the central helper so the
@@ -126,6 +128,7 @@ const Auth = () => {
       });
 
       if (error) {
+        trackError({ type: 'auth_error', message: `signup: ${error.message}` });
         if (error.message.includes('already registered')) {
           toast.error('Diese E-Mail ist bereits registriert. Bitte melden Sie sich an.');
         } else {
@@ -148,12 +151,18 @@ const Auth = () => {
         setAuthStatus('confirmed');
         toast.success('Registrierung erfolgreich!');
         clearAuthIntent();
+        trackInteraction({ type: 'custom', target: 'signup_success_immediate' });
         setTimeout(() => navigate(postConfirmPath), 1200);
       } else {
         setAuthStatus('pending');
         setResendCooldown(30);
+        trackInteraction({ type: 'custom', target: 'signup_pending_email_confirmation' });
       }
     } catch (error) {
+      trackError({
+        type: 'auth_error',
+        message: `signup_exception: ${error instanceof Error ? error.message : 'unknown'}`,
+      });
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
     } finally {
       setIsLoading(false);
@@ -163,6 +172,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    trackSubmit('signin_form');
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -171,6 +181,7 @@ const Auth = () => {
       });
 
       if (error) {
+        trackError({ type: 'auth_error', message: `signin: ${error.message}` });
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Ungültige Anmeldedaten. Bitte überprüfen Sie E-Mail und Passwort.');
         } else {
@@ -197,6 +208,10 @@ const Auth = () => {
         navigate('/premium-dashboard');
       }
     } catch (error) {
+      trackError({
+        type: 'auth_error',
+        message: `signin_exception: ${error instanceof Error ? error.message : 'unknown'}`,
+      });
       toast.error('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
     } finally {
       setIsLoading(false);
