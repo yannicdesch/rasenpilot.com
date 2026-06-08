@@ -450,6 +450,39 @@ export type Database = {
         }
         Relationships: []
       }
+      lawn_analysis_drafts: {
+        Row: {
+          completed: boolean
+          created_at: string
+          current_step: number
+          form_data: Json
+          id: string
+          job_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          current_step?: number
+          form_data?: Json
+          id?: string
+          job_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          current_step?: number
+          form_data?: Json
+          id?: string
+          job_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lawn_highscores: {
         Row: {
           analysis_date: string
