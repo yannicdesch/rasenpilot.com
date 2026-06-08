@@ -546,7 +546,15 @@ const AnalysisResult = () => {
             <MultiStepAnalysisForm
               jobId={jobId}
               userId={user?.id ?? null}
-              onComplete={() => fetchAnalysis()}
+              onComplete={async () => {
+                if (!jobId) return;
+                const { data: job } = await supabase
+                  .from('analysis_jobs')
+                  .select('*')
+                  .eq('id', jobId)
+                  .maybeSingle();
+                if (job) setAnalysisData(job as any);
+              }}
             />
           </div>
         )}
