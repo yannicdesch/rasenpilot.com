@@ -717,6 +717,51 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_retry_schedule: {
+        Row: {
+          attempt_number: number
+          created_at: string
+          email: string
+          id: string
+          last_error: string | null
+          scheduled_at: string
+          sent_at: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_invoice_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          attempt_number: number
+          created_at?: string
+          email: string
+          id?: string
+          last_error?: string | null
+          scheduled_at: string
+          sent_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_invoice_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          attempt_number?: number
+          created_at?: string
+          email?: string
+          id?: string
+          last_error?: string | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_invoice_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           consent_marketing: boolean | null
@@ -730,6 +775,8 @@ export type Database = {
           is_active: boolean | null
           last_overtaken_notification: string | null
           last_sign_in_at: string | null
+          payment_issue_since: string | null
+          payment_status: string
           referral_code: string | null
           referral_count: number
           role: string | null
@@ -747,6 +794,8 @@ export type Database = {
           is_active?: boolean | null
           last_overtaken_notification?: string | null
           last_sign_in_at?: string | null
+          payment_issue_since?: string | null
+          payment_status?: string
           referral_code?: string | null
           referral_count?: number
           role?: string | null
@@ -764,6 +813,8 @@ export type Database = {
           is_active?: boolean | null
           last_overtaken_notification?: string | null
           last_sign_in_at?: string | null
+          payment_issue_since?: string | null
+          payment_status?: string
           referral_code?: string | null
           referral_count?: number
           role?: string | null
