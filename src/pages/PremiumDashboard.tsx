@@ -18,6 +18,7 @@ import MainNavigation from '@/components/MainNavigation';
 import RankUpCelebration from '@/components/RankUpCelebration';
 import LawnComparison from '@/components/LawnComparison';
 import { getRank, getNextRank, getPointsToNextRank, getMotivation, getMilestone, getAchievementBadges, Rank } from '@/lib/rankSystem';
+import PaymentIssueModal from '@/components/PaymentIssueModal';
 
 const PremiumDashboard = () => {
   const { subscription, isPremium, isPro, planTier, loading: subLoading, openCustomerPortal } = useSubscription();
@@ -132,6 +133,8 @@ const PremiumDashboard = () => {
     <>
       <SEO noindex={true} title="Premium Dashboard - Rasenpilot" description="Dein persönliches Premium Dashboard mit exklusiven Rasenpflege-Features." />
       <MainNavigation />
+      <PaymentIssueModal />
+      
       
       {celebrationRank && (
         <RankUpCelebration
