@@ -939,6 +939,42 @@ export type Database = {
           },
         ]
       }
+      session_recordings: {
+        Row: {
+          created_at: string
+          errors_json: Json
+          id: string
+          interactions_json: Json
+          page_path: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+          user_session: string
+        }
+        Insert: {
+          created_at?: string
+          errors_json?: Json
+          id?: string
+          interactions_json?: Json
+          page_path: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_session: string
+        }
+        Update: {
+          created_at?: string
+          errors_json?: Json
+          id?: string
+          interactions_json?: Json
+          page_path?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_session?: string
+        }
+        Relationships: []
+      }
       site_health_state: {
         Row: {
           consecutive_stuck_count: number
