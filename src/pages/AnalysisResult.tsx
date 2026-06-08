@@ -22,6 +22,7 @@ import AnalysisFeedbackModal from '@/components/AnalysisFeedbackModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAuthIntent, clearAuthIntent } from '@/lib/authRedirectIntent';
 import { linkifyProducts } from '@/lib/linkifyProducts';
+import MultiStepAnalysisForm from '@/components/MultiStepAnalysisForm';
 
 interface AnalysisJobResult {
   id: string;
