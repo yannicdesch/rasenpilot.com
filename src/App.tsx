@@ -56,6 +56,7 @@ const AccountSettings = lazy(() => import("./pages/AccountSettings"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Referral = lazy(() => import("./pages/Referral"));
 import ReferralCodeCapture from "@/components/ReferralCodeCapture";
+import AttributionTracker from "@/components/AttributionTracker";
 
 // Local SEO Pages
 const Munich = lazy(() => import("./pages/local/Munich"));
@@ -108,6 +109,7 @@ const App = () => {
           </Suspense>
           <AnalysisStartOverlay />
           <ReferralCodeCapture />
+          <AttributionTracker />
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
