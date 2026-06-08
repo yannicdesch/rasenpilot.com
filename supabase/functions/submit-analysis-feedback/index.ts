@@ -14,7 +14,7 @@ const BodySchema = z.object({
   comment: z.string().trim().max(2000).optional().nullable(),
 });
 
-const ADMIN_EMAIL = 'rasenpilot.kontakt@gmail.com';
+const ADMIN_EMAIL = 'admin@rasenpilot.de';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
